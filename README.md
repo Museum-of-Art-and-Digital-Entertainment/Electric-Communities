@@ -10,6 +10,10 @@
 ## Introduction
 Electric Communities was formed to develop a secure, distributed platform for online socialization and commerce. The first demonstration of this was Microcosm (aka EC Habitat). Microcosm was a 3D virtual world, in which people could meet, talk (by typing or speaking), and exchange objects - it created the E programming language and many modern programming techniques, such as webapps, promises/futures EC later grew to include the work of The Palace Inc, and Onlive Technologies.
 
+Here's a video of it running in '97: 
+
+[![Randy Demos ECHAbitats](https://img.youtube.com/vi/KNiePoNiyvE/0.jpg)](https://www.youtube.com/watch?v=KNiePoNiyvE)
+
 Thanks to the leadership of The MADE (Museum of Art and Digital Entertainment) working with the [Spritely Networked Communities Institute](http://spritely.institute), we are working to make [EC IP](https://docs.google.com/document/d/19iarmahK9_-Yp9VKF_yQ4vRY78fisViAuCAqsTkUQuo/edit?usp=sharing) open source.
 
 ## This Hack Day: restoring/opening the first 3D distributed metaverse
