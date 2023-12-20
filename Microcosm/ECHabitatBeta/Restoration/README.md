@@ -1,6 +1,6 @@
 This was intially a SNAPSHOT COPY of https://github.com/StuBlad/echabitats-installer
 
-Thank you so much to Stuart Blad for getting this work started!
+Thank you so much to Stuart Cass for getting this work started!
 
 
 # echabitats-installer
