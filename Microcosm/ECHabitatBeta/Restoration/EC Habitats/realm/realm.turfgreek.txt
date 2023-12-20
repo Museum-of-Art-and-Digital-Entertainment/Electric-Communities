@@ -1,0 +1,83 @@
+RealmVersion "RealmText Version 0.3, 10 March 1997"
+
+Create Realm
+    Name "Greek Turf"
+    Description "Get classical with this turf."
+    RealmRootDirectory "images/"
+    ScreenWidth 640
+    ScreenHeight 480
+        
+    Create Region
+        Name "Greek Turf"
+    Description "Get classical with this turf."
+        DefaultPad "Greek Turf"
+        Horizon 260
+        URL "http://www.communities.com/beta"
+        BBS "http://www.communities.com/beta/bbs"
+        Watermark "watermarks/TurfsWatermark.bmp"
+
+        Create Unum TeleportPad
+            Name "Greek Turf"
+            Description "Happy landings!"
+            ImageFile "Misc/TransNoPick.appearance2D"
+            Position -1 5 0
+            AnchorPoint 320 360
+            Scale .5
+            Size 24 480
+            FinalEntryPosition -1 5 0
+            Orientation "West"
+            UnumCreatorClass "ec.cosm.agency.TeleportPadCreator"
+            ForceListing
+        End Unum
+        Create Unum Prop
+            Name "Background"
+            Description "Let's eat olives and lounge all day."
+            ImageFile "greekturf/background.appearance2D"
+            Position 0  510  0
+            Unreachable
+            Scale 0
+            Size 640 480
+            Orientation "West"
+        End Unum
+        Create Unum Floor
+            Name "Floor"
+            Description "This kind of floor is amazingly easy to keep clean as long as you don't spill Kool-Aid on it."
+            ImageFile "greekturf/floor.appearance2D"
+            Position 0  508  380
+            AnchorPoint 0 0
+            Scale 0
+            Size 640  100
+            Orientation "West"
+        End Unum
+        Create Unum Portal
+            Name "To Elsewhere"
+            Description "Turn this into your own portal."
+            ImageFile "greekturf/portal.appearance2D"
+            Position 140  506  180
+            AnchorPoint 439 411
+            Scale 0
+            ConnectToRegion ""
+            ConnectToPortal ""
+            ExitPosition -0.3 3 0
+            FinalEntryPosition -0.3 3 0
+        End Unum
+        Create Unum Prop
+            Name "Arches"
+            Description "Over 1 bazillion served."
+            ImageFile "greekturf/arches.appearance2D"
+            Position 0  4.875  200
+            Scale 0
+            Size 640  280
+            Unreachable
+            Orientation "West"
+        End Unum
+        Create Unum SimpleProp
+            Name "Plants"
+            Description "Look out for creepy crawlies."
+            ImageFile "greekturf/plants.appearance2D"
+            Position 480  1.2  240
+            Unreachable
+            Scale 0
+        End Unum
+    End Region
+End Realm

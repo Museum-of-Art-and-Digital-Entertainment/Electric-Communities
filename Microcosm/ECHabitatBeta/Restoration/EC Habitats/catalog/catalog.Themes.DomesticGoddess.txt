@@ -1,0 +1,174 @@
+// Realm.txt
+//
+// This is the basic catalog for all objects belonging in the Domestic Goddess Catalog.
+//
+RealmVersion "RealmText Version 0.3, 10 March 1997"
+
+Create Realm
+    Name "Domestic Goddess Catalog"
+    RealmRootDirectory "images"
+    ScreenWidth 640
+    ScreenHeight 480
+    Create Region
+      Name "Domestic Goddess Catalog"
+      Orientation "Northwest"
+      Horizon 234
+      Description "The Domestic Goddess lives to create an outstanding living environment choosing only the most excellent objects to place in her home."
+      
+        Create Unum SimpleProp3D
+        Name "Armoir"
+        CatalogDescription "Fill the armoir with treasures of the heart."
+        Description "Fill the armoir with treasures of the heart."
+        ImageFile "catDomesticGoddess/armr7.appearance3D"
+        Thumbnail "catDomesticGoddess/armr7.gif"
+        Position 0.770  0.170  0.000
+    End Unum
+    Create Unum SimpleContainer
+        Name "Iron Leg Table"
+        CatalogDescription "This is a sturdy table with a sturdy history."
+        Description "This is a sturdy table with a sturdy history."
+        ImageFile "catDomesticGoddess/cftbl7.appearance3D"
+        Thumbnail "catDomesticGoddess/cftbl7.gif"
+        Position -0.100  0.510  -0.010
+        Capacity 5
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Iron Frame Chaise"
+        CatalogDescription "This item will go well in an expressive environment."
+        Description "This item will go well in an expressive environment."
+        ImageFile "catDomesticGoddess/chaise7.appearance3D"
+        Thumbnail "catDomesticGoddess/chaise7.gif"
+        Position -0.910  -0.390  -0.010
+        Capacity 5
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Maple Chair"
+        CatalogDescription "This fine chair is made from maple solids grown in the cool air of Canada."
+    Description "This fine chair is made from maple solids grown in the cool air of Canada."
+        ImageFile "catDomesticGoddess/char7.appearance3D"
+        Thumbnail "catDomesticGoddess/char7.gif"
+        Position 0.220  -0.270  0.000
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Blue China Hutch"
+        CatalogDescription "Put your best plates in the blue china hutch."
+        Description "Put your best plates in the blue china hutch."
+        ImageFile "catDomesticGoddess/china7.appearance3D"
+        Thumbnail "catDomesticGoddess/china7.gif"
+        Position -0.710  0.280  0.000
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Comfy Couch"
+        CatalogDescription "Take a catnap in the comfy couch."
+        Description "Take a catnap in the comfy couch."
+        ImageFile "catDomesticGoddess/couch7.appearance3D"
+        Thumbnail "catDomesticGoddess/couch7.gif"
+        Position -0.960  1.190  4.900
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Desk Chair"
+        CatalogDescription "Survey your domain from this desk chair."
+        Description "Survey your domain from this desk chair."
+        ImageFile "catDomesticGoddess/dchar7.appearance3D"
+        Thumbnail "catDomesticGoddess/dchar7.gif"
+        Position -0.020  -0.020  0.000
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Maple Desk"
+        CatalogDescription "Complete your decorating scheme with this maple desk."
+        Description "Complete your decorating scheme with this maple desk."
+        ImageFile "catDomesticGoddess/desk7.appearance3D"
+        Thumbnail "catDomesticGoddess/desk7.gif"
+        Position -0.710  0.320  -0.010
+    End Unum
+    Create Unum SimpleContainer
+        Name "Oval Table"
+        CatalogDescription "This clean look of this table will go great in an office."
+        Description "This clean look of this table will go great in an office."
+        ImageFile "catDomesticGoddess/dtab7.appearance3D"
+        Thumbnail "catDomesticGoddess/dtab7.gif"
+        Position -0.630  -0.360  -0.010
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Cabinet"
+        CatalogDescription "Display goodies on this cabinet that you collected from years of graphical chat."
+        Description "Display goodies on this cabinet that you collected from years of graphical chat."
+        ImageFile "catDomesticGoddess/endtab7.appearance3D"
+        Thumbnail "catDomesticGoddess/endtab7.gif"
+        Position 0.440  -0.210  -0.010
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Floor Lamp"
+        CatalogDescription "Warm light from this fine floor lamp will add ambience to your turf."
+        Description "Warm light from this fine floor lamp will add ambience to your turf."
+        ImageFile "catDomesticGoddess/floor7.appearance3D"
+        Thumbnail "catDomesticGoddess/floor7.gif"
+        Position -0.150  0.120  0.000
+    End Unum
+    Create Unum SimpleProp3D
+    Name "Metal Lamp"
+        CatalogDescription "This fine lamp is made in a pear shape to honor the goddess of fertility."
+        Description "This fine lamp is made in a pear shape to honor the goddess of fertility."
+        ImageFile "catDomesticGoddess/mtlamp7.appearance3D"
+        Thumbnail "catDomesticGoddess/mtlamp7.gif"
+        Position 0.030  -0.120  0.000
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Wicker Chair"
+        CatalogDescription "This antique wicker chair has been handed down for generations."
+        Description "This antique wicker chair has been handed down for generations."
+        ImageFile "catDomesticGoddess/ofchar7.appearance3D"
+        Thumbnail "catDomesticGoddess/ofchar7.gif"
+        Position -0.330  -0.290  -0.010
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Polka Dot Pillow"
+        CatalogDescription "Rest your head on this peaceful polka dot pillow."
+        Description "Rest your head on this peaceful polka dot pillow."
+        ImageFile "catDomesticGoddess/pillow7.appearance3D"
+        Thumbnail "catDomesticGoddess/pillow7.gif"
+        Position -0.010  0.000  -0.010
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Rocking Chair"
+        CatalogDescription "Sit a spell and rock the hours away."
+        Description "Sit a spell and rock the hours away."
+        ImageFile "catDomesticGoddess/rclin7.appearance3D"
+        Thumbnail "catDomesticGoddess/rclin7.gif"
+        Position 0.240  0.080  -0.010
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Pastel Shelf Unit"
+        CatalogDescription "Store flotsam and jetsam on this pastel shelf unit."
+        Description "Store flotsam and jetsam on this pastel shelf unit."
+        ImageFile "catDomesticGoddess/shelf7.appearance3D"
+        Thumbnail "catDomesticGoddess/shelf7.gif"
+        Position 0.220  0.220  -0.010
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Groovy Vase"
+        CatalogDescription "Dig this groovy vase for wild flowers."
+        Description "Dig this groovy vase for wild flowers."
+        ImageFile "catDomesticGoddess/vase7a.appearance3D"
+        Thumbnail "catDomesticGoddess/vase7a.gif"
+        Position 0.000  0.030  0.000
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Tin Bucket Vase"
+        CatalogDescription "This vase will hold marbles as well as flowers."
+        Description "This vase will hold marbles as well as flowers."
+        ImageFile "catDomesticGoddess/vase7b.appearance3D"
+        Thumbnail "catDomesticGoddess/vase7b.gif"
+        Position 0.060  0.040  0.000
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Red, Red Wine"
+        CatalogDescription "Have a nice soothing glass of red wine."
+        Description "Have a nice soothing glass of red wine."
+        ImageFile "catDomesticGoddess/wine7.appearance3D"
+        Thumbnail "catDomesticGoddess/wine7.gif"
+        Position -0.030  0.020  0.000
+    End Unum
+
+    End Region
+End Realm

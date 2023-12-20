@@ -1,0 +1,30 @@
+Welcome to the EC Habitats Beta program! Thank you for participating.
+
+Please be aware that since this is a very early development version, you will 
+experience many problems that you would not expect in production-quality 
+software. Before you start using EC Habitats, please take a moment to read 
+
+  http://www.communities.com/beta/readme.html
+
+which contains known bugs and workarounds for this release. If while using 
+EC Habitats you encounter a problem, please check to see if it is on this list 
+before reporting it. Of course, if you find other bugs, we want to hear about 
+them. Send bug reports to bugs@communities.com.
+
+The EC Habitats web site contains all the information you need to get 
+started. You'll need your password to access this site. From your web 
+browser, visit these pages:
+
+  http://www.communities.com/beta/
+    The home page of the Beta program site.
+
+  http://www.communities.com/beta/intro.html
+    Introduction to the Beta program, including installation instructions
+    and how to contact us.
+
+  http://help.communities.com/
+    Documentation for EC Habitats.
+
+  http://www.communities.com/beta/bbs
+    Bulletin board discussions for the Beta program.
+

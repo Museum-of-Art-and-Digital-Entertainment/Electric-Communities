@@ -1,0 +1,87 @@
+	BETA SOFTWARE LICENSE AGREEMENT
+
+
+IMPORTANT: This Beta Software License Agreement ("License Agreement") pertains to preliminary beta test versions of the pre-release software program known as EC HABITATS,( and EC NEIGHBORHOODS and the documentation related thereto which is available on the EC HABITATS) Website or Beta software CD (all collectively known as the "Licensed Software"), which are owned by Electric Communities  ("EC"). The Licensed Software and all components of it are protected by United States copyright and other applicable laws, and international treaty provisions. Your right to install and use the Licensed Software is limited by the terms and conditions of the scrollable License Agreement below, and is expressly conditioned upon your reading, understanding, and agreeing to the terms below IN THEIR ENTIRETY before installing.  At the end of the License Agreement, you will be asked to accept or reject the license terms.  If you do not accept the terms, the Licensed Software will not be released to you, and you will not be permitted to use or beta test it.  
+
+	LICENSE AGREEMENT
+ 
+This License Agreement, once accepted by you, is your proof of your license to install and use the Licensed Software for beta testing purposes.  An electronic copy of this License Agreement also will be provided to you upon installation of the Licensed Software.
+
+1.	License Grant. 
+
+	Subject to your compliance with the terms of this License Agreement, EC grants to you a personal, non-exclusive, non-transferable license to install Beta CD, install and use the Licensed Software for the limited purpose of evaluating and testing the Licensed Software ("Authorized Uses"). The Licensed Software may be installed and used only on (a) a computer controlled by you or (b) a network server which allows only you and other persons who have agreed to the terms and conditions of this License Agreement ("Authorized Users") to access the Licensed Software. Prior to providing access to the Licensed Software to Authorized Users identified in subsection (b) above, you agree to secure each such person's consent to the terms of this License Agreement and the Beta Software NDA.     
+
+2.	Term and Termination. 
+
+	a.	Term.
+
+		This License Agreement shall be effective from the moment you accept its terms, until either: (i) the Licensed Software is authorized for general release by EC as a standard product; or (ii) EC terminates the license as provided in Paragraph 2b below, whichever occurs first.   
+
+	b.	Termination.
+
+		This License Agreement may be terminated by EC at any time, in EC's sole discretion.  Such termination shall be effective immediately upon notification by EC to you at the e-mail address to which the Licensed Software is delivered.  In addition, this License Agreement will terminate automatically if any of the following occurs: (i) you make any use of the Licensed Software that is not an Authorized Use; (ii) you fail to comply with the limitations described in this Agreement; (iii) you give up your personal use or control of the computer(s) or server(s) on which the Licensed Software is downloaded or installed; or (iv) you make the Licensed Software available to anyone who is not an Authorized User.  Upon termination for any reason of this License Agreement, you agree to destroy immediately all copies of the Licensed Software downloaded to, or installed on, either a computer or a server, as well as all materials in any form which relate to the Licensed Software.
+
+Obligations of the Parties.
+
+	a.	Confidentiality of Licensed Software.
+
+		You understand that the Licensed Software contains confidential information and trade secrets belonging to EC, and you agree not to disclose any information relating to the Licensed Software to third parties without the written permission of EC.
+
+	b.	Issuance of the Licensed Software.   
+
+		EC will not be obligated to make the Licensed Software available as a standard product.
+
+4.	Charges.
+
+	You shall have the right to use the Licensed Software for Authorized Uses at no charge during the term of this License Agreement.  If the Licensed Software is authorized for general release as a standard EC product and the License Agreement therefore terminates, you may elect to continue the use of the Licensed Software on a license fee basis in accordance with the standard terms and conditions of EC's then-current software license agreement, which you will be required to execute.
+	
+5.	Proprietary Information.	
+
+	a.	Ownership.  
+
+		EC owns all right, title and interest in and to the Licensed Software and all copies thereof. All applicable rights to patents, copyrights, trademarks and trade secrets in the Licensed Software and any modifications to it are, and shall remain, the property of EC. 
+
+	b.	Copyrights.	
+
+		All rights in the software, graphics, text and sound of the Licensed Software are owned by EC and are protected by United States copyright and other applicable laws, and international treaty provisions. Therefore, you must treat the Licensed Software like any other copyrighted material (e.g., a book or musical recording). 
+
+	c.	Restrictions.   
+
+		You may not modify, translate, reverse engineer, decompile or disassemble the Licensed Software. You also may not reproduce, distribute copies of, display publicly, create derivative works based on, sell, transfer, publish, disclose or otherwise make available the Licensed Software, any portion thereof or any copies thereof in any form whatsoever (including but not limited to flow charts, logic diagrams, object codes, source codes and technical documentation) to any third parties, without the prior written approval of EC. You may make a copy of the Licensed Software for backup or archival purposes.
+
+	d.	Proprietary Notices.
+
+		In order to protect EC's trade secret, copyright and other proprietary rights in the Licensed Software, you agree not to remove any proprietary notices or labels the Licensed Software contains or permit other parties to do so.
+
+6. 	DISCLAIMERS.
+
+	a.	DISCLAIMER OF WARRANTIES.
+
+		YOU ACKNOWLEDGE AND UNDERSTAND THAT THE LICENSED SOFTWARE IS NOT A FINISHED PRODUCT AND MAY CONTAIN ERRORS AND OMISSIONS AND CAUSE PROBLEMS TO YOUR SYSTEM. YOU AGREE AND ACKNOWLEDGE THAT EC SHALL HAVE NO RESPONSIBILITY TO CORRECT ANY DEFECTS OR PROBLEMS IN THE LICENSED SOFTWARE OR YOUR SYSTEM, OR TO ASSURE THAT THE LICENSED SOFTWARE OPERATES PROPERLY.  EC EXPRESSLY DISCLAIMS ANY AND ALL WARRANTIES, WHETHER EXPRESS OR IMPLIED, INCLUDING THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE AND ALL WARRANTIES AS TO THE ACCURACY, COMPLETENESS OR NON-INFRINGEMENT OF THE LICENSED SOFTWARE. YOU UNDERSTAND THAT THE LICENSED SOFTWARE IS PROVIDED TO YOU "AS IS".  YOU ALSO EXPRESSLY ACKNOWLEDGE AND AGREE THAT USE OF THE LICENSE SOFTWARE IS AT YOUR OWN RISK, AND YOU THEREFORE ASSUME ALL RISKS ASSOCIATED WITH ITS USE, QUALITY AND PERFORMANCE. 
+
+	b.	DISCLAIMER OF LIABILITY. 
+		
+		EC SHALL IN NO EVENT BE LIABLE TO YOU OR ANYONE ELSE FOR ANY CONSEQUENTIAL, INCIDENTAL OR SPECIAL DAMAGES ARISING OUT OF, RESULTING FROM OR RELATED IN ANY MANNER TO THE USE OF OR INABILITY TO USE THE LICENSED SOFTWARE, NOR FOR ANY UNAUTHORIZED ACCESS OR USE OF THE LICENSED SOFTWARE, EVEN IF YOU HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES, ACCESS OR USE.  
+
+7.	General.
+
+	This License Agreement will governed by the laws of the State of California, without reference to conflict of laws principles.  Any dispute concerning this License Agreement, or any matter related in any manner to this License Agreement, shall be adjudicated in the federal or state courts of Santa Clara County in the State of California.  This License Agreement is the entire agreement between EC and you and supersedes any other communications or advertising with respect to the Licensed Software. If any provision of this License Agreement is held unenforceable, that provision shall be enforced to the maximum extent permissible so as to give effect the intent of the parties, and the remainder of this License Agreement shall continue in full force and effect.  Any item or service furnished by EC or its affiliates, agents or licensors, in furtherance of this License Agreement, although not specifically identified in it, shall nevertheless be covered by this License Agreement unless specifically covered by some other written or electronic agreement accepted by you and an authorized representative of EC.  You agree to comply with all U.S., foreign and local laws and regulations which apply to your use of the Licensed Software including, without limitation, export control laws and regulations.
+
+8.	Acceptance of License Terms. 
+
+	If you agree to and accept all of the terms of this License Agreement, click on the "accept" button which appears on the screen immediately below this License Agreement.  Once you do so, this program will automatically advance to an informational screen. If you do not accept the terms of this License Agreement, click on the "reject" button which appears on the screen immediately below this License Agreement. Upon doing so, this session will immediately terminate.  
+
+9. 	COPYRIGHT INFORMATION
+Release Date: April 1998
+
+Electric Communities, EC Habitats, and the E logo are trademarks of Electric Communities. Use of the E logo for commercial purposes without the prior written consent of Electric Communities may constitute trademark infringement and unfair competition in violation of federal and state laws.
+
+This software, the manual, and all related web content is copyrighted by Electric Communities with all rights reserved worldwide. Under copyright laws, this manual may not be copied, in whole or in part, without the written consent of Electric Communities. Under the law, copying includes translating into another language. 
+(c) 1997 Electric Communities
+10101 North De Anza Boulevard, Suite 100
+Cupertino, California 95014
+(408) 342-9500
+http://www.communities.com
+Javaª, and HotJavaª are trademarks of Sun Microsystems, Inc.
+All other products or services mentioned in this document are identified by the trademarks as designated by the companies who market those products or services. Inquiries concerning such trademarks should be made directly to those companies
+

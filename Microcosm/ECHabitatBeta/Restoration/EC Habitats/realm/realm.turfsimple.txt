@@ -1,0 +1,50 @@
+RealmVersion "RealmText Version 0.3, 10 March 1997"
+
+// This is the magic simple turf that can be turned into a 2D turf with transparent
+// floor, or a 3d-texturized floor. 100% user created turf start with this region.
+
+Create Realm
+    Name "Simple Turf"
+    Description "Customize me! The floor and backdrop can be swatched with anything."
+    RealmRootDirectory "images"
+    ScreenWidth 640
+    ScreenHeight 480
+
+    Create Region
+        Name "Simple Turf"
+        Description "Customize me! The floor and backdrop can be swatched with anything."
+        DefaultPad "Simple Turf"
+        Watermark "Watermarks/TurfsWatermark.bmp"
+        URL "http://www.communities.com/beta"
+        BBS "http://www.communities.com/beta/bbs"
+        Horizon 200
+
+        Create Unum SimpleProp3D
+            Name "Wall"
+            Description "Your description here."
+            ImageFile "SimpleTurf/FullScreen.appearance2D"
+            Position 0  530  0
+            AnchorPoint 480 400
+            Scale 0
+            Unreachable
+            Stationary
+        End Unum
+        Create Unum Floor3D
+            Name "Floor"
+            Description "Your description here."
+            ImageFile "SimpleTurf/floor.appearance3D"
+            Position 1  -4  0
+            Stationary
+        End Unum
+        Create Unum TeleportPad
+            Name "Simple Turf"
+            Description "Happy landings!"
+            ImageFile "Misc/TransNoPick.appearance2D"
+            Position 0 6 0
+            Scale .01
+            FinalEntryPosition 0 6 0
+            UnumCreatorClass "ec.cosm.agency.TeleportPadCreator"
+            ForceListing
+        End Unum
+    End Region
+End Realm

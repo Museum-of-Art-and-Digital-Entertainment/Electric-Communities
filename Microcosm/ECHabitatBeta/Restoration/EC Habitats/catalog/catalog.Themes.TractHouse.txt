@@ -1,0 +1,306 @@
+// catalog.TractHouse.txt
+//
+// This is the file that generates the catalog for Tract house objects.
+// 
+//
+
+Create Realm
+    Name "Tract House Catalog"
+    RealmRootDirectory "images"
+    ScreenWidth 640
+    ScreenHeight 480
+
+    Create Region
+      Name "Tract House Catalog"
+      Orientation "Northwest"
+      Horizon 234
+      Description "This is the latest in fine interior design. Available exclusively thru Electric Communities."
+      Create Unum SimpleProp3D
+        Name "Armoir"
+        CatalogDescription "Fill the armoir with treasures."
+        Description "Fill the armoir with treasures."
+        ImageFile "catTractHouse/armr9.appearance3D"
+        Thumbnail "catTractHouse/armr9.gif"
+        Position -0.800  0.440  -0.010
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Bath Tub"
+        CatalogDescription "Soak in a nice hot bath."
+        Description "Soak in a nice hot bath."
+        ImageFile "catTractHouse/bath9.appearance3D"
+        Thumbnail "catTractHouse/bath9.gif"
+        Position -0.920  -0.460  0.000
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Hanging Lamp"
+        CatalogDescription "Light your home with this lamp."
+        Description "Light your home with this lamp."
+        ImageFile "catTractHouse/ceil9a.appearance3D"
+        Thumbnail "catTractHouse/ceil9a.gif"
+        Position 0.220  0.000  0.000
+    End Unum
+  
+     Create Unum SimpleProp3D
+        Name "Pink Lamp"
+        CatalogDescription "The pink lamp goes well with simple decor."
+        Description "The pink lamp goes well with simple decor."
+        ImageFile "catTractHouse/ceil9c.appearance3D"
+        Thumbnail "catTractHouse/ceil9c.gif"
+        Position 0.140  0.140  0.070
+    End Unum
+    Create Unum SimpleContainer
+        Name "Table"
+        CatalogDescription "This table is a lovely one."
+        Description "This table is a lovely one."
+        ImageFile "catTractHouse/cftbl9a.appearance3D"
+        Thumbnail "catTractHouse/cftbl9a.gif"
+        Position 0.020  -0.490  0.000
+        Capacity 5
+    End Unum
+    Create Unum SimpleContainer
+        Name "Glass Table"
+        CatalogDescription "Rest your objects on this fine table."
+        Description "Rest your objects on this fine table."
+        ImageFile "catTractHouse/cftbl9b.appearance3D"
+        Thumbnail "catTractHouse/cftbl9b.gif"
+        Position 0.350  0.350  0.000
+        Capacity 5
+    End Unum
+    Create Unum SimpleContainer
+        Name "Coffee Table"
+        CatalogDescription "Rest your feet on the coffee table."
+        Description "Rest your feet on the coffee table."
+        ImageFile "catTractHouse/cftbl9c.appearance3D"
+        Thumbnail "catTractHouse/cftbl9c.gif"
+        Position 0.830  0.480  0.000
+        Capacity 5
+    End Unum
+    Create Unum SimpleProp3D
+        Name "China Hutch"
+        CatalogDescription "This china hutch holds more than dishes."
+        Description "This china hutch holds more than dishes."
+        ImageFile "catTractHouse/china9a.appearance3D"
+        Thumbnail "catTractHouse/china9a.gif"
+        Position 0.550  0.380  -0.010
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Grey Desk"
+        CatalogDescription "Write a letter at the grey desk."
+        Description "Write a letter at the grey desk."
+        ImageFile "catTractHouse/desk9a.appearance3D"
+        Thumbnail "catTractHouse/desk9a.gif"
+        Position -0.330  -0.260  -0.010
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Wood Desk"
+        Description "Catch up on your writing at the wooden desk."
+        Description "Catch up on your writing at the wooden desk."
+        ImageFile "catTractHouse/desk9b.appearance3D"
+        Thumbnail "catTractHouse/desk9b.gif"
+        Position 0.560  -0.260  -0.010  
+    End Unum
+    Create Unum SimpleContainer
+        Name "Sturdy Table"
+        CatalogDescription "This is a sturdy table."
+        Description "This is a sturdy table."
+        ImageFile "catTractHouse/dtab9a.appearance3D"
+        Thumbnail "catTractHouse/dtab9a.gif"
+        Position -0.850  -0.360  0.000
+        Capacity 5
+    End Unum
+    Create Unum SimpleContainer
+        Name "Table"
+        CatalogDescription "This table supports your items."
+        Description "This table supports your items."
+        ImageFile "catTractHouse/dtab9b.appearance3D"
+        Thumbnail "catTractHouse/dtab9b.gif"
+        Position 0 0 0
+        Capacity 5
+    End Unum
+    Create Unum SimpleProp3D
+        Name "White Chest"
+        CatalogDescription "This white chest keeps things safe."
+        Description "This white chest keeps things safe."
+        ImageFile "catTractHouse/endtab9a.appearance3D"
+        Thumbnail "catTractHouse/endtab9a.gif"
+        Position 0.190  -0.210  -0.010
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Brown Chest"
+        CatalogDescription "This brown chest keeps your items safe."
+        Description "This brown chest keeps your items safe."
+        ImageFile "catTractHouse/endtab9b.appearance3D"
+        Thumbnail "catTractHouse/endtab9b.gif"
+        Position -0.420  0.220  -0.010
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Tall Lamp"
+        CatalogDescription "Light the room with this lamp."
+        Description "Light the room with this lamp."
+        ImageFile "catTractHouse/floor9a.appearance3D"
+        Thumbnail "catTractHouse/floor9a.gif"
+        Position -0.150  0.080  -0.010
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Green Lamp"
+        CatalogDescription "Add minimalism to a room with this lamp."
+        Description "Add minimalism to a room with this lamp."
+        ImageFile "catTractHouse/floor9b.appearance3D"
+        Thumbnail "catTractHouse/floor9b.gif"
+        Position 0.000  -0.210  0.000
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Lamp"
+        CatalogDescription "Create flair with this lamp."
+        Description "Create flair with this lamp."
+        ImageFile "catTractHouse/floor9c.appearance3D"
+        Thumbnail "catTractHouse/floor9c.gif"
+        Position -0.120  -0.120  0.000
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Tall Chest"
+        CatalogDescription "Put this in a room occupied by a tall avatar."
+        Description "Put this in a room occupied by a tall avatar."
+        ImageFile "catTractHouse/high9a.appearance3D"
+        Thumbnail "catTractHouse/high9a.gif"
+        Position 0.760  -0.260  0.000
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Pine Chest"
+        CatalogDescription "This pine chest can hold clothes."
+        Description "This pine chest can hold clothes."
+        ImageFile "catTractHouse/high9b.appearance3D"
+        Thumbnail "catTractHouse/high9b.gif"
+        Position -0.530  -0.320  -0.010
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Low Chest"
+        CatalogDescription "This chest will look lovely in your turf."
+        Description "This chest will look lovely in your turf."
+        ImageFile "catTractHouse/low9a.appearance3D"
+        Thumbnail "catTractHouse/low9a.gif"
+        Position 0.250  -0.580  -0.010
+    End Unum
+    Create Unum SimpleProp3D
+        Name "White Short Chest"
+        CatalogDescription "This chest goes well in a traditional room."
+        Description "This chest goes well in a traditional room."
+        ImageFile "catTractHouse/low9b.appearance3D"
+        Thumbnail "catTractHouse/low9b.gif"
+        Position 0.680  0.240  0.000
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Metal Lamp"
+        CatalogDescription "This is a cool metal lamp."
+        Description "This is a cool metal lamp."
+        ImageFile "catTractHouse/mtlamp9a.appearance3D"
+        Thumbnail "catTractHouse/mtlamp9a.gif"
+        Position 0.040  0.040  0.000
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Blue Metal Lamp"
+        CatalogDescription "This is a cool blue metal lamp."
+        Description "This is a cool blue metal lamp."
+        ImageFile "catTractHouse/mtlamp9b.appearance3D"
+        Thumbnail "catTractHouse/mtlamp9b.gif"
+        Position -0.080  -0.040  -0.010
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Yellow Lamp"
+        CatalogDescription "This lamp will go well in a bedroom."
+        Description "This lamp will go well in a bedroom."
+        ImageFile "catTractHouse/mtlamp9c.appearance3D"
+        Thumbnail "catTractHouse/mtlamp9c.gif"
+        Position 0.040  0.030  -0.010
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Book Shelf"
+        CatalogDescription "This will go well in an office."
+        Description "This will go well in an office."
+        ImageFile "catTractHouse/shelf9a.appearance3D"
+        Thumbnail "catTractHouse/shelf9a.gif"
+        Position -1.070  -0.200  -0.010
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Shelves"
+        CatalogDescription "This is an empty book shelf."
+        Description "This is an empty book shelf."
+        ImageFile "catTractHouse/shelf9b.appearance3D"
+        Thumbnail "catTractHouse/shelf9b.gif"
+        Position -0.460  -0.160  0.000
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Pedestal Sink"
+        CatalogDescription "Set the pedestal sink in a cool area."
+        Description "Set the pedestal sink in a cool area."
+        ImageFile "catTractHouse/sink9a.appearance3D"
+        Thumbnail "catTractHouse/sink9a.gif"
+        Position -0.080  0.120  0.000
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Floor Sink"
+        CatalogDescription "This floor sink will serve you well."
+        Description "This floor sink will serve you well."
+        ImageFile "catTractHouse/sink9b.appearance3D"
+        Thumbnail "catTractHouse/sink9b.gif"
+        Position -0.360  -0.270  -0.010
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Wood Bed"
+        CatalogDescription "This is a brown wooden bed."
+        Description "This is a brown wooden bed."
+        ImageFile "catTractHouse/bed9a.appearance3D"
+        Thumbnail "catTractHouse/bed9a.gif"
+        Position -0.640  1.110  -0.010
+        Stationary
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Poster Bed"
+        CatalogDescription "This is a four poster bed."
+        Description "This is a four poster bed."
+        ImageFile "catTractHouse/bed9b.appearance3D"
+        Thumbnail "catTractHouse/bed9b.gif"
+        Position 0.570  -1.030  0.000
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Cabinet"
+        CatalogDescription "This is a pine cabinet."
+        Description "This is a pine cabinet."
+        ImageFile "catTractHouse/cab9a.appearance3D"
+        Thumbnail "catTractHouse/cab9a.gif"
+        Position -0.770  -0.320  -0.010
+    End Unum
+    Create Unum SimpleProp3D
+        Name "Brown Chair"
+        CatalogDescription "Have a rest in this fine chair."
+        Description "Have a rest in this fine chair."
+        ImageFile "catTractHouse/char9a.appearance3D"
+        Thumbnail "catTractHouse/char9a.gif"
+        Position 0.190  0.190  0.000
+    End Unum
+     Create Unum SimpleProp3D
+        Name "Wood Hutch"
+        CatalogDescription "This wood hutch will hold your dishes."
+        Description "This wood hutch will hold your dishes."
+        ImageFile "catTractHouse/cab9b.appearance3D"
+        Thumbnail "catTractHouse/cab9b.gif"
+        Position 0.280  0.750  0.170
+    End Unum
+    Create Unum SimpleProp3D
+        Name "White Chair"
+        CatalogDescription "This is a white chair."
+        Description "This is a white chair."
+        ImageFile "catTractHouse/char9b.appearance3D"
+        Thumbnail "catTractHouse/char9b.gif"
+        Position 0.220  -0.290  -0.010
+    End Unum
+    Create Unum SimpleProp3D
+    Name "Hooka"
+    CatalogDescription "Remember the sixties? There was one on every coffee table."
+    Description "Remember the sixties? There was one on every coffee table."
+    ImageFile "catTractHouse/hooka9.appearance3D"
+    Thumbnail "catTractHouse/hooka9.gif"
+    Position 0 0 0
+   End Unum
+ End Region
+End Realm

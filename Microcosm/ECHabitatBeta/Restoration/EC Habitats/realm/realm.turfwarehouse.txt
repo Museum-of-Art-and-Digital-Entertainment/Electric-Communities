@@ -1,0 +1,200 @@
+RealmVersion "RealmText Version 0.3, 10 March 1997"
+
+Create Realm
+    Name "Warehouse Turf"
+    Description "Hip and urban."
+    RealmRootDirectory "images/"
+    ScreenWidth 640
+    ScreenHeight 480
+    Hatchery "Warehouse Turf Loft"
+
+
+    Create Region
+        Name "Warehouse Turf Loft"
+        Description "Hip and urban."
+        Watermark "Watermarks/TurfsWatermark.bmp"
+        URL "http://www.communities.com/beta"
+        BBS "http://www.communities.com/beta/bbs"
+        Horizon 240
+        Camera 0.96 -3.62 1.52 0.95 0.3 0 0 0 1 77 1.333
+        Defaultpad "Warehouse Turf Loft"
+        EntryPosition 6 -1.6 0
+
+        Create Unum SimpleCamera
+            Camera 0.96 -3.62 1.52 0.95 0.3 0 0 0 1 77 1.333
+            Name "Camera"
+            Description "My, what a lovely view."
+            ImageFile "Textures/NoAppearance.appearance2d"
+            Position 0 0 0
+            Stationary
+        End Unum
+        Create Unum SimpleCamera
+            Camera 10.36 -3.36 1.82 -0.94 0.36 -0.06 -0.05 0.01 0.99 53 1.333
+            Name "Camera"
+            Description "My, what a lovely view."
+            ImageFile "Textures/NoAppearance.appearance2d"
+            Position 0 0 0
+            Stationary
+        End Unum
+        Create Unum TeleportPad
+            Name "Warehouse Turf Loft"
+            Description "Welcome to Warehouse Turf"
+            ImageFile "Textures/NoAppearance.appearance2d"
+            Position 0  0  0
+            AnchorPoint 0 0
+            Scale 0.5
+            Size 1  1
+            FinalEntryPosition 6 -1.6 0
+            Orientation "West"
+            UnumCreatorClass "ec.cosm.agency.TeleportPadCreator"
+            ForceListing
+        End Unum
+        Create Unum Portal
+            Name "To Pool"
+            Description "Go to the pool for a quick dip."
+            ImageFile "turfwarehouse/PortaltoPool.appearance3D"
+            Position 10.340  0.000  -0.035
+            Stationary
+            ConnectToRegion "Warehouse Turf Pool"
+            ConnectToportal "To Loft"
+            ExitPosition 9 -.9 0
+            FinalEntryPosition 8 -1.2 0
+        End Unum
+        Create Unum Floor3D
+            Name "Floor"
+            Description "Could use some sweeping, frankly."
+            ImageFile "turfwarehouse/Floor.appearance3D"
+            Position 0.000  -3.990  0
+            Stationary
+        End Unum
+
+        Create Unum SimpleProp3D
+            Name "Column"
+            Description "Hey, is it still called graffiti if you're ruining your own place?"
+            ImageFile "turfwarehouse/Column.appearance3D"
+            Position -0.020  0  -0.03
+            Stationary
+            Unreachable
+        End Unum
+        Create Unum SimpleProp3D
+            Name "Walls"
+            Description "Nice high ceilings."
+            ImageFile "turfwarehouse/WainscotSidesGroup.appearance3D"
+            Position 0.580  0.585  -0.03
+            Stationary
+            Unreachable
+        End Unum
+        Create Unum SimpleProp3D
+            Name "Walls"
+            Description "Ooh, drafty though."
+            ImageFile "turfwarehouse/WainscotFrontBackGroup.appearance3D"
+            Position 0.000  -3.360  -0.03
+            Stationary
+            Unreachable
+        End Unum
+        Create Unum SimpleProp3D
+            Name "Walls"
+            Description "Best the real estate agent got a nice commission selling this place."
+            ImageFile "turfwarehouse/WallSidesGroup.appearance3D"
+            Position 0.580  0.580  1.165
+            Stationary
+            Unreachable
+        End Unum
+        Create Unum SimpleProp3D
+            Name "Walls"
+            Description "Smells funny in here. Used to be a cat litter factory."
+            ImageFile "turfwarehouse/WallsFrontBackGroup.appearance3D"
+            Position 0.000  -3.360  1.165
+            Stationary
+            Unreachable
+        End Unum
+        Create Unum SimpleProp3D
+            Name "Backdrop"
+            Description "Your view, such as it is."
+            ImageFile "turfwarehouse/BackdropGroup.appearance3D"
+            Position 12.280  7.770  0.525
+            Stationary
+            Unreachable
+        End Unum
+        Create Unum SimpleProp3D
+            Name "Ceiling"
+            Description "Nice and high."
+            ImageFile "turfwarehouse/Ceiling.appearance3D"
+            Position 0.000  -1.240  3.0
+            Stationary
+            Unreachable
+        End Unum
+    End Region
+
+    Create Region
+        Name "Warehouse Turf Pool"
+        Description "Take a dip."
+        Horizon 240
+        Watermark "Watermarks/TurfsWatermark.bmp"
+        URL "http://www.communities.com/beta"
+        BBS "http://www.communities.com/beta/bbs"
+        Camera 4.87 3.04 1.52 0.33 -0.95 -0.04 0.01 -0.03 0.99 66 1.333
+        
+        Create Unum SimpleCamera
+            Camera 4.87 3.04 1.52 0.33 -0.95 -0.04 0.01 -0.03 0.99 66 1.333
+            Name "Camera"
+            Description "My, what a lovely view."
+            ImageFile "Textures/NoAppearance.appearance2d"
+            Position 0 0 0
+            Stationary
+        End Unum
+        Create Unum SimpleCamera
+            Camera 7.1 -7.95 1.52 -0.29 0.95 0 0 0 1 62 1.333
+            Name "Camera"
+            Description "My, what a lovely view."
+            ImageFile "Textures/NoAppearance.appearance2d"
+            Position 0 0 0
+            Stationary
+        End Unum
+        Create Unum Portal
+            Name "To Loft"
+            Description "Head back to the artsy high rent digs"
+            ImageFile "turfwarehouse/PortaltoHipLoft.appearance3D"
+            Position 7.540  -11.430  0.000
+            Stationary
+            ConnectToRegion "Warehouse Turf Loft"
+            ConnectToPortal "To Pool"
+            ExitPosition 6 -9 0
+            FinalEntryPosition 6 -9 0
+        End Unum
+        Create Unum Floor3D
+            Name "Floor"
+            Description "No running around the pool!"
+            ImageFile "turfwarehouse/Floorpool.appearance3D"
+            Position 2.300  -11.430  0.000
+            Stationary
+        End Unum
+
+        Create Unum SimpleProp3D
+            Name "Smoggy Sky"
+            Description "A little air pollution, big deal. Makes for nice sunsets"
+            ImageFile "turfwarehouse/Backdrop.appearance3D"
+            Position 35.180  23.650  1.230
+            Stationary
+            Unreachable
+        End Unum
+        Create Unum SimpleProp3D
+            Name "Wall"
+            Description "Keeps the riffriff out (or in)."
+            ImageFile "turfwarehouse/Wall.appearance3D"
+            Position 0.280  4.020  0.480
+            Stationary
+            Unreachable
+        End Unum
+        Create Unum SimpleProp3D
+            Name "Fence"
+            Description "Keeps the riffriff out (or in)."
+            ImageFile "turfwarehouse/Fence.appearance3D"
+            Position 2.300  2.560  -0.010
+            Stationary
+            Unreachable
+        End Unum
+
+    End Region
+End Realm
+ 

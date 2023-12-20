@@ -1,0 +1,2247 @@
+/////////////////////////////////////////
+//
+// realm.TheCity.txt
+// 
+//  This is half the main demo realm for the EC beta release
+//
+//  GRS - Great round Square removed
+//
+//  The City (aka SOMA) - several sub regions: 
+//  changing name everywhere to The City
+//    The City Street - establishing shot -T
+//    Red Room - T (anim)
+//    Womens Room
+//    Ice Room - T
+//    Mens Room
+//    VIP Lounge
+//  (missing - Dance Hall)
+//    Red Spiral Foyer (anim)
+//    The City Strip (anim)
+//    Cafe Noir (anim)
+//    Haus Do - T
+//
+////////////////////////////////////////////
+
+RealmVersion "RealmText Version 0.3, 10 March 1997"
+Create Realm
+  Name "The City"
+  RealmRootDirectory "images"
+  ScreenWidth 640
+  ScreenHeight 480
+  Hatchery "The City"
+
+////////////////////////////////////////////
+//
+// The City
+//
+////////////////////////////////////////////   
+  Create Region
+    Name "The City"
+    wavefile "sounds/Ambient6.wav"
+    DefaultPad "The City"
+    EntryPosition 5.5 12 0
+    Description "Welcome to The City! This street is the center of the district. Move your mouse around to find the exits."
+    URL "http://www.communities.com/city/tos"
+    BBS "http://www.communities.com/beta/bbs"
+    Watermark "Watermarks/TheCityWatermark.bmp"
+    Horizon 240
+    Camera 4.4 -7.71 11.72 -0.07 0.9 -0.42 -0.04 0.41 0.9 48 1.333   
+  
+    Create Unum SimpleCamera
+      Camera 4.4 -7.71 11.72 -0.07 0.9 -0.42 -0.04 0.41 0.9 48 1.333
+      Name "Camera"
+      CameraNumber "0"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera 1.31 5.85 2.21 0.66 0.74 0.02 -0.02 -0.03 0.99 48 1.333
+      Name "Camera"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera 2.52 -6.14 2.34 -0.03 0.99 0.07 0 -0.08 0.99 48 1.333
+      Name "Camera"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum TeleportPad
+      Name "The City"
+      Description "Let's dress in black."
+      ImageFile "textures/NoAppearance.appearance2D"
+      Position 0  0  0
+      AnchorPoint 0 0
+      Scale 0.5
+      FinalEntryPosition 5.5 12  0
+      UnumCreatorClass "ec.cosm.agency.TeleportPadCreator"
+    End Unum
+    Create Unum Portal
+      Name "To Red Spiral Foyer"
+      Description "Walk through here to get to the Spiral Club.  It's hoppin' 8 days a week."
+      ImageFile "SomaStreet/RedSpiralDoor.appearance3D"
+      Position 4.400  14.670  0.030
+    //Position 5.23 14.5 0.03
+      Stationary
+      ConnectToRegion "Red Spiral Foyer"
+      ConnectToPortal "To The City"
+      ExitPosition 5.5 13 0
+      FinalEntryPosition 5.5 12 0 
+    End Unum
+    Create Unum Portal
+      Name "To The City Strip"
+      Description "Go further down the street this way."      
+      ImageFile "misc/transarch.appearance2D"
+      Position -3.4 4.5 0.2
+      Stationary
+      ConnectToRegion "The City Strip"
+      ConnectToPortal "To The City"
+      Scale 3 
+      ExitPosition -3.5 6 0
+      FinalEntryPosition -2.3 6 0
+    End Unum
+    Create Unum Prop
+      Name "SndEmitTC1"
+      Description ""
+      ImageFile "SomaStreet/sndemit_TC1.appearance2D"
+      Position 0  0  0
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum Floor3D
+      Name "Street"
+      Description "Somehow, the streets in The City aren't so Disney-esque."
+      ImageFile "SomaStreet/Street_Floor.appearance3D"
+      Position 1.400  6.920  0.030
+      Stationary
+    End Unum
+
+    Create Unum SimpleProp3D
+      Name "The City Sign"
+      Description "There's no such thing as too big a sign."
+      ImageFile "SomaStreet/Sign.appearance3D"
+      Position 1.990  3.860  7.680
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum Poster
+      Name "The City Events"
+      Description "Check out the events in The City."
+      ImageFile "SomaStreet/BeachTownPoster.appearance3D"
+      Position 0.640  6.690  1.000
+      Stationary
+      Unreachable
+      URL "http://www.communities.com/city/events"
+    End Unum
+    Create Unum SimpleProp3D
+      Name "The City Skyline"
+      Description "The stars are out."
+      ImageFile "SomaStreet/TheCity.appearance3D"
+      Position 0.900  14.250  8.120
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Hydrant"
+      Description "It's a BBS for dogs."
+      ImageFile "SomaStreet/hydrant.appearance3D"
+      Position 5.620  4.440  0.030
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Manhole"
+      Description "I wonder where this goes..."
+      ImageFile "SomaStreet/manhole.appearance3D"
+      Position 2.500  7.710  0.080
+      Stationary
+      //Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Car"
+      Description "You can almost hear the throaty purr of the 409 under the hood."
+      ImageFile "SomaStreet/car.appearance3D"
+      Position -3.5  2.2  0.030
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Warehouse"
+      Description "This warehouse is probably being turned into lofts even now."
+      ImageFile "SomaStreet/Warehouse.appearance3D"
+      Position 8.800  13.280  0.030
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "The Red Spiral Club"
+      Description "Click the door and put on your dancing shoes."
+      ImageFile "SomaStreet/theRedSpiral.appearance3D"
+      Position 7.060  13.880  0.030
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Fire Escape"
+      Description "Don't worry, if there is a fire, just reboot."
+      ImageFile "SomaStreet/FireEscape.appearance3D"
+      Position 2.640  11.550  1.740
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Red Spiral Sign"
+      Description "There's no such thing as too big a sign."
+      ImageFile "SomaStreet/RedSprSign.appearance3D"
+      Position 4.500  14.540  3.130
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Vittorino's"
+      Description "Vittorino's is a cool place to live."
+      ImageFile "SomaStreet/Vittorino_s.appearance3D"
+      Position -5.090  7.060  0.030
+      Stationary
+      Unreachable //for now
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Red Spiral Roof"
+      Description "Doubles as the smoking lounge."
+      ImageFile "SomaStreet/RedSpiralRoof.appearance3D"
+      Position 0.350  15.570  7.100
+      Stationary
+      Unreachable
+    End Unum
+  End Region
+
+//////////////////////////////////////////////////////////
+//
+// The City Strip
+//
+//////////////////////////////////////////////////////////
+
+  Create Region
+    Name "The City Strip"
+    //DefaultPad "The City Strip"
+    Horizon 240
+    URL "http://www.communities.com/city/tos"
+    BBS "http://www.communities.com/beta/bbs"
+    Watermark "Watermarks/TheCityWatermark.bmp"
+    Description "The Strip is a place to get shopping done or grab a latte."
+    Camera -9.86 -16.44 2.45 0.3 0.94 -0.06 0.01 0.05 0.99 39 1.333
+    
+    Create Unum SimpleCamera
+      Camera 12.72 -18.3 7.97 -0.69 0.73 -0.02 -0.01 0 0.99 59 1.333
+      Name "Camera"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+      End Unum
+    Create Unum SimpleCamera
+      Camera 8.66 3.96 2.21 -0.99 -0.15 -0.09 -0.09 -0.02 0.99 59 1.333
+      Name "Camera"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera -9.86 -16.44 2.45 0.3 0.94 -0.06 0.01 0.05 0.99 39 1.333
+      Name "Camera"
+      CameraNumber "0"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera -3.57 -7.7 3.56 0.26 0.93 -0.22 0.05 0.2 0.97 48 1.333
+      Name "Camera"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera 2.16 -2.38 4.36 -0.96 -0.13 -0.29 -0.29 -0.04 0.95 48 1.333
+      Name "Camera"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+
+//    Create Unum TeleportPad
+//      Name "The City Strip"
+//      Description "Hit the road, Jacqueline."
+//      ImageFile "textures/NoAppearance.appearance2D"
+//      Position 0  0  0
+//      AnchorPoint 0 0
+//      Scale 0.5
+//      FinalEntryPosition 0.8 0 0
+//      UnumCreatorClass "ec.cosm.agency.TeleportPadCreator"
+//    End Unum
+
+    Create Unum Portal
+      Name "To Haus Do"
+      Description "Haus Do is simply fabulous, you must see it."
+      ImageFile "somamain2/HausDoEntryPortal.appearance3D"
+      Position -0.730  1.190  0.000
+      ConnectToRegion "Haus Do"
+      ConnectToPortal "To The City Strip"
+      ExitPosition 0.1  0.7  0
+      FinalEntryPosition 0.1  0.7  0
+      Stationary
+    End Unum
+
+    Create Unum Portal
+      Name "To Cafe Noir"
+      Description "Click here to enter Cafe Noir."
+      ImageFile "somamain2/CafeNoirEntryPortal.appearance3D"
+      Position -8.140  -5.910  -0.020
+      ConnectToRegion "Cafe Noir"
+      ConnectToPortal "To The City Strip"
+      ExitPosition -6.2  -5.2  0
+      FinalEntryPosition -6.2  -5.2  0
+      Stationary
+    End Unum
+
+    Create Unum Prop
+      Name "SndEmitTCS1"
+      Description ""
+      ImageFile "somamain2/sndemit_TCS1.appearance2D"
+      Position 0  0  0
+      Stationary
+      Unreachable
+    End Unum
+
+    Create Unum Floor3D
+      Name "Sidewalk Floor"
+      Description "Take a walk in the City."
+      ImageFile "somamain2/SidewalkFloor.appearance3D"
+      Position -9.350  -7.880  -0.010
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "The background"
+      Description "The city stretches out beyond."
+      ImageFile "somamain2/background.appearance3D"
+      Position 4.440  19.170  9.300
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Blu Moroccan Apts."
+      Description "Blu Moroccan Apartments are full of poets and yuppies."
+      ImageFile "somamain2/BluMoroccanApts.appearance3D"
+      Position 3.010  3.930  0.000
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Haus Do Sign"
+      Description "What is Haus Do? Enter and find out."
+      ImageFile "somamain2/HausDoSignProp.appearance3D"
+      Position 0.440  1.530  2.720
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Haus Do"
+      Description "You must be ultra trendy to enter."
+      ImageFile "somamain2/HausDo.appearance3D"
+      Position -4.510  -1.130  0.000
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Haus Do Window"
+      Description "Why peek in here when you can just walk in?"
+      ImageFile "somamain2/HausDoWindowProp.appearance3D"
+      Position -1.170  0.940  0.000
+      Stationary
+      Unreachable
+    End Unum
+
+    Create Unum SimpleProp3D
+      Name "Warehouse Apts."
+      Description "Warehouse Apartments are for the adventurous among you."
+      ImageFile "somamain2/WarehouseApts.appearance3D"
+      Position 1.020  10.000  6.310
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum Directory
+      Name "Blu Moroccan Apts. Directory"
+      Description "Check out who lives in the Blu Moroccan, fanciest digs in The City - or, hey, add your own turf."
+      ImageFile "somamain2/BluMoroccanAptsDirectoryProp.appearance3D"
+      Position 3.010  3.930  -0.010
+      Stationary
+// XXX: This URL needs to be set to point at the actual directory CGI.
+      URL "http://www.communities.com/city/directories"
+      FeedbackMessage "Your home turf has been submitted to the Directory. Welcome!"
+    End Unum
+  
+// this is now a portal to get back to The City
+
+    Create Unum Portal
+      Name "To The City"
+      Description "Click here to return to the City"
+      ImageFile "somamain2/Vittorino_sApts.appearance3D"
+      Position 5.870  5.790  0.000
+      ConnectToRegion "The City"
+      ConnectToPortal "To The City Strip"
+      ExitPosition 1.5  0  0
+      FinalEntryPosition 1.5  0  0
+      //Name "Vittorino's Apts."
+      //Description "Vittorino's Apartments would make a great tortured artist pad."
+      //ImageFile "somamain2/Vittorino_sApts.appearance3D"
+      //Position 5.870  5.790  0.000
+      //Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Cafe Noir"
+      Description "Feeling sleepy? Go to Cafe Noir for a jolt."
+      ImageFile "somamain2/CafeNoir.appearance3D"
+      Position -9.350  -7.880  0.000
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Apts. Above Cafe Noir"
+      Description "If you can tolerate the Open Mic Nights, this is a cool place to live."
+      ImageFile "somamain2/AptsAboveCafeNoir.appearance3D"
+      Position -6.630  0.890  5.290
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Sunshine Bisquit Apts"
+      Description "Sunshine Bisquit Apts are nice lofts with high ceilings."
+      ImageFile "somamain2/SunshineBisquitApts.appearance3D"
+      Position -10.360  -12.640  0.000
+      Stationary
+      Unreachable
+    End Unum
+  End Region
+
+////////////////////////////////////////////
+//
+// Red Spiral Foyer
+//
+////////////////////////////////////////////
+
+// There are known tiling problems here
+
+  Create Region
+    Name "Red Spiral Foyer"
+    wavefile "sounds/Ambient1.wav"
+    Horizon 240
+    Description "This is the Red Spiral Foyer, where you'll wait until you're cool enough to get into the Red Room."
+    URL "http://www.communities.com/city/tos"
+    BBS "http://www.communities.com/beta/bbs"
+    Watermark "Watermarks/RedSpiralWatermark.bmp"
+    Camera -7.79 -1.62 2.28 0.99 -0.06 -0.02 0.01 -0.01 0.99 61 1.333
+    
+    Create Unum SimpleCamera
+      Camera 4.89 -2.03 2.14 -1 -0.04 -0.02 -0.02 -0.01 0.99 79 1.333
+      Name "Camera1"
+      CameraNumber "1"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera -7.79 -1.62 2.28 0.99 -0.06 -0.02 0.01 -0.01 0.99 61 1.333
+      Name "Camera0"
+      CameraNumber "0"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera -1.9 -1.09 2.5 0.65 -0.75 -0.16 0.1 -0.12 0.98 79 1.333
+      Name "Camera2"
+      CameraNumber "2"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+
+//  Create Unum TeleportPad
+//    Name "Red Spiral Foyer"
+//    Description "Welcome to Red Spiral Foyer"
+//    ImageFile "Textures/NoAppearance.appearance2d"
+//    Position 0  0  0
+//    AnchorPoint 0 0
+//    Scale 0.5
+//    Size 1  1
+//    FinalEntryPosition 0 -2 0
+//    Orientation "South"
+//    UnumCreatorClass "ec.cosm.agency.TeleportPadCreator"
+//  End Unum
+
+    Create Unum Portal
+      Name "To Red Room"
+      Description "Click here, and let's see if they'll let you into Red Room the way you're dressed."
+      ImageFile "redspiralfoyer/ClubEntry.appearance3D"
+      Position 5.020  -1.200  -0.010
+      ConnectToRegion "Red Room"
+      ConnectToPortal "To Red Spiral Foyer"
+      ExitPosition 3.6  -2  0
+      FinalEntryPosition 3.0  -2  0
+      DefaultCamera "0"
+      Stationary
+    End Unum
+    Create Unum Portal
+      Name "To The City"
+      Description "Click here to get back to The City once you're partied out (or kicked out)."
+      ImageFile "redspiralfoyer/DoorOut.appearance3D"
+      Position -3.590  -2.920  0.000
+      ConnectToRegion "The City"
+      ConnectToPortal "To Red Spiral Foyer"
+      ExitPosition -2.8 -1.8  0
+      FinalEntryPosition -2.4  -1.8  0
+      DefaultCamera "1"
+      Stationary
+    End Unum
+
+    Create Unum Portal
+      Name "Secret Passage"
+      Description "Shhh! It's a secret!"
+      ImageFile "redspiralfoyer/Coats.appearance3D"
+      Position -0.780  -5.410  1.370
+      Stationary
+      ConnectToRegion "VIP Lounge"
+      ConnectToPortal "To Red Spiral Foyer"
+      ExitPosition 0 -4 0
+      FinalEntryPosition 0 -4 0
+    End Unum
+
+    Create Unum Floor3D
+      Name "Red Carpet Floor"
+      Description "They rolled it out just for you."
+      ImageFile "redspiralfoyer/floor.appearance3D"
+      Position -3.590  -4.740  -0.010
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Coat Check Counter"
+      Description "Check your coat."
+      ImageFile "redspiralfoyer/coatchkdor.appearance3D"
+      Position -0.780  -4.740  -0.010
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Gold Ceiling"
+      Description "This ceiling costs more than most people's houses."
+      ImageFile "redspiralfoyer/ceil.appearance3D"
+      Position 5.020  -4.740  4.350
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum Poster
+      Name "The City Events"
+      Description "Check out the current events in The City."
+      ImageFile "redspiralfoyer/npost.appearance3D"
+      Position -0.420  0.740  1.040
+      URL "http//www.communities.com/city/events"
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum Poster
+      Name "The City Events"
+      Description "Check out the current events in The City."
+      ImageFile "redspiralfoyer/spost.appearance3D"
+      Position -0.900  -4.740  1.430
+      URL "http//www.communities.com/city/events"
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Coat Rack"
+      Description "Take your coat off and stay a while."
+      ImageFile "redspiralfoyer/Coats.appearance3D"
+      Position -0.780  -5.410  1.370
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Metal Sign"
+      Description "Whatsa matter, can't you read?"
+      ImageFile "redspiralfoyer/ssign.appearance3D"
+      Position 1.920  -4.720  3.120
+      Stationary
+      Unreachable
+    End Unum    
+    Create Unum SimpleProp3D
+      Name "Rope"
+      Description "Stand back! Coming through!"
+      ImageFile "redspiralfoyer/erope.appearance3D"
+      Position 4.630  -3.050  -0.010
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Table"
+      Description "Hey! Mitts off the table!"
+      ImageFile "redspiralfoyer/stable.appearance3D"
+      Position 2.120  -4.740  1.370
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Wall"
+      Description "Don't hit the wall."
+      ImageFile "redspiralfoyer/swall.appearance3D"
+      Position 5.020  -4.740  -0.010
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Wall"
+      Description "U can't touch this."
+      ImageFile "redspiralfoyer/ewall.appearance3D"
+      Position 5.020  0.740  -0.010
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Wall"
+      Description "Yup. You found our wall. You're a regular Sherlock."
+      ImageFile "redspiralfoyer/wwall.appearance3D"
+      Position -3.590  0.740  -0.010
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Panel"
+      Description "Let's ask our panel."
+      ImageFile "redspiralfoyer/sepanel.appearance3D"
+      Position 2.120  -4.740  1.370
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Wall"
+      Description "Hot damn! It's a wall!"
+      ImageFile "redspiralfoyer/nwall.appearance3D"
+      Position 5.020  0.740  0.000
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Column"
+      Description "This column is 12 column inches high."
+      ImageFile "redspiralfoyer/columns.appearance3D"
+      Position -2.260  -4.490  0.000
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Velvet Rope"
+      Description "Just like in Studio 54, this keeps the poseurs out on the street where they belong."
+      ImageFile "redspiralfoyer/ropedivide.appearance3D"
+      Position 0.350  -3.530  0.000
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Chandelier"
+      Description "Swing from the chandelier and impress the local law enforcement."
+      ImageFile "redspiralfoyer/chandelier.appearance3D"
+      Position -0.900  -2.650  3.090
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Curtain"
+      Description "Meant to keep out prying eyes."
+      ImageFile "redspiralfoyer/curtains.appearance3D"
+      Position 4.960  0.740  0.000
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Sconces"
+      Description "A sconce is a light stuck to a wall. Cool, huh?"
+      ImageFile "redspiralfoyer/WallLamp.appearance3D"
+      Position 2.950  -4.160  2.630
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Table Lamp"
+      Description "Nice and bright, to help the bouncers spot the fake ID's."
+      ImageFile "redspiralfoyer/TableLamp.appearance3D"
+      Position 1.920  -4.740  1.370
+      Stationary
+      Unreachable
+    End Unum
+  End Region
+
+////////////////////////////////////////////
+//
+// Red Room - This is the new Red Room
+//
+////////////////////////////////////////////
+  
+  Create Region
+    Name "Red Room"
+    wavefile "sounds/Ambient5.wav"
+    Description "This is the Spiral club. Welcome! Take a look around! Dance!"
+    DefaultPad "Red Room"
+    URL "http://www.communities.com/city/tos"
+    BBS "http://www.communities.com/beta/bbs"
+    Watermark "Watermarks/RedSpiralWatermark.bmp"
+    Horizon 240
+    Camera 10.85 -1.27 1.75 -0.26 0.96 -0.07 -0.02 0.05 0.99 48 1.333   
+    
+// Main View
+    Create Unum SimpleCamera
+      Camera 10.85 -1.27 1.75 -0.26 0.96 -0.07 -0.02 0.05 0.99 48 1.333
+      Name "Camera1"
+      CameraNumber "0"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.Appearance2D"
+      Position 0 0 0
+      Stationary
+    End Unum
+// Dance End bar
+    Create Unum SimpleCamera
+      Camera 10.13 7.24 1.6 -0.25 0.96 0 0 0 1 57 1.333
+      Name "Camera7"
+      CameraNumber "7"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.Appearance2D"
+      Position 0 0 0
+      Stationary
+    End Unum
+//Bar end
+    Create Unum SimpleCamera
+      Camera 0.32 10 1.9 0.56 0.81 -0.13 0.07 0.1 0.99 58 1.333
+      Name "Camera2"
+      CameraNumber "2"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.Appearance2D"
+      Position 0 0 0
+      Stationary
+    End Unum
+
+// Rest out
+    Create Unum SimpleCamera
+      Camera -0.39 1.02 1.52 0.67 0.73 -0.05 0.03 0.03 0.99 60 1.333
+      Name "Camera4"
+      CameraNumber "4"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.Appearance2D"
+      Position 0 0 0
+      Stationary
+    End Unum
+//Behind bar
+    Create Unum SimpleCamera
+      Camera 8.11 16.14 2.16 -0.69 -0.72 -0.14 -0.1 -0.1 0.99 58 1.333
+      Name "Camera3"
+      CameraNumber "3"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.Appearance2D"
+      Position 0 0 0
+      Stationary
+    End Unum
+//south end
+    Create Unum SimpleCamera
+      Camera 5.18 12.52 2.43 -0.03 -0.99 -0.14 -0.01 -0.14 0.99 58 1.333
+      Name "Camera8"
+      CameraNumber "8"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.Appearance2D"
+      Position 0 0 0
+      Stationary
+    End Unum
+// exit
+    Create Unum SimpleCamera
+      Camera 6.11 8.02 2.11 0.49 -0.87 -0.12 0.05 -0.1 0.99 61 1.333
+      Name "Camera5"
+      CameraNumber "5"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.Appearance2D"
+      Position 0 0 0
+      Stationary
+    End Unum
+// mens
+    Create Unum SimpleCamera
+      Camera 13.86 0.93 1.63 -0.95 0.32 -0.05 -0.05 0.01 0.99 48 1.333
+      Name "Camera6"
+      CameraNumber "6"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.Appearance2D"
+      Position 0 0 0
+      Stationary
+    End Unum
+
+    Create Unum TeleportPad
+      Name "Red Room"
+      Description "Welcome to Red Room"
+      ImageFile "Textures/NoAppearance.Appearance2D"
+      Position 0  0  0
+      AnchorPoint 0 0
+      Scale 0.5
+      Size 1  1
+      FinalEntryPosition 8.980  9.260  0.000
+      Orientation "North"
+    End Unum
+
+// Go back to the street.
+    Create Unum Portal
+      Name "To Red Spiral Foyer"
+      Description "Walk through here to get back to the foyer."
+      ImageFile "RedRoom/SomaPortal.appearance3D"
+      Position 11.420  0.000  0.000
+      Stationary
+      AnchorPoint 0 0
+      Scale 1
+      ConnectToRegion "Red Spiral Foyer"
+      ConnectToPortal "To Red Room"
+      ExitPosition 10.4  0.8  0
+      FinalEntryPosition 10.4 0.8 0
+      DefaultCamera "8"
+    End Unum
+
+// XXX Wants to be a portal to the dance hall or VIP. For now it goes to Ice Room
+// XXX Ice Room and VIP both should link through the Dance Room
+    Create Unum Portal
+      Name "To the Ice Room"
+      //Description "When the dance or VIP area is open, you can go there through here."
+      Description "Ice, ice baby! Right through this door." 
+      ImageFile "RedRoom/PortalDanc.appearance3D"
+      Position 9.880  16.130  0.000
+      Stationary
+      AnchorPoint 0 0
+      ConnectToRegion "Ice Room"
+      ConnectToPortal "To the Red Room"
+      ExitPosition 10.7  15.0  0
+      FinalEntryPosition 10.7  15.0  0
+      DefaultCamera "7"
+      // values below are set to go to VIP  
+      // ConnectToRegion "VIP Lounge"
+      // ConnectToPortal "To the Red Room"
+      // FinalEntryPosition 12.0  3.0  0
+    End Unum
+
+// A portal to the womens room ** reconnected
+    Create Unum Portal
+      Name "To the Womens Room"
+      Description "Need to go to the powder room?"
+      ImageFile "RedRoom/PortalWome.appearance3D"
+      Position 2.290  0.000  0.000
+      Stationary
+      ConnectToRegion "Womens Room"
+      ConnectToPortal "To the Red Room"
+      ExitPosition 1.7  0.55  0
+      FinalEntryPosition 1.7  0.55  0
+      DefaultCamera "8"
+    End Unum
+
+    Create Unum Portal
+      Name "To Mens Room"
+      Description "Need to go to the little boys room?"
+      ImageFile "RedRoom/PortalMens.appearance3D"
+      Position -0.320  0.760  0.000
+      ConnectToRegion "Mens Room"
+      ConnectToPortal "To Red Room"
+      ExitPosition .5  1.8  0
+      FinalEntryPosition .5  1.8  0
+      DefaultCamera "6"
+      Stationary
+      DefaultCamera "8"
+    End Unum
+    Create Unum Prop
+      Name "SndEmitRR1"
+      Description ""
+      ImageFile "RedRoom/sndemit_RR1.appearance2D"
+      Position 0  0  0
+      Stationary
+      Unreachable
+    End Unum
+
+    Create Unum SimpleProp3D
+      Name "Blue Spiral"
+      Description "The blue spiral goes around and around."
+      ImageFile "RedRoom/BlueSpiral.appearance3D"
+      Position 2.810  15.830  1.140
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Red Spiral"
+      Description "The red spiral goes around and around."
+      ImageFile "RedRoom/RedSpiral.appearance3D"
+      Position 2.810  15.830  2.040
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Bar Wall"
+      Description "Belly up to the bar."
+      ImageFile "RedRoom/BarWall.appearance3D"
+      Position 3.500  16.760  0.000
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Bar"
+      Description "See and be seen at the bar."
+      ImageFile "RedRoom/Bar.appearance3D"
+      Position 0.830  15.830  0.000
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Walls"
+      Description "These are the walls in the Red Room."
+      ImageFile "RedRoom/Walls.appearance3D"
+      Position 2.740  15.830  0.000
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Ceiling"
+      Description "A dark and smoky ceiling."
+      ImageFile "RedRoom/Ceiling.appearance3D"
+      Position 0.000  8.050  3.500
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum Floor3D
+      Name "Floor"
+      Description "Scoot around on the floor."
+      ImageFile "RedRoom/Floor.appearance3D"
+      Position 8.130  6.390  0.000
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "South Column"
+      Description "This column in on the south side."
+      ImageFile "RedRoom/SouthColum.appearance3D"
+      Position 5.710  3.580  0.000
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "North Column"
+      Description "This column is on the north side."
+      ImageFile "RedRoom/NorthColum.appearance3D"
+      Position 5.710  7.690  0.000
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Couch"
+      Description "Have a sit on the comfy couch."
+      ImageFile "RedRoom/Couch01.appearance3D"
+      Position 11.050  6.890  0.000
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Seat"
+      Description "Sit and chat a while."
+      ImageFile "RedRoom/Seat.appearance3D"
+      Position 6.980  8.260  0.000
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Seat"
+      Description "Sit and chat a while."
+      ImageFile "RedRoom/Seat01.appearance3D"
+      Position 6.560  6.600  0.000
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Table"
+      Description "This table will hold your drinks."
+      ImageFile "RedRoom/Table.appearance3D"
+      Position 6.810  7.410  0.000
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Lounger"
+      Description "Sit down on the comfortable lounger."
+      ImageFile "RedRoom/Lounger.appearance3D"
+      Position 0.960  3.510  0.000
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Lounger"
+      Description "Sit down on the comfortable lounger."
+      ImageFile "RedRoom/Lounger01.appearance3D"
+      Position 5.150  2.340  0.000
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Seat"
+      Description "Sit and talk a while on this chair."
+      ImageFile "RedRoom/Seat02.appearance3D"
+      Position 4.360  2.560  0.000
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Seat"
+      Description "Sit and talk a while on this chair."
+      ImageFile "RedRoom/Seat03.appearance3D"
+      Position 4.670  0.830  0.000
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Long Table"
+      Description "This is a long table."
+      ImageFile "RedRoom/TableLong.appearance3D"
+      Position 6.210  1.770  0.000
+      Stationary
+    End Unum
+  End Region
+
+// XXX Dance Room should go here
+
+////////////////////////////////////////////
+//
+// Ice Room - added back in 1-98, regrouped 2-98
+//
+////////////////////////////////////////////
+   
+  Create Region
+    Name "Ice Room"
+    DefaultPad "Ice Room"
+    Description "This is the Ice Room, a part of the Spiral Club. You can cool off in here."
+    URL "http://www.communities.com/city/tos"
+    BBS "http://www.communities.com/beta/bbs"
+    Watermark "Watermarks/RedSpiralWatermark.bmp"
+    Horizon 240
+    Camera 0.08 0 2.28 0.41 0.9 -0.1 0.04 0.08 0.99 48 1.333
+
+    Create Unum SimpleCamera
+      Camera 0.08 0 2.28 0.41 0.9 -0.1 0.04 0.08 0.99 48 1.333
+      Name "Camera"
+      CameraNumber "0"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera 0.07 18.13 2.28 0.4 -0.91 -0.1 0.03 -0.09 0.99 48 1.333
+      Name "Camera"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+   
+    Create Unum TeleportPad
+      Name "Ice Room"
+      Description "Welcome to Ice Room"
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0  0  0
+      AnchorPoint 0 0
+      Scale 0.5
+      FinalEntryPosition 4.5 8.0 0
+      UnumCreatorClass "ec.cosm.agency.TeleportPadCreator"
+    End Unum
+    Create Unum Portal
+      Name "To the Red Room"
+      Description "This door seems warmer than the rest of this room."
+      ImageFile "iceroom/PortalOut.appearance3D"
+      Position 9.010  9.290  0.000
+      AnchorPoint 0 0
+      Scale 1
+      Stationary
+      ConnectToRegion "Red Room"
+      ConnectToPortal "To the Ice Room"
+      ExitPosition 8.0  8.0  0
+      FinalEntryPosition 8.0  8.0  0  
+    End Unum
+    Create Unum Prop
+      Name "SndEmitice1"
+      Description ""
+      ImageFile "iceroom/sndemit_ice1.appearance2D"
+      Position 0  0  0
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum Prop
+      Name "SndEmitice2"
+      Description ""
+      ImageFile "iceroom/sndemit_ice2.appearance2D"
+      Position 0  0  0
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum Prop
+      Name "SndEmitice3"
+      Description ""
+      ImageFile "iceroom/sndemit_ice3.appearance2D"
+      Position 0  0  0
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum Floor3D
+      Name "Icy floor"
+      Description "This floor is made of ice. Watch your step!"
+      ImageFile "iceroom/Floor.appearance3D"
+      Position 4.980  14.070  0.000
+      AnchorPoint 0 0
+      Scale 1
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Snow White Lounge"
+      Description "It's a couch, made of snow."
+      ImageFile "iceroom/Chillounge.appearance3D"
+      Position 4.440  13.300  0.000
+      AnchorPoint 0 0
+      Scale 1
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Snow White Sofa"
+      Description "Looks cozy and cool."
+      ImageFile "iceroom/IcySofa.appearance3D"
+      Position 0.510  13.130  0.000
+      AnchorPoint 0 0
+      Scale 1
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Icicles"
+      Description "There are burrowing ice gophers sleeping in here."
+      ImageFile "iceroom/Icicles.appearance3D"
+      Position -3.36  1.7  -2.78
+      AnchorPoint 0 0
+      Scale 1
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Icy Wall"
+      Description "Rumor has it that three of the construction workers who built this place were actually frozen right into the wall."  
+      ImageFile "iceroom/IceyWall.appearance3D"
+      Position 9.170  10.050  0.000
+      AnchorPoint 0 0
+      Scale 1
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Lamp"
+      Description "A cool blue glow radiates."
+      ImageFile "iceroom/CeilingLamp.appearance3D"
+      Position 5.540  10.510  2.140
+      AnchorPoint 0 0
+      Scale 1
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3d
+      Name "Water"
+      Description "Hey! You can't walk here. You'll catch your death of cold."
+      ImageFile "iceroom/ChillTub.appearance3D"
+      Position 6.790  6.250  -0.190
+      AnchorPoint 0 0
+      Scale 1
+      Stationary
+      Unreachable
+    End Unum
+  End Region  
+
+/////////////////////////////////////////////////////////////////////////
+//
+// VIP Lounge - not connected to red room yet
+//
+/////////////////////////////////////////////////////////////////////////
+
+  Create Region
+    Name "VIP Lounge"
+    wavefile "sounds/Ambient4.wav"
+    Description "Congrats. You've found the secret VIP Lounge."
+    //DefaultPad "VIP Lounge"
+    URL "http://www.communities.com/city/tos"
+    BBS "http://www.communities.com/beta/bbs"
+    Watermark "Watermarks/RedSpiralWatermark.bmp"
+    Horizon 240
+    Camera -1.87 7.71 2.14 0.86 -0.5 -0.03 0.02 -0.02 0.99 48 1.333
+    
+    Create Unum SimpleCamera
+      Camera -1.87 7.71 2.14 0.86 -0.5 -0.03 0.02 -0.02 0.99 48 1.333
+      Name "Camera"
+      CameraNumber "0"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera 12.15 4.6 1.82 -1 -0.02 0.12 0.12 0 0.99 48 1.333
+      Name "Camera"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera 4.87 1.05 1.37 0.85 0.51 0 0 0 1 48 1.333
+      Name "Camera"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera -1.6 2.98 1.7 0.95 0.27 0.07 -0.07 -0.02 0.99 48 1.333
+      Name "Camera"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+//    Create Unum TeleportPad
+//      Name "VIP Lounge"
+//      Description "Welcome to VIP Lounge"
+//      ImageFile "Textures/NoAppearance.appearance2d"
+//      Position 0  0  0
+//      AnchorPoint 0 0
+//      Scale 0.5
+//      Size 1  1
+//      FinalEntryPosition 7 4 0
+//      Orientation "West"
+//      UnumCreatorClass "ec.cosm.agency.TeleportPadCreator"
+//    End Unum
+    Create Unum Portal
+      Name "To Red Spiral Foyer"
+      Description "Let's get back to the party, shall we?"
+      ImageFile "VIPLounge/DOOR.appearance3D"
+      Position 12.170  5.210  0.000
+      Stationary
+      ConnectToRegion "Red Spiral Foyer"
+      ConnectToPortal "Secret Passage"
+      FinalEntryPosition 10 4.9 0
+      ExitPosition 10 4.9 0
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Top o' the Ceiling"
+      Description "There should be a mirror ball here."
+      ImageFile "VIPLounge/CLTOP.appearance3D"
+      Position 6.080  4.600  3.29
+      //Position 6.080  4.600  3.330
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum Prop
+      Name "SndEmitTCS1"
+      Description ""
+      ImageFile "VIPLounge/sndemit_VIP1.appearance2D"
+      Position 0  0  0
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Art with a Capital A"
+      Description "By The Artist Formerly Known as Parker?"
+      ImageFile "VIPLounge/PIC.appearance3D"
+      Position -1.410  3.580  1.170
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Girlie Poster"
+      Description "Not politically correct!"
+      ImageFile "VIPLounge/PIC01.appearance3D"
+      Position 4.87  -0.02  1.130
+      Scale 1.04
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Crucifixion"
+      Description "Having one of those days?"
+      ImageFile "VIPLounge/PIC02.appearance3D"
+      //Position 8.090  0.000  1.140
+      Position 8.076 0.01 1.14
+      Scale 1.04
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Table"
+      Description "This table is for Very Important People only!"
+      ImageFile "VIPLounge/round_tabl.appearance3D"
+      Position 3.100  7.390  0.000
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Red Velvet Chair"
+      Description "Elvis had one of these chairs (made King Size of course)."
+      ImageFile "VIPLounge/slounge.appearance3D"
+      Position 10.380  3.980  0.000
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Table"
+      Description "Stick your feet up here and look important."
+      ImageFile "VIPLounge/table.appearance3D"
+      Position 5.040  2.300  0.000
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Sofa"
+      Description "Du bist mein sofa."
+      ImageFile "VIPLounge/sofa.appearance3D"
+      Position 4.250  1.400  0.000
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Columns"
+      Description "Let's see, rows go across, so I guess columns must go up and down."
+      ImageFile "VIPLounge/clmbs.appearance3D"
+      Position 0.650  6.420  0.000
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Ceiling"
+      Description "If you're looking up here, you're either bored or you're just waking up from a seizure. Not good in either case."
+      ImageFile "VIPLounge/ceil.appearance3D"
+      //Position 4.270  7.750  3.810
+      Position 4.270  7.750  3.77
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Column"
+      Description "No you can't hide behind it. Get out there and mingle already"
+      ImageFile "VIPLounge/clmn.appearance3D"
+      Position 1.400  8.090  0.580
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Column Top"
+      Description "It's like Carrot Top, only funnier."
+      ImageFile "VIPLounge/clmntp.appearance3D"
+      //Position 1.400  8.090  3.180
+      Position 1.400  8.090  3.160
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum Floor3D
+      Name "Floor"
+      Description "Like a cheap camera, just point and click."
+      ImageFile "VIPLounge/floor.appearance3D"
+      Position 3.360  2.110  0.000
+      Stationary
+    End Unum
+    Create Unum SimpleProp
+    // can't be a floor- slants towards the wall
+      Name "Lower Wall"
+      Description "This was the original wall height, but the midgets kept hurdling over it."
+      ImageFile "VIPLounge/lowwl.appearance3D"
+      Position 0.650  2.700  0.000
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Strip"
+      Description "That's a verb, not a noun. Get to it."
+      ImageFile "VIPLounge/strip.appearance3D"
+      Position 2.190  8.700  0.580
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Upper Wall"
+      Description "This wall used to be higher, but the FAA made us take it down a bit."
+      ImageFile "VIPLounge/upwal.appearance3D"
+      //Position 3.800  9.130  2.740
+      Position 3.800  9.130  2.70
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Wall"
+      Description "You're just another brick in it, Floyd."
+      ImageFile "VIPLounge/wall.appearance3D"
+      //Position 2.190  8.700  0.890
+      Position 2.180  8.700  0.890
+      Stationary
+      Unreachable
+    End Unum
+  End Region
+
+////////////////////////////////////////////
+//
+// Womens Room
+//
+////////////////////////////////////////////   
+
+  Create Region
+    Name "Womens Room"
+    Description "This is the Women's Room at the Spiral Club. Girls only!"
+    URL "http://www.communities.com/city/tos"
+    BBS "http://www.communities.com/beta/bbs"
+    Watermark "Watermarks/RedSpiralWatermark.bmp"
+    Horizon 240
+    Camera 5.63 -0.84 1.98 -0.01 0.98 -0.2 -0.01 0.19 0.98 48 1.333
+
+    Create Unum Portal
+      Name "To the Red Room"
+      Description "It's noisy on the other side of this door."
+      ImageFile "WomensRoom/DOOR-ROOT.appearance3D"
+      Position 0.7  8.8  0
+      AnchorPoint 0 0
+      Scale 1
+      Stationary
+      ConnectToRegion "Red Room"
+      ConnectToPortal "To the Womens Room"
+      ExitPosition 2.3  8.0  0
+      FinalEntryPosition 2.3  8.0  0
+    End Unum
+    Create Unum Prop
+      Name "SndEmitWR1"
+      Description ""
+      ImageFile "WomensRoom/sndemit_WR1.appearance2D"
+      Position 0  0  0
+      Stationary
+      Unreachable
+    End Unum
+
+    Create Unum SimpleProp3D
+      Name "Stall Wall"
+      Description "There's someone hiding in this stall."
+      ImageFile "WomensRoom/bstlwl-ROOT.appearance3D"
+      Position 8.3  4.4  0
+      AnchorPoint 0 0
+      Scale 1
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Stall Wall"
+      Description "This stall is vacant."
+      ImageFile "WomensRoom/stalwl3-ROOT.appearance3D"
+      Position 7.2  4.4  0
+      AnchorPoint 0 0
+      Scale 1
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Stall Wall"
+      Description "(Answer to riddle in light.) None, they just declare darkness the industry standard."
+      ImageFile "WomensRoom/stalwl2-ROOT.appearance3D"
+      Position 6.8  5.6  0
+      AnchorPoint 0 0
+      Scale 1
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Stall Wall"
+      Description "There is a leak in the toilet in here. Whose bug is that?"
+      ImageFile "WomensRoom/stalwl01-ROOT.appearance3D"
+      Position 7.9  7.1  0
+      AnchorPoint 0 0
+      Scale 1
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Birth of Venus Mural"
+      Description "Her birthday's coming up in a few days."
+      ImageFile "WomensRoom/BACK2-ROOT.appearance3D"
+      Position 8.7  9.7  -0.7
+      AnchorPoint 0 0
+      Scale 1
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Divan"
+      Description "A divine divan."
+      ImageFile "WomensRoom/COUCH-ROOT.appearance3D"
+      Position 2.6  9.2  -0.1
+      AnchorPoint 0 0
+      Stationary
+      Scale 1
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Sink"
+      Description "Wash your hands before you leave."
+      ImageFile "WomensRoom/SINK-ROOT.appearance3D"
+      Position 6.5  1.1  0.7
+      AnchorPoint 0 0
+      Scale 1
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Light"
+      Description "How many Microsoft engineers does it take to change a lightbulb? Answer behind Door #3."
+      ImageFile "WomensRoom/light-ROOT.appearance3D"
+      Position 6.8  4.4  2.2
+      AnchorPoint 0 0
+      Scale 1
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum Portal
+      Name "Window"
+      Description "You found the emergency exit! Now you can ditch that lame guys that's been bugging you all night."
+      ImageFile "WomensRoom/window-ROOT.appearance3D"
+      Position 7.9  6.8  2.4
+      AnchorPoint 0 0
+      Scale 1
+      Stationary
+      ConnectToRegion "The City Strip"
+      ConnectToPortal "To The City"
+      ExitPosition 6 6.8 0
+      FinalEntryPosition 6 6.8 0
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Umbrella Holder"
+      Description "It's empty."
+      ImageFile "WomensRoom/umb-ROOT.appearance3D"
+      Position 2.2  9.3  0
+      AnchorPoint 0 0
+      Scale 1
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum Floor3D
+      Name "Floor"
+      Description "It's nice that they keep the tile floor so clean."
+      ImageFile "WomensRoom/floor-ROOT.appearance3D"
+      Position 1.5  5.05  0
+      AnchorPoint 0 0
+      Scale 1
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Stall Doors"
+      Description "All are closed, one is locked."
+      ImageFile "WomensRoom/staldrs-ROOT.appearance3D"
+      Position 6.5  6.7  0.4
+      AnchorPoint 0 0
+      Scale 1
+      Stationary
+    End Unum
+  End Region
+
+////////////////////////////////////////////
+//
+// Mens Room
+//
+////////////////////////////////////////////
+
+  Create Region
+    Name "Mens Room"
+    Description "It's the Men's Room. You know what it's for."
+    URL "http://www.communities.com/city/tos"
+    BBS "http://www.communities.com/beta/bbs"
+    Watermark "Watermarks/RedSpiralWatermark.bmp"
+    Horizon 240
+    Camera -1.81 -4.48 1.98 0.32 0.94 -0.07 0.02 0.05 0.99 70 1.333
+
+    Create Unum SimpleCamera
+      Camera -1.81 -4.48 1.98 0.32 0.94 -0.07 0.02 0.05 0.99 70 1.333
+      Name "Camera"
+      CameraNumber "0"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+
+// no teleport pad
+
+    Create Unum Portal
+      Name "To Red Room"
+      Description "This way to where the action is."
+      ImageFile "BoysRoom/PortalOut.appearance3D"
+      Position 3.580  0.350  0.000
+      ConnectToRegion "Red Room"
+      ConnectToPortal "To Mens Room"
+      ExitPosition 2.5 -0.5 0
+      FinalEntryPosition 2.5 -0.5 0 
+      Stationary
+    End Unum
+    Create Unum Prop
+      Name "SndEmitBR1"
+      Description ""
+      ImageFile "BoysRoom/sndemit_BR1.appearance2D"
+      Position 0  0  0
+      Stationary
+      Unreachable
+    End Unum
+
+    Create Unum SimpleProp3D
+      Name "Urinal"
+      Description "Ready, aim..."
+      ImageFile "BoysRoom/urinal.appearance3D"
+      Position -2.040  2.040  0.000
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Stall"
+      Description "Looks vacant."
+      ImageFile "BoysRoom/stall.appearance3D"
+      Position 1.060  2.110  -0.040
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Toilet Bowl"
+      Description "Hey, what you looking at?"
+      ImageFile "BoysRoom/toiletbowl.appearance3D"
+      Position 1.240  1.310  -0.040
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Grey Lamp"
+      Description "The only bright spot in this room."
+      ImageFile "BoysRoom/greylamp.appearance3D"
+      Position -2.900  0.550  3.100
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Condom Box"
+      Description "Aw come on, you're dreaming. She wasn't THAT interested in you."
+      ImageFile "BoysRoom/condombox.appearance3D"
+      Position 0.380  2.090  0.950
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum Floor3D
+      Name "Tiled Floor"
+      Description "Whew! It looks pretty clean right now."
+      ImageFile "BoysRoom/tiledfloor.appearance3D"
+      Position -3.500  -2.2  0
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Scummy Wall"
+      Description "How come mens' rooms are always dirtier than womens' rooms?"
+      ImageFile "BoysRoom/scummywall.appearance3D"
+      Position -3.510  2.100  -0.040
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Ceiling"
+      Description "It's the only part of the room that hasn't been peed on."
+      ImageFile "BoysRoom/ceiling.appearance3D"
+      Position 3.580  -2.110  3.860
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Metal pipe"
+      Description "Lord, what antiquated plumbing."
+      ImageFile "BoysRoom/metalpipe.appearance3D"
+      Position 3.150  0.380  0.040
+      Stationary
+      Unreachable
+    End Unum
+  End Region
+
+///////////////////////////////////////////////////////////
+//
+// Cafe Noir
+//
+///////////////////////////////////////////////////////////
+
+  Create Region
+    Name "Cafe Noir"
+    wavefile "sounds/Ambient3.wav"
+    Watermark "Watermarks/TheCityWatermark.bmp"
+    URL "http://www.communities.com/city/tos"
+    BBS "http://www.communities.com/beta/bbs"
+    Description "Cafe Noir is a place where the dressed-in-black crowd mingles after or before a long night of partying."
+    Horizon 240
+    Camera 2.54 -4.95 4.34 0.33 0.9 -0.26 0.08 0.24 0.96 48 1.333
+    
+    Create Unum SimpleCamera
+      Camera 2.54 -4.95 4.34 0.33 0.9 -0.26 0.08 0.24 0.96 48 1.333
+      Name "Camera"
+      CameraNumber "0"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera 7.5 12 1.2 0.98 0.15 0.07 -0.07 -0.02 0.99 52 1.333
+      Name "Camera"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera 4.34 7.34 1.04 -0.22 -0.98 0.08 0.01 0.08 0.99 48 1.333
+      Name "Camera"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera 8.69 12 2.28 0.3 -0.95 -0.12 0.03 -0.11 0.99 44 1.333
+      Name "Camera"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera 6.64 8.33 1.03 -0.84 0.54 0.12 0.1 -0.07 0.99 48 1.333
+      Name "Camera"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera 6.75 10.94 0.75 0 0.96 0.27 0 -0.28 0.96 64 1.333
+      Name "Camera"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera 13.8 8.25 2.4 -0.86 -0.52 -0.06 -0.05 -0.03 0.99 57 1.333
+      Name "Camera"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+//    Create Unum TeleportPad
+//      Name "Cafe Noir"
+//      Description "Welcome to Cafe Noir!"
+//      ImageFile "Textures/NoAppearance.appearance2d"
+//      Position 0  0  0
+//      AnchorPoint 0 0
+//      Scale 0.5
+//      Size 1  1
+//      FinalEntryPosition 6 6 0
+//      Orientation "East"
+//      UnumCreatorClass "ec.cosm.agency.TeleportPadCreator"
+//    End Unum
+
+    Create Unum Portal
+      Name "To The City Strip"
+      Description "Step through here for a breath of fresh air."
+      ImageFile "cafenoir/SomaPortal.appearance3D"
+      Position 6.749  -0.002  0.000
+      ConnectToRegion "The City Strip"
+      ConnectToPortal "To Cafe Noir"
+      ExitPosition 6.3 1.2 0
+      FinalEntryPosition 6.3 1.2 0 
+      Stationary
+    End Unum
+    Create Unum Prop
+      Name "SndEmitCN1"
+      Description ""
+      ImageFile "CafeNoir/sndemit_CN1.appearance2D"
+      Position 0  0  0
+      Stationary
+      Unreachable
+    End Unum
+
+    Create Unum SimpleProp3D
+      Name "Bar Top"
+      Description "Spill coffee on here and Luis the barista will KILL you!"
+      ImageFile "cafenoir/Bar_Top.appearance3D"
+      Position 13.651  9.978  1.048
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Back o the Bar"
+      Description "Here in the depths, frustrated artists steam milk and discuss Camus vs. Sartre"
+      ImageFile "cafenoir/BarMenu_Prop.appearance3D"
+      Position 16.710  2.619  -0.100
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Bar"
+      Description "Place your order here with the surly baristas."
+      ImageFile "cafenoir/Bar.appearance3D"
+      Position 11.851  8.848  -0.001
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Entry Couch"
+      Description "Bet there's a couple bucks and a few old roaches in the cushions."
+      ImageFile "cafenoir/EntryCouch.appearance3D"
+      Position 1.692  0.664  -0.002
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Entry Lounger"
+      Description "Stake out this spot for people watching."
+      ImageFile "cafenoir/EntryLounger.appearance3D"
+      Position 4.589  0.882  0.000
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Back Left Lounger"
+      Description "Some guy named Brett had to be physically dragged from this couch after 12 consecutive days of lounging."
+      ImageFile "cafenoir/BackLeftLounger.appearance3D"
+      Position 2.163  14.654  0.000
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Back Left Couch"
+      Description "It's so much smokier back here, don't you think?"
+      ImageFile "cafenoir/BackLeftCouch.appearance3D"
+      Position 1.104  12.438  0.000
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Back Right Table"
+      Description "Each coffee ring marks another year of growth."
+      ImageFile "cafenoir/BackRightTable.appearance3D"
+      Position 13.141  12.323  -0.001
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Back Left Table"
+      Description "This table features the World Famous Scone Crumb Museum."
+      ImageFile "cafenoir/BackLeftTable.appearance3D"
+      Position 0.917  13.314  -0.001
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Entry Table"
+      Description "Leave flyers for your pathetic garage band here."
+      ImageFile "cafenoir/EntryTable.appearance3D"
+      Position 2.911  0.770  -0.001
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Back Right Couch"
+      Description "Bet you're not hip enough to sit here."
+      ImageFile "cafenoir/BackRightCouch.appearance3D"
+      Position 12.682  15.102  -0.002
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Back Right Lounger"
+      Description "Lie down here and pretend you're OD'ed."
+      ImageFile "cafenoir/BackRightLounger.appearance3D"
+      Position 12.616  10.740  0.000
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Wainscotting"
+      Description "Yup, wainscotting. Add that word to your architectural vocabulary."
+      ImageFile "cafenoir/Wainscotting.appearance3D"
+      Position 10.648  16.498  0.000
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Column"
+      Description "Hey, watch where you point that arrow, man!"
+      ImageFile "cafenoir/Column.appearance3D"
+      Position 0.000  15.149  0.000
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Stage"
+      Description "Featuring the finest in faux folkie entertainment."
+      ImageFile "cafenoir/Stage.appearance3D"
+      Position 2.849  16.498  0.000
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum Floor3D
+      Name "Floor"
+      Description "The floor is a piece of art too. Add some muddy footprints for emphasis."
+      ImageFile "cafenoir/Floor.appearance3D"
+      Position 3.299  8.848  0.000
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Kiss"
+      Description "Love ya babe."
+      ImageFile "cafenoir/AnimKiss_Back.appearance3D"
+      Position 1.280  0.040  3.119
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Psych"
+      Description "AGHHGGHG!! Freak out!!!"
+      ImageFile "cafenoir/AnimPsych_Counter.appearance3D"
+      Position 0.124  4.944  3.547
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Gun"
+      Description "Bang!"
+      ImageFile "cafenoir/AnimGun_Counter.appearance3D"
+      Position 0.124  6.165  1.919
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Psych"
+      Description "Stay back man, I'm pretty ticked off!"
+      ImageFile "cafenoir/AnimPsych.appearance3D"
+      Position 1.367  16.370  2.235
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Heart"
+      Description "Ain't is sweet?"
+      ImageFile "cafenoir/AnimHeart.appearance3D"
+      Position 8.813  16.370  1.263
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Sparkle"
+      Description "Twikle twinkle."
+      ImageFile "cafenoir/AnimSparkle.appearance3D"
+      Position 10.995  16.370  2.918
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Psych"
+      Description "Whoa, I'm gonna have a seizure!"
+      ImageFile "cafenoir/AnimPsych_Right2.appearance3D"
+      Position 13.460  11.964  3.198
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Kiss"
+      Description "Pucker up..."
+      ImageFile "cafenoir/AnimKiss_Left.appearance3D"
+      Position 0.124  13.740  1.801
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Sparkle"
+      Description "Too high tech for words."
+      ImageFile "cafenoir/AnimSparkle_Left.appearance3D"
+      Position 0.124  10.394  2.120
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Psych"
+      Description "Had enough?"
+      ImageFile "cafenoir/AnimPsych_Right.appearance3D"
+      Position 13.460  16.188  2.238
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Gun"
+      Description "Happiness is a warm gun. Bang bang shoot shoot."
+      ImageFile "cafenoir/AnimGun_Counter2.appearance3D"
+      Position 4.096  -0.012  4.284
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Psych"
+      Description "Hehehhhehhehhheheh."
+      ImageFile "cafenoir/AnimPsych_Counter2.appearance3D"
+      Position 0.124  1.909  5.574
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Kiss"
+      Description "Right on the old kisserroo."
+      ImageFile "cafenoir/AnimKiss_Back2.appearance3D"
+      Position 6.390  0.040  3.307
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Psychout"
+      Description "This is you after too many Americanos."
+      ImageFile "cafenoir/AnimPsych_Bar.appearance3D"
+      Position 13.590  0.040  2.722
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Sparkle"
+      Description "Can't you feel your frame rate crawling?"
+      ImageFile "cafenoir/AnimSparkle_Counter.appearance3D"
+      Position 8.915  0.040  3.064
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Kiss"
+      Description "I'm too sexy for my GIF."
+      ImageFile "cafenoir/AnimKiss_Counter.appearance3D"
+      Position 9.169  0.040  0.110
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Sparkle"
+      Description "This is all that's left of the Moving Worlds spec."
+      ImageFile "cafenoir/AnimSparkle_Back.appearance3D"
+      Position 0.954  0.065  1.740
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum Floor3D
+      Name "Sparkle"
+      Description "Low budget magic at your fingertips."
+      ImageFile "cafenoir/AnimSparkle_Floor.appearance3D"
+      Position 11.330  6.331  0.020
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Wall"
+      Description "How many bottles of beer are here?"
+      ImageFile "cafenoir/Wall.appearance3D"
+      Position 13.649  9.898  0.353
+      Stationary
+      Unreachable
+    End Unum
+  End Region
+
+///////////////////////
+//
+// Haus Do !!!
+//
+///////////////////////
+
+  Create Region
+    Name "Haus Do"
+    wavefile "sounds/Ambient2.wav"
+    Description "The finest of City wares found here."
+    Watermark "Watermarks/TheCityWatermark.bmp"
+    URL "http://www.communities.com/city/tos"
+    BBS "http://www.communities.com/beta/bbs"
+    DefaultPad "Haus Do"
+    Horizon 240
+    Camera -5.51 2.01 1.74 0.92 -0.37 0.09 -0.1 0.03 0.99 64 1.333
+
+    
+    Create Unum SimpleCamera
+      Camera -5.51 2.01 1.74 0.92 -0.37 0.09 -0.1 0.03 0.99 64 1.333
+      Name "Camera"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera 0.43 1.58 2.17 0.96 -0.14 -0.25 0.24 -0.04 0.96 59 1.333
+      Name "Camera"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera -6.15 -0.99 4.34 0.89 0.41 -0.19 0.16 0.07 0.98 70 1.333
+      Name "Camera"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+//    Create Unum SimpleCamera
+//      Camera 1.14 -0.78 3.11 -0.92 0.31 -0.26 -0.25 0.08 0.96 68 1.333
+//      Name "Camera"
+//      Description "My, what a lovely view."
+//      ImageFile "Textures/NoAppearance.appearance2d"
+//      Position 0 0 0
+//      Stationary
+//    End Unum
+    Create Unum SimpleCamera
+      Camera 1.09 -0.57 3.11 -0.93 0.27 -0.27 -0.26 0.07 0.96 68 1.333
+      Name "Camera"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera -2.83 1.35 1.79 0.95 0.3 -0.02 0.01 0 0.99 70 1.333
+      Name "Camera"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera 6.05 1.28 2.77 -1 -0.08 -0.04 -0.04 -0.01 0.99 67 1.333
+      Name "Camera"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum TeleportPad
+      Name "Haus Do"
+      Description "Welcome to Haus Do"
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0  0  0
+      AnchorPoint 0 0
+      Scale 0.5
+      Size 1  1
+      FinalEntryPosition 0.2 2.5 0
+      Orientation "East"
+      UnumCreatorClass "ec.cosm.agency.TeleportPadCreator"
+    End Unum
+    Create Unum Portal
+      Name "To The City Strip"
+      Description "When you tire of Haus Do, exit here."
+      ImageFile "HausDo/Entry-ExitPortal.appearance3D"
+      Position 0.770  -1.310  -0.010
+      Stationary
+      ConnectToRegion "The City Strip"
+      ConnectToPortal "To Haus Do"
+      ExitPosition 0 -0.8 0
+      FinalEntryPosition 0 -0.2 0  
+    End Unum
+    Create Unum Floor3D
+      Name "Haus Floor"
+      Description "Make yourself at home."
+      ImageFile "HausDo/Floor.appearance3D"
+      Position -3.490  -2.240  0.000
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Flower"
+      Description "A lovely ikebana arrangement, ja?"
+      ImageFile "HausDo/Flower.appearance3D"
+      Position 1.770  3.310  1.130
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3d
+      Name "Poster of Hippy Turf"
+      Description "Check out this far-out Hippy Turf."
+      ImageFile "HausDo/PosterWestRight.appearance3D"
+      Position -4.180  2.760  1.120
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3d
+      Name "Poster of Turf JR2 Turf"
+      Description "Check out this simple yet refined Turf."
+      ImageFile "HausDo/PosterWestCenter.appearance3D"
+      Position -4.340  0.380  1.520
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3d
+      Name "Poster of Victorian Turf"
+      Description "Check out this spooky yet dignified Victorian Turf."
+      ImageFile "HausDo/PosterWestLeft.appearance3D"
+      Position -3.690  -1.550  1.120
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Emergency Exit"
+      Description "Uhm, sorry, seems to be stuck."
+      ImageFile "HausDo/NextRoomPortal.appearance3D"
+      Position -0.360  3.910  -0.010
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3d
+      Name "Poster of Zen Turf"
+      Description "Check out this restful Zen Turf."
+      ImageFile "HausDo/PosterEastCenter.appearance3D"
+      Position 4.690  1.730  1.130
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3d
+      Name "Poster of Mansion Turf"
+      Description "Check out this swanky Mansion Turf."
+      ImageFile "HausDo/PosterEastLeft.appearance3D"
+      Position 4.270  2.860  0.770
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3d
+      Name "Poster of Trailer Turf"
+      Description "Check out this down-home Trailer Turf."
+      ImageFile "HausDo/PosterEastRight.appearance3D"
+      Position 4.630  0.560  0.770
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Ceiling Lamp"
+      Description "Ceiling Lamp is from Berlin's finest design studios."
+      ImageFile "HausDo/CeilingLamp.appearance3D"
+      Position 3.140  0.700  3.430
+      Stationary
+      Unreachable
+    End Unum
+
+    Create Unum SimpleProp3D
+      Name "Table"
+      Description "Oh no, it's not for sale."
+      ImageFile "HausDo/Table.appearance3D"
+      Position 3.550  2.860  0.740
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Ceiling"
+      Description "One man's floor is another man's ceiling."
+      ImageFile "HausDo/Ceiling.appearance3D"
+      Position 3.270  3.300  4.880
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Walls"
+      Description "Windows? in SOMA? Surely you make joke."
+      ImageFile "HausDo/Wall.appearance3D"
+      Position 0.890  -1.290  -0.010
+      Stationary
+      Unreachable
+    End Unum
+  End Region
+
+End Realm

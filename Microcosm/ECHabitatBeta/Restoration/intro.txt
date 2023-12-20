@@ -1,0 +1,7 @@
+EC Habitats was a virtual world service that was developed by Electric Communities, whose founders created the first massively multiplayer online roleplaying game, Lucasfilm's Habitat.
+
+Many of the original concepts designed for Habitat are present in EC Habitats and in many cases, improved upon. Development of the product ended in early 1998 and it didn't leave the beta phase.
+
+EC Habitats was designed to be P2P and as such, you don't need to operate a server to connect with other users. NEEDED: Where do we point a link to in order to get the LDAP stuff working again without modifying the client? Can we modify the url's in the realmtext? It seems the least invasive thing to do.
+
+EC Habitats has been released as open-source software.

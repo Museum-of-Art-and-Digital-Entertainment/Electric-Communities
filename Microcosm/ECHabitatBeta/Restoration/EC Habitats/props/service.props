@@ -1,0 +1,21 @@
+#
+#
+InstallDir=d:\build\release
+#
+#
+LogFile=d:\build\release\logs\service
+#
+#
+CLASSPATH=.;.\classes\startup.zip;D:\Build\classes;D:\Build\crew\classes;D:\Build\steward\classes;D:\Build\compute\classes;D:\Build\guest\classes;D:/EC/TP/cryptix-2.2\classes.zip;D:/EC/TP/jce-1.1\lib\jce.zip;D:/EC/TP/java-1.1.3\lib\classes.zip;D:/EC/TP/ifc-1.1.1\classes.zip;D:\EC\FP\e\classes.zip;D:\EC\FP\e\compute.zip;D:\EC\FP\e\crew.zip;D:\EC\FP\e\guest.zip;D:\EC\FP\e\steward.zip;D:\EC\FP\pluribus\compute.zip;D:\EC\FP\pluribus\crew.zip;D:\EC\FP\pluribus\guest.zip;D:\EC\FP\pluribus\steward.zip;D:/EC/FP/support\compute.zip;D:\EC\FP\support\crew.zip;D:\EC\FP\support\guest.zip;D:\EC\FP\support\steward.zip;D:\EC\FP\hub\compute.zip;D:\EC\FP\hub\crew.zip;D:\EC\FP\hub\guest.zip;D:\EC\FP\hub\steward.zip;D:\EC\FP\ez\guest.zip;D:\EC\FP\ez\steward.zip;D:\EC\FP\cosm\compute.zip;D:\EC\FP\cosm\crew.zip;D:\EC\FP\cosm\guest.zip;D:\EC\FP\cosm\steward.zip;D:\src\ec3\support\ntservice\win32;
+#
+#
+PATH=D:\EC\TP\java-1.1.3\bin;D:\Build\bin;D:\Build\lib;D:\EC\gnu\bin;.;D:\WINNT\SYSTEM32;D:\WINNT;D:\EC\TP\AnyChannel;D:\EC\TP\Codebase;D:\Program Files\DevStudio\VC\bin;D:\Program Files\DevStudio\SharedIDE\bin;D:\EC\FP\e\win32\bin;D:\EC\FP\e\win32\lib;D:\EC\FP\pluribus\win32\bin;D:\EC\FP\hub\win32\lib;D:\EC\FP\cosm\win32\bin;D:\EC\FP\cosm\win32\lib
+#
+#
+CmdLine=java.exe -ms6m    -mx48m  ec.e.boot.ELogin ec.pl.runtime.Agency -ECproperties props/console.props  RealmTextFile=realm/realm.Avatar97.txt  PublishDirRoot=. PublishDir=PublishedRefs RealmDir=Avatar97 UIOverride=none   INSTALLDIR=D:\build\release AvatarName=host HubEventLogPath=logs HubEventLogName=hubevents
+#
+#
+# Uncomment line below to allow telnet connections on port 1666.
+# These connections will get hooked to stdin/stdout
+# ListenPort=1666
+#

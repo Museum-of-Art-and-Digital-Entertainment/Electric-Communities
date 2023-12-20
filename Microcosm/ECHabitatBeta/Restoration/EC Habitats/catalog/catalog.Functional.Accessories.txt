@@ -1,0 +1,141 @@
+// catalog.Accessories.txt
+//
+// This is the file will hold all of the objects that may
+// be worn by the avatars.
+//
+
+Create Realm
+    Name "Accessories Catalog"
+    RealmRootDirectory "images"
+    ScreenWidth 640
+    ScreenHeight 480
+
+    Create Region
+      Name "Accessories Catalog"
+      Orientation "Northwest"
+      Horizon 234
+      Description "This is the Accessories catalog. These items may be worn by avatars."      
+
+
+        Create Unum Accessory
+            Name "Bow Tie"
+                Description "Put on a happy face!"
+                ImageFile "Accessories/BowTie.appearance3D"
+                Thumbnail "Accessories/BowTie.gif"
+                Position 0 0 0
+                Scale 1
+              Tab "Neck"
+        End Unum
+
+        Create Unum Accessory
+            Name "Funky Hat"
+                Description "Where are you going to wear this funky hat?"
+                ImageFile "Accessories/FunkyHat.appearance3D"
+                Thumbnail "Accessories/FunkyHat.gif"
+                Position 0 0 0
+                Scale 1
+              Tab "Crown"
+        End Unum
+
+        Create Unum Accessory
+            Name "Bunny Cap"
+                Description "Show how you really feel with straight up pink bunny ears."
+                ImageFile "Accessories/BunnyCap.appearance3D"
+                Thumbnail "Accessories/BunnyCap.gif"
+                Position 0 0 0
+                Scale 1
+              Tab "Crown"
+        End Unum
+
+        Create Unum Accessory
+            Name "Baseball Cap"
+                Description "Take me out to the ball game"
+                ImageFile "Accessories/BallCap.appearance3D"
+                Thumbnail "Accessories/BallCap.gif"
+                Position 0 0 0
+                Scale 1
+              Tab "Crown"
+        End Unum
+
+        Create Unum Accessory
+            Name "Bug Antennae"
+                Description "Stop bugging me!"
+                ImageFile "Accessories/BugAntennae.appearance3D"
+                Thumbnail "Accessories/BugAntennae.gif"
+                Position 0 0 0
+                Scale 1
+              Tab "Crown"
+        End Unum
+
+        Create Unum Accessory
+            Name "Fez"
+                Description "Don't you look sharp?"
+                ImageFile "Accessories/Fez.appearance3D"
+                Thumbnail "Accessories/Fez.gif"
+                Position 0 0 0
+                Scale 1
+              Tab "Crown"
+        End Unum
+
+        Create Unum Accessory
+            Name "Conquistador Helmet"
+                Description "You're ready to take on the world!"
+                ImageFile "Accessories/ConquistadorHelm.appearance3D"
+                Thumbnail "Accessories/ConquistadorHelm.gif"
+                Position 0 0 0
+                Scale 1
+              Tab "Crown"
+        End Unum
+
+        Create Unum Accessory
+            Name "Deep Sea Helmet"
+                Description "Old school scuba gear"
+                ImageFile "Accessories/DeepSeaHelmet.appearance3D"
+                Thumbnail "Accessories/DeepSeaHelmet.gif"
+                Position 0 0 0
+                Scale 1
+              Tab "Crown"
+        End Unum
+
+        Create Unum Accessory
+            Name "Dinosaur Tail"
+                Description "A big spike tail is cool!"
+                ImageFile "Accessories/DinosaurTail.appearance3D"
+                Thumbnail "Accessories/DinosaurTail.gif"
+                Position 0 0 0
+                Scale 1
+              Tab "Tail"
+        End Unum
+
+        Create Unum Accessory
+            Name "Angel Wings"
+                Description "Fly away to heaven with these puppies."
+                ImageFile "Accessories/AngelWings.appearance3D"
+                Thumbnail "Accessories/AngelWings.gif"
+                Position 0 0 0
+                Scale 1
+              Tab "BackPack"
+        End Unum
+
+        Create Unum Accessory
+        Name "Back Pack"
+                Description "This is a big back pack"
+                ImageFile "Accessories/BackPack.appearance3D"
+                Thumbnail "Accessories/BackPack.gif"
+                Position 0 0 0
+                Scale 1
+              Tab "BackPack"
+        End Unum
+
+        Create Unum Accessory
+        Name "Beanie"
+                Description "Isn't that cute."
+                ImageFile "Accessories/Beanie.appearance3D"
+                Thumbnail "Accessories/Beanie.gif"
+                Position 0 0 0
+                Scale 1
+              Tab "Crown"
+        End Unum
+
+    End Region
+End Realm

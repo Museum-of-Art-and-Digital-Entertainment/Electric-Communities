@@ -1,0 +1,179 @@
+RealmVersion "RealmText Version 0.3, 10 March 1997"
+
+Create Realm
+    Name "EC Turf Catalog"
+    // for the catalog
+    Type "turfs"
+    Create Region
+        Name "Swatchable"
+        Create Unum Turf
+            Name "Swatchable Turf"
+            Description "You can do your own texturing on walls and ceilings."
+            RealmTextFile "realm/realm.turfswatchable.txt"
+            Thumbnail "turfswatchable/turfswatchable.gif"
+        End Unum
+    End Region
+    Create Region
+        Name "Greek"
+        Create Unum Turf
+            Name "Greek Turf"
+            Description "Greek turf: olive oil and romance"
+            RealmTextFile "realm/realm.turfgreek.txt"
+            Thumbnail "greekturf/thumbGreek.gif"
+        End Unum
+    End Region
+    Create Region
+        Name "Simple"
+        Create Unum Turf
+            Name "Snowy Turf"
+            Description "A scene to make you want to ski."
+            RealmTextFile "realm/realm.turfsimple.txt"
+            Thumbnail "SimpleTurf/simpleTurf.gif"
+        End Unum  
+    End Region
+    Create Region
+        Name "Nouveau"
+        Create Unum Turf
+            Name "Nouveau Turf"
+            Description "A 'nouveau' styled interior."
+            RealmTextFile "realm/realm.turfnouveau.txt"
+            Thumbnail "nouveauturf/ThumbNouv2.gif"
+        End Unum
+    End Region
+    Create Region
+        Name "Victorian"
+        Create Unum Turf
+            Name "Victorian Turf"
+            Description "Decorate this turf with antiques, stained glass, and soft lighting."
+            RealmTextFile "realm/realm.turfvictorian.txt"
+            Thumbnail "turfVictorian/VicFant.gif"
+        End Unum
+    End Region
+//    Create Region
+//        Name "Beta Turf"
+//        Create Unum Turf
+//            Name "Beta Turf"
+//            Description "This is a four region beta turf for testing."
+//            RealmTextFile "realm/realm.betaTurf.txt"
+//            PreviewURL "http://www.communities.com/"
+//            Thumbnail "aztecTurf/aztecThumb.gif"
+//        End Unum
+//    End Region
+    Create Region
+        Name "Zen Turf"
+        Create Unum Turf
+            Name "Zen Turf"
+            Description "Peace and tranquility can be attained."
+            RealmTextFile "realm/realm.turfzen.txt"
+            Thumbnail "TurfZen/ThumbTrctZenLoft.GIF"
+        End Unum
+    End Region
+    Create Region
+        Name "Arabian"
+        Create Unum Turf
+            Name "Arabian Turf"
+            Description "Steal off to the desert with your harem or camel."
+            RealmTextFile "realm/realm.turfarabian.txt"
+            Thumbnail "TurfArabian/ThumbArabian.GIF"
+        End Unum
+    End Region
+    Create Region
+       Name "Aztec"
+        Create Unum Turf
+            Name "Aztec Turf"
+            Description "Worship the sun and let the steamy jungle envelope you."
+            RealmTextFile "realm/realm.turfaztec.txt"
+            Thumbnail "TurfAztec/ThumbAztec.gif"
+        End Unum
+    End Region
+    Create Region
+       Name "Hermit"
+        Create Unum Turf
+            Name "Hermit Turf"
+            Description "Hide away where no one except your brother or the FBI can find you."
+            RealmTextFile "realm/realm.turfhermit.txt"
+            Thumbnail "Turfhermit/Thumbhermit.gif"
+        End Unum
+    End Region
+    Create Region
+       Name "Hippy"
+        Create Unum Turf
+            Name "Hippy Turf"
+            Description "Ooh, the colors are so INTENSE!"
+            RealmTextFile "realm/realm.turfhippy.txt"
+            Thumbnail "Turfhippy/Thumbhippy.gif"
+        End Unum
+    End Region
+    Create Region
+       Name "Mansion"
+        Create Unum Turf
+            Name "Mansion Turf"
+            Description "Use this turf to show up those no-good Vanderbilts next door."
+            RealmTextFile "realm/realm.turfmansion.txt"
+            Thumbnail "Turfmansion/thumbmansion.gif"
+        End Unum
+    End Region
+    Create Region
+       Name "Warehouse"
+        Create Unum Turf
+            Name "Warehouse Loft Turf"
+            Description "Squat with artists who want to be rich and laywers who want to be artists."
+            RealmTextFile "realm/realm.turfwarehouse.txt"
+            Thumbnail "Turfwarehouse/ThmbTrctHipLoft.GIF"
+        End Unum
+    End Region
+    Create Region
+       Name "Turf Jr"
+        Create Unum Turf
+            Name "Turf Junior"
+            Description "A nice simple place to hang out and entertain."
+            RealmTextFile "realm/realm.turfjr.txt"
+            Thumbnail "turfjr/ThumbTurfJr.gif"
+        End Unum
+    End Region
+    Create Region
+       Name "Turf Jr 2"
+        Create Unum Turf
+            Name "Turf Junior #2"
+            Description "It looks like a mirror but isn't."
+            RealmTextFile "realm/realm.turfjr2.txt"
+            Thumbnail "turfjr2/ThumbTurfJr2.gif"
+        End Unum
+    End Region
+    Create Region
+       Name "Domestic"
+        Create Unum Turf
+            Name "Domestic Goddess Turf"
+            Description "Home sweet home!"
+            RealmTextFile "realm/realm.turfdomesticgoddess.txt"
+            Thumbnail "turfdomesticgoddess/ModHom2LivRoomCam1.GIF"
+        End Unum
+    End Region
+    Create Region
+       Name "Mushroom"
+        Create Unum Turf
+            Name "Mushroom Turf"
+            Description "One pill makes you larger, and one pill makes you small."
+            RealmTextFile "realm/realm.turfmushroom.txt"
+            Thumbnail "turfmushroom/ThumbMushExt.GIF"
+        End Unum
+    End Region
+    Create Region
+       Name "Treehouse"
+        Create Unum Turf
+            Name "Treehouse Turf"
+            Description "Straight out of The Hobbit. Your own woodsy burrow"
+            RealmTextFile "realm/realm.turftreehouse.txt"
+            Thumbnail "turftreehouse/Thumbtree.GIF"
+        End Unum
+    End Region
+    Create Region
+       Name "Trailer"
+        Create Unum Turf
+            Name "Trailer Turf"
+            Description "Hang out with JoeBob and Shanelle at the trailer park."
+            RealmTextFile "realm/realm.turftrailer.txt"
+            Thumbnail "turftrailer/Thumbtrailer1.GIF"
+        End Unum
+    End Region
+End Realm

@@ -1,0 +1,2406 @@
+/////////////////////////////////////////
+//
+// realm.BeachTown.txt
+// 
+//  This is half the main demo realm for the EC beta release, with TOS set to Cert
+//
+//  Beach Town
+//    LightHouse -T
+//    Resort (old version)
+//    Beach - T (anim)
+//    Beach Town Theater -T (anim)
+//    Beach Underwater (anim)
+//    Mountain Villa -T (anim)
+//    Beach Night (anim)
+//
+//   Park - several 2d regions strung together
+//     Resort Park
+//     Central Park
+//     Wilderness Park
+//     Jungle Park 
+//
+////////////////////////////////////////////
+
+RealmVersion "RealmText Version 0.3, 10 March 1997"
+Create Realm
+  Name "Beach Town"
+  RealmRootDirectory "images"
+  ScreenWidth 640
+  ScreenHeight 480
+  Hatchery "Lighthouse"
+
+////////////////////////////////////////////
+//
+// Lighthouse
+//
+////////////////////////////////////////////
+  
+  Create Region
+    Name "Lighthouse"
+    DefaultPad "Lighthouse"
+    EntryPosition -1 4 0 
+    Description "Welcome to Beach Town! Try scanning the island with your cursor to find out where you can go."
+    URL "http://www.communities.com/beach/tos"
+    BBS "http://www.communities.com/beta/bbs"
+    Watermark "Watermarks/SandDollarWatermark.bmp"
+    Horizon 280    
+    Certificate ECCert-V0.9
+    Certificate KidSafe-V0.9
+
+    Create Unum TeleportPad
+      Name "Lighthouse"
+      Description "Happy landings!"
+      ImageFile "Misc/TransNoPick.appearance2d"
+      Position -1 4 0
+      AnchorPoint 320 360
+      Scale .5
+      FinalEntryPosition -1 4 0
+      UnumCreatorClass "ec.cosm.agency.TeleportPadCreator"
+      Default "Beach Town"
+    End Unum
+    Create Unum Portal
+      Name "To Beach"
+      Description "The sands on the beach are warm and soothing."
+      ImageFile "Misc/transarch.appearance2d"   
+      Position 2.3 5.5 0.0
+      AnchorPoint 0 0
+      Scale 1.5
+      ConnectToRegion "Beach"
+      ConnectToPortal "To Lighthouse"
+      ExitPosition -2 4 0
+      FinalEntryPosition -1 4 0
+    End Unum  
+    Create Unum Portal
+      Name "To GRS from Beach Town"
+      Description "Invisible"
+      ImageFile "Misc/transarch.appearance2d"   
+      Position -1  -1  -1
+      Scale 1
+      ConnectToRegion "Great Round Square East"
+      ConnectToPortal "Portal to Beach Town"
+      ExitPosition -1 -1 -1
+      FinalEntryPosition -1.0 4.0 0.0
+    End Unum
+    Create Unum Portal
+      Name "To Beach Town Theater"
+      Description "Go downtown, where the action is."
+      ImageFile "Misc/transarch.appearance2d"   
+      Position 0.2 6.1 1.9
+      AnchorPoint 0 0
+      Scale 1.15
+      ConnectToRegion "Beach Town Theater"
+      ConnectToPortal "To Lighthouse"
+      ExitPosition -2.0 4.0 0.0
+      FinalEntryPosition -1.0 4.0 0.0
+    End Unum
+    Create Unum Portal
+      Name "To Mountain Villa"
+      Description "Breathe in the mountain air."
+      ImageFile "BeachTownLighthouse/mountainvilla.Appearance2D"
+      Position 490.000000 502.000000 144.000000
+      Scale  0.0 
+      AnchorPoint 445 479
+      ConnectToRegion "Mountain Villa"
+      ConnectToPortal "To Lighthouse"
+      ExitPosition -2.0 4.0 0.0
+      FinalEntryPosition -1.0 4.0 0.0
+    End Unum
+    Create Unum Prop
+      Name "SndEmit1"
+      Description ""
+      ImageFile "BeachTownLighthouse/sndemit_bl.appearance2D"
+      Position 0  0  0
+      Stationary
+      Unreachable
+    End Unum
+
+    Create Unum Prop
+      Name "Sky"
+      Description "Nothing but blue skies round here."
+      ImageFile "BeachTownLighthouse/Sky.Appearance2D"
+      Position 0.000000 508.000000 0.000
+      Scale  0.0 
+      AnchorPoint 320 207
+    End Unum
+    Create Unum Prop
+      Name "Ocean"
+      Description "The ocean looks lovely from here."
+      ImageFile "BeachTownLighthouse/SeaIslands.Appearance2D"
+      Position 0.000000 507.000000 208.500000
+      Scale  0.0 
+      AnchorPoint 261 479
+      Unreachable
+    End Unum
+    Create Unum Prop
+      Name "The Islands"
+      Description "The Islands are too far to swim to."
+      ImageFile "BeachTownLighthouse/Islands.Appearance2D"
+      Position 52.000000 506.000000 185.000000
+      Scale  0.0 
+      AnchorPoint 271 479
+    End Unum
+    // XXX wants to be a portal to the CruiseShip
+    Create Unum Prop
+      Name "Cruise Ship"
+      Description "Click on the Cruise Ship and join the party."
+      ImageFile "BeachTownLighthouse/CruiseShip.Appearance2D"
+      Position 250.000000 505.000000 244.000000
+      Scale  0.0 
+      AnchorPoint 282 269
+      Unreachable
+    End Unum
+    Create Unum Prop
+      Name "Palm Beach"
+      Description "Palm Beach is balmy and quiet."
+      ImageFile "BeachTownLighthouse/PalmBeach.Appearance2D"
+      Position 250.000000 504.000000 144.000000
+      Scale  0.0 
+      AnchorPoint 445 479
+      Unreachable
+    End Unum
+    Create Unum Prop
+      Name "Railing"
+      Description "Keep small children away from the railing."
+      ImageFile "BeachTownLighthouse/Railing.Appearance2D"
+      Position 0.000000 503.000000 354.000000
+      Scale  0.0 
+      AnchorPoint 239 479
+      Unreachable
+    End Unum
+    Create Unum Prop
+      Name "Windows"
+      Description "Windows is a registered trademark of the Microsoft Corporation."
+      ImageFile "BeachTownLighthouse/Windows.Appearance2D"
+      Position 0.000000 1 0.000000
+      Scale  0.0 
+      AnchorPoint 35 479
+      Unreachable
+    End Unum
+//    Create Unum Prop
+//      Name "Reflection"
+//      Description "Contemplate the reflection if you will."
+//      ImageFile "BeachTownLighthouse/reflection.Appearance2D"
+//      Position 0.000000 506 0.000000
+//      Scale  0.0 
+//      AnchorPoint 35 479
+//    End Unum
+    Create Unum Floor
+      Name "Lighthouse Deck"
+      Description "Promenade on the lighthouse deck."
+      ImageFile "BeachTownLighthouse/Floor.Appearance2D"
+      Position 0.000000 502.000000  417.000000
+      Scale  0.0 
+      AnchorPoint 186 479
+    End Unum    
+  End Region
+
+//////////////////
+//
+// Mountain Villa
+//
+//////////////////
+
+  Create Region
+     Name "Mountain Villa"
+     DefaultPad "Mountain Villa"
+     Description "See the whole beach region from this high vantage point."
+     URL "http://www.communities.com/beach/tos"
+     BBS "http://www.communities.com/beta/bbs"
+     Watermark "Watermarks/SandDollarWatermark.bmp"
+     Horizon 240
+     Camera 12.56 0.18 2.8 -0.91 0.4 -0.16 -0.15 0.06 0.98 37 1.333
+     TOS "Certification"
+     Certificate ECCert-V0.9
+     Certificate KidSafe-V0.9
+
+    
+     Create Unum SimpleCamera
+       Camera 12.56 0.18 2.8 -0.91 0.4 -0.16 -0.15 0.06 0.98 37 1.333
+       Name "Camera"
+       CameraNumber "0"
+       Description "My, what a lovely view."
+       ImageFile "Textures/NoAppearance.appearance2d"
+       Position 0 0 0
+       Stationary
+     End Unum
+     Create Unum SimpleCamera
+       Camera -13.49 4.06 1.82 0.99 -0.03 -0.06 0.05 -0.01 0.99 36 1.333
+       Name "Camera"
+       CameraNumber "1"
+       Description "My, what a lovely view."
+       ImageFile "Textures/NoAppearance.appearance2d"
+       Position 0 0 0
+       Stationary
+     End Unum
+     Create Unum SimpleCamera
+       Camera 2.31 1.74 2.07 0.13 0.98 -0.15 0.01 0.13 0.99 57 1.333
+       Name "Camera"
+       CameraNumber "2"
+       Description "My, what a lovely view."
+       ImageFile "Textures/NoAppearance.appearance2d"
+       Position 0 0 0
+       Stationary
+     End Unum
+     Create Unum SimpleCamera
+       Camera 1.33 1.96 1.36 -0.72 0.69 -0.05 -0.04 0.02 0.99 45 1.333
+       Name "Camera"
+       CameraNumber "3"
+       Description "My, what a lovely view."
+       ImageFile "Textures/NoAppearance.appearance2d"
+       Position 0 0 0
+       Stationary
+     End Unum
+     Create Unum SimpleCamera
+       Camera 2.82 1.89 2.13 -0.42 0.9 -0.12 -0.05 0.1 0.99 49 1.333
+       Name "Camera"
+       CameraNumber "4"
+       Description "My, what a lovely view."
+       ImageFile "Textures/NoAppearance.appearance2d"
+       Position 0 0 0
+       Stationary
+     End Unum
+     Create Unum SimpleCamera
+       Camera -1.03 2.91 1.83 0.99 0.04 -0.08 0.07 0 0.99 36 1.333
+       Name "Camera"
+       CameraNumber "5"
+       Description "My, what a lovely view."
+       ImageFile "Textures/NoAppearance.appearance2d"
+       Position 0 0 0
+       Stationary
+     End Unum
+     Create Unum SimpleCamera
+       Camera 2.14 8.58 1.94 -0.49 -0.88 -0.08 -0.04 -0.07 0.99 69 1.333
+       Name "Camera"
+       CameraNumber "6"
+       Description "My, what a lovely view."
+       ImageFile "Textures/NoAppearance.appearance2d"
+       Position 0 0 0
+       Stationary
+     End Unum
+     Create Unum TeleportPad
+       Name "Mountain Villa"
+       Description "Welcome to Mountain Villa"
+       ImageFile "Textures/NoAppearance.appearance2d"
+       Position 0  0  0
+       AnchorPoint 0 0
+       Scale 0.5
+       Size 1  1
+       FinalEntryPosition -4 4 0
+       Orientation "West"
+       UnumCreatorClass "ec.cosm.agency.TeleportPadCreator"
+     End Unum
+     Create Unum Portal
+       Name "To Lighthouse"
+       Description "Journey back to the lighthouse."
+       ImageFile "MountainVilla/Lighthouse.appearance3D"
+       Position -12.470  4.080  1.020
+       Stationary
+       ConnectToRegion "Lighthouse"
+       ConnectToPortal "To Mountain Villa"
+       ExitPosition -6.5 3.5 0
+       FinalEntryPosition -5.5 3.5 0
+     End Unum
+     Create Unum Portal
+       Name "To Beach Night"
+       Description "Change the time of day, and head for the Night Beach."
+       ImageFile "MountainVilla/NightBeachPortal.appearance3D"
+       Position 16.090  10.670  -0.100
+       Stationary
+       ConnectToRegion "Beach Night"
+       ConnectToPortal "To Mountain Villa"
+       ExitPosition 4.5 4 0
+       FinalEntryPosition 4 4 0
+       DefaultCamera "1"
+     End Unum
+     Create Unum Portal
+       Name "To Beach Town Theater"
+       Description "Go to town! Click here."
+       ImageFile "MountainVilla/BeachTownPortal.appearance3D"
+       Position 12.950  3.690  -1.95
+       Stationary
+       ConnectToRegion "Beach Town Theater"
+       ConnectToPortal "To Mountain Villa"
+       ExitPosition  4.5 4 0
+       FinalEntryPosition 4 4 0
+       DefaultCamera "1"
+     End Unum
+     Create Unum Portal
+       Name "To Beach"
+       Description "Go down the stairs and hit the sandy shores."
+       ImageFile "MountainVilla/StairwayToBeachPortal.appearance3D"
+       Position -12.640  3.300  -1.070
+       Stationary
+       ConnectToRegion "Beach"
+       ConnectToPortal "To Mountain Villa"
+       ExitPosition -6.5 3.5 0
+       FinalEntryPosition -5.5 3.5 0
+     End Unum
+     Create Unum Portal
+       Name "To Beach Resort"
+       Description "Tired from all this excitement? Head back to the resort and catch some Z's."
+       ImageFile "MountainVilla/ResortBeach.appearance3D"
+       // pr Position -12.970  3.370  -1.400
+       Position -13.100  3.370  -1.400
+       Stationary
+       ConnectToRegion "Beach Resort"
+       ConnectToPortal "To Mountain Villa"
+       ExitPosition -6.5 3.5 0
+       FinalEntryPosition -5.5 3.5 0
+     End Unum
+     Create Unum SimpleProp3D
+       Name "Villa Interior Portal"
+       Description "Can't go here."
+       ImageFile "MountainVilla/VillaInteriorPortal.appearance3D"
+       Position -3.070  -2.030  -0.200
+       Stationary
+       Unreachable
+     End Unum
+    Create Unum Prop
+      Name "SndEmit1"
+      Description ""
+      ImageFile "MountainVilla/sndemit_mv.appearance2D"
+      Position 0  0  0
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum Floor3D
+       Name "Floor"
+       Description "ActiveFloor is a lovely prop."
+       ImageFile "MountainVilla/ActiveFloor.appearance3D"
+       Position -6.320  1.680  0.000
+       Stationary
+     End Unum
+
+     Create Unum SimpleProp3D
+       Name "Red Flowers"
+       Description "Stop and pixel-sniff the flowers."
+       ImageFile "MountainVilla/Red_Flowers.appearance3D"
+       Position 8.790  2.760  0.380
+       Stationary
+       Unreachable
+     End Unum
+     Create Unum SimpleProp3D
+       Name "Green Plants"
+       Description "They never need watering. It's perfect."
+       ImageFile "MountainVilla/Green_Plants.appearance3D"
+       Position 1.920  9.170  -0.230
+       Stationary
+       Unreachable
+     End Unum
+     Create Unum SimpleProp3D
+       Name "Ocean Rocks"
+       Description "Next week we'll add a virtual oil spill here."
+       ImageFile "MountainVilla/Ocean_Rocks.appearance3D"
+       Position -3.350  10.590  -0.100
+       Stationary
+       Unreachable
+        End Unum
+     Create Unum SimpleProp3D
+       Name "Trellis"
+       Description "Ooh! You can see the sky through it."
+       ImageFile "MountainVilla/Trellis.appearance3D"
+       Position 7.140  6.170  -0.500
+       Stationary
+       Unreachable
+     End Unum
+     Create Unum SimpleProp3D
+       Name "East Wall"
+       Description "Stucco is never given the artistic respect it deserves."
+       ImageFile "MountainVilla/EastWall.appearance3D"
+       Position 7.750  0.160  -0.490
+       Stationary
+       Unreachable
+     End Unum
+     Create Unum SimpleProp3D
+       Name "Round Bench"
+       Description "It's made of rich Corinthian columns."
+       ImageFile "MountainVilla/RoundBench.appearance3D"
+       Position 5.730  5.940  -0.580
+       Stationary
+     End Unum
+     Create Unum SimpleProp3D
+       Name "West Bench"
+       Description "Chat up the girls here. Hey, where'd they all go anyways?"
+       ImageFile "MountainVilla/WestBench.appearance3D"
+       //pr Position -7.990  5.870  -0.020
+       Position 0.350  8.920  -0.020
+       Stationary
+     End Unum
+     Create Unum SimpleProp3D
+       Name "Pink Flowers"
+       Description "Little pink flowers for you and me."
+       ImageFile "MountainVilla/Pink_Flowers.appearance3D"
+       Position 9.340  3.520  -0.030
+       Stationary
+       Unreachable
+     End Unum
+     Create Unum SimpleProp3D
+       Name "Flowering Vines"
+       Description "It's springtime at the Villa."
+       ImageFile "MountainVilla/FloweringVines.appearance3D"
+       Position 7.600  6.870  -0.080
+       Stationary
+       Unreachable
+     End Unum
+     Create Unum SimpleProp3D
+       Name "Planter Box"
+       Description "Doubles as ashtray for those of you who virtually smoke."
+       ImageFile "MountainVilla/PlanterBox.appearance3D"
+       Position 0.410  8.700  -0.920
+       Stationary
+       Unreachable
+     End Unum
+     Create Unum SimpleProp3D
+       Name "Mountain Villa"
+       Description "The realm of royalty and IPO success stories."
+       ImageFile "MountainVilla/MountainVilla.appearance3D"
+       Position 16.280  3.300  -1.340
+       Stationary
+       Unreachable
+     End Unum
+     Create Unum SimpleProp3D
+       Name "Sunset Sea"
+       Description "Look for the green flash! (Just kidding... you'd be waiting quite awhile, til your monitor failed.)"
+       ImageFile "MountainVilla/SunsetSea.appearance3D"
+       Position 24.080  -1.660  -3.530
+       Stationary
+       Unreachable
+     End Unum
+     Create Unum SimpleProp3D
+       Name "Eastern Sky"
+       Description "It's full of one-pixel insects, you just can't see them at this resolution."
+       ImageFile "MountainVilla/EasternSky.appearance3D"
+       Position 24.080  -1.660  1.580
+       Stationary
+       Unreachable
+     End Unum
+     Create Unum SimpleProp3D
+       Name "Villa Wall"
+       Description "No grafitti allowed."
+       ImageFile "MountainVilla/VillaWall.appearance3D"
+       // pr Position -0.330  1.610  0.010
+       Position -7.340  1.280  0.000
+       Stationary
+       Unreachable
+     End Unum
+     Create Unum SimpleProp3D
+       Name "West Wall"
+       Description "This is locally known as the 'Wall of Doom.'"
+       ImageFile "MountainVilla/WestWall.appearance3D"
+       // pr Position -8.310  1.650  0.020
+       Position -8.34  2.700  -0.010
+       Stationary
+       Unreachable
+     End Unum
+     Create Unum SimpleProp3D
+       Name "Sunset Sea"
+       Description "Just like a JMW Turner painting, isn't it?"
+       ImageFile "mountainvilla/SunsetSea_0.appearance3D"
+       Position 16.270  10.730  -1.330
+       Stationary
+     End Unum
+     Create Unum SimpleProp3D
+       Name "Western Sky"
+       Description "Ooh. It's purdy!"
+       ImageFile "MountainVilla/WesternSky.appearance3D"
+       Position -13.520  1.640  -1.82
+       Stationary
+       Unreachable
+     End Unum
+     Create Unum SimpleProp3D
+       Name "Another Plant"
+       Description "The Landscaper has been busy."
+       ImageFile "MountainVilla/Green_Plants1.appearance3D"
+       Position 1.920  9.170  -0.230
+       Stationary
+       Unreachable
+     End Unum
+  End Region
+
+////////////////////////////////////////////
+//
+// Beach Resort
+//
+////////////////////////////////////////////   
+
+  Create Region
+    Name "Beach Resort"
+    Description "This is the Beach Town Resort. Take off your coat and stay awhile."
+    URL "http://www.communities.com/beach/tos"
+    BBS "http://www.communities.com/beta/bbs"
+    Watermark "Watermarks/SandDollarWatermark.bmp"
+    Horizon 240
+    Camera -2.91 -24.98 3.14 0.25 0.96 0 -0.01 -0.01 0.99 48 1.333
+    Certificate ECCert-V0.9
+    Certificate KidSafe-V0.9
+
+    Create Unum SimpleCamera
+      Camera -2.91 -24.98 3.14 0.25 0.96 0 -0.01 -0.01 0.99 48 1.333
+    Name "Camera"
+      CameraNumber "0"
+    Description "My, what a lovely view."
+    ImageFile "Textures/NoAppearance.appearance2d"
+    Position 0 0 0
+    Stationary
+    End Unum
+    Create Unum SimpleCamera
+    Camera -11.6 -14.97 2.17 0.84 0.53 -0.05 0.03 0.02 0.99 45 1.333
+    Name "Camera"
+      CameraNumber "1"
+    Description "My, what a lovely view."
+    ImageFile "Textures/NoAppearance.appearance2d"
+    Position 0 0 0
+    Stationary
+    End Unum
+    Create Unum SimpleCamera
+    Camera -9.44 -8.78 2.33 0.93 -0.37 -0.05 0.04 -0.02 0.99 45 1.333
+    Name "Camera"
+      CameraNumber "2"
+    Description "My, what a lovely view."
+    ImageFile "Textures/NoAppearance.appearance2d"
+    Position 0 0 0
+    Stationary
+    End Unum
+
+//    Create Unum TeleportPad
+//      Name "Beach Resort"
+//      Description "Bienvenido a Beach Resort"
+//      ImageFile "textures/NoAppearance.appearance2D"
+//      Position 0  0  0
+//      AnchorPoint 0 0
+//      Scale 0.5
+//      FinalEntryPosition 0 0 0
+//      UnumCreatorClass "ec.cosm.agency.TeleportPadCreator"
+//    End Unum
+
+    Create Unum Portal
+        Name "To Resort Park"
+        Description "Where nature can be found."
+        ImageFile "Resort/ParkPortal.appearance3D"
+        Position 1.730  -17.360  -0.020
+        Stationary
+        ConnectToRegion "Resort Park"
+        ConnectToPortal "To Beach Resort"
+        ExitPosition -0.3 -16 0
+        FinalEntryPosition -0.3 -13.5 0
+            DefaultCamera "2"
+    End Unum
+
+    Create Unum Portal
+      Name "To Beach"
+      Description "Return to the beach through this portal."      
+    ImageFile "Resort/BeachPortal.appearance3D"
+    Position 16.840  -39.710  -3.590
+      AnchorPoint 0 0
+      Scale 1
+      Stationary
+      ConnectToRegion "Beach"
+      ConnectToPortal "To Resort" 
+      ExitPosition 12 -9  0
+      FinalEntryPosition 6 -10 0
+    End Unum
+
+    Create Unum Portal
+    // one way and invisible
+      Name "To Mountain Villa"
+      Description "Take in the mountain air at the villa."
+      ImageFile "Textures/noappearance.appearance2d"   
+      Position -5 -9 -1
+      AnchorPoint 0 0
+      Scale 1.0
+      ConnectToRegion "Resort Park"
+      ConnectToPortal "To Beach Resort"
+      ExitPosition -6 -12 0
+      FinalEntryPosition -3 -12 0
+    End Unum
+    Create Unum Prop
+      Name "SndEmit1"
+      Description ""
+      ImageFile "Resort/sndemit_br.appearance2D"
+      Position 0  0  0
+      Stationary
+      Unreachable
+    End Unum
+
+    Create Unum Poster
+      Name "Current Events"
+      Description "Check out the list of current events in Beach Town."
+    ImageFile "Resort/Ad.appearance3D"
+    Position 2.900  -8.600  1.860
+      AnchorPoint 0 0
+      Scale 1
+      Stationary
+      Unreachable
+      URL "http://www.communities.com/beach/events"
+    End Unum
+
+    Create Unum Directory
+      Name "Directory"
+      Description "Add your name to the Beach Directory."
+    ImageFile "Resort/Directory.appearance3D"
+    Position -4.450  -8.480  2.030
+      AnchorPoint 0 0
+      Scale 1
+      Stationary
+      Unreachable
+// XXX: This URL needs to be set to point at the actual directory CGI.
+      URL "http://www.communities.com/beach/directories"
+      FeedbackMessage "Your home turf has been submitted to the Directory. Welcome!"
+    End Unum
+
+        Create Unum Floor3D
+            Name "Resort Path"
+            Description "Warm under your sandals."
+            ImageFile "Resort/ResortPath.appearance3D"
+            Position 5.900  -3.820  0.000
+            Stationary
+        End Unum
+        Create Unum Floor3D
+            Name "Resort Plaza"
+            Description "The resort plaza is inlaid with fine tile."
+            ImageFile "Resort/ResortPatioFloor.appearance3D"
+            Position 5.560  11.130  -0.020
+            Stationary
+        End Unum
+
+        Create Unum SimpleProp3D
+            Name "Sandy Shore"
+            Description "Sand and the sea breeze."
+            ImageFile "Resort/NoWalk.appearance3D"
+            Position -7.110  -8.560  0.080
+            Stationary
+                  Unreachable
+        End Unum
+        Create Unum SimpleProp3D
+            Name "Green Plants"
+            Description "In a gentle breeze."
+            ImageFile "Resort/Green_Plants.appearance3D"
+            Position 15.290  -7.570  -0.160
+            Stationary
+                  Unreachable
+        End Unum
+        Create Unum SimpleProp3D
+            Name "More Plants"
+            Description "For a cleaner environment."
+            ImageFile "Resort/Green_Plants2.appearance3D"
+            Position 8.970  -7.840  -0.040
+            Stationary
+                  Unreachable
+        End Unum
+        Create Unum SimpleProp3D
+            Name "The Sea"
+            Description "The surf awaits."
+            ImageFile "Resort/TheSea.appearance3D"
+            Position 33.640  -2.520  -1.850
+            Stationary
+                  Unreachable
+        End Unum
+        Create Unum SimpleProp3D
+            Name "Resort Sign"
+            Description "Kilroy was here."
+            ImageFile "Resort/ResortGate.appearance3D"
+            Position 1.500  -8.430  -0.010
+            Stationary
+                  // not really a gate so much as lightposts
+                  Unreachable
+        End Unum
+        Create Unum SimpleProp3D
+            Name "Main Resort"
+            Description "Vacancy for large or small groups."
+            ImageFile "Resort/MainResort.appearance3D"
+            Position -10.970  8.880  -0.080
+            Stationary
+                  Unreachable
+        End Unum
+        Create Unum SimpleProp3D
+            Name "Red Roses"
+            Description "Smell the Roses."
+            ImageFile "Resort/RedRoses.appearance3D"
+            Position -2.510  8.630  -0.030
+            Stationary
+                  Unreachable
+        End Unum
+        Create Unum SimpleProp3D
+            Name "Flower Pot"
+            Description "A spice of color."
+            ImageFile "Resort/FlowerPot.appearance3D"
+            Position 4.080  -1.250  -0.030
+            Stationary
+                  Unreachable
+        End Unum
+        Create Unum SimpleProp3D
+            Name "Resort East Wing"
+            Description "A virtual vacation awaits."
+            ImageFile "Resort/ResortEastWing.appearance3D"
+            Position -6.450  -3.620  -0.020
+            Stationary
+                  Unreachable
+        End Unum
+        Create Unum SimpleProp3D
+            Name "Resort West Wing"
+            Description "With a view of the ocean. Great sunsets."
+            ImageFile "Resort/ResortWestWing.appearance3D"
+            Position 5.330  8.800  -0.020
+            Stationary
+                  Unreachable
+        End Unum
+        Create Unum SimpleProp3D
+            Name "Resort Sky"
+            Description "Nice day to be in the computer."
+            ImageFile "Resort/ResortSky.Appearance3d"
+            //Position 33.250  20.540  -0.050
+            Position 34  20  0.8
+            Stationary
+                  Unreachable
+        End Unum
+        Create Unum SimpleProp3D
+            Name "Red Flowers"
+            Description "Strictly allergenic."
+            ImageFile "Resort/RedFlowers.appearance3D"
+            Position -7.490  -11.890  -0.030
+            Stationary
+                  Unreachable
+        End Unum
+  End Region
+
+  ////////////////////////////
+  //
+  //  Beach - This is the sandy beach region.
+  //
+  ////////////////////////////
+   
+  Create Region
+    Name "Beach"
+    DefaultPad "Beach"
+    Description "Splash around here and see what you can find."
+    URL "http://www.communities.com/beach/tos"
+    BBS "http://www.communities.com/beta/bbs"
+    Watermark "Watermarks/SandDollarWatermark.bmp"
+    Horizon 240
+    Camera -5.6 -27.02 2.04 -0.95 -0.33 0 0 0 0.99 70 1.333
+    Certificate ECCert-V0.9
+    Certificate KidSafe-V0.9
+
+
+    
+    Create Unum SimpleCamera
+      Camera -5.6 -27.02 2.04 -0.95 -0.33 0 0 0 0.99 70 1.333
+      Name "Camera"
+      CameraNumber "0"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.Appearance2D"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera -22.66 -22.44 1.5 0.6 -0.8 0 0 0 0.99 75 1.333
+      Name "Camera"
+      CameraNumber "1"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.Appearance2D"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera -14.27 -40.91 3.61 -0.18 0.97 -0.13 -0.01 0.12 0.99 53 1.333
+      Name "Cam2Sea"
+      CameraNumber "2"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+    Position 0 0 0
+    Stationary
+    End Unum
+    Create Unum TeleportPad
+      Name "Beach"
+      Description "Welcome to Beach"
+      ImageFile "Textures/NoAppearance.Appearance2D"
+      Position 0  0  0
+      AnchorPoint 0 0
+      Scale .5
+      Size 1  1
+      FinalEntryPosition  -15 -37 0
+      Orientation "West"
+      UnumCreatorClass "ec.cosm.agency.TeleportPadCreator"
+    End Unum
+    Create Unum Portal
+      Name "To Resort"
+      Description "Live, laugh, and love in the resort."
+      ImageFile "Beach/Resort.appearance3D"
+      Position -24.840  -53.920  -0.960
+      Stationary
+      ConnectToRegion "Beach Resort"
+      ConnectToPortal "To Beach"
+      ExitPosition -15  -40  0
+      FinalEntryPosition -16  -37  0
+    End Unum
+    Create Unum Portal
+      Name "To Lighthouse"
+      Description "Return to the lighthouse through this portal."
+      ImageFile "Beach/LighthousePortal.appearance3D"
+      Position -33.670  -28.960  -0.320
+      Scale 1
+      Stationary
+      ConnectToRegion "Lighthouse"
+      ConnectToPortal "To Beach"
+      ExitPosition -25 -45 0
+      FinalEntryPosition -16.5 -37 0
+    End Unum
+    Create Unum Portal
+      Name "To Beach Underwater"
+      Description "Water washes up on the sandy beach."
+      ImageFile "Beach/Beach.appearance3D"
+      Position -43.360  -38.40  -0.00
+      //Position -3.550  -13.810  -0.180
+      Stationary
+      ConnectToRegion "Beach Underwater"
+      ConnectToPortal "To Beach"
+      ExitPosition -18 -28 0
+      FinalEntryPosition -18 -28 0
+      DefaultCamera "2"    
+    End Unum
+    Create Unum Portal
+      Name "To Mountain Villa"
+      Description "Mountain Villa is a nice place to visit."
+      ImageFile "Beach/MountainVillaPortal.appearance3D"
+      Position -2.080  -38.260  5.060
+      Stationary
+      ConnectToRegion "Mountain Villa"
+      ConnectToPortal "To Beach"
+      ExitPosition 0 -30 0
+      FinalEntryPosition -12 -28 0
+      DefaultCamera "1"
+    End Unum
+    Create Unum Prop
+      Name "SndEmit1"
+      Description ""
+      ImageFile "Beach/sndemit_beach.appearance2D"
+      Position 0  0  0
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum Prop
+      Name "SndEmit2"
+      Description ""
+      ImageFile "Beach/sndemit_beach2.appearance2D"
+      Position 0  0  0
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Beach Shop"
+      Description "Beach Shop is just sort of in the way."
+      ImageFile "Beach/BeachShopPortal.appearance3D"
+      Position -5.240  -33.190  -0.050
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "East Island"
+      Description "EastIsland is a lovely place to scuba dive."
+      ImageFile "Beach/EastIsland.appearance3D"
+      Position 11.120  -30.410  -1.070
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Palm Tree"
+      Description "This palm tree sways in the wind."
+      ImageFile "Beach/PalmTree.appearance3D"
+      Position -3.610  -32.300  -0.120
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "West Island"
+      Description "WestIsland has a beautiful jungle."
+      ImageFile "Beach/WestIsland.appearance3D"
+      Position -24.300  -55.600  -0.580
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Sand"
+      Description "Sink your toes into the warm sand ."
+      ImageFile "Beach/Sand.appearance3D"
+      //Position -3.550  -38.010  -0.230
+      Position -3.550  -38.030  -0.230
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum Floor3D
+      Name "Beach"
+      Description "Walk around and enjoy the beach."
+      ImageFile "Beach/BeachFloor.appearance3D"
+      //Position -23.360  -34.100  0.000
+      Position -16.560  -38.440  0.000
+      Stationary
+      Scale 1.0
+    End Unum
+    //Create Unum SimpleProp3D
+    //  blocks the water so that you can't get your feet wet
+    //  Name "Surf"
+    //  Description "Hey! You're not wearing a swim suit."
+    //  ImageFile "beach/WalkingBlocker.appearance3D"
+    //  Position -13.260  -25.710  0.20
+    //  Stationary
+    //  Unreachable
+    //End Unum
+    Create Unum SimpleProp3D
+      Name "Sky"
+      Description "The sky is always lovely and blue at the beach."
+      ImageFile "Beach/Sky.appearance3D"
+      Position -35.510  -75.020  -0.990
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Open Ocean"
+      Description "By the beautiful sea."
+      ImageFile "Beach/OpenOcean.appearance3D"
+      Position -45.060  -5.160  -1.380
+      Stationary
+    Unreachable
+    End Unum
+  End Region
+
+////////////////////////////////////////////
+//
+// Beach Town Theater
+//
+////////////////////////////////////////////   
+
+  Create Region
+    Name "Beach Town Theater"
+    DefaultPad "Beach Town Theater"
+    Description "Take in a show, or just stretch your legs."
+    URL "http://www.communities.com/beach/tos"
+    BBS "http://www.communities.com/beta/bbs"
+    Watermark "Watermarks/SandDollarWatermark.bmp"
+    Horizon 240
+    Camera 11.83 -17.91 1.09 -0.77 0.63 0.09 0.06 -0.08 0.99 46 1.333
+    TOS "Certification"
+    Certificate ECCert-V0.9
+    Certificate KidSafe-V0.9
+
+  
+    Create Unum SimpleCamera
+      Camera 11.83 -17.91 1.09 -0.77 0.63 0.09 0.06 -0.08 0.99 46 1.333
+      Name "Camera"
+      CameraNumber "0"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera -12.36 -7.97 3.16 0.93 -0.33 -0.11 0.1 -0.02 0.99 60 1.333
+      Name "Camera"
+      CameraNumber "1"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera -9.4 -17.6 2.78 0.85 0.49 -0.14 0.11 0.06 0.99 44 1.333
+      Name "Camera"
+      CameraNumber "2"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera -0.36 -18.2 3.23 0.01 0.97 -0.22 0 0.21 0.97 53 1.333
+      Name "Camera"
+      CameraNumber "3"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+// out to sea and moon
+    Create Unum SimpleCamera
+      Camera 1.12 -6.37 1.79 -0.3 -0.95 -0.14 -0.04 -0.13 0.99 54 1.333
+      Name "Camera"
+      CameraNumber "4"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+// looks to beachnight
+    Create Unum SimpleCamera
+      Camera 8.17 -8.73 2.45 -0.88 -0.48 -0.06 -0.05 -0.03 0.99 45 1.333
+      Name "Camera"
+      CameraNumber "5"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum TeleportPad
+      Name "Beach Town Theater"
+      Description "Welcome to BeachTownTheater"
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0  0  0
+      AnchorPoint 0 0
+      Scale 2.4
+      ConnectToRegion "Lighthouse"
+      ConnectToPortal "To Beach Town Theater"
+      ExitPosition 10 -8 0
+      FinalEntryPosition 4.5 -14 0
+    End Unum
+    Create Unum Portal
+      Name "To Mountain Villa"
+      Description "Mountain Villa is a refuge in the hills."
+      ImageFile "BeachTownTheater/MountainVilla.appearance3D"
+      Position 18.040  -20.130  2.370
+      Stationary
+      ConnectToRegion "Mountain Villa"
+      ConnectToPortal "To Beach Town Theater"
+      ExitPosition 8 -9 0
+      FinalEntryPosition 4.5 -14 0
+      DefaultCamera "1"
+    End Unum
+    Create Unum Portal
+      Name "To Beach Night"
+      Description "Time for the luau - head for the beach at night."
+      ImageFile "beachtowntheater/NightBeach.appearance3D"
+      Position -22.760  -26.260  1.220
+      Stationary
+      ConnectToRegion "Beach Night"
+      ConnectToPortal "To Beach Town Theater"
+      ExitPosition -5.5 -11 0
+      FinalEntryPosition -5.5 -11.5 0
+      DefaultCamera "5"
+    End Unum
+    Create Unum Portal
+      Name "To Lobby"
+      Description "Mill around in here."
+      ImageFile "beachtowntheater/PortalToTheaterLobby.appearance3D"
+      Position 3.000  8.260  -0.030
+      ConnectToRegion "Beach Theater Lobby"
+      ConnectToPortal "To Beach Town"
+      ExitPosition 2.5 -9 0
+      FinalEntryPosition 2.5 -9 0
+      Stationary
+      DefaultCamera "3"
+    End Unum
+    Create Unum Portal
+      Name "To Lighthouse"
+      Description "Get the overall view of the beach from the lighthouse."
+      ImageFile "Misc/transarch.appearance2d"   
+      Position 12.0  -27.0  2.0
+      AnchorPoint 0 0
+      Scale 2.4
+      ConnectToRegion "Lighthouse"
+      ConnectToPortal "To Beach Town Theater"
+      ExitPosition 10 -8 0
+      FinalEntryPosition 4.5 -14 0
+    End Unum
+
+    Create Unum SimpleProp3D
+      // XXX this wants to be a portal to aforementioned cruise ship
+      Name "Cruise Ship"
+      Description "Swim on over to the Cruise Ship."
+      ImageFile "beachtowntheater/CruiseShip.appearance3D"
+      Position 10.300  -26.100  1.040
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      // XXX this wants to be a portal to squarerigger
+      Name "To Square Rigger"
+      Description "Arr matey! Here there be turfs for sale!"
+      ImageFile "beachtowntheater/TurfStorePortal.appearance3D"
+      Position 13.080  -11.650  0.010
+      Stationary
+      Unreachable
+    End Unum
+    // real floor
+    Create Unum Floor3d
+      Name "Street Floor"
+      Description "Liberty call! There's no curfew in Beach Town!"
+      ImageFile "BeachTownTheater/StreetFloor.appearance3D"
+      Position 12.000  -6.680  -0.010
+      Stationary
+    End Unum
+    // walking blocker for real floor
+    Create Unum SimpleProp3d
+      Name "Street"
+      Description "It's a nice evening for a walk."
+      ImageFile "beachtowntheater/NoWalk.appearance3D"
+      Position -7.020  -12.30  0.030
+      Scale 1.1
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum Prop
+      Name "SndEmit1"
+      Description ""
+      ImageFile "BeachTownTheater/sndemit_btt.appearance2D"
+      Position 0  0  0
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Tree"
+      Description "I think that I will never see ... A SimpleProp as lovely as a tree."
+      ImageFile "beachtowntheater/Leaves.appearance3D"
+      Position -10.680  -10.770  0.780
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum Poster
+      Name "Current Events"
+      Description "Check out the list of events in Beach Town."
+      ImageFile "beachtowntheater/Poster.appearance3D"
+      Position 3.280  -6.780  0.830
+      Stationary
+      Unreachable
+    URL "http://www.communities.com/beach/events"
+    End Unum
+    Create Unum Poster
+      Name "Poster #2"
+      Description "Check out the list of current events in EC."
+      ImageFile "beachtowntheater/Poster_0.appearance3D"
+      //or Position -4.720  -6.820  0.830
+      Position -4.720  -6.76  0.830
+      Stationary
+      Unreachable
+      URL "http://www.communities.com/beach/events"
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Alta Mar Sign"
+      Description "The Alta Mar Sign is a relic from the golden age of vaudeville."
+      ImageFile "beachtowntheater/AltaMar_Sign.appearance3D"
+      Position -0.540  -7.200  3.970
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Square Rigger Turf Store"
+      Description "Score yourself a new turf. Click the door below here."
+      ImageFile "beachtowntheater/TheSquareRiggerTurfStore.appearance3D"
+      Position 11.960  -19.380  0.020
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Pier Fencing"
+      Description "Pier Fencing keeps you from an unwanted swim."
+      ImageFile "beachtowntheater/PierPillars.appearance3D"
+      Position 11.130  -20.190  -0.150
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Full Moon"
+      Description "The full moon shines over the waters."
+      ImageFile "beachtowntheater/FullMoon.appearance3D"
+      Position -4.740  -23.180  2.540
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "The Sandcastle"
+      Description "The Sandcastle is closed for business but up for sale. No reasonable offer refused!"
+      ImageFile "beachtowntheater/Sandcastle.appearance3D"
+      Position -14.190  -5.630  -0.010
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "The Sea"
+      Description "The night sea is peaceful and quiet."
+      ImageFile "beachtowntheater/TheSea.appearance3D"
+      Position 11.710  -41.100  -5.610
+      Stationary
+      Unreachable
+    End Unum
+    //spliced in by hand
+    Create Unum SimpleProp3D
+      Name "Moon's reflection"
+      Description "Shine on silvery moon."
+      ImageFile "beachtowntheater/themoon.appearance3D"
+      Position 26  -14  -4.5
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Palm Tree"
+      Description "Hey, isn't that Gilligan up there? What's he doing with that coconut?"
+      ImageFile "beachtowntheater/PalmTree.appearance3D"
+      Position -2.540  -22.430  -1.470
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Marquee Sign"
+      Description "Now showing at a theater near you."
+      ImageFile "beachtowntheater/MarquisSign.appearance3D"
+      Position -3.060  -8.140  2.780
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Back Hill Town"
+      Description "Where the locals live."
+      ImageFile "beachtowntheater/BackHillTown.appearance3D"
+      Position -8.530  9.540  4.040
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Sky"
+      Description "A beautiful evening sky over the waters."
+      ImageFile "beachtowntheater/tropicalsky.appearance3D"
+      Position 48.660  -13.110  0.440
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Beach Town Street"
+      Description "This is a dead end. Maybe you're not clicking hard enough."
+      ImageFile "beachtowntheater/BackStreet.appearance3D"
+      //Position 43.480  -6.590  3.320
+      Position 20.480  -6.590  -.1
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Marquee"
+      Description "Marquee Mark first broke into the rap scene here."
+      ImageFile "beachtowntheater/NowPlaying.appearance3D"
+      Position -4.120  -8.070  2.530
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Waterfront"
+      Description "The Restaurant District of Beach Town."
+      ImageFile "beachtowntheater/Waterfront.appearance3D"
+      Position 18.240  -20.310  -7.200
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Streetlights"
+      Description "Streetlights cast a kindly light on everyone."
+      ImageFile "beachtowntheater/StreetLamp.appearance3D"
+      Position -6.760  -12.520  0.010
+      //mymod Position 18.690  1.310  -0.350
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Alta Mar Theater"
+      Description "The theater is the hot spot of Beach Town."
+      ImageFile "beachtowntheater/AltaMarTheater.appearance3D"
+      Position 4.830  -7.180  -0.010
+      Stationary
+      Unreachable
+    End Unum
+
+///Stu's Additions
+  
+
+    Create Unum SimpleProp3D
+      Name "Red Light"
+      Description "Red Light stop."
+      ImageFile "BeachTownTheater/RedLight.appearance3D"
+      Position 13.000  -14.840  2.100
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Green Light"
+      Description "Green Light go!"
+      ImageFile "BeachTownTheater/GreenLight.appearance3D"
+      Position 13.000  -13.08  2.10
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Bonfire"
+      Description "A bonfire on the Night Beach. Bring your marshmallows."
+      ImageFile "BeachTownTheater/Bonfire.appearance3D"
+      Position -22.710  -23.860  1.920
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Lighthouse Light"
+      Description "To keep you from running aground."
+      ImageFile "BeachTownTheater/LighthouseLight.appearance3D"
+      Position 12.450  -28.800  3.100
+      Stationary
+      Unreachable
+    End Unum
+      Create Unum SimpleProp3d
+      // should not be a floor!
+      Name "Waterfront Street"
+      Description "Kept clean by the Public Works Department."
+      ImageFile "BeachTownTheater/WaterfrontStreet.appearance3D"
+      Position 23.570  6.940  -0.010
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Stars"
+      Description "Twinkle, twinkle..."
+      ImageFile "BeachTownTheater/Stars.appearance3D"
+      Position 5.750  -36.150  5.040
+      Stationary
+      Unreachable
+    End Unum
+
+ End Region
+
+///////////////////
+// Lobby Int
+//////////////////
+
+ Create Region
+    Name "Beach Theater Lobby"
+    Description "Mill around in here."
+    URL "http://www.communities.com/beach/tos"
+    BBS "http://www.communities.com/beta/bbs"
+    Watermark "Watermarks/SandDollarWatermark.bmp"
+    Horizon 240
+    Camera 4.04 7.99 1.89 -0.4 -0.92 0.04 0.03 0.03 0.99 57 1.333
+    TOS "Certification"
+    Certificate ECCert-V0.9
+    Certificate KidSafe-V0.9
+    
+    Create Unum SimpleCamera
+      Camera 4.04 7.99 1.89 -0.4 -0.92 0.04 0.03 0.03 0.99 57 1.333
+      Name "Camera"
+      CameraNumber "0"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera -4.03 7.66 2.39 0.54 -0.83 -0.13 0.08 -0.1 0.99 60 1.333
+      Name "Camera"
+      CameraNumber "1"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera -0.36 -0.02 2.3 0.02 0.99 -0.11 0 0.1 0.99 69 1.333
+      Name "Camera"
+      CameraNumber "2"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera 3.91 -1.42 2.31 -1 0 -0.13 -0.13 0 0.99 75 1.333
+      Name "Camera"
+      CameraNumber "3"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera -0.03 2.78 2.36 0 -1 -0.08 0 -0.08 0.99 69 1.333
+      Name "Camera"
+      CameraNumber "4"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera 2.56 -6.88 2.04 -0.44 0.89 -0.12 -0.05 0.09 0.99 61 1.333
+      Name "Camera"
+      CameraNumber "5"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum Portal
+      Name "To Beach Town"
+      Description "Get back out there and have fun."
+      ImageFile "beachtowntheater/TheaterSquarePortal.appearance3D"
+      Position 33.520  -25.950  -7.010
+      Stationary
+      ConnectToRegion "Beach Town Theater"
+      ConnectToPortal "To Lobby"
+      ExitPosition 0 -4.5 0
+      FinalEntryPosition 0 -3.5 0
+      DefaultCamera "0"     
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Auditorium"
+      Description "Auditorium is closed. Too much spilled popcorn."
+      ImageFile "beachtowntheater/PortalToAuditorium.appearance3D"
+      Position 2.440  8.260  -0.030
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum Floor3D
+      Name "Theater Floor"
+      Description "Rich Corinthian pile."
+      ImageFile "beachtowntheater/TheaterFloor.appearance3D"
+      Position -0.100  -3.690  -0.010
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Ticket Box"
+      Description "Let me see some ID, young man. 'Blue Lagoon' has an R rating."
+      ImageFile "beachtowntheater/TicketBox.appearance3D"
+      Position -3.540  -0.430  -0.010
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Theater Ceiling"
+      Description "Dare ya to throw your gum up there and stick it."
+      ImageFile "beachtowntheater/TheaterCeiling.appearance3D"
+      Position 1.280  -6.590  3.380
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Alta Mar Theater"
+      Description "Art Deco heaven."
+      ImageFile "beachtowntheater/AltaMarTheaterInt.appearance3D"
+      Position -4.720  -3.080  0.000
+      Stationary
+      Unreachable
+    End Unum
+   End Region
+
+///////////////////////////////////////////////////////
+//
+// Beach Underwater
+//
+///////////////////////////////////////////////////////
+
+  Create Region
+    Name "Beach Underwater"
+    Description "Hey! How long can you hold your breath underwater anyways?"
+    URL "http://www.communities.com/beach/tos"
+    BBS "http://www.communities.com/beta/bbs"
+    Watermark "Watermarks/SandDollarWatermark.bmp"
+    Horizon 240
+    Camera -0.03 -1.53 1.71 -0.01 0.99 0 0 -0.01 0.99 54 1.333
+    Certificate ECCert-V0.9
+    Certificate KidSafe-V0.9
+    
+    Create Unum SimpleCamera
+      Camera -0.03 -1.53 1.71 -0.01 0.99 0 0 -0.01 0.99 54 1.333
+      Name "Camera"
+      CameraNumber "0"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera -7.46 -1.92 1.42 0.86 0.49 0.03 -0.04 -0.02 0.99 50 1.333
+      Name "Camera"
+      CameraNumber "1"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera 6.88 -0.1 1.38 -0.93 -0.37 -0.01 -0.01 -0.01 0.99 54 1.333
+      Name "Camera"
+      CameraNumber "2"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera 1.2 5.36 1.66 -0.06 -1 -0.06 -0.04 -0.06 0.99 60 1.333
+      Name "Camera"
+      CameraNumber "3"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera -4.38 4.06 1.48 0.77 -0.63 -0.03 0.01 -0.02 0.99 65 1.333
+      Name "Camera"
+      CameraNumber "4"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum Portal
+      Name "To Beach"
+      Description "Click here to return to the surface."
+      ImageFile "BeachUnderwater/SeaSurface.appearance3D"
+      Position -0.010  -18.080  3.980
+      Stationary
+      ConnectToRegion "Beach"
+      ConnectToPortal "To Beach Underwater"
+      ExitPosition 1 -4.2 4
+      FinalEntryPosition 0.5 6.5 0
+    End Unum
+    Create Unum Prop
+      Name "SndEmit1"
+      Description ""
+      ImageFile "BeachUnderwater/sndemit_bu.appearance2D"
+      Position 0  0  0
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum Prop
+      Name "SndEmit2"
+      Description ""
+      ImageFile "BeachUnderwater/sndemit_bu2.appearance2D"
+      Position 0  0  0
+      Stationary
+      Unreachable
+    End Unum
+
+    Create Unum SimpleProp3D
+      Name "The Open Sea"
+      Description "Nothing but water for as far as you can see."
+      ImageFile "BeachUnderwater/SeaWall.appearance3D"
+      Position 16.660  -16.750  -3.510
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Transition Zone"
+      Description "Hey! Just how is it you can breathe down here anyways?"
+      ImageFile "BeachUnderwater/Sea2Surf.appearance3D"
+      Position -7.840  -12.710  2.220
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Sea and Sand"
+      Description "The sand is nice and squishy under your toes."
+      ImageFile "BeachUnderwater/Sea2Sand.appearance3D"
+      Position -5.470  -8.180  0.020
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Coral Plant"
+      Description "Careful! It's poisonous!"
+      ImageFile "BeachUnderwater/CoralPlant.appearance3D"
+      Position -5.860  -1.700  -0.360
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Coral"
+      Description "Coral is a colony plant. Aren't these descriptions informative?"
+      ImageFile "BeachUnderwater/Coral.appearance3D"
+      Position -1.240  -2.090  -0.080
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3d
+      Name "Arch"
+      Description "It's the sign for undersea fast food."
+      ImageFile "BeachUnderwater/Arch.appearance3D"
+      Position 1.290  -6.950  -0.210
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Rocks"
+      Description "Don't get too close. Could be a wolf eel down under there."
+      ImageFile "BeachUnderwater/Rocks.appearance3D"
+      Position -4.050  -5.910  -2.970
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Sunken Ship"
+      Description "Do you suppose there's treasure? Nahhh..."
+      ImageFile "BeachUnderwater/SunkenShip.appearance3D"
+      Position -2.740  7.120  -0.030
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum Floor3D
+      Name "Sea Floor"
+      Description "You're walking underwater!"
+      ImageFile "BeachUnderwater/SeaFloor.appearance3D"
+      Position 0.900  -4.260  0.000
+      //Position 0.920  -4.260  0.09
+      Stationary
+    End Unum
+    Create Unum Floor3D
+      Name "Sea Sand"
+      Description "Good luck building a sandcastle."
+      ImageFile "BeachUnderwater/SeaSand.appearance3D"
+      Position -7.300  -12.550  0.000
+      //Position -7.300  -12.540  0
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Bubbles"
+      Description "Bubbles below the sea."
+      ImageFile "BeachUnderwater/Bubbles.appearance3D"
+      Position -2.080  4.830  -0.480
+      Stationary
+      Unreachable
+    End Unum
+  End Region
+
+/////////////////////////////////////
+//
+// Night Beach
+//
+/////////////////////////////////////
+
+
+  Create Region
+    Name "Beach Night"
+    Description "Check out the luau at the Night Beach."
+    URL "http://www.communities.com/beach/tos"
+    BBS "http://www.communities.com/beta/bbs"
+    Watermark "Watermarks/SandDollarWatermark.bmp"
+    Horizon 240
+    // this is the out-to-sea view, not a good initial view
+    //Camera 7.07 1.66 1.51 -0.86 -0.52 0 0 0 0.99 70 1.333
+    Camera 4.39 -9.43 2.16 -0.82 0.57 -0.11 -0.09 0.06 0.99 52 1.333
+    Certificate ECCert-V0.9
+    Certificate KidSafe-V0.9
+
+// initial wide view to town, doesn't include mv (out to sea?)
+    Create Unum SimpleCamera
+      Camera 4.39 -9.43 2.16 -0.82 0.57 -0.11 -0.09 0.06 0.99 52 1.333
+      Name "Camera"
+      CameraNumber "0"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+// close in similar to 0 ?
+    Create Unum SimpleCamera
+      Camera 7.07 1.66 1.51 -0.86 -0.52 0 0 0 0.99 70 1.333
+      Name "Camera"
+      CameraNumber "1"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+// up beach view away from town
+    Create Unum SimpleCamera
+      Camera -9.22 -1.59 2.84 0.96 -0.23 -0.15 0.14 -0.03 0.98 60 1.333
+      Name "Camera"
+      CameraNumber "2"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+// out to sea
+    Create Unum SimpleCamera
+      Camera 0 -8 2.36 -0.01 0.99 -0.13 -0.01 0.12 0.99 54 1.333
+      Name "Camera"
+      CameraNumber "3"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+// up the hill
+    Create Unum SimpleCamera
+      Camera 0.67 3.29 1.96 -0.24 -0.97 -0.09 -0.02 -0.08 0.99 69 1.333
+      Name "Camera"
+      CameraNumber "4"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+    Create Unum SimpleCamera
+      Camera -6.86 -6.88 2.03 0.93 0.33 -0.11 0.09 0.03 0.99 50 1.333
+      Name "Camera"
+      CameraNumber "5"
+      Description "My, what a lovely view."
+      ImageFile "Textures/NoAppearance.appearance2d"
+      Position 0 0 0
+      Stationary
+    End Unum
+//    Create Unum TeleportPad
+//      Name "Beach Night"
+//      Description "Welcome to Beach Night"
+//      ImageFile "Textures/NoAppearance.appearance2d"
+//      Position 0  0  0
+//      AnchorPoint 0 0
+//      Scale 0.5
+//      Size 1  1
+//      FinalEntryPosition -1 -4 0
+//      Orientation "West"
+//      UnumCreatorClass "ec.cosm.agency.TeleportPadCreator"
+//    End Unum
+    Create Unum Portal
+      Name "To Mountain Villa"
+      Description "Get the best view of Beach Town from here."
+      ImageFile "beachnight/MountainVillaPortal.appearance3D"
+      Position -9.100  -7.450  3.430
+      Stationary
+      ConnectToRegion "Mountain Villa"
+      ConnectToPortal "To Beach Night"
+      ExitPosition -7 -8 0
+      FinalEntryPosition -7 -8 0
+      DefaultCamera "4"  
+    End Unum
+    Create Unum Portal
+      Name "To Beach Town Theater"
+      Description "Let's get back to town and grab a couple mai tais."
+      ImageFile "beachnight/BeachTownPortal.appearance3D"
+      Position -10.730  1.480  0.840
+      Stationary
+      ConnectToRegion "Beach Town Theater"
+      ConnectToPortal "To Beach Night"
+      DefaultCamera "0"
+      ExitPosition -6.5 -6.5 0
+      FinalEntryPosition -6.5 -6.5 0  
+    End Unum
+    Create Unum Prop
+      Name "SndEmit1"
+      Description ""
+      ImageFile "beachnight/sndemit_bn.appearance2D"
+      Position 0  0  0
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum Prop
+      Name "SndEmit2"
+      Description ""
+      ImageFile "beachnight/sndemit_bn2.appearance2D"
+      Position 0  0  0
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Palms"
+      Description "Let the palms be your sign that you've found paradise."
+      ImageFile "beachnight/Palms.appearance3D"
+      Position 9.010  -0.670  -0.090
+      Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Surf"
+      Description "Surf's up!"
+      ImageFile "beachnight/Surf.appearance3D"
+      Position -5.200  -5.010  0.000
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Full Moon"
+      Description "Hey! The moon's ALWAYS full here. What's up with that?"
+      ImageFile "beachnight/FullMoon.appearance3D"
+      Position -0.770  9.910  3.910
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Moon Glitters"
+      Description "There's nothing more romantic than moonlight on the water."
+      ImageFile "beachnight/MoonGlitters.appearance3D"
+      Position -0.770  5.080  0.320
+      Stationary
+      Unreachable
+    End Unum
+// old floor
+//    Create Unum Floor3D
+//      Name "Beach"
+//      Description "Go ahead, walk barefoot."
+//      ImageFile "beachnight/Beach.appearance3D"
+//      Position -5.220  -1.160  0.000
+//      Stationary
+//    End Unum
+
+// new floor
+
+    Create Unum SimpleProp3D
+       Name "Beach Sand"
+       Description "Can't walk here. No lifeguard."
+       ImageFile "BeachNight/BeachSand.appearance3D"
+       Position -8.100  -7.860  0.000 
+       Stationary
+       Unreachable 
+    End Unum
+    Create Unum Floor3D
+       Name "Beach Floor"
+       Description "Go ahead, walk barefoot."
+       ImageFile "BeachNight/BeachFloor.appearance3D"
+       Position -8.100  -7.860  0.000
+       Stationary
+    End Unum
+    Create Unum SimpleProp3D
+      Name "The Open Sea"
+      Description "You've got a long ways to swim to get to LA."
+      ImageFile "beachnight/DistantSea.appearance3D"
+      Position -0.1  10.90  -1.340
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "The Open Sea"
+      Description "You've got a long way to swim to get to LA."
+      ImageFile "beachnight/TheSea.appearance3D"
+      Position 2.350  10.840  -0.150
+      Stationary
+      Unreachable
+    End Unum
+
+    Create Unum SimpleProp3D
+      Name "Night Sky"
+      Description "Keep a lookout for shooting stars."
+      ImageFile "beachnight/NightSky.appearance3D"
+      Position 11.990  -29.200  -1.340
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Palm Island"
+      Description "Tropical birds and beasts abound here."
+      ImageFile "beachnight/PalmIsland.appearance3D"
+      Position 10.910  -5.760  -0.200
+      Stationary
+      Unreachable
+    End Unum
+
+//Stu's Additions
+
+    Create Unum SimpleProp3D
+      Name "Pit Fire"
+      Description "Burn baby burn."
+      ImageFile "BeachNight/PitFire.appearance3D"
+      Position 0.040  -6.030  0.120
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Fire Pit"
+      Description "Ready to hook up to our new Smokeblaster (tm) accessory card."
+      ImageFile "BeachNight/FirePit.appearance3D"
+      Position -0.550  -7.08  -0.05
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Right Torch Flame"
+      Description "Is tiki tacky? I think not."
+      ImageFile "BeachNight/RightTorchFlame.appearance3D"
+      Position 1.380  -5.120  1.510
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Tiki Torch"
+      Description "Bobby Brady was here."
+      ImageFile "BeachNight/BeachTorchLeft.appearance3D"
+      Position -1.460  -5.200  0.000
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Flame"
+      Description "Hey! You just burnt your arrow!"
+      ImageFile "BeachNight/LeftTorchFlame.appearance3D"
+      Position -1.470  -5.200  1.510
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Tiki Torch"
+      Description "Dr. Moreau was here."
+      ImageFile "BeachNight/BeachTorchRight.appearance3D"
+      Position 1.380 -5.140 0.000
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Red Light"
+      Description "It's a cop car, busting college kids for drinking on the pier again."
+      ImageFile "BeachNight/RedLight.appearance3D"
+      Position -10.020  0.700  1.500
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Torch"
+      Description "Burn baby burn."
+      ImageFile "BeachNight/Torch.appearance3D"
+      Position 10.760  0.550 1.230
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "More Stars"
+      Description "Stars fill the sky."
+      ImageFile "BeachNight/MoreStars.appearance3D"
+      Position -13.760 1.790 3.500
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Twinkling Stars"
+      Description "Twinkling through the night."
+      ImageFile "BeachNight/TwinklingStars.appearance3D"
+      Position 11.200 4.130 2.810
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum SimpleProp3D
+      Name "Stars"
+      Description "Like a thousand fireflies."
+      ImageFile "BeachNight/Stars.appearance3D"
+      Position 2.560 10.160 3.540
+      Stationary
+      Unreachable
+    End Unum
+ End Region
+
+///////////////////////////////////////////////
+//
+// Park Regions - 2D with scrolling, 3d floors
+// added 1/17/98
+//
+///////////////////////////////////////////////
+
+ Create Region
+    Name "Resort Park"
+    Description "Venture out into the park."
+    URL "http://www.communities.com/beach/tos"
+    BBS "http://www.communities.com/beta/bbs"
+    Watermark "Watermarks/SandDollarWatermark.bmp"
+    Horizon 240
+    Certificate ECCert-V0.9
+    Certificate KidSafe-V0.9
+
+    Create Unum Portal
+      Name "To Beach Resort"
+      Description "Click here to get to Beach Resort."
+      ImageFile "Misc/transarch.appearance2d"
+      Position -0.2 12 0
+      Scale 5
+      ConnectToRegion "Beach Resort"
+      ConnectToPortal "To Resort Park"
+      ExitPosition 1.8 13 0.2
+      FinalEntryPosition 2 11 0 
+    End Unum
+    Create Unum Portal
+      Name "To Central Park"
+      Description "Click here to get to Central Park."
+      ImageFile "Misc/TransPick.appearance2D"
+      Position 616 500 0
+      Scale 0
+      ExitPosition 4 5.8 0
+      FinalEntryPosition 2 5.8 0 
+      ConnectToRegion "Central Park"
+      ConnectToPortal "To Resort Park"
+      RegionTransition "ScrollRight"
+    End Unum        
+    Create Unum Prop
+      Name "SndEmitRPark1"
+      Description ""
+      ImageFile "parkscroll/sndemit_RPark1.appearance2D"
+      Position 0  0  0
+      Stationary
+      Unreachable
+    End Unum
+    Create Unum Prop
+      Name "SndEmitRPark2"
+      Description ""
+      ImageFile "parkscroll/sndemit_RPark2.appearance2D"
+      Position 0  0  0
+      Stationary
+      Unreachable
+    End Unum        
+        
+    Create Unum Prop
+      Name "Greenery"
+      Description "Ahh, the sights and sounds of nature!"
+      ImageFile "ParkScroll/Background.Appearance2D"
+      Position 0.000000 506.000000 0.000000
+      Scale 0.0 
+      AnchorPoint 320 479
+      Unreachable
+    End Unum
+    Create Unum Floor
+      Name "Walkway"
+      Description "Don't step on the squirrels!"
+      ImageFile "ParkScroll/WalkFloor.Appearance2D"
+      Position 3.000000 505.000000 284.000000
+      Scale    0.0 
+      AnchorPoint 321 479
+    End Unum
+    Create Unum Prop
+      Name "Entrance Bridge"
+      Description "Entrance Bridge crosses a vast abyss of almost 3 feet in depth."
+      ImageFile "ParkScroll/FarBridge.Appearance2D"
+      Position 473.000000 504.000000 362.000000
+      Scale 0.0
+      AnchorPoint 556 397
+      Unreachable
+    End Unum
+    Create Unum Prop
+      Name "Palm"
+      Description "Imported from far off Sunnyvale."
+      ImageFile "ParkScroll/PalmBase.Appearance2D"
+      Position 408.000000 503.000000 218.000000
+      Scale 0.0 
+      AnchorPoint 458 377
+      Unreachable
+    End Unum
+    Create Unum Prop
+      Name "Entrance Bridge"
+      Description "Entrance Bridge crosses a vast abyss of almost 3 feet in depth."
+      ImageFile "ParkScroll/NearBridge.Appearance2D"
+      Position 412.000000 502.000000 387.000000
+      Scale 0.0 
+      AnchorPoint 526 479
+      Unreachable
+     End Unum
+     Create Unum Prop
+       Name "Plant"
+       Description "If this were Star Trek, Spock would be checking this plant out with his tricorder."
+       ImageFile "ParkScroll/NearPlant.Appearance2D"
+       Position 347.000000 501.000000 398.000000
+       Scale 0.0 
+       AnchorPoint 426 479
+       Unreachable
+     End Unum
+   End Region
+
+///////////////////////////
+// Central Park
+///////////////////////////
+
+   Create Region
+     Name "Central Park"
+     Description "It's safer than New York - it's got Certification Cops!"
+     Watermark "Watermarks/SandDollarWatermark.bmp"
+     URL "http://www.communities.com/beach/tos"
+     BBS "http://www.communities.com/beta/bbs"
+     Horizon 240
+     TOS "Certification"
+     Certificate ECCert-V0.9
+     Certificate KidSafe-V0.9
+
+     Create Unum Portal
+       Name "To Resort Park"
+       Description "Click here to get to Resort Park."
+       ImageFile "Misc/TransPick.appearance2D"
+       Position 0    500    0
+       Scale 0
+       ConnectToRegion "Resort Park"
+       ConnectToPortal "To Central Park"
+       ExitPosition -4 5.8 0
+       FinalEntryPosition -2 5.8 0 
+       RegionTransition "ScrollLeft"
+     End Unum
+     Create Unum Portal
+       Name "To Wilderness Park"
+       Description "Click here to get to Wilderness Park."
+       ImageFile "Misc/TransPick.appearance2D"
+       Position 610    500    0
+       Scale 0
+       ConnectToRegion "Wilderness Park"
+       ConnectToPortal "To Central Park"
+       ExitPosition 4 4.2 0
+       FinalEntryPosition 2 4.2 0 
+       RegionTransition "ScrollRight"
+     End Unum
+     Create Unum Prop
+       Name "SndEmitCPark1"
+       Description ""
+       ImageFile "parkscroll/sndemit_CPark1.appearance2D"
+       Position 0  0  0
+       Stationary
+       Unreachable
+     End Unum
+     Create Unum Prop
+       Name "SndEmitCPark2"
+       Description ""
+       ImageFile "parkscroll/sndemit_CPark2.appearance2D"
+       Position 0  0  0
+       Stationary
+       Unreachable
+     End Unum
+                
+     Create Unum Prop
+       Name "Park Greenery"
+       Description "Stop and smell the flowers."
+       ImageFile "ParkScroll/BackgroundScr2.Appearance2D"
+       Position 0.000000 507.000000 0.000000
+       Scale 0 
+       AnchorPoint 320 479
+       Unreachable
+     End Unum
+     Create Unum Floor
+       Name "Walkway"
+       Description "It's a lovely day for a walk."
+       ImageFile "ParkScroll/WalkFloorScr2.Appearance2D"
+       Position 0.000000 506.000000 316.000000
+       Scale 0 
+       AnchorPoint 320 479
+     End Unum
+     Create Unum Prop
+       Name "Plants"
+       Description "Are those gladiolas?"
+       ImageFile "ParkScroll/FarPlanterPlantsScr2.Appearance2D"
+       Position 575.000000 505.000000 245.000000
+       Scale 0 
+       AnchorPoint 607 363
+     End Unum
+     Create Unum Prop
+       Name "Plants"
+       Description "Virtual allergy sufferers beware."
+       ImageFile "ParkScroll/PlanterPlantsScr2.Appearance2D"
+       Position 537.000000 504.000000 346.000000
+       Scale 0 
+       AnchorPoint 588 402
+     End Unum
+     Create Unum Prop
+       Name "Entrance Bridge"
+       Description "Beware of the troll-like IT professionals under this bridge."
+       ImageFile "ParkScroll/FarBridgeScr2.Appearance2D"
+       Position 0.000000 503.000000 374.000000
+       Scale 0 
+       AnchorPoint 56 403
+       Unreachable
+     End Unum
+     Create Unum Prop
+       Name "Entrance Bridge"
+       Description "Beware of the troll-like IT professionals under this bridge."
+       ImageFile "ParkScroll/NearBridgeScr2.Appearance2D"
+       Position 0.000000 502.000000 407.000000
+       Scale 0 
+       AnchorPoint 42 468
+       Unreachable
+     End Unum
+     Create Unum Prop
+       Name "Plants"
+       Description "Don't stare so close, you'll hurt your eyes."
+       ImageFile "ParkScroll/NearPlantsScr2.Appearance2D"
+       Position 476.000000 501.000000 426.000000
+       Scale 0 
+       AnchorPoint 558 479
+     End Unum
+  End Region
+
+///////////////////////////
+// Wilderness Park
+///////////////////////////
+
+   Create Region
+    Name "Wilderness Park"
+    Description "Careful! There might be a wumpus in the bushes."
+    URL "http://www.communities.com/beach/tos"
+    BBS "http://www.communities.com/beta/bbs"
+    Watermark "Watermarks/SandDollarWatermark.bmp"
+    Horizon 230
+    Certificate ECCert-V0.9
+    Certificate KidSafe-V0.9
+
+    Create Unum Portal
+      Name "To Central Park"
+      Description "Click here to get to Central Park."
+      ImageFile "Misc/TransPick.appearance2D"
+      Position 0    500    0
+      Scale 0
+      ConnectToRegion "Central Park"
+      ConnectToPortal "To Wilderness Park"
+      ExitPosition -4 4.2 0
+      FinalEntryPosition -2 4.2 0
+      RegionTransition "ScrollLeft"
+    End Unum
+    Create Unum Portal
+      Name "To Jungle Park"
+      Description "Click here to get to Jungle Park."
+      ImageFile "Misc/TransPick.appearance2D"
+      Position 616    500    0
+      Scale 0
+      ConnectToRegion "Jungle Park"
+      ConnectToPortal "To Wilderness Park"
+      ExitPosition 4 6.5 0
+      FinalEntryPosition 2 6.5 0    
+      RegionTransition "ScrollRight"
+    End Unum
+     Create Unum Prop
+       Name "SndEmitWPark1"
+       Description ""
+       ImageFile "parkscroll/sndemit_WPark1.appearance2D"
+       Position 0  0  0
+       Stationary
+       Unreachable
+     End Unum
+     Create Unum Prop
+       Name "SndEmitWPark2"
+       Description ""
+       ImageFile "parkscroll/sndemit_WPark2.appearance2D"
+       Position 0  0  0
+       Stationary
+       Unreachable
+     End Unum
+        
+    Create Unum Prop
+      Name "Shrubbery"
+      Description "We want - a SHRUBBERY!"
+      ImageFile "ParkScroll/BackgroundScr3.Appearance2D"
+      Position 0.000000 507.000000 0.000000
+      Scale 0.0 
+      AnchorPoint 320 479
+      Unreachable
+    End Unum
+    Create Unum Floor
+      Name "Walkway"
+      Description "Woo Hoo! Just click and go!"
+      ImageFile "ParkScroll/WalkFloorScr3.Appearance2D"
+      Position 0.000000 506.000000 298.000000
+      Scale 0.0 
+      AnchorPoint 320 479
+    End Unum
+    Create Unum Prop
+      Name "Creek"
+      Description "No fishing allowed."
+      ImageFile "ParkScroll/Creek.Appearance2D"
+      Position 197.000000 505.000000 350.000000
+      Scale 0.0 
+      AnchorPoint 359 479
+      Unreachable
+    End Unum
+    Create Unum Prop
+      Name "Planters"
+      Description "Plants, not peanuts."
+      ImageFile "ParkScroll/FarPlanterFlowersScr3.Appearance2D"
+      Position 0.000000 504.000000 248.000000
+      Scale 0.0 
+      AnchorPoint 104 378
+    End Unum
+    Create Unum Prop
+      Name "Plants"
+      Description "A fine specimen of agaraculturus digerati."
+      ImageFile "ParkScroll/PlanterNearFlowersScr3.Appearance2D"
+      Position 0.000000 503.000000 349.000000
+      Scale 0.0 
+      AnchorPoint 63 402
+      Unreachable
+    End Unum
+    Create Unum Prop
+      Name "Boulders"
+      Description "Your garden variety rocks."
+      ImageFile "ParkScroll/Boulders.Appearance2D"
+      Position 184.000000 502.000000 379.000000
+      Scale 0.0 
+      AnchorPoint 232 479
+      Unreachable
+    End Unum
+    Create Unum Prop
+      Name "Plants"
+      Description "Curiosity spayed the cat."
+      ImageFile "ParkScroll/NearPlantsScr3.Appearance2D"
+      Position 0.000000 501.000000 363.000000
+      Scale 0.0 
+      AnchorPoint 286 479
+      Unreachable
+    End Unum
+  End Region
+
+///////////////////////////
+// Jungle Park
+///////////////////////////
+
+
+  Create Region
+    Name "Jungle Park"
+    Description "The endangered species welcome you to their home."
+    URL "http://www.communities.com/beach/tos"
+    BBS "http://www.communities.com/beta/bbs"
+    Watermark "Watermarks/SandDollarWatermark.bmp"
+    Horizon 235
+    Certificate ECCert-V0.9
+    Certificate KidSafe-V0.9
+
+    Create Unum Portal
+      Name "To Wilderness Park"
+      Description "Click here to get to Wilderness Park."
+      ImageFile "Misc/TransPick.appearance2D"
+      Position 0    500    0
+      Scale 0
+      ConnectToRegion "Wilderness Park"
+      ConnectToPortal "To Jungle Park"
+      ExitPosition -4 6.5 0
+      FinalEntryPosition -2 6.5 0 
+      RegionTransition "ScrollLeft"
+    End Unum
+    Create Unum Portal
+      Name "To Mountain Villa"
+      Description "Click here to get to Mountain Villa."
+      ImageFile "ParkScroll/MountainVilla.Appearance2D"
+      Position 0 505 0
+      Scale 0
+      ConnectToRegion "Mountain Villa"
+      ConnectToPortal "To Beach Resort"
+      ExitPosition 2 12 0
+      FinalEntryPosition 2 11 0 
+    End Unum
+     Create Unum Prop
+       Name "SndEmitJPark1"
+       Description ""
+       ImageFile "parkscroll/sndemit_JPark1.appearance2D"
+       Position 0  0  0
+       Stationary
+       Unreachable
+     End Unum
+     Create Unum Prop
+       Name "SndEmitJPark2"
+       Description ""
+       ImageFile "parkscroll/sndemit_JPark2.appearance2D"
+       Position 0  0  0
+       Stationary
+       Unreachable
+     End Unum                
+    Create Unum Prop     
+      Name "Jungle"
+      Description "O joy! How grand the vista!"
+      ImageFile "ParkScroll/BackgroundScr4.Appearance2D"
+      Position 0.000000 503.000000 0.000000
+      Scale 0
+      Unreachable 
+      AnchorPoint 320 479
+    End Unum
+    Create Unum Floor
+      Name "Walkway"
+      Description "Now listen to your mother and don't scuff your feet!"
+      ImageFile "ParkScroll/WalkFloorScr4.Appearance2D"
+      Position 0.000000 502.000000 0.000000
+      Scale 0 
+      AnchorPoint 310 479
+    End Unum
+    Create Unum Prop
+      Name "Rocks"
+      Description "Brought here by hard working union glaciers."
+      ImageFile "ParkScroll/Rocks.Appearance2D"
+      Position 0.000000 501.000000 0.000000
+      Scale 0 
+      AnchorPoint 585 478
+    End Unum
+  End Region
+
+End Realm

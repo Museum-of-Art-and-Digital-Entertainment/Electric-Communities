@@ -1,0 +1,107 @@
+RealmVersion "RealmText Version 0.3, 10 March 1997"
+
+Create Realm
+    Name "Masks Catalog"
+    Create Region
+      Name "Photo Masks"
+
+        Create Unum Accessory
+            Name "Ben Mask"
+                Description "Put on a happy face!"
+                ImageFile "Masks/Ben/BenHead.appearance2D"
+                Thumbnail "Masks/Ben/BenHeadThumbnail.gif"
+                Position 0 0 0
+                Scale .30
+              Tab "Mask"
+        End Unum
+
+        Create Unum Accessory
+            Name "Christina Mask"
+                Description "Put on a happy face!"
+                ImageFile "Masks/Christina/ChristinaHead.appearance2D"
+                Thumbnail "Masks/Christina/ChristinaHeadThumbnail.gif"
+                Position 0 0 0
+                Scale .30
+              Tab "Mask"
+        End Unum
+
+        Create Unum Accessory
+            Name "Ellen Mask"
+                Description "Put on a happy face!"
+                ImageFile "Masks/Ellen/EllenHead.appearance2D"
+                Thumbnail "Masks/Ellen/EllenHeadThumbnail.gif"
+                Position 0 0 0
+                Scale .30
+              Tab "Mask"
+        End Unum
+
+        Create Unum Accessory
+            Name "Janelle Mask"
+                Description "Put on a happy face!"
+                ImageFile "Masks/Janelle/JanelleHead.appearance2D"
+                Thumbnail "Masks/Janelle/JanelleHeadThumbnail.gif"
+                Position 0 0 0
+                Scale .30
+              Tab "Mask"
+        End Unum
+
+        Create Unum Accessory
+            Name "Keith Mask"
+                Description "Put on a happy face!"
+                ImageFile "Masks/Keith/KeithHead.appearance2D"
+                Thumbnail "Masks/Keith/KeithHeadThumbnail.gif"
+                Position 0 0 0
+                Scale .30
+              Tab "Mask"
+        End Unum
+
+        Create Unum Accessory
+            Name "Larry Mask"
+                Description "Put on a happy face!"
+                ImageFile "Masks/Larry/LarryHead.appearance2D"
+                Thumbnail "Masks/Larry/LarryHeadThumbnail.gif"
+                Position 0 0 0
+                Scale .30
+              Tab "Mask"
+        End Unum
+
+        Create Unum Accessory
+            Name "Marisa Mask"
+                Description "Put on a happy face!"
+                ImageFile "Masks/Marisa/MarisaHead.appearance2D"
+                Thumbnail "Masks/Marisa/MarisaHeadThumbnail.gif"
+                Position 0 0 0
+                Scale .30
+              Tab "Mask"
+        End Unum
+
+        Create Unum Accessory
+            Name "Masa Mask"
+                Description "Put on a happy face!"
+                ImageFile "Masks/Masa/MasaHead.appearance2D"
+                Thumbnail "Masks/Masa/MasaHeadThumbnail.gif"
+                Position 0 0 0
+                Scale .30
+              Tab "Mask"
+        End Unum
+
+        Create Unum Accessory
+            Name "Randy Mask"
+                Description "Put on a happy face!"
+                ImageFile "Masks/Randy/RandyHead.appearance2D"
+                Thumbnail "Masks/Randy/RandyHeadThumbnail.gif"
+                Position 0 0 0
+                Scale .30
+              Tab "Mask"
+        End Unum
+    End Region
+  
+  
+    Create Region
+      Name "Accessories"
+
+
+       
+    End Region
+  
+End Realm

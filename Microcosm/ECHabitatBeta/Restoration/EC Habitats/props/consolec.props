@@ -1,0 +1,9 @@
+Agent=ec.cosm.objects.agent.MicrocosmText
+PublishDir=ClientRefs
+UI=ec.cosm.consoleui.ConsoleUIFrameworkOwner
+RegisterWith=props/pls_1.mcmav
+SearchPath=fiat-lux.communities.com:1670
+ECHome=ECHome
+RealmMapUrl=http://www.communities.com
+TraceLog_ec.e.openers.AllowingClassRecipe=error
+TraceBuffer_ec.e.openers.AllowingClassRecipe=error

@@ -1,0 +1,15 @@
+Agent=ec.cosm.objects.agent.MicrocosmText
+UI=ec.cosm.consoleui.ConsoleUIFrameworkOwner
+LoginUI=ec.cosm.gui.login.ConsoleLoginPresenter
+AvatarDirectory=Avatars
+AvatarMaleBody=animations/mercedesjoe.appearance2d
+AvatarFemaleBody=animations/Dax.appearance2d
+PublishDirRoot=.
+PublishDir=PublishedRefs
+RegisterWith=props/pls_1.mcmav
+SearchPath=fiat-lux.communities.com:1670
+ECHome=ECHome
+RealmMapUrl=http://www.communities.com
+TraceLog_ec.e.openers.AllowingClassRecipe=error
+TraceBuffer_ec.e.openers.AllowingClassRecipe=error
+Developer=true
