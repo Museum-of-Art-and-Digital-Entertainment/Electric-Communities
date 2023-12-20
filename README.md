@@ -2,7 +2,7 @@
 #### January 13th 2023 12 noon until ?? Pacific time
 
 * Physical Location: The MADE in Oakland, CA https://www.themade.org/
-* Live Stream: #Hack-Day on https://discord.gg/eTN9kHBYsZ
+* Live Stream: #hack-day on https://discord.gg/eTN9kHBYsZ
 * Ongoing Community: #ec-habitats on https://neohabitat.slack.com
 * Hack Day Coordinator: Randy Farmer randy@spritely.institute
 * Repository: https://github.com/Museum-of-Art-and-Digital-Entertainment/Electric-Communities
