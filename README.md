@@ -1,5 +1,5 @@
 # EC Habitats FOSS Hack Day
-#### January 13th 2023 12 noon until ?? Pacific time
+#### January 13th 2024 12 noon until ?? Pacific time
 
 * Physical Location: The MADE in Oakland, CA https://www.themade.org/
 * Live Stream: #hack-day on https://discord.gg/eTN9kHBYsZ
