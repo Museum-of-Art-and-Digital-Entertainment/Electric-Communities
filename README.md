@@ -8,7 +8,7 @@
 * Repository: https://github.com/Museum-of-Art-and-Digital-Entertainment/Electric-Communities
 
 ## Introduction
-Electric Communities was formed to develop a secure, distributed platform for online socialization and commerce. The first demonstration of this was Microcosm (aka EC Habitat). Microcosm was a 3D virtual world, in which people could meet, talk (by typing or speaking), and exchange objects - it created the E programming language and many modern programming techniques, such as webapps, promises/futures EC later grew to include the work of The Palace Inc, and Onlive Technologies.
+Electric Communities was formed to develop a secure, distributed platform for online socialization and commerce. The first demonstration of this was Microcosm (aka EC Habitat). Microcosm was a 3D virtual world, in which people could meet, talk (by typing or speaking), and exchange objects - it created the E programming language and did pionerring research into many modern programming techniques, such as webapps, promises/futures. EC later grew to include the work of The Palace Inc, and Onlive Technologies.
 
 Here's a video of it running in '97: 
 
