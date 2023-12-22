@@ -23,7 +23,7 @@ Restoring the first decentralized metaverse: EC Habitats Beta (WIndows PC) full 
 Future hack days will attack other portions of the extensive EC product portfolio, including The Palace, E, Passport, and Onlive.
 
 ## SETUP TASKS 
-* StuBlad has created a [Windows-11 compatible installer executable](https://github.com/StuBlad/echabitats-installer/) of EC Habitats r167
+* StuBlad has created a [Windows-11 compatible installer executable](https://github.com/Museum-of-Art-and-Digital-Entertainment/Electric-Communities/blob/main/Microcosm/ECHabitatBeta/Restoration/ECHabitatsInstaller_r167.exe) of EC Habitats r167
 * For access to private repositories - email Github ID to randy@spritely.institute
   * Policy: No forks/use until released as FOSS. See [Archival Agreement]([url](https://drive.google.com/file/d/1tmPeAtsSDoDxMpKohYyCMmLOjAs0u3Wf/view?usp=sharing)).
 
