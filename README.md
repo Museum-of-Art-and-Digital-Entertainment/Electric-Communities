@@ -44,15 +44,15 @@ Future hack days will attack other portions of the extensive EC product portfoli
   * Onlive Technologies
 
 ## TEAMS
-* Installer Team
-  * We need a real Windows installer - picking up where Stuart Cass left off (aka StuBlad)
 * Web Integration Team
   * Member Required: MADE system admin for DNS changes and service installations.
   * We'll need web page services, possible redirects, and to recover the game's support pages.
   * Also, the service that turns portal URLs into IP addresses for p2p connections. Need to open some ports?
+    * Are there installer mods to open ports? A web page for instructions for platorms.
 * Interoperability Team aka Worlds Team
   * Works closely with Web Team to get the r167 decentralized portals working again (LDAP server?)
   * Bring up tshe other worlds (see r167 config files up) at peristent locations as a service.
+  * Note: There is a "headless" mode that allows r167 to run on a non-windows box for hosted worlds.
 * Compilation Team
   * Do we have the source code required to recreate r167 or a similar version?
   * Make sure to open what source we have after screening for IP issues (none expected, but maybe drivers?)
