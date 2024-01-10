@@ -1,0 +1,181 @@
+<HTML>
+<HEAD>
+    <TITLE>Setting Up the Windows Build Environment</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Setting Up the Windows Build Environment</H1>
+
+<em>This page is maintained by <A HREF="mailto:trev@communities.com">Trev</A>.
+Please let me know of any errors ASAP so I can fix them.
+<br>
+<b>Warning:</b> these pages change frequently. If you've looked at them
+recently hit "reload" on your browser to make sure you're seeing the
+latest version.
+</em>
+
+<h2>Before You Start</h2>
+
+Here's a list of things you must have before you start on setting up the
+build environment itself:
+<ul>
+
+<li>You must have accounts on EC's unix machines (groucho, harpo, rashomon,
+etc) or you won't be able to use cvs. Talk to Rob Kinninmont (blessed be
+his name) if you don't have an account.
+
+<li> If you plan to build or modify any native code you should install
+Microsoft Developer Studio C++ 5.0 (Stored in Felix's office, or
+available on the net in <code>\\cassandra\visualc5</code>). Note that
+you'll need to build native code if you plan to build in the ec3
+source tree or build complete releases. See the <a
+href="FAQ.html#MSDEV">FAQ</a> for more on setting up studio
+
+<li>Install DirectX by double-clicking on the following file:
+<A HREF="file:///\\alexandria/eng/win32/DirectX/DirectX.EXE">\\alexandria\eng\win32\DirectX\DirectX.EXE</A>
+
+<LI>Install WinZip by clicking on the following file:
+<A HREF="file:///\\alexandria/public/windows/WinZip.exe">\\alexandria\public\windows\WinZip.exe</A>
+
+<li>If you want access to Unix from your Windows box, install CRT (our
+standard Windows terminal program) by running
+<A HREF="file:///\\alexandria/public/windows/Telnet_CRT20.exe">\\alexandria\public\windows\Telnet_CRT20.exe</A>
+<p>
+Here is the registration information for CRT, which you can cut and paste from this document.
+<blockquote>
+  Name: 25 User Right To Use License
+<br>
+  Company: Electric Communities
+<br>
+  Serial Number: 01-11-100115
+<br>
+  Expiration: Never
+<br>
+  xKey: p29m vb29 uai0 vn73 8crv uvj2 ehuu 74hm
+</blockquote>
+
+<li> If you've never used CVS before you should probably look at the docs on
+<A HREF="../cvsdoc/index.html">the CVS page</A>.
+
+</ul>
+
+<h2>Setting Up The Build Environment</h2>
+
+<ul>
+
+<li>Warning: if you are building on a drive other than your C: drive
+you'll need some special environment variables and mounts. See the <a
+href="FAQ.html#C:Drive">FAQ</a>, before setting the standard variables
+described below. On Windows 95 you have to reboot for changes in
+Autoexec.bat to take effect, so make sure you make all the changes you
+need before rebooting.
+
+<li>
+If you are a Windows 95 user, add the following lines to
+<code>c:\Autoexec.bat</code>.
+<blockquote>
+  set HOME=C:
+<br>
+  set USER=<em>your unix login</em>
+<br>
+  set CVSROOT=:pserver:%USER%@rashomon.communities.com:/home/cvsroot
+</blockquote>
+and reboot.
+
+<li>If you are a Windows NT user, open the control panel and click the
+'System' icon. Select 'Environment' and type <code>HOME</code>
+in the variable field, and then <code>C:</code> in the Value field.
+Then click 'Set'. Set the USER and CVSROOT variables in a similar
+fashion. Then click 'OK'.
+<br>
+
+<li> You need to check out the various bits of the build environment.
+Unfortunately you need cvs to do this and cvs is in the build
+environment which you don't have yet. So you need a copy of cvs to get
+yourself bootstrapped. In an MS-DOS command window, go to the root
+directory and then type the following from your <code>c:\</code>
+prompt:
+<blockquote>
+copy \\alexandria\eng\win32\bin\cvs.exe <em>local-dir</em>\cvs.exe
+</blockquote>
+On Win95 <code>\Windows\Commands</code> is a good choice for
+<em>local-dir</em> because it's on your default path, so the local
+copy of cvs will always be available even if you lose your build
+environment.
+<p>
+Once you have a local copy of CVS installed you can use it to login
+and check out the build environment. If you've never used CVS now's
+a good time to look at the
+<a href="../cvsdoc/index.html">CVS page</a>,
+in particular the section on
+<a href="../cvsdoc/cvs-windows.html">using CVS on windows</a>. Note
+that you've already set up a <code>CVSROOT</code> variable so you
+don't have to give the long
+<code>-d :pserver:<em>your_user_name</em>@rashomon.communities.com:/home/cvsroot</code>
+argument to each cvs command.
+When you're ready, you can login to CVS as follows:
+<blockquote>
+  <em>local-dir</em>\cvs login
+</blockquote>
+When prompted, enter your unix login password. Once this
+is done you are logged in; you shouldn't need to log in again, even
+after a reboot. Once you are logged in, you can type:
+<blockquote>
+  <em>local-dir</em>\cvs co EC
+</blockquote>
+When the cvs command finishes you have brought over the core build environment.
+Now type:
+<blockquote>
+  cd EC
+<br>
+  UpdateIcons.bat
+</blockquote>
+Which will add some useful shortcuts to your "Program Files" menu.
+
+<li> At this point you will have a few new build-related icons under
+'Start Menu', 'Program Files': 4dos, 4dos (Build), 4dos (Cafe),
+4dos (Release) and Bash (Build). If you installed on a drive
+other than the C: drive these shortcuts may have the wrong drive
+number in them; you can fix them by bringing up the properties
+panel for the shortcut and correcting the drive letter.
+<p>
+
+The 4DOS icons open a MS-DOS-compatible shell which is significantly
+_better_ than The Default MS-DOS shell. The Bash icons open a a
+unix-ish shell on your PC. See <a href="BASH_vs_4DOS.html">Bash vs 4dos</a>
+for a brief comparison of Bash and 4dos.
+<p>
+The (Build) icons run a batch file which sets a set of environment
+variables necessary to use the build environment. (See the
+<a href="FAQ.html#BuildRelease">FAQ</a> for more on what the different
+shells are for).
+Select the 4DOS (Build) icon to start up a build shell (<b>Note:</b>
+as of 12/29/97 you may get 2 messages of the form: <code>4DOS:
+eC:\EC\ECENVIRONMENT.BAT [119]  Command line too long</code>; these
+seem to be harmless). Change directory to "C:\" and type:
+<blockquote>
+  cvs co src media
+</blockquote>
+This checks out a local copy of the source tree and the media tree. It
+will take a long while to complete. When the checkout completes,
+you're ready to build (though if you're building on a drive other than
+the C: drive you will need to <code>mount</code> some directories first
+- see the <a href="FAQ.html#C:Drive">FAQ</a>).
+<p>
+When you need to update <code>EC</code>, <code>src</code> or
+<code>media</code> in the future you can just use <code>cvs update</code>.
+<code>cvs co</code> (which is an abbreviation for <code>cvs checkout</code>)
+is only required for the initial checkout. Again, see the
+<a href="../cvsdoc/index.html">CVS page</a> for details.
+<p>
+See one of:
+<ul>
+<li><A href="BuildHabiFoo.html">Building just HabiFoo</a>
+<li><A href="BuildAll.html">Building the entire EC world</a>
+<li><A href="BuildRelease.html">Building a release</a>
+</ul>
+
+<p>
+<A href="index.html">Back to the index</a>
+</BODY>
+</HTML>

@@ -1,0 +1,68 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!--last modified on Tuesday, July 21, 1998 05:47 PM -->
+<HTML>
+
+<HEAD>
+	<META NAME="GENERATOR" Content="Visual Page 1.0 for Windows">
+	<META NAME="Author" Content="Mark S. Miller">
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html;CHARSET=iso-8859-1">
+	<TITLE>untitled</TITLE>
+</HEAD>
+
+<BODY>
+
+<H1 ALIGN="CENTER">The E-to-Java Binding Spec</H1>
+<P><I>This is not yet a spec, just a note on a recent change.</I></P>
+
+<P>ELib's invocation mechanism only takes message name and argument arity as<BR>
+significant. Mapping this to pre-existing java code is problematic, as<BR>
+java allows overloading on type. (Of course, there's no problem for new<BR>
+code written to overload only on arity.) One can now invoke such java<BR>
+methods by using a message name that includes the parameter types. For<BR>
+example, given<BR>
+<BR>
+Object[] args = { new File(&quot;/foo.txt&quot;) };<BR>
+Object maker = new EStaticWrapper(FileWriter.class);<BR>
+<BR>
+Btw, EStaticWrapper wraps a class so that its public static methods and<BR>
+constructors are available to ELib. As seen by ELib, constructors are<BR>
+methods named &quot;new&quot;, so the following<BR>
+<BR>
+FileWriter fw = (FileWriter)E.call(maker, &quot;new&quot;, args);<BR>
+<BR>
+or in E<BR>
+<BR>
+define fw := java.io.FileWriter new file:/foo.txt<BR>
+<BR>
+should invoke the FileWriter(File) constructor. Unfortunately, there are<BR>
+other public one-arg constructors, so ELib doesn't know which to choose.<BR>
+With this checkin, the following works:<BR>
+<BR>
+FileWriter fw = (FileWriter)E.call(maker, &quot;new(File)&quot;, args);<BR>
+<BR>
+or in E<BR>
+<BR>
+fw := java.io.FileWriter call(&quot;new(File)&quot;, [ file:/foo.txt ])<BR>
+<BR>
+A mangled message names is an interned string consisting of<BR>
+1) regular message name<BR>
+2) open paren<BR>
+3) list of types, separated by &quot;, &quot; (comma, space)<BR>
+4) close paren.<BR>
+<BR>
+Each type is<BR>
+a) if a scalar, the scalar type name. e.g., char -&gt; &quot;char&quot;.<BR>
+b) if an array, the base type followed by &quot;[]&quot;.<BR>
+c) otherwise, the last segment of the fully qualified class name.<BR>
+eg, java.io.File -&gt; &quot;File&quot;.<BR>
+<BR>
+We use only the last segment of a fully qualified name because I) this<BR>
+feature is intended only as a convenience, II) it corresponds more closely<BR>
+to how java code is written (even if it corresponds less closely to what<BR>
+the java code means), III) and I have never seen two overloads of one<BR>
+method name distinguished only on the package of the named types. If<BR>
+anyone has a reason why we need to support that case, please let me know.
+
+</BODY>
+
+</HTML>

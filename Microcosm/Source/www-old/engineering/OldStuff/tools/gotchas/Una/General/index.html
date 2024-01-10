@@ -1,0 +1,42 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>General Gotcha Catalog</TITLE>
+<META NAME="Template" CONTENT="C:\Program Files\Microsoft Office\Templates\Web Pages\Web Page Wizard.wiz">
+</HEAD>
+<BODY TEXT="#000000" LINK="#0000ff" VLINK="#800080" BACKGROUND="Image4.gif">
+<DIR>
+
+<B><FONT FACE="Garamond" SIZE=7><P ALIGN="CENTER">Generic Una Gotchas</P>
+</B></FONT><FONT FACE="Garamond"><P>This is a catalog or cheat sheet for common mistakes programmers make creating una. </P>
+<P>For more information about these catalogs, </FONT><A HREF="../../help.html">click here</A><FONT FACE="Garamond">. </P>
+<P>To see a list of related catalogs, </FONT><A HREF="../../index.html">click here</A><FONT FACE="Garamond">.</P>
+<P>&nbsp;</P></DIR>
+</FONT>
+<TABLE CELLSPACING=0 BORDER=0 CELLPADDING=7 WIDTH=688>
+<TR><TD WIDTH="85%" VALIGN="TOP" HEIGHT=100>
+<H3>References to other una in client ingredient init methods create presences for those una</H3>
+<P>Suppose you have a client ingredient init method that looks like this:</P>
+<PRE>Unum myUnum; // part of the unum state
+
+  /** Client init */
+  init(Unum someUnum) {
+    myUnum = someUnum;</PRE>
+<P>} </P>
+<P>This will create a new client presence of someUnum in your agency, which could take up much space. It will also cause the creation of client presences for any una someUnum refers to in <I>its</I> ingredient inits.</TD>
+<TD WIDTH="15%" VALIGN="TOP" HEIGHT=100>
+<P><A HREF="Presence-init-example.html">A solution</A></TD>
+</TR>
+<TR><TD WIDTH="85%" VALIGN="TOP">
+<H3>Composition with other ingredients can also create presences </H3>
+<P>(See previous hint.) You also have to be careful if you build an unum with any ingredient that has an unum reference. It's no good carefully crafting your ingredient so that it has minimal references and then combining it with some other ingredient that has lots of references. Anyone wanting to access your ingredient will get a full presence of the unum containing both your ingredient and the other one, thus dragging in anything the other ingredient references.</TD>
+<TD WIDTH="15%" VALIGN="TOP">
+<P>&nbsp;</TD>
+</TR>
+</TABLE>
+<DIR>
+
+<P>&nbsp;</P></DIR>
+</BODY>
+</HTML>

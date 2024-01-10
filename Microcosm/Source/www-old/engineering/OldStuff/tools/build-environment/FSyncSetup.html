@@ -1,0 +1,41 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>FSyncSetup</TITLE>
+<META NAME="Version" CONTENT="8.0.3410">
+<META NAME="Date" CONTENT="10/11/96">
+<META NAME="Template" CONTENT="D:\Program Files\Microsoft Office\Office\HTML.DOT">
+</HEAD>
+<BODY TEXT="#000000" LINK="#0000ff" BGCOLOR="#ffffff">
+
+<FONT FACE="Courier New" SIZE=2><P>o You'll need to copy your source tree to your local machine. The typical</P>
+<P>location is in C:\src, though you can install it elsewhere.</P>
+<P>Maintaining two copies of your source tree -- one in your unix account and one</P>
+<P>on your pc -- is, at times, a tricky proposition. Most folks use a utility called</P>
+<P>FSync to make the process a little bit easier.</P>
+<P>Install FSync on your PC by clicking here:</P>
+</FONT><P><A HREF="file:///\\felix/pub/fsync/setup.exe">\\felix\pub\fsync\setup.exe</A></P>
+<FONT FACE="Courier New" SIZE=2><P>Here's how you can set up FSync to maintain your local build environment.</P>
+<P>- Start FSync</P>
+<P>- Under 'Source Path', enter u:\EC\E\makefiles</P>
+<P>- Under 'Target Path', enter c:\src\ec3\E\makefiles</P>
+<P>- When fsync has finished its file list, press the green button. This will</P>
+<P>copy files accross from your unix directory to your c:\ drive.</P>
+<P>- Under 'Source Path', enter u:\COSM</P>
+<P>- Under 'Target Path', enter c:\src\cosm1</P>
+<P>- Press the green button</P>
+<P>- Under 'Source Path', enter v:\media\cosm\sounds</P>
+<P>- Under 'Target Path', enter c:\src\cosm1\startup\sounds</P>
+<P>- Press the green button</P>
+<P>- Under 'Source Path', enter v:\media\cosm\images</P>
+<P>- Under 'Target Path', enter c:\src\cosm1\startup\images</P>
+<P>- Press the green button</P>
+<P>For a description of how RobJ uses Fsync, click here:</P>
+</FONT><P><A HREF="http:Robj_on_FSync.html">http://www-int/engineering/tools/build-environment/Robj_on_FSync.html</A><FONT FACE="Courier New" SIZE=2>&nbsp;</P>
+<P>If you're an Emacs user, you may wish to use Trevor's WinSync tool rather than </P>
+<P>Fsync. It's a Perl script which is used in conjunction with a set of Emacs</P>
+<P>macros which write simultaneously to local and remote source trees.</P>
+<P>For a description of WinSync, click here:</P>
+</FONT><P><A HREF="http:WinSync.html">http://www-int/engineering/tools/build-environment/WinSync.html</A><FONT FACE="Courier New" SIZE=2>&nbsp;</P></FONT></BODY>
+</HTML>

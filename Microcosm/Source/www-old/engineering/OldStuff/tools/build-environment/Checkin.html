@@ -1,0 +1,322 @@
+<HTML>
+<HEAD>
+    <TITLE>Checkin Guidelines</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Checkin Guidelines</H1>
+
+<em>This page is maintained by <A HREF="mailto:trev@communities.com">Trev</A>.
+Please let me know of any errors ASAP so I can fix them.
+<br>
+<b>Warning:</b> these pages change frequently. If you've looked at them
+recently hit "reload" on your browser to make sure you're seeing the
+latest version.
+</em>
+<p>
+We all know that it is very important not to break the build. We have
+over 20 developers at the company. When the build breaks many of them
+will waste time trying to figure out what happened. A single, simple,
+build break can cost a person day of effort. Serious build breaks can
+cost far more.
+<p>
+The other side of the coin is that our build environment is slow and
+(even after much heroic work by Eric and Felix) hard to use. Our
+application is also slow and hard to test. We are working to improve
+this but it's not going to improve overnight. The consequence of a
+slow system that's hard to test is that it is much harder and more
+tedious than it should be to test something and check it in with
+confidence. Because of this, many extremely smart and diligent people,
+working with the best of intentions, have been guilty of breaking the
+build. Even so, we can't use this as an excuse. We have to avoid build
+breaks.
+<p>
+This page gives some guidelines on the tests you should do before
+checking something in. Not all the tests are necessary all the time,
+there is room for using your good judgement. If all you've changed is
+the string in a trace message you don't need to do a full rebuild
+followed by a client server test. But you should, of course, at least
+compile the file before checking in.
+
+
+<h2>Guidelines For Testing HabiFoo Before Checkin</h2>
+
+If you've made significant changes to the HabiFoo application you
+should do the following before checking in.
+
+<p>
+<ul>
+<li> Rebuild from scratch (delete all your class and unit files and
+rebuild the entire source tree). This is harder than you might
+think. Make sure you read
+<a href="FAQ.html#ScratchBuild">How do I rebuild from scratch?</a>
+for details.
+
+<li> Bring up HabiFoo and test the code you changed. Seems obvious, I
+know, but people have checked in without doing this.
+
+<li> Run through as much of the
+<a href="#SmokeTest">developer smoke test</a>
+as you think is necessary. Ideally you'd do the full smoke test
+every time, but given the speed of our system it may be appropriate
+to take shortcuts. The important thing to know is that if the smoke test
+doesn't work the build is considered to be broken.
+
+<li> If you've added any new files to the source directory make sure
+you <code>cvs add</code> them before you commit. Go to the root of the
+tree and type <code>cvs -nq update -d</code>. This gives a summary of
+everything you have changed (the lines that start with M), without
+changing anything. Look carefully at all the lines that start with ?;
+these are files that are not under CVS control. Many of them will be
+junk (temporary logs etc.) but there may be source files you've
+forgotten to <code>cvs add</code>.
+
+<li> It's often useful to go to the root of the tree, type <code>cvs
+diff >& cvsdiff.log</code> and then check through the resulting
+log. This gives you an overview of what you've changed (it also gives
+you information about files not under cvs control, so if you do it you
+don't need to do <code>cvs -nq update -d</code> as well). It's
+particularly valuable after doing a merge, when you want to be sure
+you didn't lose anything while merging.
+
+<li>When you checkin, use <code>cvs commit</code> from the root of the
+source tree. If everyone does this it prevents overlapping checkins
+that together break the system. <code>cvs commit</code> locks the tree
+temporarily and will only let you check in if there are no modified
+files in the entire tree. Anyone trying to do an overlapping checkin
+will have to wait until you're done - and will then need to deal with
+your changes.
+
+</ul>
+
+<p>
+If you're unlucky, by the time you've finished this cycle someone else
+may have checked in further changes to the tree. If this happens you
+need to check out the entire tree again, merge any conflicts and then
+repeat the build and test cycle. This is a real pain, I know, but
+source control systems aren't just being annoying when they won't let
+you commit until you've got the latest changes. You're
+<em>supposed</em> to get the latest changes, do any merging and then
+re-test, because otherwise you're checking in an untested system. This
+is preaching to the converted for most people, but again we have had
+cases where people haven't done this and the build has broken because
+of it.
+
+
+<h2>Additional Guidelines For Changes In The ec3 Tree</h2>
+
+If you make changes in the ec3 tree life is harder still. We try to
+allow people who only work on HabiFoo to just recompile the src\cosm1
+tree. They get everything in the ec3 tree prebuilt, via the build
+environment. A new build environment is built every night and is
+released early in the morning (unless there are errors).
+<p>
+So ideally, if you work in the ec3 tree, you should ensure that
+everything always builds for everyone.  This is usually, though
+perhaps not always, feasible, with a little work. If you really can't
+manage it and you need to check in changes to the src\cosm1 tree that
+won't work without your changes to the ec3 tree then you should:
+<ul>
+<li>Checkin your changes as late as possible in the day, preferably
+after 10pm
+<li>Clearly mark your checkin message so that people will know that
+they need the new environment before they can build your changes.
+</ul>
+Even with these precautions there may be problems - if the nightly
+build fails the build environment won't be fully updated. Then people
+may check out your src\cosm1 changes and get hosed.
+<p>
+One further alternative, to be used in rare cases, is to checkin a set
+of changes in ec3 and src\cosm1 and then ask everyone else to rebuild
+the entire world. The new build environment does make it easier for
+people to rebuild the entire world, not just the HabiFoo sources in
+\src\cosm1. But building the world takes a long time (over 2 hours on
+some people's machines) and requires you to have Visual C++ installed,
+so not everyone does it routinely. The bottom line is that if you make
+a checkin that requires a rebuild of the world you are probably
+slowing down several other people's development cycle by asking them
+to do a lengthly build. It still may be the right the to do. But if
+you want to do it, please consult with Gordie, RobJ or Trev before
+going ahead, and make sure you give everyone clear notice of what
+you're doing.
+
+<h4>How To Change ec3 Without Breaking \src\cosm1</h4>
+
+So, if you can, avoid checkins to src\cosm1 that rely on changes in
+ec3 which are not yet part of the build environment. This is extra
+work, but is possible. John has done a lot of work on the Support
+directory in the ec3 tree. Here's his routine for making changes to
+Support without breaking \src\cosm1.
+<p>
+Suppose you've got changes to Support and corresponding
+changes to cosm:
+<ul>
+<li>Verify that the currently checked-in cosm
+sources will compile (and not do anything particulary terrible when
+running) with your changes to Support. The most straightforward way
+to do this, of course, is to do all your work in Support and check it
+in before you do any work in src\cosm1.
+<li> If you did have to make changes in src\cosm1, temporarily remove
+your src\cosm1 changes so you can rebuild and verify you didn't break
+anything. Then check in your changes to Support, and wait for the next
+updated build environment (usually the next day).
+<li> Check in your changes to src\cosm1.
+</ul>
+Sometimes this approach requires two passes in Support -- in the first
+pass, you add API but don't remove anything that's currently
+called. Then after the next build environment update, you go through
+src\cosm1 fixing all the callers to stop using the old calls. Then in the
+second Support pass, you remove the old calls.
+
+
+<h2>Additional Guidelines For Changes Affecting The Repository</h2>
+
+If you touch the repository, the openers/serialization code or any one
+of the classes stored in the Repository (notably Appearance2D and
+Appearance3D) you must build a new repository with your changes in
+place, in addition to the normal build and test. The test should be
+done with the new repository you built. In many cases the easiest
+thing to do may be to <A href="BuildRelease.html">build a full
+release</a>.  It takes a long time, but it does rebuild
+<em>everything</em>, including the repository.
+<p>
+If you make changes that require a new repository you must build a new
+repository and put it in <code>\home\eng\media</code> under a name
+like <code>Repository.new</code>. Then, when you checkin, let people
+know they need the new repository (and where to find it!). If you make
+linked changes to the serialization code in ec3 and the repository,
+follow the guidelines for checking into ec3, in addition to the
+repository guidelines.
+<p>
+Repository changes have proved particularly tricky in the past, so
+take special care to follow the guidelines.
+
+
+<h2>Some Shortcuts When Building And Testing</H2>
+
+The full rebuild and test cycles described above are very
+slow. Sometimes it will be sensible to make shortcuts. Here's some
+suggestions for ways to speed up testing. Use them with care!
+
+<ul>
+<li> If you don't change any interfaces, or you're absolutely sure you've
+found and updated every place that uses an interface you've changed,
+you can avoid the full build. Once we all have faster machines,
+though, it's probably safer to just do the full build anyway.
+
+<li> If you only change things in the gui code of HabiFoo, and don't
+touch any presenter interfaces, you should be able to just rebuild the
+gui area; the unum part of HabiFoo should be completely insulated by
+the presenter interfaces. If the gui code you changed is all crew you
+can probably omit the revival test. You may be able to omit the
+client/server test if your code has nothing to do with connections
+between HabiFoos. (But note that if you DO change something in the
+presenter layer it is very important for you to do a full build and
+revival test).
+
+<li> If you only change things in the unum part of HabiFoo you probably
+don't need to rebuild the presenter and gui and console layers.  But you
+probably do need to do the client/server and revival tests.
+
+<li> When you've done a build and test cycle but then find you need to
+merge in new changes you can probably avoid a full build if the new
+changes are on the other side of the presenter layer (e.g. you've been
+changing gui code and the new changes are in unum land).
+
+</ul>
+
+<h2>Checkin Freeze Procedure</h2>
+
+Occasionally, for really world shattering changes (or for snapshotting
+a release), it is necessary to have a <em>checkin freeze</em>. A
+checkin freeze is when everyone except you agrees to leave the tree
+alone until you have done what you want to do (make your checkin, take
+a snapshot etc.).
+<p>
+Clearly a checkin freeze is not to be done lightly. If you need to do
+one, here's the procedure:
+<ul>
+
+<li>Send out mail several hours beforehand announcing the freeze and
+asking if anyone has objections.
+
+<li>Send out mail an hour beforehand giving a reminder that the freeze is
+coming.
+
+<li>Go round offices checking in with people to make sure they know about
+the freeze, and seeing if there are any last minute checkins on the way.
+
+<li>At the freeze deadline, wait about 15-30 minutes for trailing checkins
+(somebody will probably try to get something in at the last minute).
+
+<li>Now you're frozen. Do whatever you need to do as quickly as possible.
+
+<li>When you're done, send out mail lifting the freeze.
+</ul>
+
+
+<a name="SmokeTest">
+<h2>Developer Smoke Test</h2>
+</a>
+
+The purpose of the developer smoke test is to check that no really
+blatant run time errors have got into the build. The QA team do a much
+more thorough smoke test when they test a release, but that test is
+too long to ask developers to use before every checkin. This test is an
+attempt to hit the most important areas with a test that is short
+enough that people will actually use it.
+<p>
+Even the smoke test given below can take a long time, given the speed
+of our system. You can choose to skip parts of it if you are 100%
+confident that your change doesn't affect that part of the system -
+but remember that if the smoke test doesn't run the build is broken.
+<p>
+You may find it useful to team up with your build buddy to do the
+smoke test; running two copies of HabiFoo on a single machine can lead
+to massive thrashing. For details of how to run HabiFoo, see <a
+href="RunHabiFoo.html">Running The HabiFoo Application</a>. Note
+that, of course, you should also do specific testing of any feature
+area directly affected by your changes.
+<p>
+First stage of the test, just one HabiFoo. Let's say the avatar is called
+Alice (Alice should start up in a realm with both 2D and 3D regions, e.g.
+BeachTown):
+<ul>
+<li>Walk around
+<li>Type word balloon
+<li>Send telepathy to self
+<li>Transition to 2D region (e.g. Lighthouse, or outside of Trailer Turf)
+<li>Transition to 3D region (e.g. Beach, or inside of Trailer Turf)
+</ul>
+
+Second stage of test; start up a second HabiFoo and connect to Alice's
+HabiFoo. Say the new avatar is called Bob:
+<ul>
+<li>Move Bob to same region as Alice
+<li>Type word balloons
+<li>Send telepathy from Alice to Bob and vice versa
+<li>Add Alice to Bob's address book
+<li>Move Bob to different region in Alice's realm
+<li>Send telepathy again
+<li>Move Alice to same region as Bob
+<li>Use Bob's catalog to create object
+<li>Have Bob put the object down then pick it up again
+<li>Put Bob's object in Bob's pocket
+<li>Quit Bob's session, then revive it and re-join Alice (you can
+use the "Recent" section in the teleport list to get to Alice's
+region)
+<li>Test word balloons and telepathy again
+<li>Check object is still in Bob's pocket, get it out and put it down
+<li>Have Alice pick up the object, move it into another region and put it down
+<li>Check Alice is still in Bob's address book
+</ul>
+
+This smoke test is a first attempt, not the final word. Let me
+(<A HREF="mailto:trev@communities.com">Trev</A>) know if you
+think it needs to be made larger, smaller or changed in any
+way.
+
+<p>
+<A href="index.html">Back to the index</a>
+</BODY>
+</HTML>

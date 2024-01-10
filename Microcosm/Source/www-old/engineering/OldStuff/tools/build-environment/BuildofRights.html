@@ -1,0 +1,131 @@
+<HTML>
+<HEAD>
+    <TITLE>The Build Of Rights</TITLE>
+</HEAD>
+<BODY>
+
+<center>
+<h1>The Build Of Rights</h1>
+</center>
+
+<em>This page is maintained by <A HREF="mailto:ellen@communities.com">Ellen</A>.
+Please let me know of any errors ASAP so I can fix them.
+<br>
+<b>Warning:</b> these pages change frequently. If you've looked at them
+recently hit "reload" on your browser to make sure you're seeing the
+latest version.
+</em>
+<p>
+
+
+<h2>Checkin Responsibilities</h2>
+
+1. Before checking in, follow the <a
+href="Checkin.html">checkin
+guidelines.</a> If you find a bug in the guidelines or you can think
+of an improvement, send mail to <a href="mailto:eng_mgmt@communities.com">eng_mgmt.</a>
+<p>
+(The quick summary: for most major changes, you must update the entire
+tree (merging if necessary) and the build from scratch. Building from
+scratch is trickier than you'd think; read <a
+href="FAQ.html#ScratchBuild">How do I rebuild from scratch?</a> for
+details).
+<p>
+
+2. Consult with your build buddy before checking in. See <a
+href="#buildbuddy">What's a Build Buddy</a> below for an explanation
+of what's involved.
+<p>
+
+3. When you check in you are responsible for being around to fix any
+resulting problems. You are excused once you've proven that your
+changes build after being checked in. You can get a buddy to do this, 
+or you can use the build machine upstairs. If you leave before you've 
+done this and your checkin causes any problems, it will be backed 
+out (and you'll be a build breaker - more on that below).
+<p>
+
+
+<h2>What Happens If You Break The Build</h2>
+
+1. You have an hour to fix the problem, either by backing out your
+change or adding a fix. For small checkins the answer will nearly
+always be to back out. Even if you do fix the problem within an hour,
+you still must do Step 2, although you avoid the dreaded Step 3.
+<p>
+
+2. As soon as you've fixed the build, write an explanation and mail it
+to ec_ibrokethebuild, explaining what happened. If you hit a hidden
+gotcha, be sure to explain what it was. If you hit a bug in the build
+instructions or checking guidelines be sure to explain that too.
+<p>
+
+3. The first time you break the build you get the Tadpole of Shame (TOS). 
+Ellen comes by and takes your picture doing whatever you wish 
+with the Tadpole, and the picture is put up on The Official EC Build 
+Breaker Board. You keep the Tadpole by your desk until the next 
+break or a day, whichever comes first. (No bribing others to break 
+the build shortly after you.) If the break is especially heinous, you
+may graduate straight to the next step. 
+<p>
+
+4. If you break the build twice in a month, or you break the build in
+an obvious way, or you break the build and aren't around until it's
+fixed, you are presented with the Frog of Disgrace (FOD), and again,
+Ellen takes your picture and it gets put up on The BBB. Same deal 
+with keeping it for a day or until the next break. Finally, the next time 
+you check in, you must have as your buddy Trev, Robj, Gordie, or, 
+worst case, Paul, the Granddaddy of Un-fun Build Buddies.
+<p>
+
+
+<h2>What's A Build Break</h2>
+
+A build break is when you check in a change that prevents others from
+building, running and testing HabiFoo. There's a little mushiness in
+this description. We'll be working on a list of "has to work" features
+which define whether HabiFoo is testable. But clearly bugs that stop
+HabiFoo coming up or stop it connecting to other HabiFoos are build
+breaks.
+<p>
+
+On rare occasions it may be necessary to check in something that
+doesn't run properly, e.g. if person A changes something low level and
+then checks it in so person B can make a corresponding high level
+change. Such checkins must be okayed by a Big Bad Buddy: Ellen, 
+Gordie, RobJ or Trev, and must be accompanied by mail explaining 
+what is broken and when it will be fixed.
+<p>
+
+
+<h2><a name="buildbuddy">What's A Build Buddy</a></h2>
+
+A build buddy is someone whom you consult before doing a checkin, and
+whose name should be in your checkin message in a "Build Buddy" field. 
+You needn't use the same build buddy all the time. The consultation will 
+vary according to the size of the checkin.
+<p>
+
+For trivial checkins (of the order of changing trace information,
+fixing comments etc.) you may not even need a build buddy. Be sure to
+mention "no buddy" in your checkin message. (However, if you've just 
+broken the build, even trivial checkins require a buddy.)
+<p>
+
+For simple changes a quick consultation, where you describe what you've
+changed and show your buddy the list of changes, is all that's needed.
+<p>
+
+For complex changes you should get your buddy to copy the files you've
+changed and test them out.
+<p>
+
+For world shaking changes you can give your buddy the changes, you both
+build full releases and test the result, possibly with Paul's help.
+
+
+<p>
+<A href="index.html">Back to the index</a>
+</BODY>
+</HTML>
+

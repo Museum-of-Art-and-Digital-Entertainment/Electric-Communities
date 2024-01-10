@@ -1,0 +1,224 @@
+<HTML>
+<HEAD>
+    <TITLE>Build Environment Tools</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Build Environment Tools</H1>
+
+<em>This page is maintained by <A HREF="mailto:trev@communities.com">Trev</A>.
+Please let me know of any errors ASAP so I can fix them.
+<br>
+<b>Warning:</b> these pages change frequently. If you've looked at them
+recently hit "reload" on your browser to make sure you're seeing the
+latest version.
+</em>
+<p>
+This page describes some of the tools that come with the build environment.
+
+<ul>
+<li><a href="#4DOS">The 4DOS/4NT Shells</a>
+<li><a href="#analdump">analdump</a>
+<li><a href="#classpath">classpath</a>
+<li><a href="#cleanbuild">cleanbuild.sh</a>
+<li><a href="#CVS">CVS</a>
+<li><a href="#GNU">The GNU (Unix Style) Tools</a>
+<li><a href="#jwhich">jwhich</a>
+<li><a href="#less">less</a>
+<li><a href="#savechanges">savechanges.sh, applychanges.sh and removechanges.sh</a>
+<li><a href="#timerizer">timerizer</a>
+<li><a href="#touch1">touch1</a>
+<li><a href="#vi">vi</a>
+</ul>
+
+<h2><a name="4DOS">The 4DOS/4NT Shells</a></h2>
+
+4DOS and 4NT are shells for use on Windows95 and NT respectively. They
+support piping, redirection, aliases, cdpaths and more. Both have
+built in help; just type "help" at the command line.  See <a
+href="BASH_vs_4DOS.html">Bash vs 4dos</a> for a brief comparison of
+Bash and 4dos.
+
+<h2><a name="analdump">analdump</a></h2>
+
+Chip's memory debugging tool comes with the build environment. Type
+analdump in a shell to start it. See the
+<a href="../memory/analdump.html">analdump page</a> for more.
+
+<h2><a name="classpath">classpath</a></h2>
+
+A useful little script from Felix, which echoes the current CLASSPATH, one
+entry per line
+
+<h2><a name="cleanbuild">cleanbuild.sh</a></h2>
+
+Use from a bash (Build) shell by typing <code>cleanbuild.sh</code> or,
+if you want to make your own repository, <code>cleanbuild.sh makerep</code>.
+If you're using 4dos you should use bash explicitly e.g.
+<code>bash /EC/gnu/bin/cleanbuild.sh</code>.
+<p>
+The script does the following:
+<ul>
+<li>removes the /Build directory
+<li>cds to /src
+<li>moves /EC/FP to /EC/FP-save
+<li>makes everything
+<li>moves /EC/FP-save back into position (even if make everything fails)
+<li>if make everything succeeded, makes release getrep
+(or makerep, if you gave it the makerep argument)
+</ul>
+This gives you a truly clean build, without the danger of /EC/FP
+messing things up.
+<p>
+
+<b>WARNING:</b> I (Trev) have been very reluctant to check this script
+in. I've found it very useful but it has a couple of extremely
+annoying bugs:
+<ol>
+<li>It doesn't reliably delete /Build; even if it does it
+takes forever. This is because rm -rf doesn't work properly and
+I don't know how to call rd or deltree from a bash script. I tend
+to delete /Build manually using rd (or deltree, or the file browser UI).
+See the <a href="FAQ.html#rm">FAQ</a> for more on the difficulty of
+reliably deleting directories.
+<li>Every now and then the script doesn't do the make properly; it seems
+to skip parts of it. I've never found out why it does this though I'm
+starting to suspect that it happens if I've recently killed a make
+with CTRL-C. This seems to be very unreliable on NT, and typically
+leaves some part of the make still alive. This zombie make then
+screws up subsequent makes.
+</ol>
+
+<h2><a name="CVS">CVS</a></h2>
+
+We use the CVS source control system for managing our sources. See
+<A HREF="../cvsdoc/index.html">the CVS page</A> for more details.
+
+<h2><a name="GNU">The GNU (Unix Style) Tools</a></h2>
+
+The build environment comes with bash, a Unix style shell, plus many
+of the Unix commands (make, cp, mv etc.). These are provided by a
+company called Cygnus, who provide the tools for free (and make their
+money by consulting?). You can find more techinal info about Cygus on
+their <a href="http://www.cygnus.com/techie/">cool tech stuff</a>
+page.
+
+<h2><a name="jwhich">jwhich</a></h2>
+
+This is a Java utility that tells you where on the class path you are
+finding a given class. To use, type <code>jwhich
+<em>full.class.name</em></code>. (<b>As of 12/16/97 jwhich was
+broken, probably because its class files are not in the standard build;
+in a build shell you can get round this by doing a <code>make</code> in
+<code>\src\ec3\E\tools\jwhich</code> before running jwhich</b>).
+
+<h2><a name="less">less</a></h2>
+
+This utility is similar to the Unix more command. Unfortunately it
+can get pretty confused by windows where the buffer size is bigger
+than the window size, so it's not as much use as you'd think. You
+can try <code>type /p</code> if all you want is to type out a file
+one page at a time (but it has no searching, no piped input).
+
+<h2><a name="savechanges">savechanges.sh, applychanges.sh and removechanges.sh</a></h2>
+
+These three scripts can be used to share changes between users who each have
+different versions of a cvs tree. <code>savechanges.sh</code> packages up
+all the modified files in a cvs tree into a single tar file.
+<code>applychanges.sh</code> takes a tar file created by
+<code>savechanges.sh</code> and updates a cvs tree with the modified files
+in the tar file. <code>removechanges.sh</code> takes a tar file and
+removes all the files it contains from a cvs tree, then checks out the
+current versions of those files.
+<p>
+All three scripts are shell scripts. They can be run from 4dos by
+calling bash explicitly e.g. <code>bash /EC/gnu/bin/savechanges.sh
+<em>mytarfile</em></code> (all the scripts are checked in to the
+<code>/EC/gnu/bin</code> directory). From bash they can be used
+directly, e.g.  <code>savechanges.sh <em>mytarfile</em></code>.
+<p>
+
+<dl>
+
+<dt><code>savechanges.sh <em>mytarfile</em></code>
+<dd>This command looks in the current directory and all its sub directories
+for files which are under cvs control and have been modified. It puts all
+of these files into a tar file called <em>mytarfile</em> (if <em>mytarfile</em>
+is omitted, it defaults to <code>changes.tar</code>). So, for example, if
+Alice had some changes in her tree and she wanted Bob to test them
+she'd go to the part of the tree containing all her changes - say
+<code>/src/cosm1</code> - and then type <code>savechanges.sh
+alice.tar</code>. She could then mail Bob the tar file, together with
+the name of the directory in which it was created, <code>/src/cosm1</code>.
+
+<dt><code>applychanges.sh <em>mytarfile</em></code>
+<dd>This command looks in the given tarfile (which defaults to
+<code>changes.tar</code> if omitted) to get a list of changes to apply.
+It then looks in the current directory and checks to see which (if any)
+files are under cvs control and are modified. If there is a clash between
+these two lists, i.e. the tar file contains a file which is also modified
+in the current tree, then <code>applychanges.sh</code> exits with an error
+message. This ensures it doesn't overwrite local modifications. Otherwise
+it extracts all the changed files from the tarfile and overwrites the
+corresponding local (unmodified) files. So, in our example, on receiving
+<code>alice.tar</code>, Bob would change to his <code>/src/cosm1</code>
+directory and then type <code>applychanges.sh alice.tar</code>. This
+would apply all of Alice's changes to his directory tree.
+
+<dt><code>removechanges.sh <em>mytarfile</em></code> <dd> This command
+looks in the given tarfile (which defaults to <code>changes.tar</code>
+if omitted) and gets a list of changed files.  It removes all these
+files from the current directory tree, then <code>cvs updates</code>
+them to get the latest checked in versions. In our example, Bob, after
+testing Alice's changes, would use <code>removechanges.sh
+alice.tar</code> to get his directory tree back to its original
+state. You can also do <code>savechanges.sh</code> followed by
+<code>removechanges.sh</code> to temporarily back our all changes in
+your directory tree (and you can later recover your changes with
+<code>applychanges.sh</code>).
+
+</dl>
+<b>Known Bugs:</b>
+
+<ul>
+<li> The savechanges.sh script always spits out the mysterious message
+<code>setgrent called, and it's not done yet</code>, right before it
+finishes. This seems to be harmless (it's something to do with Cygnus,
+who wrote tar and the other gnu tools, not having implemented the
+setgrent system call).
+<li> The scripts work if you have added new files to the build (providing
+you have cvs added them, savechanges.sh will find them). But they do
+<em>not</em> keep track of any files you have removed and, in some cases,
+this could mask a build problem from the person you are sharing your
+changes with.
+<li> None of the scripts work with tar file names that
+have a drive specifier at the beginning
+e.g. <code>d:\Eudora\Attach\changes.tar</code>. If given such a name,
+tar crashes with a "status access violation".  Unfortunately this
+seems to be a bash or tar limitation so it's hard to fix. The workaround
+is to move the file onto the current drive.
+</ul>
+
+
+<h2><a name="timerizer">timerizer</a></h2>
+
+This utility, provided by Felix, pipes the output of a process into
+timerizer. It will tell you the number of seconds elapsed after each
+line of output, and then tell you the total time taken at EOF.
+
+<h2><a name="touch1">touch1</a></h2>
+
+Another Felix utility. Like unix touch, touch1.exe creates the file if
+the file does not exist and updates the modification time if it does.
+(gnu's win32 touch complains and dies if the file doesn't exist)
+
+<h2><a name="vi">vi</a></h2>
+
+Lemmy, a vi clone, comes with the build environment. Just type
+<code>vi</code> in a build shell. For more, see the author's
+page: <A HREF="http://www.accessone.com/~jai/">James' Pages</A>.
+
+<p>
+<A href="index.html">Back to the index</a>
+</BODY>
+</HTML>

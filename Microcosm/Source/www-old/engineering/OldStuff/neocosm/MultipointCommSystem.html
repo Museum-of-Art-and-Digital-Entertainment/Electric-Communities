@@ -1,0 +1,473 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="Author" CONTENT="Scott B Lewis">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.01 [en] (Win95; I) [Netscape]">
+   <TITLE>Multipoint Comm System Ideas</TITLE>
+</HEAD>
+<BODY>
+
+<H1>
+Multipoint Comm System</H1>
+<B>Last Updated</B>:&nbsp; 6/11/98
+
+<P><B>Author</B>:&nbsp; <A HREF="mailto:slewis@communities.com">slewis@communities.com</A>
+<H2>
+Introduction</H2>
+Our comm system's relationship with our system (the MC application) currently
+looks something like this:
+
+<P><IMG SRC="pt2ptstacks.gif" HEIGHT=369 WIDTH=582>
+<BR>&nbsp;
+<BR>&nbsp;The main point of this figure is to show that for our current
+comm system, we are heavily loading our communication needs on top of what
+is basically a point-to-point communication abstraction...that is, TCP.&nbsp;
+This works just fine for supporting all of our object-to-object communication
+needs at the E-level, as it supplies reliability (provided by TCP's error
+correction structure), and ordering guarantees (since point-to-point ordering
+follows naturally from a reliable of a point-to-point connection).
+
+<P>But what our current comm system does not supply is multipoint messaging
+(1 sender and n receivers).&nbsp; In our current system, this multipoint
+messaging functionality is supplied by the Pluribus layer on top of the
+E comm system, and is modelled as a set of point-to-point relations between
+objects (e.g. between a host and all its clients).&nbsp; This structure
+can work OK, but has several undersireable properties:
+
+<P>1)&nbsp; The Pluribus layer and even some of the ingredient code (e.g.
+containership) is dependent upon the network topology (star, network, multicast,
+etc).&nbsp; Since the multipoint messaging functions are provided by the
+Pluribus layer and above, and they are modelled as a set of point-to-point
+links, this means that the Pluribus layer (and to some degree the containership
+code as well) is dependent upon the network topology for the multipoint
+messaging that we need.&nbsp; This means that if (e.g.) we wanted to go
+to another network topology for delivering the same set of services (e.g.
+multicast tree for efficiency reasons), then we would have to re-architect,
+re-design, and re-write large portions of our system, including the comm
+system itself, the Pluribus distributed object layer, and a good degree
+of our essential ingredient code (containership).&nbsp; This would not
+be good, and in my view it means that there is something wrong with our
+choice of messaging abstractions.
+
+<P><A NAME="membership"></A>2)&nbsp; Layers outside the comm system are
+responsible for implementing a property that our multipoint messaging application
+requires:&nbsp; <B>reliability</B><SUP><FONT SIZE=-2>1</FONT></SUP>.&nbsp;
+We <B>need </B>the notion of reliability in multipoint messaging for some
+aspects of our application (i.e. we can't do without it).&nbsp; The reason
+for this is that some notion of multipoint reliability is needed to solve
+the <I>distributed consensus problem</I>, and the <I>distributed consensus
+problem</I> must be solved by our app to provide (e.g.) reliable containership.&nbsp;
+<B>Note:&nbsp; without solving the distributed consensus problem, our infrastructure
+will not be robust at an infrastructure level.&nbsp; This is not a good
+property to build upon and is a property that may keep others from doing
+significant things with our code</B>.
+
+<P>Note also that building a star topology on multiple reliable point-to-point
+links (i.e. with TCP as the transport for all the links), does not provide
+reliable multipoint messaging.&nbsp; To realize this, consider the following
+example:&nbsp; say we have three processes, A, B, and C.&nbsp; They are
+connected in a star topology like so:
+
+<P>&nbsp;&nbsp;&nbsp;&nbsp; A
+<BR>&nbsp;&nbsp; /&nbsp;&nbsp;&nbsp; \
+<BR>&nbsp; B&nbsp;&nbsp;&nbsp; C
+
+<P>Now, if the link between A and C goes down, then A and C will know about
+it because of TCP's reliability guarantees, but unless something more is
+done, B will not know about this failure, and it will also not know about
+any failure in its messaging to C (or if a single message from B is intended
+for both A and C).
+
+<P>This is where the role for group membership comes in.&nbsp; Assuming
+some group membership algorithm, whose basic responsibility is to provide
+information about the group membership to all participants, then B can
+be informed of the membership change when the link between A and C goes
+down.&nbsp; For this trivial example, the obvious solution is to have A
+communicate the group membership change to B in the form of a membership
+change message.&nbsp; This is the sole function group membership, but it
+is a very important function.&nbsp; Actually, there is some interesting
+work showing that reliable multicast is a basic requirement for both the
+virtual synchrony and the transaction approaches to synchronizing distributed
+state.&nbsp; See here for a reference: http://lsewww.epfl.ch/~rachid/papers/dist.html
+(see the paper entitled <B>The Transaction Model vs The Virtual Synchrony
+Model: Bridging the gap</B>).
+<H2>
+<A NAME="figure"></A>Alternatives</H2>
+One alternative structure is given by the following diagram:
+
+<P><IMG SRC="multipointprotocolstack.GIF" HEIGHT=431 WIDTH=614>
+
+<P>The point of this is to show that it would be possible to have a 'multipoint
+messaging' abstraction provided as part of the E comm system (call it Mult-E).&nbsp;
+This abstraction would make the layers above it (Pluribus layer and applications
+above it able to use a multipoint messaging abstraction with two nice properties:&nbsp;
+a) it would not have to know about the network topology...and therefore
+it would allow the network topology to change without the application level
+code having to change; and b) would provide a reliable multicast messaging
+abstraction, and make it unnecessary for the higher layers to worry about
+the needs of implementing a group membership algorithm, or assuring the
+desired multipoint ordering properties (whichever ones are determined necessary
+given our application requirements...assuming that at least sender-order
+[FIFO] will be required, but other ordering properties may be needed depending
+upon application requirements).
+<H3>
+Comm System</H3>
+There are three main parts to the revised comm system.&nbsp; For the lowest
+layer, the data comm layer see the <A HREF="NewECommSystem.html">New E
+Data Comm System</A>.&nbsp; Above this is the object-to-object transport
+(by copy layer).&nbsp; See the <A HREF="ObjectTransport.html">Object Transport</A>
+document for a description of this layer.&nbsp; The third and topmost layer
+of the point-to-point messaging system is the 'Object by Reference' layer
+of the comm system, which does transparent proxy creation through maintenance
+of import/export tables.&nbsp; This is a critical piece of functionality
+for many kinds of point-to-point applications.&nbsp; For example, the '<A HREF="http://www.caplet.com">three-party
+handoff</A>' problem, <A HREF="Telepathy.html">telepathy</A>, <A HREF="../design_notes/identity.html">secure
+identity</A> and any other pt-to-pt messaging that is dependent upon secure
+object-to-object asynchronous messaging.&nbsp; Fortunately, we already
+have all of this infrastructure and will use it as necessary.
+
+<P>A second important aspect of our communications system is support for
+multipoint messaging.&nbsp; Multipoint messaging has a few characteristics
+that make it different from pt-to-pt messaging:&nbsp; 1) Reliability is
+not nearly as simple (and is fundamentally based upon reliable group membership);
+2) There are many more varieties of message delivery ordering; 3) The notion
+of a return value or 'promise' is not typically useful (it would typically
+result in "ack implosion" to have a return value associated with a message
+going to [e.g.] 10,000 recipients).&nbsp; Therefore, I believe it makes
+sense to have our comm system specifically support multipoint messaging
+as well as pt-to-pt messaging, so that these layers of our comm system
+can provide appropriate abstractions for the upper layers of our system.
+<H3>
+Multipont Messaging:&nbsp; Network Topology</H3>
+One question that immediately arises in multipoint messaging is:&nbsp;
+what is the network topology?&nbsp; There are many topologies possible
+to deliver multipoint messaging (actually, for those of you that are interested,
+there are a <B>very</B> large number of topologies for interconnecting
+n machines...it's basically the same as the number of partitions of n objects,
+which grows very, very quickly).&nbsp; In any event, from the point of
+view of clients of a multipont comm system, network topology is not typically
+important, and so it makes sense to <B>hide the network topology</B> from
+the clients of a multipoint comm system.&nbsp; This is possible, because
+one can define an abstraction that presents a reliable multipoint messaging
+abstraction to client objects, but hides from them the underlying network
+topology that is used to deliver that reliable multipoint messaging.&nbsp;
+For example, this is a part of the <A HREF="http://www.imtc.org">T.120
+multipoint data communications standard</A>, and it provides an abstraction
+that is both very useful, and very general.&nbsp; This is the key abstraction
+that should define the multipoint comm system.&nbsp; Bob Schumaker's&nbsp;
+document on an "<A HREF="ObjectMultiCast.html">Object Multicast</A>" does
+an excellent job of describing the advantages of network topology independence
+for multipoint messaging, and I believe that defining a layer that is topology
+independent should be the main focus of our multipoint comm system layer.
+
+<P>In the <A HREF="DObjects.html">DObjects work</A>, the local access to
+the 'group' or 'session that defines a multipoint session (group) is called
+the '<A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionMember.html">SessionMember</A>'.&nbsp;
+This object is a 'local representative' of the session, and provides the
+messaging interfaces for sending multipoint messages between presences
+of a distributed object.&nbsp; All it does is provide these messaging interfaces
+(<A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionMember.html#sendDataToPresences(ec.dom.net.DObjectPacket)">sendDataToPresences</A>,
+and <A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionMember.html#sendDataToPresenceAtSession(ec.dom.session.SessionID, ec.dom.net.DObjectPacket)">sendDataToPresenceAtSession</A>).&nbsp;
+The SessionMember also provides access to some interfaces for getting 'meta' information
+about the group itself (i.e. the current group membership...e.g. <A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionMember.html#getCurrentGroupMembers()">getCurrentGroupMembers</A>,
+<A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionMember.html#isGroupManager()">isGroupManager</A>,
+<A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionMember.html#joinGroup(ec.dom.session.SessionID)">joinGroup</A>,
+<A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionMember.html#leaveGroup(ec.dom.session.SessionID)">leaveGroup</A>,
+and etc.).
+<H3>
+Multipoint Messaging:&nbsp; Membership</H3>
+A key piece of functionality for delivering reliable multipoint messaging
+is group membership.&nbsp; <A HREF="#membership">As discussed above</A>,
+reliable multipoint messaging and membership are tightly coupled.&nbsp;
+Any abstraction that purports to provide a reliable messaging service must,
+in essence, define and implement a reliable group membership algorithm.&nbsp;
+This is why so much attention in the distributed systems literature has
+been focussed around the problem of algorithms for maintaining accurate
+group membership information in a distributed system.&nbsp; This has lead
+to a 'contest' in essence for defining the weakest group membership algorithm
+that satisfactorily solves distributed consensus.&nbsp; The final result:&nbsp;
+In a paper entitled:&nbsp; <I>The Weakest Failure Detector for Solving
+Consensus</I> by Chandra, Hadzilacos, and Toueg the authors show that the
+weakest group membership detector capable of solving distributed consensus
+is theoretically one that is limited to n/2 -1 errors (where n is the number
+of participating processes).&nbsp; This is the weakest failure detector
+that will work to solve distributed consensus.
+
+<P>Note that the difficulty of implementing an accurate failure detector
+depends primarily upon the network topology:&nbsp; <b>it is trivial</b> for a
+star topology (the one we are currently focussed on in the short term), quite difficult for a multicast tree topology.&nbsp; The
+value of having such a membership algorithm in the multipoint messaging
+abstraction is that the specific implementation is hidden in the same way
+that the network topology is hidden...clients only need to know that it
+is done 'accurately' (with fewer than n/2 - 1 errors).  The whole point of this
+discussion, however, is to introduce an abstraction which allows client code
+to be 'topology independent'.  Given that we are using a star topology for now,
+this only becomes valueable as an approach when we wish to use some other 
+topology than a star and are able to do so easily rather than having to rearchitect
+our entire system.
+<H3>
+Multipoint Messaging:&nbsp; What is shared with the rest of our comm system?</H3>
+Essentially, if you break down what is in just in the box represented by
+the "Comm System" box in the <A HREF="#figure">diagram above</A>, you have
+three basic components to the comm system.&nbsp; The Data Comm layer is
+the lowest layer, primarily responsible for the connection management,
+wire protocol, data streaming, reliability and ordering, and exception
+handling parts of our comm system.&nbsp; These requirements and a description
+of the Data Comm layer are given in the <A HREF="NewECommSystem.html">New
+E Comm System Document</A>.&nbsp; Another layer is the "Object Transfer"
+layer, which is essentially responsible for sending arbitrary Serializable
+objects over the Data Comm layer.&nbsp; It is dependent upon the Data Comm
+layer.&nbsp; The following diagram produced by Bob Schumaker shows the
+relationship between the Data Comm and the Object Transfer layers:
+
+<P><IMG SRC="CommSystemDiagram.gif" HEIGHT=635 WIDTH=544>
+
+<P>Both of these two 'low' layers of the comm system (Data Comm and Object
+Transfer) are relevant to both the pt-to-pt messaging between objects,
+as well as the multipoint communication layers.&nbsp;&nbsp; That is, both
+the pt-to-pt object messaging structure (shown above as "Exportable Object",
+and in the <A HREF="#figure">diagram above</A> as "EC5 Pt-to-Pt Messaging"),
+and to the multipoint messaging layer.&nbsp; This relationship between
+these modules is described by another one of Bob's figures:
+
+<P><IMG SRC="NewCommSystem.gif" HEIGHT=463 WIDTH=520>
+
+<P>With this architectural approach among these three subsystems, it allows
+a good deal of reuse of functionality and code...that is both the Data
+Comm and Object Comm layers of the comm system need only to be implemented/debugged
+once, and they can provide all of the functionality to support both the
+pt-2-pt ("Point-to-point Proxy Object") messaging and the multipoint ("Group
+proxy object") messaging structures.
+<H3>
+API Design</H3>
+<A HREF="../../ec5/doc/javadoc/ec/dom/session/package-summary.html">Here is a proposed javadoc API
+for the multipoint comm system</A>.
+
+<P>Here is a diagram showing the <A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionMember.html">SessionMember
+class</A> API and how it relates to the primary facet interface class,
+the <A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionDObjectFacet.html">SessionDObjectFacet:</A>
+
+<P><A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionDObjectFacet.html"><IMG SRC="ViewClass.jpg" HEIGHT=725 WIDTH=1130></A>
+<BR>&nbsp;
+<H3>
+<B>Security</B></H3>
+All of the methods on the <A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionMember.html">SessionMember</A>
+class itself are declared '<B>protected</B>'.&nbsp; The reason for this
+is that all direct access to this object will only be granted to <B>trusted
+system code</B> (and these access classes must be declared as members of
+the same package).&nbsp; All untrusted code (i.e. code from outside the
+dom.session package), will be unable to call the protected methods on this
+class directly, even if provided a reference to the SessionMember object.&nbsp;
+This is a strong guarantee provided by the java interpreter, that we can
+depend upon for providing capabilities secure access to the SessionMember's functionality.&nbsp;
+For example, in good capabilities security manner, there is a facet class
+instance passed to (untrusted) DObject clients of this API called the <A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionDObjectFacet.html">SessionDObjectFacet</A>,
+which only exposes publicly the critical methods available on this API
+(I've adopted the convention of naming facet classes with the &lt;name
+of underlying class>&lt;name of receiver class>Facet...this is open to
+change if people identify a better facet class naming scheme).
+<H3>
+Functionality</H3>
+This class provides the basic functionality for supporting our basic multipoint
+Unum/Presence messaging model.&nbsp; Specifically, in addition to the <A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionDObjectFacet.html">SessionDObjectFacet</A>
+class providing secure basic messaging primitives for DObjects, it provides
+interfaces for joining and leaving a multipoint distributed group (<A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionMember.html#joinGroup(ec.dom.session.SessionID)">joinGroup</A>
+and <A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionMember.html#leaveGroup(ec.dom.session.SessionID)">leaveGroup</A>,
+respectively).&nbsp; These methods expose the basic ability for clients
+(that have access to this interface) to control the joining and leaving
+of a multipoint group (this would, for example, be used by a trusted object
+[e.g. avatar] to control the joining and leaving of 'virtual world' groups
+[i.e. regions]).&nbsp; A facet class does not yet exist for this functionality,
+but would be trivial to add.
+
+<P>This API provides two major (related) services for clients:&nbsp; 1)
+It maintains accurate information about group membership.&nbsp; 'Group
+membership' is defined in terms of the other <B><A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionMember.html">SessionMembers</A>
+</B>that currently make up this distributed group (<B><A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionMember.html">SessionMembers</A>
+</B>have a many-to-one relationship with <B>processes</B>).&nbsp;&nbsp;
+This API supports the accurate local tracking of distributed group membership.&nbsp;
+The most important reason for providing this service is to be able to make
+strong guarantees to client code of the <B>reliability </B>of the two multipoint
+messaging interfaces (see 4 below).&nbsp; See <A HREF="#membership">above</A>
+for a discussion of the importance of group membership to reliability,
+and the relevance of multipoint reliability to our application.
+
+<P>From the perspective of the DObject code that uses the service provided
+by the <A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionMember.html">SessionMember</A>, there
+are only two key messaging interfaces provided by this class:&nbsp; <A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionMember.html#sendDataToPresences(ec.dom.net.DObjectPacket)">sendDataToPresences</A>,
+<A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionMember.html#sendDataToPresenceAtSession(ec.dom.session.SessionID, ec.dom.net.DObjectPacket)">sendDataToPresenceAtSession</A>).&nbsp;
+These are the basic messaging interfaces provided to client code (note
+that the <A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionDObjectFacet.html">SessionDObjectFacet</A>
+class hides the specification of the ID receiver, meaning that the
+DObject can only direct messages to its own presences).&nbsp; These provide
+a service critical to the Unum/Presence model:&nbsp; reliable multipoint
+delivery of arbitrary messages to remote presences of client objects.&nbsp;
+That is, they do not deliver multipoint messages to any client receivers...rather
+they only deliver messages between processes to <B>remote presences</B>
+of a given object.
+
+<P>The <A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionMember.html">SessionMember</A> also
+provides basic DObject construction/destruction services.&nbsp; For example,
+to create an arbitrary distributed object that is locally hosted, there
+is an interface:&nbsp; <A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionMember.html#createDObject(ec.dom.session.DObject, ec.identity.ID, ec.dom.session.SessionID, java.net.URL, java.lang.String, java.lang.Object, boolean)">createDObject</A>,
+that creates a distributed object that is hosted within this SessionMember.&nbsp;
+This is a completely generic creation interface, and supports the general
+meta-object function of creation.&nbsp; Conversely, there is an interface
+for generic destruction, <A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionMember.html#destroyDObject(ec.identity.ID)">destroyDObject</A>,
+that is responsible for locally destroying a distributed object presence.&nbsp;
+Note for construction that the createDObject interface calls a constructor
+with a certain method signature...for example:&nbsp; the <A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html">DObject
+constructor</A>.
+
+<P>The <A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html">DObject root
+class</A> is intended to be the root class for all distributed objects.&nbsp;
+It has the same incarnation for both host and client presences of a given
+subclass.&nbsp; Essentially, the job of the DObject subclass creator is
+to define the app-specific behavior, and use the functionality provided
+by the root <A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html">DObject
+class</A> (and override that functionality if appropriate and available):
+
+<P>1)&nbsp; An identity (globally unique identifier) for each distributed
+object.&nbsp; See the <A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#myID">myID
+field</A> in the <A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html">DObject
+class</A>.
+<BR>2)&nbsp; A sessionmember id that represents the location of the 'home' sessionmember for this DObject.&nbsp;
+See the <A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#myHomeSessionID">myHomeSessionID
+field</A> in the <A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html">DObject
+class.</A> This allows the local presence to determine whether it is a
+client or host, and to be able to communicate directly with the host (if
+a client).
+<BR>3)&nbsp; Creation and distribution of client presences.&nbsp; See the
+following DObject class methods:&nbsp; <A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#createClient(ec.dom.session.CreateClientInfo)">createClient</A>,
+<A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#createClientDone(ec.dom.session.SessionID, ec.dom.session.CreateClientResultInfo)">createClientDone</A>,
+<A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#getStateForClient(ec.dom.session.SessionID)">getStateForClient</A>.&nbsp;
+These methods are called from createClient, which is the entry point method
+for client creation, called asynchronously in response to a message from
+the <A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionMember.html">SessionMember class</A>, and
+may be overridden by subclasses as appropriate.
+<BR>4)&nbsp; State change notification.&nbsp; When the DObject presence
+changes its state (either explicitly [hosts] or as a result of partition
+[clients]), the SessionMember class sends it notification about its state change.&nbsp;
+In response to these asynchronous notifications, the DObject root class
+has some methods that are declared <B>final</B> that handle these messages
+to do basic initialization and shutdown (i.e. shutdown that DObjects' access
+to the run queue, etc.).&nbsp; These final methods are:&nbsp; <A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#create(ec.dom.session.SessionNotifyInfo)">create</A>,
+<A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#activate(ec.dom.session.SessionNotifyInfo)">activate</A>,
+<A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#deactivate(ec.dom.session.SessionNotifyInfo)">deactivate</A>,
+and <A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#destroy(ec.dom.session.SessionNotifyInfo)">destroy</A>.&nbsp;
+The activate and deactivate methods generate another asynchronous message,
+<A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#activated(ec.dom.session.SessionNotifyInfo)">activated</A>
+and <A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#deactivated(ec.dom.session.SessionNotifyInfo)">deactivated</A>,
+respectively, that are subclass overrideable, allowing subclasses to define
+specific behavior to happen on basic activation and deactivation as desired
+by overriding <A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#activated(ec.dom.session.SessionNotifyInfo)">activated</A>
+and <A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#deactivated(ec.dom.session.SessionNotifyInfo)">deactivated</A>.
+<BR>5)&nbsp; Basic messaging support to remote presences.&nbsp; This is
+the most important service provided by the DObject root class for subclasses.&nbsp;
+The service is provided (ultimately) by the <A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionDObjectFacet.html#sendDataToPresences(ec.dom.util.Data)">SessionDObjectFacet.sendDataToPresences</A>,
+and <A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionDObjectFacet.html#sendDataToPresenceAtSession(ec.dom.session.SessionID, ec.dom.util.Data)">SessionDObjectFacet.sendDataToPresenceAtSession</A>
+methods.&nbsp; The DObject class exposes some utility methods to subclasses
+to make it easy for them to deliver messages in the common messaging pattern
+(i.e. from clients to their host presence, and from the host to all client
+presences).&nbsp; These methods are:&nbsp; <A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#sendDataToRemote(ec.dom.session.SessionID, ec.dom.util.Data)">DObject.sendDataToRemote</A>,
+<A HREF="dobjects/dom/docs/dom.session.DObject.html#sendClosureToHost(dom.session.Closure)">DObject.sendClosureToHost</A>,
+and <A HREF="dobjects/dom/docs/dom.session.DObject.html#sendClosureToRemotes(dom.session.Closure)">DObject.sendClosureToRemotes</A>.&nbsp;
+The <A HREF="dobjects/dom/docs/dom.session.Closure.html">Closure</A> class
+is a class to represent an arbitrary Closure or code block (also can be
+called an Envelope).
+<BR>6)&nbsp; Some 'meta' interfaces that allow DObject subclasses to query
+about themselves.&nbsp; For example:&nbsp; <A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#isClientPresence()">DObject.isClientPresence</A>
+allows subclass code to determine if it is a client or host presence.&nbsp;
+There are other meta interfaces for getting the SessionDObjectFacet (<A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#getSessionMember()">getSessionMember</A>),
+getting the local view's ID (<A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#getSessionMemberID()">getSessionMemberID</A>),
+adding and removing oneself as a 'listener' for the arrival and departure
+of other DObjects (<A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#addDObjectListener()">addDObjectListener</A>/<A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionDObjectFacet.html#removeDObjectListener()">removeDObjectListener</A>)
+and the actual notification methods for these notifications:&nbsp; <A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#otherActivated(ec.identity.ID)">otherActivated</A>,
+<A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#otherDeactivated(ec.identity.ID)">otherDeactivated</A>.
+<BR>7)&nbsp; Serveral interfaces to support the exchange of capabilities
+between presences:&nbsp; <A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#sendRequestForCapability(ec.identity.ID, java.lang.String, java.lang.Object)">sendRequestForCapability</A>,
+<A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#requestCapability(ec.dom.session.CapabilityReceipt)">requestCapability</A>,
+<A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionDObjectFacet.html#receiveCapability(ec.dom.session.CapabilityReceipt)">receiveCapability</A>.
+<BR>8)&nbsp; An interface for requesting more capabilities from the local
+SessionMember (e.g. access to UI/Other I/O, etc) called <A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#getSessionFacet(java.lang.String, java.lang.Object)">getSessionFacet</A>.
+<BR>9)&nbsp; There are a number of other utility methods that allow the
+subclass DObject to customize its own message handling and other aspects
+of its fundamental behavior (e.g. <A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#runClosure(ec.dom.session.Closure)">runClosure</A>,
+<A HREF="dobjects/dom/docs/dom.session.DObject.html#initialize()">initialize</A>,
+<A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#setInitialState(java.io.Serializable)">setInitialState</A>,
+<A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#handleDataFromRemote(ec.dom.session.SessionID, ec.dom.util.Data)">handleDataFromRemote</A>,
+<A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#handleMessageException(ec.dom.session.Closure, java.lang.Throwable)">handleMessageException</A>,
+<A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#receiveDataFromRemote(ec.dom.session.SessionID, ec.dom.util.Data)">receiveDataFromRemote</A>,
+<A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#receiveClosureFromRemote(ec.dom.session.SessionID, ec.dom.session.Closure)">receiveClosureFromRemote.</A>
+<BR>10)&nbsp; A couple of generic utility methods (e.g. <A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#debug(java.lang.String)">debug
+</A>and <A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#dumpStack(java.lang.Throwable, java.lang.String)">dumpStack</A>).
+<H3>
+DObject Subclasses:&nbsp; ComponentDObject</H3>
+There is a subclass of DObject called <A HREF="../../ec5/doc/javadoc/ec/dom/session/CompositeDObject.html">CompositeDObject</A>.&nbsp;
+This subclass was written to provide some support that we have in our current
+model for 'Ingredients'.&nbsp; (The notions of 'ingredient' and 'component'
+are exactly the same...I only used different words to avoid confusion with
+Pluribus).
+
+<P>It's useful to break up a DObject's internal functionality into pieces
+called 'Components' (Ingredients).&nbsp; The <A HREF="../../ec5/doc/javadoc/ec/dom/session/CompositeDObject.html">CompositeDObject</A>
+class provides the basic support for this.&nbsp; That is, all subclasses
+of <A HREF="../../ec5/doc/javadoc/ec/dom/session/CompositeDObject.html">CompositeDObject</A>
+can inherit the basic behavior of being able to add/remove/use instances
+of some subclass of BaseComponent.&nbsp; The ComponentDObject class also
+handles the automatic message routing to these components, and allows the
+components to easily messaging with their remote counterparts via the support
+methods <A HREF="../../ec5/doc/javadoc/ec/dom/session/CompositeDObject.html#sendToHomeComponent(java.lang.String, ec.dom.session.Closure)">sendToHomeComponent</A>,
+<A HREF="../../ec5/doc/javadoc/ec/dom/session/CompositeDObject.html#sendToRemoteComponents(java.lang.String, ec.dom.session.Closure)">sendToRemoteComponents</A>,
+and <A HREF="../../ec5/doc/javadoc/ec/dom/session/CompositeDObject.html#sendToRemoteComponent(ec.dom.session.SessionID, java.lang.String, ec.dom.session.Closure)">sendToRemoteComponent</A>.
+<H3>
+DObject Subclass Text Chat Example</H3>
+One example DObject subclass implements a trivial text chat program.&nbsp;
+Simple, yet it works.&nbsp; It deals properly with partition (the hard
+part).&nbsp; The source code to the 'MultipointTextChat' DObject subclass
+is in the CVS source tree in ec/dom/tests/lilbuddies.
+
+<P>All of this code is written, and has been through a first round of initial
+testing.&nbsp; It works as specified <B>now, </B>but does need more complete
+testing.&nbsp; If you are interested in looking at the (fully commented)
+source see the links on the individual javadocs for each class (there is
+a link to the source for almost all classes) or <A HREF="dobjects/dom.zip">download
+this zip</A>, or check out the code in the ec/dom/tests or ec/dom/tests/lilbuddies
+subtrees.  There are Cafe project files for these two subtree located in ec5/projects/ec/dom/tests
+and ec5/projects/ec/dom/tests/lilbuddies respectively.
+<H3>
+Relevant Links</H3>
+<A HREF="http://research.ivv.nasa.gov/RMP/links.html">Reliable Multicast</A>
+(useful for definitions of reliability in the multipoint messaging case,
+formal descriptions of distributed consensus, etc.).
+
+<P>
+<HR SIZE=14 WIDTH="100%">
+<BR><SUP><FONT SIZE=-2>1</FONT></SUP> What is multipoint reliability?&nbsp;
+First some terminology:&nbsp; A distributed system is composed of a finite
+set S = { p<SUB>1</SUB>, ..., p<SUB>n</SUB>} of processes completely connected
+through a set of channels.&nbsp; Communication is by message passing, and
+asynchronous (there is no bound on the transmission delays).
+
+<P><B>Definition of reliability in multipoint messaging</B>:&nbsp; A 'reliable'
+channel ensures that a message sent by p<SUB>i</SUB> to p<SUB>j</SUB> is
+eventually received by p<SUB>j </SUB>if p<SUB>i</SUB> and p<SUB>j</SUB>
+are correct (i.e. do not crash).&nbsp; This does not exclude link failures,
+if we require that any link failure is eventually repaired (physical 'link
+failure' is usually modelled by equating it with process crash from the
+point of view of the distributed system).&nbsp; A reliable channel can
+be implemented by retransmitting lost or corrupt messages.
+
+<P>&nbsp;
+
+<P>&nbsp;
+<BR>&nbsp;
+<BR>&nbsp;
+
+<P>&nbsp;
+<BR>&nbsp;
+<BR>&nbsp;
+
+<P>&nbsp;
+</BODY>
+</HTML>

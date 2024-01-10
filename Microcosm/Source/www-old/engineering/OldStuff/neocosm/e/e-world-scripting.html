@@ -1,0 +1,193 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!--last modified on Monday, February 02, 1998 12:58 PM -->
+<HTML>
+
+<HEAD>
+	<META NAME="GENERATOR" Content="Visual Page 1.0 for Windows">
+	<META NAME="Author" Content="Mark S. Miller">
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html;CHARSET=iso-8859-1">
+	<TITLE>E Scripting Examples in C style</TITLE>
+</HEAD>
+
+<BODY BACKGROUND="wood.gif">
+
+<H1 ALIGN="CENTER">E World Scripting Examples</H1>
+<H3 ALIGN="CENTER">for those in the C syntactic tradition</H3>
+<P ALIGN="CENTER">(from a correspondence with Tony Grant, archived on ec_ez)</P>
+<P>This document presents examples in E for scripting behaviors in our virtual worlds. Tony started things off
+with examples showing how our worlds might be made easily scriptable for the Visual Basic programmer. After some
+(archived) iterations, here is my best take on doing Tony's examples within all our foundational constraints--including
+capability secure programming--in the E language. The examples use E as it works today except for two enhancements
+noted below.</P>
+
+<P><A HREF="vb-oid-scripting.html">Here</A> is Tony's original message. The examples in this document and Tony's
+message are now cross-linked to each other so you can easily see how the examples compare. IMO, the results compare
+well with the imagined Visual Basic code.  For those more comfortable with the Visual Basic syntactic tradition,
+<A HREF="e-vb-oid-scripting.html">here</A> is a version of this document you may like better.  The E language
+accepts both styles.</P>
+
+<P>However, I'm almost totally ignorant of Pluribus and of the internals of the cosm level of our system, so the
+interface to it presented here may be wholly unrealistic. Cosm/Unum programmers: How reasonable are our assumptions?
+How reasonable are our examples?</P>
+
+<P>
+<HR ALIGN="CENTER">
+[<A NAME="cosm-api"></A><A HREF="vb-oid-scripting.html#cosm-api">See the original version</A>]</P>
+<H2>Hypothetical Unum/Puppet/Cosm Interface</H2>
+<P>Standard events:</P>
+<PRE>    noticeClick
+    noticeBump(other)
+    noticeRegionEntry(avatar)
+    noticeRegionExit(avatar)
+    noticeSpeech(avatar, text)</PRE>
+<P>&quot;other&quot; and &quot;avatar&quot; above would probably be some appropriate level of puppet, but none
+of this has been revisited since the puppet revolution. Suggestions and clarifications would be most appreciated!</P>
+<P>&quot;Instance&quot; Variables:</P>
+<PRE>    myName
+    myPossessions
+    myOwner
+    myRegion
+    myBody</PRE>
+<P>&quot;Global&quot; Name Spaces:</P>
+<PRE>    bodies
+    regions
+    gestures</PRE>
+<P>&quot;Global&quot; Functions:</P>
+<PRE>    PlayGesture(gesture)
+    Say(text)
+    TestLaunch(avatarBody, region)
+    WalkTo(region)
+    TeleportTo(region)
+    RandomElement(collection)</PRE>
+<P>(I need to understand more about portals &amp; teleport pads)</P>
+<P>
+<HR ALIGN="CENTER">
+[<A NAME="example1"></A><A HREF="vb-oid-scripting.html#example1">See the original version</A>]</P>
+<P>&gt;1. Launch Microcosm with Yappy as the avatar and have him transition back<BR>
+&gt;and forth between CentralPark region and BeachResort.<BR>
+&gt;<BR>
+&gt;This would help us to find any memory leaks occurring on transitions. I<BR>
+&gt;don't know how much overhead would be involved in this, but it would be<BR>
+&gt;great if it were simple:</P>
+<PRE>    TestLaunch(bodies[&quot;Yappy&quot;], regions[&quot;CentralPark&quot;])
+
+    for i in (1..100) {
+        TeleportTo(regions[&quot;BeachResort&quot;])
+        TeleportTo(regions[&quot;CentralPark&quot;])
+    }</PRE>
+<P>
+<HR ALIGN="CENTER">
+[<A NAME="example2"></A><A HREF="vb-oid-scripting.html#example2">See the original version</A>]</P>
+<P>&gt;2. Visit every region in a realm. This would a great script to run after<BR>
+&gt;new art checking to make sure that none of the new regions have broken the<BR>
+&gt;world.</P>
+<PRE>    TestLaunch(bodies[&quot;Dax&quot;], regions[&quot;CentralPark&quot;])
+
+    for r in (myRegion realm regions) {
+        TeleportTo(r)</PRE>
+<P>}
+<HR ALIGN="CENTER">
+[<A NAME="example3"></A><A HREF="vb-oid-scripting.html#example3">See the original version</A>]</P>
+<P>&gt;3. Simple Click response:</P>
+<PRE>    on noticeClick {
+        Say(&quot;Ow!&quot;)
+    }</PRE>
+<P>
+<HR ALIGN="CENTER">
+[<A NAME="example4"></A><A HREF="vb-oid-scripting.html#example4">See the original version</A>]</P>
+<P>&gt;4. The next generation Click response. Play a random gesture.</P>
+<PRE>    on noticeClick {
+        PlayGesture(RandomElement(gestures))
+    }
+</PRE>
+<P>Where <TT>RandomElement</TT> could be defined by:</P>
+<PRE>    define RandomElement := to (collection) {
+        define elements := collection indexable
+        elements[elements size random]
+    }</PRE>
+<P>
+<HR ALIGN="CENTER">
+[<A NAME="example5"></A><A HREF="vb-oid-scripting.html#example5">See the original version</A>]</P>
+<P>&gt;5. A greeting bot. When an avatar enters the region, the bot welcomes him<BR>
+&gt;or her:</P>
+<PRE>    on noticeRegionEntry(avatar) {
+        Say(&quot;Hi &quot; + avatar name + &quot;. Welcome to KidsWorld!&quot;)</PRE>
+<P>}
+<HR ALIGN="CENTER">
+[<A NAME="example6"></A><A HREF="vb-oid-scripting.html#example6">See the original version</A>]</P>
+<P>&gt;6. A ridiculously simple Eliza:</P>
+<PRE>    on noticeSpeech(avatar, text) {
+        Say(&quot;That's interesting &quot; + avatar name + &quot;. Tell me more about &quot; + text)
+    }</PRE>
+<P>
+<HR ALIGN="CENTER">
+[<A NAME="example7"></A><A HREF="vb-oid-scripting.html#example7">See the original version</A>]</P>
+<P>&gt;7. Have a bot in your Turf that reacts to the mention of your name.</P>
+<PRE>    on noticeSpeech(avatar, text) {
+        if (text includes(myOwner name)) {
+            PlayGesture(gestures[&quot;Spin&quot;])
+            Say(&quot;I sure do love &quot; + myOwner name)
+        }
+    }</PRE>
+<P>
+<HR ALIGN="CENTER">
+[<A NAME="example8"></A><A HREF="vb-oid-scripting.html#example8">See the original version</A>]</P>
+<P>&gt;8. The wandering avatar: (no error checking for a region with no portals)<BR>
+<BR>
+I'm not sure what you intended by saying &quot;no error checking&quot;. If you want to code in ignorance of the
+issue of errors, uncaught errors will terminate your loop:</P>
+<PRE>    TestLaunch(bodies[&quot;Dax&quot;], regions[&quot;CentralPark&quot;])
+
+    for i in (1..100) {
+        WalkTo(RandomElement(regions))
+    }
+</PRE>
+<P>The first <TT>WalkTo</TT> that throws an error will exit this loop. Alternatively, if you want to ignore errors
+and keep going:</P>
+<PRE>    TestLaunch(bodies[&quot;Dax&quot;], regions[&quot;CentralPark&quot;])
+
+    for i in (1..100) {
+        try {
+            WalkTo(RandomElement(regions))
+        } catch {}
+    }
+</PRE>
+<P><TT>try/catch</TT> is how you handle errors. The empty curlies after the '<TT>catch</TT>' say to do nothing
+on an error.</P>
+<P><IMG SRC="kilroy.gif" WIDTH="560" HEIGHT="26" ALIGN="BOTTOM" BORDER="0"></P>
+<H2>Assumed E Enhancements</H2>
+<P>E has already reserved the &quot;<TT>on</TT>&quot; keyword. This document assumes that the &quot;<TT>on</TT>&quot;
+keyword has been added to the language in a role similar to the existing &quot;<TT>to</TT>&quot; keyword. The difference
+between &quot;<TT>on</TT>&quot; and &quot;<TT>to</TT>&quot; reflect two very different purposes for invocation
+(calling/sending) in object oriented programming.</P>
+
+<UL>
+	<LI>When object A invokes object B, usually it is to serve a purpose of A's, and the invocation can be seen as
+	an imperative or query. The invocation is assumed to be on the <I>caller's behalf</I>. For this case the &quot;<TT>to</TT>&quot;
+	form is used to define the corresponding method, as in &quot;<TT>to verb(arg, ...) { body }</TT>&quot;, and invocation
+	can be either a synchronous call or an asynchronous send (&quot;<TT>&lt;-</TT>&quot;). A synchronous call is a
+	sensible possibility since A is subcontracting to B, and B's effects are typically part of the effects A is trying
+	to bring about. Since the invocation is assumed to be on A's behalf, a to-invocation has an implicit return value,
+	which is a Promise in the asynchronous case.
+	<P>
+	<LI>The other common purpose for an invocation is event notification (called by various o-o commentators <I>Observers,
+	Dependents, Reactors, ...</I>). Typically, object B will have earlier registered with A an interest in certain
+	kinds of events. Later, when A decides that these events have occurred, it informs all interested parties, like
+	B, by invoking them. These invocations are assumed to be on the <I>callee's behalf</I>. The method would be defined
+	as &quot;<TT>on eventName(arg, ...) { body }</TT>&quot;, and the corresponding invocation could only be asynchronous
+	(&quot;<TT>&lt;-</TT>&quot;), since B's reactions to the event (and any consequent side effects) are not properly
+	part of the action A was in the midst of. By the same token, A is assumed not to be interested in any results or
+	exceptions from B, so no implicit return value is supplied.
+</UL>
+
+<P>As Hypercard has shown, the event driven model is quite pleasant. Unlike Smalltalk, Hypercard does not make
+an object register in order to receive notifications of events it's interested in. It suffices to have (the equivalent
+of) an <TT>on</TT>-method for that event, and to be in a context in which these events are <I>ambient</I>. For
+our worlds, the Frame/Session (or maybe the container?) can serve as such a context. [Need to explain <I>group
+membership</I>] We therefore need a CRAPI-like E meta-protocol so such a context can find out, when an object
+is added to that context, what <TT>on</TT>-methods it has. An object can be <I>assumed</I> to be interested in
+any event it has an <TT>on</TT>-method for.
+
+</BODY>
+
+</HTML>

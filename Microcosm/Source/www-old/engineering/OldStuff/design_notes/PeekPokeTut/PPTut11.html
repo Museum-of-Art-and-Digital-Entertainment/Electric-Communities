@@ -1,0 +1,110 @@
+<!--NewPage-->
+<!-- Created by Masa Maeda on 05.14.97  -->
+<!-- Copyright 1997 Electric Communitites. -->
+<!-- All rights reserved worldwide.  -->
+<!-- Proprietary and confidential. -->
+<HTML>
+<HEAD>
+<pre>
+<a href="PPTut10.html">Previous</a>  <a
+href="PPTut12.html">Next</a>  <a
+href="PPTutI.html">Index</a>  <a
+href="PPTut1.html">Home</a></pre>
+<TITLE>The PeekPoke Tutorial</TITLE>
+</HEAD>
+<BODY>
+<P><HR WIDTH="100%" SIZE=2></P>
+<P>&nbsp;</P>
+<B><P>Step 7. Create Presence Implementation</P>
+</B>
+<P>The constituent ingredients for each presence are listed in the presence
+implementation. First specify the presence structure <FONT
+FACE="Courier">psHostPeekablePokeable</FONT>. The next line of code is an internal
+hack that indicates the presence how to track other presences. The presence
+implementation name (pin) assigns an ingredient implementation. In the <FONT
+FACE="Courier">presence</FONT> statements to create the unum structure, described in
+Step 4, a <FONT FACE="Courier">makes</FONT> statement was included. The counterpart
+<FONT FACE="Courier">make</FONT> statement is specified here. What the <FONT
+FACE="Courier">make</FONT> command does is generate a new presence and in this example both host
+and client generate new client presences. The <FONT
+FACE="Courier">prime</FONT> presence is initialized in <FONT
+FACE="Courier">piHostPeekablePokeable</FONT> and indicates the unum which presence is to be
+designated as the host.  No matter how many presences an unum may have, there should always be
+one an only one host presence. Note that the <FONT
+FACE="Courier">init</FONT> parameter for <FONT FACE="Courier">iiPeekable</FONT> and
+<FONT FACE="Courier">iiPokeable</FONT> is <FONT FACE="Courier">true</FONT> whereas in <FONT
+FACE="Courier">piClientPeekablePokeable</FONT> it is <FONT
+FACE="Courier">false</FONT>. This boolean value is utilized in the ingredient
+implementation to determine the behavior for host and clients, where <FONT
+FACE="Courier">true</FONT> is arbitrarily utilized for host.</P>
+<P> </P>
+
+<P><HR WIDTH="80%" SIZE=2></P>
+<PRE>
+
+	// ----- Create presence implementations -----
+	// piHostPeekablePokeable
+	export presence impl piHostPeekablePokeable {
+	  structure psHostPeekablePokeable;
+	  // presence instantiation kludge
+	  presenceBehavior IsHostPresence, TrackOtherPresences;
+	  // presence implementation name for peekable host
+	  ingredient pinHostPeekable template {
+	    impl iiPeekable;
+	  }
+	  // presence implementation name for pokeable host
+	  ingredient pinHostPokeable template {
+	    impl iiPokeable;
+	  }
+	  // initialization for host
+	  prime init () {
+	    (ingredient pinHostPeekable).init(true);
+	    (ingredient pinHostPokeable).init(true);
+	  }
+	  make upnClientPeekablePokeable;
+	}		
+	// piClientPeekablePokeable
+	export presence impl piClientPeekablePokeable {
+	  structure psClientPeekablePokeable;
+	  // presence instantiation kludge
+	  presenceBehavior IsClientPresence, DieWhenNoOtherPresences;
+	  // presence implementation name for peekable client
+	  ingredient pinClientPeekable template {
+	    impl iiPeekable;
+	  }
+	  // presence implementatino name for pokeable client
+	  ingredient pinClientPokeable template {
+	    impl iiPokeable;
+	  }
+	  // initialization for clients
+	  init () {
+	    (ingredient pinClientPeekable).init(false);
+	    (ingredient pinClientPokeable).init(false);
+	  }
+	  make upnClientPeekablePokeable;
+	}
+
+<P><HR WIDTH="100%" SIZE=2></P>
+<pre>
+<a href="PPTut10.html">Previous</a>  <a
+href="PPTut12.html">Next</a>  <a
+href="PPTutI.html">Index</a>  <a
+href="PPTut1.html">Home</a></pre>
+
+<P>
+For details on how <FONT FACE="Courier">IsHostPresence</FONT> and <FONT FACE="Courier">TrackOtherPresences</FONT> work consult
+ <A HREF="http://www-int.communities.com/archives/pluribus/0111.html">http://www-int.communities.com/archives/pluribus/0111.html</A>
+</P>
+
+</HTML>
+
+
+
+
+
+
+
+
+
+
+	 

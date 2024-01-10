@@ -1,0 +1,112 @@
+<HTML>
+<HEAD>
+    <TITLE>Texture Ingredients</TITLE>
+</HEAD>
+<BODY>
+
+<H1>The Texture Ingredients</H1>
+<font size=+1>
+<h1>Introduction</h1>
+
+This design note explains the texture ingredients used to
+change the texture of una in Microcosm.  It describes the
+design as it was at the time of the PCForum demo, in late March '97.
+
+<h1>Overview</h1>
+
+There are two ingredients, Texturizer and Texturizable, each
+of which has an associated ec.cosm.gui.scene.Texture object.
+Texturizables can have their Textures set and Texturizers can
+be told to set Texturizables' Textures to the Texturizers'.
+<p>
+At this point in time <b>(4/8/97)</b>, that is all there is to it:  Texturizables
+don't actually do anything with their Textures as there was no mechanism a few
+days before PC Forum to actually communicate to the renderer about texture
+changes in presented objects.  Because of this, the Texture ingredients were
+not completed; i.e. there is no mechanism for client/server relationships
+for Texture ingredients.
+
+<h1>Texturizable Ingredient</h1>
+
+The Texturizer ingredient is of kind <b>ikTexturizable</b> and contains the following information:
+
+<ul>
+
+<li>Texture
+
+</ul>
+
+The Texturizable's Texture is an <b>ec.cosm.gui.scene.Texture</b>.  This Texture
+is initialized by the Texturizable's <code>init()</code> method.
+
+
+The Texturizable has two methods:
+
+<p><code>
+
+	init(Texture textureMap);
+	<br>
+	iTexturize(Texture textureMap);
+	
+</code><p>
+
+<code>init</code> sets the Texturizable's initial Texture to <b>textureMap</b>.
+<br>
+<code>iTexturize</code> changes the Texturizable's Texture to
+the passed in <b>textureMap</b>.
+
+<p>
+<h1>Texturizer Ingredient</h1>
+
+The Texturizer ingredient is of kind <b>ikTexturizer</b> and contains the following information:
+
+<ul>
+
+<li>Texture
+
+</ul>
+
+The Texturizable's Texture is an <b>ec.cosm.gui.scene.Texture</b>.  This Texture
+is initialized by the Texturizable's <code>init()</code> method.
+
+
+The Texturizable has two methods:
+
+<p><code>
+
+	init(Texture textureMap);
+	<br>
+	iTexturize(kind ikTexturizable target);
+	
+</code><p>
+
+<code>init</code> sets the Texturizable's initial Texture to <b>textureMap</b>.
+<br>
+<code>iTexturize</code> sends an <code>iTexturize()</code> message to <b>target</b>
+with the Texturizer's Texture.
+
+<p>
+
+<h1>Texturize Problems</h1>
+
+<ul>
+<li>The final hookup between the Texturizable and the UI ingredient
+to allow the actual presentation to be changed needs to be added.
+
+<li>Any necessary client/server coding needs to be done.
+
+<li>Currently Textures are very simple and based upon the java.awt.Colors.
+These are read out of realm.txt files and <b>ec.cosm.gui.scene.Texture</b>s are generated and passed
+to the <code>init()</code> methods.  We need to implement more complex ways of doing textures,
+with color arrays and bit masks.
+
+<li>It all needs to be tested.
+</ul>
+
+<a href="index.html">Back to design notes index</a>
+<br>
+<a href="../index.html">Back to Microcosm engineering main page</a>
+
+</BODY>
+</HTML>
+

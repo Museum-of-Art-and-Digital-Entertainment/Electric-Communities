@@ -1,0 +1,56 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>setup forwarding</TITLE>
+<META NAME="Template" CONTENT="C:\Program Files\Microsoft Office\Templates\Web Pages\Web Page Wizard.wiz">
+</HEAD>
+<BODY TEXT="#000000" LINK="#0000ff" VLINK="#800080" BACKGROUND="Image1.gif">
+<DIR>
+
+<FONT FACE="Garamond"><P>The following code will fail when messages are delivered in the order they were sent.</P>
+<P>The Recipient class has some internal state that cannot be initialized immediately. Instead, it asks an OutsideWorld object to retrieve the data.  When the OutsideWorld object has done that, it sends back a completeSetup message, passing along the newly-fetched data, which is stored for later use.</P></DIR>
+
+</FONT><PRE>eclass Recipient
+{
+  State myState;
+
+  // Initialization code.
+  Recipient(OutsideWorld w) {
+    w &lt;- goFetchState(this);    // nonblocking setup
+  }
+
+  emethod completeSetup (State actualState) {
+    myState = actualState;
+  }
+
+  // Normal use code
+  emethod doSomething () {
+    myState.operate();
+  }
+}
+</PRE><DIR>
+
+<FONT FACE="Garamond"><P>The problem is that </FONT><CODE>doSomething</CODE><FONT FACE="Garamond"> might be called before setup is complete. </FONT><CODE>doSomething</CODE><FONT FACE="Garamond"> could check if </FONT><CODE>myState</CODE><FONT FACE="Garamond"> was null, but what should be done if it is?  It seems best to queue up the message until setup is complete.  E channels provide a natural way to do that.  Change the </FONT><CODE>State</CODE><FONT FACE="Garamond"> to an E class, which makes the </FONT><CODE>myState</CODE><FONT FACE="Garamond"> variable a channel.  </FONT><CODE>completeSetup</CODE><FONT FACE="Garamond"> then can forward the channel.  Until it does, </FONT><CODE>doSomething</CODE><FONT FACE="Garamond">'s operation on the state is not performed. </P>
+<P>Here's the fixed code:</P></DIR>
+
+</FONT><PRE>eclass Recipient
+{
+  <FONT COLOR="#0000ff">EState</FONT> myState;  // a channel
+
+  // Initialization code.
+  Recipient(OutsideWorld w) {
+    w &lt;- goFetchState(this);    // nonblocking setup
+  }
+
+  emethod completeSetup (EState actualState) {
+    // forward channel to make state available.
+    <FONT COLOR="#0000ff">&amp;myState &lt;- forward(actualState);
+</FONT>  }
+
+  // Operation code
+  emethod doSomething () {
+    myState <FONT COLOR="#0000ff">&lt;-</FONT> operate();
+  }
+}</PRE></BODY>
+</HTML>

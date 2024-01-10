@@ -1,0 +1,157 @@
+<h2>Window Positioning in Microcosm</h2>
+
+This document describes Microcosm's mechanism for window positioning,
+including automatic positioning and saving/restoring positions.<P>
+
+<h3>ECExternalWindow and WindowPositioner</h3>
+
+ECExternalWindow is our subclass of IFC's ExternalWindow. We made this
+subclass to support some window mechanisms beyond what IFC provided,
+including tip views and default buttons. Now ECExternalWindow also provides
+hooks into the window positioning mechanism. This means to use the window
+positioning mechanism your window needs to be an ECExternalWindow. The
+stone look window class (SLWindow) is already a subclass of
+ECExternalWindow so there's no problem there.<P>
+
+WindowPositioner is an interface defined in Support/ifc/app (the same place
+as ECExternalWindow). WindowPositioner provides calls for recommending a
+position for a given window, saving the position of a given window,
+restoring the saved position of a given window, and a couple of other things.<P>
+
+<h3>Getting the recommended position</h3>
+
+To hook into the positioning mechanism, an ECExternalWindow needs to have a
+"positioner", which is an object that implements WindowPositioner. This is
+accessed with the typical <code>positioner()/setPositioner()</code> calls. If an
+ECExternalWindow just wants to ask for a recommended position, all it needs
+is this positioner -- then the recommended position can be obtained with:<P>
+
+<pre>
+	Rect recommendedBounds = 
+		ecExtWindow.positioner().recommendBounds(ecExtWindow);
+</pre>
+
+It's up to the positioner to come up with a good location (given the
+window's current size). The initial implementation is very simplistic, but
+it can get smarter over time without client windows having to know anything
+about it.<P>
+
+For convenience, ECExternalWindow has a <code>setBoundsToRecommended()</code> call that
+first gets the recommended bounds as above and then sets the window's
+bounds to match, doing appropriate null-checking along the way.<P>
+
+<h3>Saving/restoring the position</h3>
+
+If an ECExternalWindow wants to have its position saved & restored, it
+needs both a positioner and a positioningKey. The positioningKey is simply
+a string that differentiates this window from other windows. For example,
+the positioningKey for the log window is "LOG WINDOW POSITION" and the
+positioningKey for the main window is "MAIN WINDOW POSITION". This string
+will be written to and read from the human-readable preferences file, so
+sensible English phrases are de rigeur. For consistency, it's best if they
+are all "[something] POSITION", though no code will break if you make it
+something weird. The positioningKey is accessed, unsurprisingly, with
+<code>positioningKey()/setPositioningKey()</code>. By default it is null, so you have to
+explicitly set one on each window instance whose position you want
+saved/restored.<P>
+
+Once you've set the positioner and the positioningKey on an
+ECExternalWindow instance, the position saving (but not restoring) is done
+automatically. A window's position is saved when it's hidden (specifically
+by <code>ECExternalWindow.hide()</code>), and positions of open windows are saved when
+Microcosm is quit, more or less. The positioningKeys and positions are
+written out into the preferences file, which at least at the moment is
+called "Microcosm.prefs" and lives in the directory from which you launched
+Microcosm.<P>
+
+You have some choices about how to use the saved position when it comes
+time to create your window again in the next life, er, launch. The simplest
+thing to do is just to call <code>ecExtWindow.setBoundsToRecommended()</code>, as
+mentioned above. This will use the stored position if there is one,
+otherwise it will apply its own algorithm to find a place for the window it
+likes.<P>
+
+If you don't want to use the window positioner's algorithm, you don't have
+to. You can ask for the recommended bounds using
+<code>windowPositioner.recommendedBounds(ecExtWindow)</code> and then decide whether to
+use the result, or you can just ask for the saved bounds using
+<code>windowPositioner.savedBounds(ecExtWindow)</code>. For instance, the log window has
+some code to fit itself under the main window and resize itself vertically
+depending on how much room there is on the screen. It first checks
+<code>savedBounds()</code>. If that's non-null, it uses the result. If savedBounds is
+null, it uses its own code to position itself.<P>
+
+Note that you never have to worry about the saved position from a big
+monitor not working on a small monitor -- <code>windowPositioner.savedBounds()</code>,
+which is called by <code>recommendedBounds()</code>, will move the saved bounds as
+necessary to keep it on the screen.<P>
+
+<h3>WindowManager</h3>
+
+So, you ask, where do I get a WindowPositioner so that I can set it for the
+ECExternalWindows I create? Well, handily, the GUIFramework object has one
+for you. It's of class WindowManager, whose code lives in ui/gui/utils/ if
+you're interested. It's included in interface jiGUIFramework along with the
+other GUI-only stuff that lots of other classes are interested in. You get
+it with <code>getWindowManager()</code> after finding the GUIFramework/jiGUIFramework
+object somehow.<P>
+
+<h3>Sample code</h3>
+
+First you need the application's one and only window manager. If you've
+already got a jiGUIFramework around, you can get it with:<P>
+
+<pre>
+	WindowManager wm = jiGF.getWindowManager();
+</pre>
+
+If you haven't got a jiGUIFramework around, you can always find it since
+it's the IFC Application and you can reach it through a static method.
+Here's the longest and safest way to get it (leaving off any required
+import lines):<P>
+
+<pre>
+	Application app = Application.application();
+	WindowManager wm;
+	if (app instanceof jiGUIFramework){
+	    wm = ((jiGUIFramework)app).getWindowManager();
+	} else {
+	    wm = null;
+	}
+</pre>
+
+Note that the <code>wm = null</code> case should never be hit because there's always
+exactly one IFC application (when you're in GUI code, as you are if you're
+mucking with ECExternalWindows) and our application is always a
+GUIFramework, which implements jiGUIFramework. Therefore you can
+realistically replace the above code with:<P>
+
+<pre>
+	jiGUIFramework jiGF = (jiGUIFramework)Application.application();
+	WindowManager wm = jiGF.getWindowManager();
+</pre>
+
+Now that you've got your WindowManager, the simple code sequence is:<P>
+
+<pre>
+	myECExternalWindow = [create it with default size your favorite way];
+	myECExternalWindow.setPositioner(wm);
+	myECExternalWindow.setPositioningKey(CONSTANT_STRING_DEFINED_EARLIER);
+
+	myECExternalWindow.setBoundsToRecommended();
+</pre>
+
+If you want to use your own positioning code in the no-saved-state case,
+replace that last line with:<P>
+
+<pre>
+	Rect savedBounds = wm.savedBounds(myECExternalWindow);
+	if (savedBounds != null){
+	    myECExternalWindow.setBounds(savedBounds);
+	} else {
+	    [your own positioning code here]
+	}
+</pre>
+
+John Sullivan<P>
+7/10/97<P>

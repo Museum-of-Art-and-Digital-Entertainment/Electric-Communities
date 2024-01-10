@@ -1,0 +1,69 @@
+<!--NewPage-->
+<!-- Created by Masa Maeda on 05.14.97  -->
+<!-- Copyright 1997 Electric Communitites. -->
+<!-- All rights reserved worldwide.  -->
+<!-- Proprietary and confidential. -->
+<HTML>
+<HEAD>
+<pre>
+<a href="PPTut8.html">Previous</a>  <a
+href="PPTut10.html">Next</a>  <a
+href="PPTutI.html">Index</a>  <a
+href="PPTut1.html">Home</a></pre>
+<TITLE>The PeekPoke Tutorial</TITLE>
+</HEAD>
+<BODY>
+<P><HR WIDTH="100%" SIZE=2></P>
+<P>&nbsp;</P>
+
+<B><P>Step 5. Create Unum Structure</P>
+</B>
+<P>An unum structure contains the unum’s presences associated to their corresponding
+presence kind name.  Since the idea is to have a host/client architecture in which at
+least one client is addressed, it is necessary to specify the role of each presence
+as well as determine which of them can make other remote presences. The prime
+presence is also specified.</P>
+
+<P><HR WIDTH="80%" SIZE=2></P>
+<PRE>
+
+	// ---------- Create Unum structure ---------------
+	export unum structure usPeekablePokeable {
+	  kind uskPeekablePokeable;
+	  presence upnHostPeekablePokeable kind pskHostPeekablePokeable 
+	      makes upnClientPeekablePokeable;
+	  presence upnClientPeekablePokeable kind pskClientPeekablePokeable 
+	      makes upnClientPeekablePokeable;
+	  prime upnHostPeekablePokeable;
+	}
+
+</PRE>
+<P><HR WIDTH="80%" SIZE=2></P>
+
+<P>First of all the kind for the unum structure is specified. Each of the presences
+is then assigned a name and the remote presence they can make is provided. In this
+case both the host and client presences can make clients.  Last, the presence that is
+created first is determined through <FONT FACE="Courier">prime</FONT>. There can be
+only one prime presence per unum.</P>
+
+<P><HR WIDTH="100%" SIZE=2></P>
+<pre>
+<a href="PPTut8.html">Previous</a>  <a
+href="PPTut10.html">Next</a>  <a
+href="PPTutI.html">Index</a>  <a
+href="PPTut1.html">Home</a></pre>
+
+</HTML>
+
+
+
+
+
+
+
+
+
+
+
+
+

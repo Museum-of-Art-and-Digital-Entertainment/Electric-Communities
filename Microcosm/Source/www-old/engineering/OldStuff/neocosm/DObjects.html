@@ -1,0 +1,478 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.01 [en] (Win95; I) [Netscape]">
+   <TITLE>DObjects Work</TITLE>
+</HEAD>
+<BODY>
+
+<H1>
+<I>DObjects -- A Distributed Object System</I></H1>
+<B>Last Updated</B>:&nbsp; 6/25/98 by <A HREF="mailto:marick@communities.com">marick</A>
+to add a link to a test plan.
+
+<P><B>Document Owner:&nbsp; </B><A HREF="mailto:slewis@communities.com">slewis@communities.com</A>
+<H2>
+Introduction</H2>
+WHAT!?!?&nbsp; You are probably thinking this right now:&nbsp; "why they
+hell do we need more infrastructure?".&nbsp; "Don't we have enough infrastructure
+already?".&nbsp; "Why have <I>another </I>complicated system?"
+
+<P>Well, these are good questions.&nbsp; I think it's clear to most everyone
+that we have too much infrastructure right now.&nbsp; My answer to these
+questions is simple, however:&nbsp; Given our current infrastructure and
+problems with same, I think we can benefit from doing this piece of the
+system as simply and generally as possible.
+
+<P>My intention was to produce a distributed object infrastructure that
+satisfied the following constraints:&nbsp; 1) All java.&nbsp; 2) Simple
+(my grandmother can understand it...but my grandmother is very smart ;-);
+3) Very general (able to support all of our current distributed object
+requirements); 4) Very exstensible; 5) Small (code size goal: &lt; 200k);
+6) Performs well; 7) Performs reliably for known reasons.
+
+<P>See the <A HREF="#Architecture">Architecture</A> section below for all
+the details.
+
+<P>Click <A HREF="../../ec5/doc/javadoc/overview-summary.html">here</A>
+to see the javadocs.&nbsp; Click <A HREF="../containership/dobjects/index.htm">here</A>
+to see an old slide presentation on the work.&nbsp; Click <A HREF="dobjects/dom.zip">here</A>
+to get the zip with all the source, the javadocs, test code, and Cafe projects
+(although all the source is also checked into ec5/src/javasrc/ec/dom in
+the CVS source tree, so these files are now out of date as of 6/15/98).
+<H4>
+Related Documents</H4>
+<A HREF="../containership/dobjects/index.htm">A slide presentation of the
+main DObjects ideas</A>
+<BR><A HREF="../../ec5/doc/javadoc/overview-summary.html">Javadocs for
+all of the ec5 classes</A>.&nbsp; The most important classes are the '<A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionMember.html">ec.dom.session.SessionMember</A>'
+class (a given machine's local access or 'membership' in a multipoint session),
+and the '<A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html">ec.dom.session.DObject</A>'
+class (the root class for distributed objects).
+<BR><A HREF="dobjects/dom.zip">Here is a zip of all of the DObjects source
+code (this is out of date as of 6/15/98, however. See the ec5 source tree
+in CVS for an up-to-date version)</A>
+<H2>
+Requirements</H2>
+<A HREF="../containership/DObjectsReqs.html">A list of the requirements
+considered</A>
+<BR><A HREF="../containership/Meeting7Apr98.html">A recent design discussion
+with some additional relevant info</A>
+<H2>
+<A NAME="Architecture"></A>Architecture</H2>
+In essence, DObjects is a minimal framework for implementing the basic
+Unum/Presence distributed system structure that we already know and love.&nbsp;
+In this respect it is like Pluribus...i.e. it's centered around a model
+of distributing objects in a multipoint system, and allowing the presences
+of any given distributed object to have <B>arbitrary </B>representations
+on all of the machines where it executes its client code (determined by
+the host).&nbsp; In this way, it doesn't really say <I>anything </I>about
+the actual contents of the distributed objects, but rather only deals with
+the meta operations of the distributed system:&nbsp; reliable group membership
+(so multipoint message failure has some meaning), and the basics of distributed
+object 'lifecycle' management:&nbsp; distributed creation, distributed
+destruction (and garbage collection), meta-protocols to allow secure interaction
+with other distributed objects, secure resource control (e.g. access to
+Vat resources).
+
+<P>It differs from pluribus in a couple of key respects:&nbsp; 1) It is
+not based around a language.&nbsp; Everything is in java.&nbsp; 2) The
+multipoint 'Session' is a fundamental concept, primarily present to provide
+reliability and group membership information in multipoint messaging based
+on the notion of 'object group' computing (see <A HREF="http://gee.cs.oswego.edu/dl/groups/groups.html">Doug
+Lea's notes on Object Groups</A>). 3) The functionality of this framework
+is focussed strictly on the 'meta' operations needed to provide a <B>multipoint
+</B>distributed object layer (creation, destruction, inter-distributed-object-introduction,
+secure access to system resources).&nbsp;&nbsp; Oh, and by the way, just
+in case there is any doubt or concern:&nbsp; it's not IDMOO...it's a totally
+different/simpler/cleaner implementation, with much less code, and (I think)
+more functionality (particularly WRT facet-based security).
+
+<P>For the theoretically minded (if not, just skip over this paragraph),
+it is inspired by the notion of a 'meta-protocol' for distributed multipoint
+objects...which I realized was what we are trying to do (create a multipoint
+distributed object meta-protocol), after reading a good portion of the
+book '<A HREF="http://www.amazon.com/exec/obidos/Author=Kiczales%2C%20Gregor/002-3294774-4390402">The
+Art of the Meta-Object Protocol' by Gregor Kiczales</A>.&nbsp;&nbsp; The
+problem we are facing at the distributed object layer of our system, IMHO,
+is one of building a meta-object protocol for a multipoint distributed
+system, and reliably providing the meta operations for such a system (creation,
+destruction, error handling, meta-protocols between objects, etc) with
+the minimal infrastructure possible.&nbsp; Note such a meta protocol does
+not say anything about the actual semantics of the relationships between
+the distributed objects, nor about the state management (distributed, centralized,
+in between) of the distributed object, it just supports these meta operations
+on the distributed objects.
+
+<P>The DObjects stuff is based around the notion of a multipoint 'Session'.&nbsp;&nbsp;
+For the purposes of this document, a 'Session' is defined as:&nbsp; A group
+of processes (>= 1) interacting with one another for a finite length of
+time (actually, the notion of a 'SessionMember' described below is not
+limited to 1 per process...rather it supports the notion of having multipoint
+local 'SessionMember' in a single process all of which represent membership
+in a local or remote group...for example, a hub could easily have several
+multipoint SessionMember instances, with multiple regions all within a
+single java process).&nbsp; This notion of session is very general, and
+doesn't say anything about objects, regions, or anything having to do with
+a virtual space per se.&nbsp; Application specific examples of application
+uses of the session concept are:&nbsp; 1) a bridged audio conference, 2)
+a 'region' of a multiuser virtual space; 3) a multiuser bridge game; 4)
+a transaction in a distributed database.&nbsp; This is not an uncommon
+concept for distributed systems.&nbsp; If you look at much of the non-trivial
+multipoint distributed objects work out there, much of it is focussed around
+the concept of a multipoint group or session (examples:&nbsp; the <A HREF="http://www.infospheres.caltech.edu">infospheres
+work at caltech</A>, the <A HREF="http://simon.cs.cornell.edu/Info/Projects/HORUS/">Horus
+project at Cornell</A>, the <A HREF="http://java.sun.com:80/products/jms/index.html">java
+messaging service</A>, etc.).&nbsp; These references provide several good
+reasons for the focus on a 'session' concept, primarily these reasons revolve
+around the function of a session as an explicit group membership manager
+to provide support for reliable multipoint messaging.
+
+<P>One way to reify the notion of a multipoint group or 'Session' is to
+have every process' <B>interface </B>to a session be through an explicit
+class called a 'SessionMember'.&nbsp; This class is meant to represent
+each machine's access to the 'thing that is made up by all of the machines
+interacting with one another' (aka the Session).&nbsp; It is the local
+machine's access to the multi-machine Session.&nbsp; In the DObjects code,
+this is represented by the abstract class <A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionMember.html">ec.dom.session.SessionMember</A>,
+and its subclasses:&nbsp; <A HREF="../../ec5/doc/javadoc/ec/dom/session/ClientSessionMember.html">ec.dom.session.ClientSessionMember</A>
+and <A HREF="../../ec5/doc/javadoc/ec/dom/session/ServerSessionMember.html">ec.dom.session.ServerSessionMember.</A>&nbsp;
+Note that the abstract SessionMember class does not have any knowledge
+about the network topology that it is running on...that's provided by the
+subclasses.&nbsp; This is intentional, as it gives a mechanism to implement
+a topology-independent multipoint messaging interface, and allows us to
+replace one topology for another (i.e. multicast for star topology) without
+affecting the layers 'above' that depend upon this ('the distributed objects').&nbsp;
+This is very desireable, as it isolates the topology dependence to one
+layer in the system.&nbsp; See the <A HREF="MultipointCommSystem.html">Ideas
+for a Multipoint Comm System</A>.
+
+<P>The key added value for the notion of a 'Session' (and its local reification,
+the '<A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionMember.html">SessionMember</A>'
+class), is to provide a reliable multipoint messaging abstraction.&nbsp;
+By way of comparison, consider the <A HREF="http://java.sun.com:80/products/jdk/1.1/docs/api/java.net.MulticastSocket.html#_top_">MulticastSocket
+</A>class in the java api.&nbsp; This class is analogous to the SessionMember
+in DObjects except for one thing:&nbsp; the <A HREF="http://java.sun.com:80/products/jdk/1.1/docs/api/java.net.MulticastSocket.html#_top_">MulticastSocket
+</A>abstraction has no notion of reliable message delivery, and the DObjects
+<A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionMember.html">SessionMember
+</A>class does.&nbsp; This makes it possible for another piece of code
+that relies upon reliable multipoint messaging to depend upon this property
+from the messaging system.&nbsp; This property (reliable multipoint messaging)
+is <B>critical </B>for dealing with some n-way distributed system issues...for
+example, the Fischer, Lynch, and Patterson impossibility result regarding
+the distributed consensus problem (contact me if you want a hardcopy of
+this, or references to work describing its relevance/importance).
+
+<P>The property of multipoint messaging reliability relies, in turn, upon
+something known as 'group membership'.&nbsp; If you think about it, it
+makes a lot of sense:&nbsp; to be able to tell if a message intended for
+multiple processes reliably makes it to those processes, it's necessary
+to <B>know and agree about what other processes are currently in the group</B>.&nbsp;
+As simple as this sounds, determining group membership is not trivial under
+many circumstances (in fact, it's a research problem).&nbsp; For example,
+building upon an <I>unreliable multicast protocol</I>, defining a reliable
+group membership protocol is an extremely hard design problem (if you don't
+believe me, see some of the stuff <A HREF="http://simon.cs.cornell.edu/Info/Projects/HORUS/Abstracts.html#tr93-1328">here</A>).&nbsp;
+Fortunately for us, however, group membership is trivial with some network
+topologies (e.g. the star topology), and so it is not difficult at all
+for us to implement given our current system assumptions.&nbsp; So, one
+central and critical function of the SessionMember class is to implement
+a reliable group membership protocol, so all SessionMembers can get accurate
+information about what other processes are currently in the group, and
+they can also provide messaging reliability guarantees on top of that group
+membership information.&nbsp; This is basically all the SessionMember class
+provides, but it is a critical piece of functionality for providing a reliable
+multipoint messaging abstraction.
+
+<P>The SessionMember class provides two basic multipoint messaging primitives:&nbsp;
+These are the '<A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionMember.html#sendDataToPresences(ec.dom.net.DObjectPacket)">sendDataToPresences</A>'
+method, and the '<A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionMember.html#sendDataToPresenceAtSession(ec.dom.session.SessionID, ec.dom.net.DObjectPacket)">sendDataToPresenceAtSession</A>'
+method.&nbsp; These are the main messaging primitives used by the distributed
+objects that participate in a multipoint session, and provide the basic
+reliable, FIFO (sender) ordered properties that are not guaranteed by (e.g.)
+a <A HREF="http://java.sun.com:80/products/jdk/1.1/docs/api/java.net.MulticastSocket.html#_top_">multicast
+socket</A> class.
+
+<P>The other key class for the DObjects system is the 'DObject' class.&nbsp;
+It's defined in <A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html">ec.dom.session.DObject</A>.&nbsp;
+This is intended to be the base class for all distributed objects (aka
+Una).&nbsp; Actually the DObject class is intended to be conceptually similar
+to a Presence in the unum/presence model.&nbsp; This base class is intended
+to be used (and is *enforced*) as the base class for all distributed object
+presences by the SessionMember code itself, and provides some of the basic
+functionality for every presence of a distributed object.&nbsp; Note that
+a number of the methods on the DObject class are declared <B>final</B>.&nbsp;
+The reason for this is that these methods provide basic functionality for
+the distributed object that the local system must guarantee (for example,
+proper shutdown and eviction/garbage collection semantics).&nbsp; The guarantee
+(by the local classloader) that this class is the top-level superclass
+for all untrusted code, that this DObject class is loaded from local disk,
+and that these final methods are not overrideable by untrusted code gives
+some assurance that the local system can 'have its way' with the local
+presence of an untrusted distributed object, and that the meta-operations
+of creation and destruction of the untrusted distributed object will be
+done 'properly' from the local system's point of view (no resource hogging
+from untrusted code).&nbsp; This is a critical guarantee in the case where
+the distributed object is using untrusted code (I know we are not doing
+this now, but it provides a general and secure mechanism for dealing with
+this case).
+
+<P>For example, <A HREF="../containership/dobjects/sld009.htm">here </A>is
+the beginning in a sequence of slides (slides 10-16) that graphically and
+in prose describes the group membership protocol and DObject presence creation
+process within the DObjects framework.&nbsp; The main point to make about
+this process is that it solves <B>one </B>subtly hard problem within the
+context of a multiuser virtual space jointly hosted on all participating
+machines:&nbsp; it allows each DObject to solve the distributed consensus
+problem for the existence of itself within the context defined by the multipoint
+session.&nbsp; That is, existence of a DObject (creating/removing client
+presences of itself in all participating processes) in a multipoint group
+<I>is a distributed consensus problem</I>, and the reliability and group
+membership properties of the multipoint session (and more specifically
+the local SessionMember object) allow the DObjects to reliably solve this
+problem for themselves as necessary.&nbsp; This is the main guarantee that
+the support for the reliable multicast model delivers:&nbsp; it allows
+the distributed consensus problem to be solved.
+<H3>
+Supporting Host->Client, Client->Host security</H3>
+It's important that the DObjects code not only be sufficiently general,
+but also that it support our specific patterns of messaging.&nbsp; Specifically,
+as part of the security characteristics of the Unum/Presence model, it
+is specified that messaging among presences of a given distributed object
+occur from Host->Client (for fanout of state changes), and Client->Host
+(for state change requests).&nbsp; These are the patterns of use appropriate
+for our application (neocosm), and they disallow clients from sending/receiving
+messages among themselves (rather than through the host), so that security
+assertions can be made in the face of untrusted clients/i.e. hacked machines.
+
+<P>Note that this constraint on the messaging pattern is not a functional
+choice, rather it is a security policy choice...i.e. there is no reason
+to disallow client->client messaging for some applications.&nbsp; In fact
+it is very useful under some application circumstances (for example, the
+lilbuddies code uses this pattern to gain significant messaging efficiency
+at the cost of ordered delivery).&nbsp; See <A HREF="../../../ec5/doc/javadoc/ec/dom/tests/lilbuddies/MultipointTextChat.html">here</A>
+for example code...see the sendUtteranceToRemotesMethod.&nbsp; In any event,
+it's understood that for our app we need to support the secure Host->Clients,
+Client->Host messaging patterns, and the DObjects code allows this security
+policy to be introduced with almost no code, as described below.
+
+<P>So how to constrain messaging to Host->Clients and Client->Host?&nbsp;
+Well, first two assertions can be made:&nbsp; 1)&nbsp; Every DObject presences
+has 'knowledge' of the SessionMemberID where its host is.&nbsp; That is,
+for both the Host and all the client presences, there is a member variable
+in the DObject class called 'myHomeSessionID' that immutably holds the
+session member id where the host instance is located.&nbsp; For client
+presences this is set upon construction, and cannot be changed (by subclasses
+or anything else).&nbsp; This allows every presence to 'know' where its
+host is located.&nbsp; 2) When a DObject presence receives a message from
+a remote (host OR client) the session protocol provides the presence with
+information <B>about where (SessionMemberID) the message came from</B>.&nbsp;
+This information is ultimately tied to the IP address of the sender, and
+so cannot be forged.
+
+<P>Specifically, when a message is received by the SessionMember, intended
+for a given DObject, the SessionMember code sends an asynchronous message
+that ultimately results in the <A HREF="../../../ec5/doc/javadoc/ec/dom/session/DObject.html#receiveDataFromRemote(ec.dom.session.SessionID, ec.dom.util.Data)">DObject.receiveDataFromRemote</A>
+method being called.&nbsp; The first parameter to this method is the SessionMemberID
+of the SessionMember responsible for sending that message.&nbsp; This (final)
+method turns around and calls <A HREF="../../../ec5/doc/javadoc/ec/dom/session/DObject.html#receiveClosureFromRemote(ec.dom.session.SessionID, ec.dom.session.Closure)">DObject.receiveClosureFromRemote</A>
+(if the data is a message), again passing in the sender SessionMessageID.&nbsp;
+The current implementation of receiveClosureFromRemote in the DObject class
+does nothing with the provided message except execute it.
+
+<P>Rather than just execute the Closure, we can introduce a 'security policy
+check' by simply overriding the receiveClosureFromRemote method.&nbsp;
+To implement a policy check to disallow client->client messaging patterns
+something like the following method will be written (to be a subclass of
+CompositeDObject, I imagine):
+<PRE>protected void receiveClosureFromRemote(SessionMemberID fromID, Closure aClosure)</PRE>
+
+<PRE>{</PRE>
+
+<PRE>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // First, if client presence check to guarantee that message was sent from sessionmember</PRE>
+
+<PRE>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // where host is</PRE>
+
+<PRE>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (isClientPresence() &amp;&amp; getHomeID().equals(fromID)) {</PRE>
+
+<PRE>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; super.receiveClosureFromRemote(fromID, aClosure);</PRE>
+
+<PRE>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</PRE>
+
+<PRE>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // otherwise, simply ignore the message (or it could do something more radical, report, etc.)</PRE>
+
+<PRE>}</PRE>
+That's it.&nbsp; This would filter all messages such that all client->client
+messaging would be disallowed for any subclass of the class defining this
+method.&nbsp; Even if a client sent a message to another client, when it
+reached this piece of code (on the receiver) it would be dropped/ignored/whatever.
+<H4>
+Preventing DObjects from sending messages to remote presences of other
+DObjects</H4>
+Another pattern to prevent is the pattern where a different DObject tries
+to send a message to some other remote DObject (i.e. to some presence that
+does not belong to it).&nbsp; This messaging pattern is not allowed in
+the presence model <B>at all (i.e. DObjects are only able to send messages
+across process to presences with the same ID).&nbsp; </B>This constraint
+is imposed by the session protocol itself.&nbsp; When a DObject presence
+sends a message, it does not specify what remote DObject will receive the
+message...this information is automatically included with the message by
+the local SessionMember instance and is done such the the sending DObject
+cannot spoof another DObject.&nbsp; So in essence, the session protocol
+disallows this pattern completely.
+<H3>
+Why is a session not a region?</H3>
+The notion of a session is intended to be more generic than that of a region.&nbsp;
+That is, a session is a group of interacting processes (and any/all DObjects
+that those processes might host), while a region defines a group of interacting
+processes (those within that region) <B>and</B> additional virtual world
+semantics.&nbsp; The session separates the meta activities of the distributed
+system (e.g. group membership, which is not relevant to the interactions
+between DObjects in the object graph directly), from the semantics specific
+to interaction within a virtual space (graphical rendering, spatial metaphor,
+avatars, interaction between Una, etc., etc.).&nbsp; One advantage of this
+is that the notion of a multipoint session can be used in other application
+contexts.&nbsp; For example, an audio session, a text chat session, etc.&nbsp;
+In all these application contexts a session plays a similar role:&nbsp;
+provide support for the basic reliable multipoint messaging requirements
+of the application.&nbsp;&nbsp; Additionally the session does not restrict
+the notion of what region is or can be at all...it just off-loads some
+of the infrastructure work that our current region implementation is doing
+and simplifies it.
+<H3>
+Multilevel Containment</H3>
+What about multilevel containment?&nbsp; We need to be able to have Una
+which represent containers of other una...for example, avatars have pockets
+that contain other things (props, etc.).&nbsp; You can think of these containers
+as being of two basic kinds:&nbsp; open containers and closed containers.
+<H4>
+Open Containers</H4>
+Open containers are those such that when the container (e.g. avatar) 'moves'
+from region to region, its contents 'move with it'.&nbsp; Now 'moving with
+the container' means that the <B>client presences</B> of both the <I>container
+object</I> <B>and</B> the <I>contained object</I> have their presences
+destroyed (in the old space) and created (in the new space).&nbsp; So if
+the open container moves (or is moved) from one space to another, it has
+to have everything it transitively contains also move with it...<B>somehow</B>.&nbsp;
+The trick is defining a protocol such that this transitive container tree
+transfer happens or fails given a) the need to do TOS checking for the
+transfer; b) the need to end up in some consistent state; c) handle arbitrary
+partial failure.&nbsp; These are three constraints that are not easy to
+jointly satisfy.
+<H4>
+Closed Containers</H4>
+Closed containers do not impose the constraint that when a container is
+moved, its contained items go with it.&nbsp; That is, a closed container
+(e.g. a box) might maintain <B>internal</B> state about what it contains,
+and the items it contains might also maintain state about what they are
+contained by, but this container->containable relation is not made known
+to the external world or made visible.&nbsp; For example, a closed box
+would not make its contained items known to the renderer so that they can
+be seen...otherwise, it is essentially an <B>open</B> box.
+<H4>
+Existing DObjects Designs</H4>
+For the DObjects code, I have designed and implemented the basic support
+for arbitrary container->containable relations.&nbsp; This code is located
+in the <A HREF="../../ec5/doc/javadoc/ec/dom/support/package-summary.html">ec.dom.support</A>
+package.&nbsp; In essence, what this is intended to do is to provide the
+basic support for arbitrary kinds of container->containable relations:&nbsp;
+open containers, closed containers, slotted containers, etc.&nbsp; The
+main support for the container functionality is in the <A HREF="../../ec5/doc/javadoc/ec/dom/support/BaseContainer.html">BaseContainer</A>
+component (a <B>component</B> is very much analogous to an <B>ingredient</B>
+by our current terminology), and the main support for the containable functionality
+is in the <A HREF="../../ec5/doc/javadoc/ec/dom/support/BaseContainable.html">BaseContainable</A>
+component. There is more to do here to implement the specific semantics
+for open containers, closed containers, realm-region containment, etc.,
+but these designs and code are meant to provide the basic support for all
+of these kinds of containers, and provide the means to deal with a) arbitrary
+TOS requirements; b) reaching a consistent state; c) handling arbitrary
+failure during the container->containable protocol.
+<H4>
+Off the shelf alternatives</H4>
+None that I know of.&nbsp; There are a number of implementations of reliable
+multicast on top of normal multicast IP.&nbsp; These could be of use to
+us in the future.
+<H4>
+Other Design Objectives, Constraints and Assumptions</H4>
+Containership.&nbsp; The notion of general open (or closed, slotted, etc.)
+containership is supported, and made more easy to implement by introducing
+reliable multipoint messaging.&nbsp; In the DObjects implementation, I
+have recently added some basic support for generic container-containable
+relations.&nbsp; These are in the <A HREF="../../ec5/doc/javadoc/ec/dom/support/package-summary.html">ec.dom.support</A>
+package...specifically the <A HREF="../../ec5/doc/javadoc/ec/dom/support/BaseContainer.html">BaseContainer</A>
+and <A HREF="../../ec5/doc/javadoc/ec/dom/support/BaseContainable.html">BaseContainable</A>
+classes.
+<H2>
+Current implementation</H2>
+
+<H4>
+Which directories on our tree does this subsystem cover?</H4>
+The source for all of this code now checked into cvs at ec5/src/javasrc/ec/dom.
+<H4>
+Is it JavaDoc'ed?</H4>
+Yes.&nbsp; <A HREF="../../ec5/doc/javadoc/overview-summary.html">Here is
+the link to the package index</A>.&nbsp; See the dom packages. There are
+also copious comments directly in the source code.
+<H4>
+Examples</H4>
+There are examples included in the Cafe project.&nbsp; Two simple example
+test programs are ec.dom.session.tests.TestServerSession.java and ec.dom.session.tests.ThinClient.java
+(a client session hardwired to connect to localhost).&nbsp; These are for
+testing the group membership protocols and the basic DObject client presence
+creation/destruction infrastructure.
+
+<P>Also, the dom.zip file has a simple test app built upon a JavaBean.&nbsp;
+The JavaBean is IBM's 'chart' JavaBean, which was written to display a
+GUI interface for a graphical chart (histogram, pie chart, etc...configurable
+by the programmer).&nbsp; Using the DObjects infrastructure, I created
+a distributed voting application, that allows all participants to vote
+on any issue, and then use the DObjects messaging infrastructure to update
+and synchronize the distributed state of the vote outcome information shown
+graphically to all participants using the JavaBean chart object.&nbsp;
+Part of doing this was as an exercise to see how easy it would be to make
+any JavaBean into a 'distributed JavaBean' using this infrastructure.&nbsp;
+As it turns out, it was pretty easy.&nbsp; There are two batch files:&nbsp;
+one to start a server (runserver.bat), and the other to start the SunSoft
+'beanbox' app as a client.&nbsp; To use this, after starting the client
+with runclient.bat, first choose 'File->Connect' to connect to the server
+(assumed to be already running on the localhost), then click on the 'DistributedChart'
+item in the Toolbox list.&nbsp; This will create an instance of the distributed
+chart, and automatically have a client presence created on the server (the
+DistributedChart instance is hosted on the client process).
+<H4>
+Testing and Debugging</H4>
+There is plenty of testing desired/required.&nbsp; The main areas for testing
+are 1) The basic group membership protocol for the SessionMember class.&nbsp;
+2) The default DObject client presence creation and destruction.&nbsp;
+3) The DObject&lt;->DObject secure capability exchange meta-protocol.&nbsp;
+4) All of the asynchronous messaging constructs for between-presence asynchronous
+messaging (e.g. the <A HREF="../../ec5/doc/javadoc/ec/dom/session/Closure.html">Closure
+</A>class, the <A HREF="../../ec5/doc/javadoc/ec/dom/session/BaseFacet.html">BaseFacet
+</A>classes).&nbsp; 5) All of the available code to support multi-level
+containment (i.e. everything in the <A HREF="../../ec5/doc/javadoc/ec/dom/support/package-summary.html">ec.dom.support
+package</A>).
+
+<P><A HREF="DObjectsTestPlan.html">Test Plan</A>
+<H2>
+Design Issues</H2>
+
+<H4>
+Open Issues</H4>
+Performance enhancements (using non-thread safe collection classes available
+in jdk 1.2 in <A HREF="../../ec5/doc/javadoc/ec/dom/session/SessionMemberListManager.html">SessionMemberListManager
+</A>and several other places).
+
+<P>Implementation of the 'puppet fest' host transfer mechanism.
+
+<P>Testing of DObject host destruction.&nbsp; See the docs for <A HREF="../../ec5/doc/javadoc/ec/dom/session/DObject.html#recycleHost()">DObject.recycleHost</A>.
+
+<P>Integration with the new comm system.&nbsp; See notes on this in the
+<A HREF="MultipointCommSystem.html">Ideas for Multipoint Comm System</A>.
+
+<P>Use of MicroVats and one thread per MicroVat (the DObjects approach
+currently uses one-thread-per microvat, but can be adopted to use one thread
+for all microvats...there is just a small amount of work involved).
+
+<P>&nbsp;
+</BODY>
+</HTML>

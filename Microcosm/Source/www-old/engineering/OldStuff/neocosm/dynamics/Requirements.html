@@ -1,0 +1,283 @@
+<HTML>
+<HEAD>
+   <TITLE>3D Requirements </TITLE>
+</HEAD>
+<BODY>
+
+<H1>3D Requirements</H1>
+
+<B>Last updated: </B>[12 June 1998 
+<A HREF="mailto:tony@communities.com">Tony</A>]
+
+<P>Author(s): <A HREF="mailto:Tony@communities.com">Tony</A>, with help from many! 
+
+<H2>Related Documents</H2>
+<A HREF="NewDynamo3DAPI.html">Proposed 3D API</A>. This is the proposed 
+replacement for AgLib.
+<P>
+<A HREF="DynamicsEngine.html">Dynamics Engine Overview</A>
+<HR>
+<H2>Index</H2>
+
+	<LI><A HREF="#ParserOverview">Parser Overview</A></LI>
+	<LI><A HREF="#ParserIssues">Parser Issues</A></LI>
+	<LI><A HREF="#ParserCurrentImplementation">Parser Current Implementation</A></LI>
+	<LI><A HREF="#ParserRequirements">Parser Requirements</A></LI>
+	<LI><A HREF="#3dDynamoOverview">3D Dynamo Overview</A></LI>
+	<LI><A HREF="#3dDynamoIssues">3D Dynamo Issues</A></LI>
+	<LI><A HREF="#3dDynamoCurrentImplementation">3D Dynamo Current Implementation</A></LI>
+	<LI><A HREF="#3dDynamoRequirements">3D Dynamo Requirements</A></LI>
+
+
+<HR>
+<H2><A NAME="#ParserOverview">Parser Overview</A></H2>
+
+The VRML parser's primary responsibility is simple: to allow us to import
+3D geometry and animation data in a widely-supported and popular format.
+<P>
+Kirk's current parser package also includes some generic 3D library 
+functionality. The current import tools rely on this code, as does the run-time 
+animation engine.
+<P>
+We should probably make these boundaries as clean as possible, so that either 
+piece could be upgraded or improved as opportunities present themselves.
+
+<HR>
+<H2><A NAME="#ParserIssues">Parser Issues</A></H2>
+
+<H3>Pivot boxes</H3>
+Pivot boxes are small pieces of specially constructed geometry
+required to make our reusable animation strategy work. Here's the deal: Our 
+avatars are required to conform to a particular hierarchy, so that we can re-use 
+animation data on all of them. The animation data is specified as interpolators 
+that rotate body parts about their joints. One of the requirements of this 
+scheme is that the joint for each body part be the *origin* of that body part. 
+Unfortunately, there's no good way to enforce this when creating the avatars in 
+Studio MAX (the best 3D tool we have). MAX has, internally, this exact notion-- 
+it has Pivot Points for each body part, which specifies the point about which 
+each body part rotates. However, when the geometry is exported to VRML, this 
+information is lost. We would hope that in the VRML export, each body part would 
+be adjusted so that the Pivot Point becomes the origin of that body part. Sadly, 
+this is not true... So what we've done is to put a very small box at the pivot 
+point, with a particular naming and coloring convention, so that the box conveys 
+the pivot point information. We've talked to Kinetix about this-- they 
+understand the problem, and agree that it wouldn't be too hard to fix, but don't 
+particularly acknowledge it as a bug, and they aren't too motivated to fix it. I 
+haven't checked with them in many months, though, so it's probably worth talking 
+to them again. Another alternative would be to write a MAX plugin that could use 
+the information in MAX to adjust the geometry appropriately. Can't imagine this 
+would be too hard, but it's pretty specific to MAX and arguably not the best use 
+of our time.
+
+<H3>Recommended hierarchy</H3>
+In theory, our particular hierarchy is not required, 
+although there is still some lingering code in Kirk's parser looking for 
+particular names. The only reason to enforce a particular hierarchy is to get 
+reusable animation. See below.
+
+<H3>Reusable animations</H3>
+One of the neat things that does work in Kirk's code is reusable animations. 
+We've got a scheme for separating animation data from the geometry it came with
+and reapplying it to other pieces of geometry with the same hierarchy. This is 
+probably a good idea, although we should weigh the development costs against the 
+benefits. At the very least, our current scheme provides a convenient way to 
+store animations separately-- I'm not exactly sure how we would attach a dozen 
+animations to an avatar in a single VRML file.
+
+<H3>Reusable animations are currently wasted</H3>
+Our current reuse story is totally broken
+because of the incomplete way in which 3D Appearances are serialized. 
+Appearance3D's currently serialize everything they contain-- not pointers or 
+dataholders, but actual copies of the objects. So each avatar that points to 14 
+animations actually contains copies of all 12 animations. Totally brain dead and 
+a big waste of space. I'm curious to build a repository with just a handful of 
+avatars and see exactly how much space each one is taking...
+
+<H3>Registration point boxes</H3>
+Support for registration boxes used the same code that knew how to extract a 
+point and a vector from the pivot boxes mentioned earlier. This allows us to 
+supply registration points for avatars and objects in a 3D tool. Nothing 
+particularly special about these. Kirk just already had code that could handle 
+these boxes and extract the appropriate information. Substitutes would be 
+welcome.
+
+<HR>
+<H2><A NAME="#ParserCurrentImplementation">Parser Current Implementation</A></H2>
+
+<P>
+<H4>Aglib.dll</H4>
+<P>
+<A HREF="Ec3dlib.h.html">Ec3dlib.h</A>
+<P>
+
+
+<HR>
+<H2><A NAME="#ParserRequirements">Parser Requirements</A></H2>
+
+<BR><BR><BR><BR><BR><BR>
+
+<HR>
+<H2><A NAME="#3dDynamoOverview">3D Dynamo Overview</A></H2>
+
+<BR><BR><BR><BR><BR><BR>
+
+<HR>
+<H2><A NAME="#3dDynamoIssues">3D Dynamo Issues</A></H2>
+
+<H3>Java vs. Native</H3>
+Depending on the performance characteristics of this piece, it might be worth 
+considering writing it in pure Java.
+
+<H3>Threads</H3>
+Mike has suggested that we might be able to combine the DE thread with the 
+renderer thread and avoid a bunch of deadlocks. This is obviously not a 
+3D-specific issue, but it can't hurt to mention it here.
+
+
+<HR>
+<H2><A NAME="#3dDynamoCurrentImplementation">3D Dynamo Current Implementation</A></H2>
+
+<H3>Existing APIs</H3>
+<P>
+Below is a listing of methods and functions currently defined for Dynamo3D. Some
+are written in Java and some are written in C/C++. This is meant to give a 
+broad estimate of the scope of the current implementation. 
+<H4>From Dynamo3D.java</H4>
+<P>
+<CODE><PRE>
+public Dynamo3D()
+synchronized public void startup(PresenterStartupData ps_data,
+                                 jiGUIFramework gf,
+                                 boolean is_avatar)
+synchronized public void initDisplay(SceneEventHandler event_handler,
+                                     Object ui_handler,
+                                     WavePlayer wave_player,
+                                     float region_scale) 
+synchronized public void clean()
+synchronized public void finalize()
+synchronized public Point3D[] get3DBoundingBox()
+synchronized public Point3D getAveragePosition()
+synchronized public String getIcon()
+public Vector getMoods()
+synchronized public Point2DInt getScreenPosition()
+synchronized public void hide ()
+synchronized public void hidePolySet (String polyset_name)
+public void moveTo(Point3D d, Object o, EResult complete)
+synchronized public void playGesture(String gesture_name,
+                                         boolean repeat,
+                                         EResult done,
+                                         Object stop_gesture)
+synchronized public void rescale(float scale)
+synchronized public void setScale(float scale)
+synchronized public void run()
+synchronized public void runDone()
+synchronized public void setAnchorPoint(String anchor)
+synchronized public void setHandlers(UnumUIPresenter ui, SceneEventHandler eh)
+synchronized public void setHeight(float height)
+public void setMood(String mood_name)
+synchronized public void setParent(jiAvatarController parent) 
+synchronized public void show ()
+synchronized public void showPolySet (String polyset_name)
+public void snapshotNotify()
+synchronized public void stopGesture(Object o)
+public void texturiseNotify()
+protected boolean handleError(int error_code, String message)
+protected void playHideShowGesture(Gesture3DHideShow gesture, EResult done)
+protected void playTextureGesture(Gesture3DTexture gesture, EResult done, boolean repeat)
+protected void playVRMLGesture(Gesture3DVRML gesture, 
+                                   EResult done,
+                                   boolean repeat,
+                                   boolean reset)
+private int BooleanToInt(boolean b)
+private String getPathname(String app_filename)
+int MakeStringArray(int [] string_bytes, String [] string_array)
+private void move()
+private void pvtSetOrientation(Point3D orientation)
+private void pvtSetPosition(Point3D d)
+
+</PRE></CODE>
+<P>
+<H4>From Dynamo3D.cpp</H4>
+<P>
+<CODE><PRE>
+Dynamo3D_ntvBuildMesh
+Dynamo3D_ntvDestroyAvatar
+Dynamo3D_ntvGetBoundingBox
+Dynamo3D_ntvGetRegPosition
+Dynamo3D_ntvHide
+Dynamo3D_ntvHidePolySet
+Dynamo3D_ntvInit
+Dynamo3D_ntvLoadGesture
+Dynamo3D_ntvPlayGesture
+Dynamo3D_ntvPrintMemoryUsage
+Dynamo3D_ntvSetOrientation
+Dynamo3D_ntvSetPosition
+Dynamo3D_ntvSetScale
+Dynamo3D_ntvShow
+Dynamo3D_ntvShowPolySet
+Dynamo3D_ntvStartup
+Dynamo3D_ntvStopGestureAndReset
+Dynamo3D_ntvSwapTexture
+Dynamo3D_ntvUpdateBeforeRender
+Dynamo3D_ntvUpdateAllGestures
+</PRE></CODE>
+<P>
+
+<HR>
+<H2><A NAME="#3dDynamoRequirements">3D Dynamo Requirements</A></H2>
+
+
+<H4>Load geometry</H4>
+It needs to be able to load geometry (either by interfacing with the parser, or 
+by reading a serialized object that the parser spits out.
+
+<H4>Dynamo integration</H4>
+It obviously needs to integrate with the Dynamics Engine architecture and 
+support the appropriate
+methods.
+
+<H4>Renderer integration</H4>
+The 3D dynamo updates the rendered much more frequently than any other piece of 
+the system. It currently talks to the renderer down in native code, which may 
+still be the right thing to do. There is currently a polyset data structure that 
+the 3D dynamo and the renderer use to pass data back and forth. Russ said that 
+this data structure was fairly arbitrary and easy to change, so if we had other
+reasons for switching data structures, that might be a good idea. It seems 
+wasteful to me that a lot of Kirk's code deals with his own internal data 
+structure -- AgMesh -- and then converts to Polysets. It might be smart to use 
+one data structure, and teach the renderer how to deal with it.
+
+
+
+<HR>
+<H3>Problem Definition</H3>
+
+<H4>Existing code modules to be replaced</H4>
+<LI>Dynamo3D.java</LI>
+<LI>Dynamo3D.cpp</LI>
+<LI>Aglib.dll</LI>
+
+
+<H3>Performance (user-perspective)</H3>
+<LI>Load time</LI>
+<LI>Run time</LI>
+<LI>Frame rate</LI>
+<LI>Number of polys on screen</LI>
+<LI>Number of animating polys on screen</LI>
+<LI>Memory requirements (KB per avatar?, KB per region?)</LI>
+<LI>Swatching</LI>
+
+<H3>Stability of supporting architecture</H3>
+<LI>dynamics engine</LI>
+<LI>appearance3D</LI>
+<LI>AnyChannel renderer</LI>
+<LI>PolySet structures</LI>
+
+<H3>Reliability</H3>
+<LI>Exception handling in java</LI>
+<LI>Consistent method for passing errors back from native code.</LI>
+
+
+
+</BODY>
+</HTML>

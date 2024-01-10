@@ -1,0 +1,1148 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!--last modified on Thursday, September 24, 1998 11:15 PM -->
+<HTML>
+
+<HEAD>
+	<META NAME="GENERATOR" Content="Visual Page 1.0 for Windows">
+	<META NAME="Author" Content="Mark S. Miller">
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html;CHARSET=iso-8859-1">
+	<TITLE>E Language Grammar</TITLE>
+</HEAD>
+
+<BODY BACKGROUND="wood.gif">
+
+<H1 ALIGN="CENTER">E Language Grammar</H1>
+<H2>Terminal Tokens</H2>
+
+
+<BLOCKQUOTE>
+	<P>
+	<TABLE BORDER="1" CELLPADDING="8" CELLSPACING="0" WIDTH="505" BGCOLOR="#FFFFFF">
+	<TR>
+		<TD WIDTH="20%" VALIGN="TOP">
+			<PRE><FONT SIZE="2">Identifier</FONT></PRE>
+		</TD>
+		<TD>
+			<PRE>IdStart IdPart*</PRE>
+		</TD>
+		<TD><FONT SIZE="2">Conventional identifiers (same as Java without &quot;$&quot;)</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP" COLSPAN="2">
+			<PRE><FONT SIZE="2">Literal</FONT>
+			<TABLE BORDER="0" CELLPADDING="2" CELLSPACING="0" WIDTH="100%">
+				<TR>
+					<TD WIDTH="50%">BigIntegerLit</TD>
+					<TD WIDTH="50%">Digit Digit*</TD>
+				</TR>
+				<TR>
+					<TD WIDTH="50%">DoubleLit</TD>
+					<TD WIDTH="50%">&nbsp;</TD>
+				</TR>
+				<TR>
+					<TD WIDTH="50%">CharLit</TD>
+					<TD WIDTH="50%">&quot;<B>'</B>&quot; LitChar &quot;'&quot;</TD>
+				</TR>
+				<TR>
+					<TD WIDTH="50%">StringLit</TD>
+					<TD WIDTH="50%">&quot;\<B>&quot;</B>&quot; LitChar* &quot;\<B>&quot;</B>&quot;</TD>
+				</TR>
+			</TABLE>
+</PRE>
+		</TD>
+		<TD><FONT SIZE="2">Same as Java</FONT></TD>
+	</TR>
+	<TR>
+		<TD WIDTH="20%" VALIGN="TOP">
+			<PRE><FONT SIZE="2">QuasiString</FONT></PRE>
+		</TD>
+		<TD>
+			<PRE>&quot;<B>`</B>&quot; char* &quot;<B>`</B>&quot;</PRE>
+		</TD>
+		<TD><FONT SIZE="2">Characters between back-quotes: &quot;`&quot;</FONT></TD>
+	</TR>
+	<TR>
+		<TD WIDTH="20%">
+			<PRE>URIProtocol</PRE>
+		</TD>
+		<TD>
+			<PRE>Identifier &quot;:&quot;</PRE>
+		</TD>
+		<TD>&nbsp;</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="20%">
+			<PRE>URI</PRE>
+		</TD>
+		<TD>
+			<PRE>URIProtocol URIChar+</PRE>
+		</TD>
+		<TD>&nbsp;</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="20%" VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;<B>\n</B>&quot;</FONT></PRE>
+		</TD>
+		<TD COLSPAN="2"><FONT SIZE="2">A newline is a terminal token, not whitespace (used mostly as a statement terminator).</FONT></TD>
+	</TR>
+	<TR>
+		<TD WIDTH="20%" VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;<I>stuff</I>&quot;</FONT></PRE>
+		</TD>
+		<TD COLSPAN="2"><FONT SIZE="2">All quoted strings below are tokens. Quoted strings that would otherwise be identifiers are instead
+			keywords of the grammar. Keyword recognition is case insensitive.</FONT></TD>
+	</TR>
+	<TR>
+		<TD COLSPAN="3">
+			<PRE>
+			<TABLE BORDER="0" CELLSPACING="8" WIDTH="100%">
+				<TR>
+					<TD WIDTH="65%"><FONT SIZE="2"><TT>; &amp; | ^ &gt; &lt; + - * / % ( ) [ ] , { } : _ . ! ~ _/ == &gt;= &amp;&amp; || &lt;= .. ..!
+						&lt;&lt; &gt;&gt; %% != ** := += &amp;= /= _/= &lt;&lt;= &gt;&gt;= %= %%= *= |= **= -= ^= &lt;- =&gt; =~ !~</TT></FONT></TD>
+					<TD WIDTH="35%">
+						<P ALIGN="CENTER"><FONT SIZE="2">symbols</FONT>
+					</TD>
+				</TR>
+				<TR>
+					<TD WIDTH="65%"><FONT SIZE="2"><TT>catch class define delegate else end escape final finally for if immutable in loop match scope
+						switch throw to try while</TT></FONT></TD>
+					<TD WIDTH="35%">
+						<P ALIGN="CENTER"><FONT SIZE="2">keywords used</FONT>
+					</TD>
+				</TR>
+				<TR>
+					<TD WIDTH="65%"><FONT SIZE="2"><TT>abstract an as behalf belief believe believes bind case class const default defmacro delegate
+						deprecated do encapsulate encapsulated encapsulates ensure enum eventual eventually exists export extends final
+						forall given hidden hide hides implements import interface is isa know knows methods native on package private
+						protected public require sake static struct suchthat synchronized this throws transient typedef virtual void volatile</TT></FONT></TD>
+					<TD WIDTH="35%">
+						<P ALIGN="CENTER"><FONT SIZE="2">keywords reserved</FONT>
+					</TD>
+				</TR>
+			</TABLE>
+</PRE>
+		</TD>
+	</TR>
+	<TR>
+		<TD WIDTH="20%">
+			<PRE><FONT SIZE="2">BlockMacro</FONT></PRE>
+		</TD>
+		<TD>
+			<PRE>IdStart IdPart*</PRE>
+		</TD>
+		<TD><FONT SIZE="2">Reserved token type for an identifier defined by &quot;<B><TT>defmacro</TT></B>&quot; to be a <I>block-style</I>
+			macro name</FONT></TD>
+	</TR>
+	<TR>
+		<TD WIDTH="20%">
+			<PRE><FONT SIZE="2">DispatchMacro</FONT></PRE>
+		</TD>
+		<TD>
+			<PRE>IdStart IdPart*</PRE>
+		</TD>
+		<TD><FONT SIZE="2">Reserved token type for an identifier defined by &quot;<B><TT>defmacro</TT></B>&quot; to be a <I>dispatch-style</I>
+			macro name</FONT></TD>
+	</TR>
+	</TABLE>
+</P>
+	<P>
+
+</BLOCKQUOTE>
+
+<H2>Non-Productions</H2>
+
+
+<BLOCKQUOTE>
+	<P>
+	<TABLE BORDER="1" CELLPADDING="8" CELLSPACING="0" WIDTH="505" BGCOLOR="#FFFFFF">
+	<TR>
+		<TD WIDTH="20%"><FONT SIZE="2">whitespace</FONT></TD>
+		<TD WIDTH="80%"><FONT SIZE="2">Conventional whitespace, except for &quot;<B>\n</B>&quot;.</FONT></TD>
+	</TR>
+	<TR>
+		<TD WIDTH="20%">
+			<PRE><FONT SIZE="2">&quot;<B>...</B>&quot; &quot;<B>\n</B>&quot;</FONT></PRE>
+		</TD>
+		<TD WIDTH="80%"><FONT SIZE="2">If a line ends with &quot;<B>...</B>&quot;, then the newline is ignored -- ie, the logical line
+			continues with the next physical line.</FONT></TD>
+	</TR>
+	</TABLE>
+
+
+</BLOCKQUOTE>
+
+<H2>Program</H2>
+
+
+<BLOCKQUOTE>
+	<P>
+	<TABLE BORDER="1" CELLPADDING="8" CELLSPACING="0" WIDTH="505" BGCOLOR="#FFFFFF">
+	<TR>
+		<TD WIDTH="20%">
+			<PRE><FONT SIZE="2">&quot;<B>\n</B>&quot;*</FONT></PRE>
+		</TD>
+		<TD WIDTH="80%"><FONT SIZE="2">The empty program. Does nothing.</FONT></TD>
+	</TR>
+	<TR>
+		<TD WIDTH="20%">
+			<PRE><FONT SIZE="2">expr</FONT></PRE>
+		</TD>
+		<TD WIDTH="80%"><FONT SIZE="2">The program executes by evaluating the expression</FONT></TD>
+	</TR>
+	</TABLE>
+</P>
+
+</BLOCKQUOTE>
+
+<H2>Expressions by Precedence and Associativity</H2>
+
+
+<BLOCKQUOTE>
+	<P>
+	<TABLE BORDER="1" CELLPADDING="8" CELLSPACING="0" WIDTH="80%" BGCOLOR="#FFFFFF">
+	<TR>
+		<TH VALIGN="TOP"><FONT SIZE="2">Production</FONT></TH>
+		<TH VALIGN="TOP"><FONT SIZE="2">Definition</FONT></TH>
+		<TH VALIGN="TOP"><FONT SIZE="2">Associativity</FONT></TH>
+		<TH VALIGN="TOP"><FONT SIZE="2">Expansion</FONT></TH>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP"><FONT SIZE="2"><TT>expr</TT></FONT></TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>&quot;<B>\n</B>&quot;* seqs &quot;<B>\n</B>&quot;*</TT></FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">&nbsp;</FONT></TD>
+		<TD VALIGN="TOP"><FONT SIZE="2"><TT>&nbsp;</TT></FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP"><FONT SIZE="2"><TT>seqs</TT></FONT></TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>(seq &quot;<B>\n</B>&quot;+)* seq</TT></FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">don't care</FONT></TD>
+		<TD VALIGN="TOP"><FONT SIZE="2"><TT><B>kernel</B>: Sequence</TT></FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP"><FONT SIZE="2"><TT>seq</TT></FONT></TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>assign (&quot;<B>;</B>&quot; assign)* &quot;<B>;</B>&quot;?</TT></FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">don't care</FONT></TD>
+		<TD VALIGN="TOP"><FONT SIZE="2"><TT><I>left</I> &quot;\n&quot; <I>right</I></TT></FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP"><FONT SIZE="2"><TT>assign</TT></FONT></TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>cond
+Identifier &quot;<B>:=</B>&quot; assign
+postfix &quot;<B>[</B>&quot; expr &quot;<B>]</B>&quot; &quot;<B>:=</B>&quot; assign
+call &quot;get&quot; &quot;<B>(</B>&quot; argList... &quot;<B>)</B>&quot; &quot;<B>:=</B>&quot; assign
+
+lvalue &quot;<B>+=</B>&quot; assign
+lvalue &quot;<B>&amp;=</B>&quot; assign
+lvalue &quot;<B>/=</B>&quot; assign
+lvalue &quot;<B>_/=</B>&quot; assign
+lvalue &quot;<B>&lt;&lt;=</B>&quot; assign
+lvalue &quot;<B>%=</B>&quot; assign
+lvalue &quot;<B>%%=</B>&quot; assign
+lvalue &quot;<B>*=</B>&quot; assign
+lvalue &quot;<B>|=</B>&quot; assign
+lvalue &quot;<B>**=</B>&quot; assign
+lvalue &quot;<B>-=</B>&quot; assign
+lvalue &quot;<B>^=</B>&quot; assign
+
+lvalue &quot;<B>&gt;&gt;=</B>&quot; assign
+
+&quot;<B>define</B>&quot; pattern &quot;<B>:=</B>&quot; assign</TT></FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">right associative</FONT></TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>
+</TT><B>kernel</B>: Assignment<I><TT>
+left</TT></I><TT> put(<I>mid</I>, <I>right</I>)
+<I>left</I> put(<I>argList...</I>, <I>right</I>)<I>
+</I>
+<I>left</I> := <I>left</I> + <I>right</I>
+<I>left</I> := <I>left</I> &amp; <I>right</I>
+<I>left</I> := <I>left</I> / <I>right</I>
+<I>left</I> := <I>left</I> _/ <I>right</I>
+<I>left</I> := <I>left</I> &lt;&lt; <I>right</I>
+<I>left</I> := <I>left</I> % <I>right</I>
+<I>left</I> := <I>left</I> %% <I>right</I>
+<I>left</I> := <I>left</I> * <I>right</I>
+<I>left</I> := <I>left</I> | <I>right</I>
+<I>left</I> := <I>left</I> ** <I>right</I>
+<I>left</I> := <I>left</I> - <I>right</I>
+<I>left</I> := <I>left</I> ^ <I>right</I>
+
+<I>left</I> := <I>left</I> &lt;&lt; -<I>right</I>
+
+</TT><B>kernel</B>: Definition</FONT></PRE>
+		</TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP"><FONT SIZE="2"><TT>cond</TT></FONT></TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>(condAnd &quot;<B>||</B>&quot;)* condAnd</TT></FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">don't care</FONT></TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">hide {
+    if (left) {
+        null =~ [rightOnlyOut...]
+        [namesOut...]
+
+    } else if (right) {
+        null =~ [leftOnlyOut...]
+        [namesOut...]
+    }
+} =~ [namesOut...]</FONT></PRE>
+		</TD>
+	</TR>
+	<TR>
+		<TD><FONT SIZE="2"><TT>condAnd</TT></FONT></TD>
+		<TD>
+			<PRE><FONT SIZE="2"><TT>(comp &quot;<B>&amp;&amp;</B>&quot;)* comp</TT></FONT></PRE>
+		</TD>
+		<TD><FONT SIZE="2">don't care</FONT></TD>
+		<TD>
+			<PRE><FONT SIZE="2">hide {
+    if (left) {
+        if (right) {
+            [namesOut...]
+        }
+    }
+} =~ [namesOut...]</FONT></PRE>
+		</TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP"><FONT SIZE="2"><TT>com</TT></FONT></TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>order
+order &quot;<B>==</B>&quot; order
+order &quot;<B>!=</B>&quot; order
+order &quot;<B>&amp;</B>&quot; order
+order &quot;<B>|</B>&quot; order
+order &quot;<B>^</B>&quot; order
+
+order &quot;=~&quot; pattern
+order &quot;!~&quot; pattern</TT></FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">non-associative</FONT></TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>
+E same(left, right)
+!(<I>left</I> == <I>right</I>)
+<I>left</I> and(<I>right</I>)
+<I>left</I> or(<I>right</I>)
+left xor(<I>right</I>)
+
+<B>kernel</B>: Pattern-match
+!(<I>left</I> =~ <I>right</I>)</TT></FONT></PRE>
+		</TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP"><FONT SIZE="2"><TT>order</TT></FONT></TD>
+		<TD VALIGN="TOP"><FONT SIZE="2"><TT>shift<BR>
+			shift &quot;<B>&lt;</B>&quot; shift<BR>
+			shift &quot;<B>&lt;=</B>&quot; shift<BR>
+			shift &quot;<B>&gt;</B>&quot; shift<BR>
+			shift &quot;<B>&gt;=</B>&quot; shift</TT></FONT></TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">non-associative</FONT></TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>
+<I>left</I> compareTo(<I>right</I>) isLTZero
+<I>left</I> compareTo(<I>right</I>) isLEQZero
+<I>left</I> compareTo(<I>right</I>) isGTZero
+<I>left</I> compareTo(<I>right</I>) isGEQZero</TT></FONT></PRE>
+		</TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP"><FONT SIZE="2"><TT>shift</TT></FONT></TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>add
+shift &quot;<B>&lt;&lt;</B>&quot; add
+shift &quot;<B>&gt;&gt;</B>&quot; add</TT></FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">left associative</FONT></TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>
+<I>left</I> shiftLeft(<I>right</I>)
+<I>left</I> shiftLeft(-<I>right</I>)</TT></FONT></PRE>
+		</TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP"><FONT SIZE="2"><TT>add</TT></FONT></TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>mult
+add &quot;<B>+</B>&quot; mult
+add &quot;<B>-</B>&quot; mult</TT></FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">left associative</FONT></TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>
+<I>left</I> add(<I>right</I>)
+<I>left</I> subtract(<I>right</I>)</TT></FONT></PRE>
+		</TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP"><FONT SIZE="2"><TT>mult</TT></FONT></TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>pow
+mult &quot;<B>*</B>&quot; pow
+mult &quot;<B>/</B>&quot; pow
+mult &quot;<B>_/</B>&quot; pow
+mult &quot;<B>%</B>&quot; pow
+mult &quot;<B>%%</B>&quot; pow
+call &quot;<B>**</B>&quot; call &quot;<B>%%</B>&quot; pow</TT></FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">left associative</FONT></TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>
+<I>left</I> multiply(<I>right</I>)
+<I>left</I> approxDivide(<I>right</I>)
+<I>left</I> floorDivide(<I>right</I>)
+<I>left</I> remainder(<I>right</I>)
+<I>left</I> mod(<I>right</I>)
+<I>left</I> modPow(<I>mid</I>, <I>right</I>)</TT></FONT></PRE>
+		</TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP"><FONT SIZE="2"><TT>pow</TT></FONT></TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>call
+call &quot;<B>**</B>&quot; call</TT></FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">non-associative</FONT></TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>
+<I>left</I> pow(<I>right</I>)</TT></FONT></PRE>
+		</TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP"><FONT SIZE="2"><TT>call</TT></FONT></TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>unary
+call verb &quot;<B>(</B>&quot; argList &quot;<B>)</B>&quot;
+call verb</TT></FONT></PRE>
+			<P>
+			<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+				<TR>
+					<TD VALIGN="TOP">
+						<PRE><FONT SIZE="2"><TT>call &quot;<B>&lt;-</B>&quot;
+call &quot;<B>&lt;-</B>&quot;
+call &quot;<B>&lt;-</B>&quot;
+call &quot;<B>&lt;-</B>&quot;
+call &quot;<B>&lt;-</B>&quot;
+call &quot;<B>&lt;-</B>&quot;
+call &quot;<B>&lt;-</B>&quot;
+call &quot;<B>&lt;-</B>&quot;
+call &quot;<B>&lt;-</B>&quot;
+call &quot;<B>&lt;-</B>&quot; </TT></FONT></PRE>
+					</TD>
+					<TD VALIGN="TOP">
+						<PRE><FONT SIZE="2"><TT>verb &quot;<B>(</B>&quot; argList &quot;<B>)</B>&quot;
+verb
+&quot;<B>[</B>&quot; expr &quot;<B>]</B>&quot;
+&quot;<B>(</B>&quot; argList &quot;<B>)</B>&quot;
+&quot;<B>!</B>&quot; &quot;<B>(</B>&quot; &quot;<B>)</B>&quot;
+&quot;<B>~</B>&quot; &quot;<B>(</B>&quot; &quot;<B>)</B>&quot;
+&quot;<B>-</B>&quot; &quot;<B>(</B>&quot; &quot;<B>)</B>&quot;
+binaryOp &quot;<B>(</B>&quot; expr &quot;<B>)</B>&quot;
+&quot;<B>-</B>&quot; &quot;<B>(</B>&quot; expr &quot;<B>)</B>&quot;
+&quot;<B>**</B>&quot; &quot;<B>(</B>&quot; expr &quot;<B>)</B>&quot;</TT></FONT></PRE>
+					</TD>
+				</TR>
+			</TABLE>
+</P>
+			<PRE><FONT SIZE="2"><TT>call &quot;<B>&lt;-</B>&quot; &quot;<B>**</B>&quot; &quot;<B>%%</B>&quot; &quot;<B>(</B>&quot; expr &quot;<B>,</B>&quot; expr &quot;<B>)</B>&quot;</TT></FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">left associative</FONT></TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>
+<B>kernel</B>: Synchronous-call
+<I>left</I> <I>verb</I>()</TT></FONT></PRE>
+			<P>
+			<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
+				<TR>
+					<TD>
+						<PRE><FONT SIZE="2"><TT><B>kernel</B>: Asynchronous-send
+<I>left</I> &lt;- <I>verb</I>()
+<I>left</I> &lt;- get(<I>right</I>)
+<I>left</I> &lt;- run(<I>argList</I>)
+<I>left</I> &lt;- not()
+<I>left</I> &lt;- complement()
+<I>left</I> &lt;- negate()
+<I>left</I> &lt;- <I>binaryVerb</I>(<I>right</I>)
+<I>left</I> &lt;- subtract(<I>right</I>)
+<I>left</I> &lt;- pow(<I>right</I>)</TT></FONT></PRE>
+					</TD>
+				</TR>
+			</TABLE>
+</P>
+			<PRE><FONT SIZE="2"><TT><I>left</I> &lt;- modPow(<I>mid</I>, <I>right</I>)</TT></FONT></PRE>
+		</TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP"><FONT SIZE="2"><TT>unary</TT></FONT></TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>postfix
+&quot;<B>!</B>&quot; postfix
+&quot;<B>~</B>&quot; postfix
+&quot;<B>-</B>&quot; postfix
+&quot;<B>&amp;</B>&quot; postfix</TT></FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">non-associative</FONT></TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>
+<I>right</I> not
+<I>right</I> complement
+<I>right</I> negate
+</TT><I># Reserved</I></FONT></PRE>
+		</TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP"><FONT SIZE="2"><TT>postfix</TT></FONT></TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>primitive-expression
+postfix &quot;<B>(</B>&quot; argList &quot;<B>)</B>&quot;
+postfix &quot;<B>[</B>&quot; expr &quot;<B>]</B>&quot;
+postfix QuasiString</TT></FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">left associative</FONT></TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>
+<I>left</I> run(<I>argList</I>)
+<I>left</I> get(<I>right</I>)
+</TT><I># See expansion</I></FONT></PRE>
+		</TD>
+	</TR>
+	</TABLE>
+</P>
+
+</BLOCKQUOTE>
+
+<H2>Primitive-Expression</H2>
+
+
+<BLOCKQUOTE>
+	<P>
+	<TABLE BORDER="1" CELLPADDING="8" CELLSPACING="0" WIDTH="80%" BGCOLOR="#FFFFFF">
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">noun</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">Identifier</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2"><B>kernel</B>: Noun. Evaluates in the current scope.</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">slot</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;<B>&amp;</B>&quot; Identifier</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2"><B>kernel</B>: Slot. Evaluates in the current scope.</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&nbsp;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">Literal</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2"><B>kernel</B>: Literal. Evaluates to the designated value</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&nbsp;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">QuasiString</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2"><I># See expansion</I></FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&nbsp;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;<B>(</B>&quot; expr &quot;<B>)</B>&quot;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2"><I># For grouping</I></FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&nbsp;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;<B>scope</B>&quot;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2"><B>kernel</B>: Reifies the current scope as a Scope object.</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&nbsp;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;<B>[</B>&quot; argList &quot;<B>]</B>&quot;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">TupleMaker make(<I>argList</I>)</FONT></PRE>
+		</TD>
+	</TR>
+	<TR>
+		<TD>&nbsp;</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;<B>{</B>&quot; assocList &quot;<B>}</B>&quot;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2"><I># See expansion</I></FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&nbsp;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;<B>escape</B>&quot; param &quot;<B>{</B>&quot;
+    expr?
+&quot;<B>}</B>&quot;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2"><B>kernel</B>: Escape-clause. Match param to an Ejector for exiting, and evaluate expr in the resulting
+			scope. If ejected, evaluate to ejector argument.</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&nbsp;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;<B>hide</B>&quot; &quot;<B>{</B>&quot;
+    expr?
+&quot;<B>}</B>&quot;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2"><B>kernel</B>: Nested-scope. Evaluate expr in a new lexical child of the current scope.</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&nbsp;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;<B>loop</B>&quot; &quot;<B>{</B>&quot;
+    expr?
+&quot;<B>}</B>&quot;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2"><B>kernel</B>: Loop. Repeatedly evaluate expr in a new lexical child of the current scope.</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&nbsp;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;<B>loop</B>&quot; param &quot;<B>{</B>&quot;
+    expr?
+&quot;<B>}</B>&quot;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>escape <I>param</I> {
+    loop { <I>expr</I> }
+}</TT></FONT></PRE>
+		</TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&nbsp;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;<B>throw</B>&quot; expr</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2"><B>kernel</B>: Throw. Evaluate expr and throw the resulting value as an exception.</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&nbsp;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;dispatch&quot; &quot;{&quot;
+    vtable
+&quot;}&quot;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2"><B>kernel</B>: Dispatching-lambda. Capture the current lexical environment, and evaluate to an object
+			that responds to messages by executing the first matching method or matcher in that environment.</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">matcher</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>&quot;match&quot; pattern &quot;{&quot;
+    [expr]
+&quot;}&quot;</TT></FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>dispatch {
+    <I>matcher</I>
+}</TT></FONT></PRE>
+		</TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<PRE><FONT SIZE="2">method</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>&quot;to&quot; verb &quot;(&quot; patternList &quot;)&quot; &quot;{&quot;
+    [expr]
+&quot;}&quot;</TT></FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">dispatch {
+    <I>method</I>
+}</FONT></PRE>
+		</TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<P>
+			<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+				<TR>
+					<TD VALIGN="TOP">
+						<PRE><FONT SIZE="2"><TT>&quot;to&quot;
+&quot;to&quot; verb
+&quot;to&quot; &quot;(&quot; patternList &quot;)&quot;
+&quot;to&quot; &quot;[&quot; pattern &quot;]&quot;
+&quot;to&quot; &quot;!&quot;
+&quot;to&quot; &quot;~&quot;
+&quot;to&quot; &quot;-&quot;
+&quot;to&quot; &quot;-&quot; pattern
+&quot;to&quot; binaryOp pattern
+&quot;to&quot; &quot;**&quot; pattern</TT></FONT></PRE>
+					</TD>
+					<TD VALIGN="TOP">
+						<PRE><FONT SIZE="2"><TT>&quot;{&quot; [expr] &quot;}&quot;
+&quot;{&quot; [expr] &quot;}&quot;
+&quot;{&quot; [expr] &quot;}&quot;
+&quot;{&quot; [expr] &quot;}&quot;
+&quot;{&quot; [expr] &quot;}&quot;
+&quot;{&quot; [expr] &quot;}&quot;
+&quot;{&quot; [expr] &quot;}&quot;
+&quot;{&quot; [expr] &quot;}&quot;
+&quot;{&quot; [expr] &quot;}&quot;
+&quot;{&quot; [expr] &quot;}&quot;</TT></FONT></PRE>
+					</TD>
+				</TR>
+			</TABLE>
+</P>
+			<PRE><FONT SIZE="2"><TT>&quot;to&quot; &quot;**&quot; pattern &quot;%%&quot; pattern &quot;{&quot;
+    [expr]
+&quot;}&quot;</TT></FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<P>
+			<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0">
+				<TR>
+					<TD VALIGN="TOP">
+						<PRE><FONT SIZE="2"><TT>to run()
+to <I>verb</I>()
+to run(<I>patternList</I>)
+to get(<I>pattern</I>)
+to not()
+to complement()
+to negate()
+to subtract(<I>pattern</I>)
+to <I>binaryVerb</I>(<I>pattern</I>)
+to pow(<I>pattern</I>)</TT></FONT></PRE>
+					</TD>
+					<TD VALIGN="TOP">
+						<PRE><FONT SIZE="2"><TT>{ <I>expr</I> }
+{ <I>expr</I> }
+{ <I>expr</I> }
+{ <I>expr</I> }
+{ <I>expr</I> }
+{ <I>expr</I> }
+{ <I>expr</I> }
+{ <I>expr</I> }
+{ <I>expr</I> }
+{ <I>expr</I> }</TT></FONT></PRE>
+					</TD>
+				</TR>
+			</TABLE>
+</P>
+			<PRE><FONT SIZE="2">to modPow(<I>pattern</I>, <I>pattern</I>) {
+    <I>expr</I>
+}</FONT></PRE>
+		</TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP" ROWSPAN="3">
+			<PRE><FONT SIZE="2">ifExpr</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>&quot;if&quot; &quot;(&quot; expr &quot;)&quot; &quot;{&quot;
+    [expr]
+&quot;}&quot; &quot;else&quot; &quot;{&quot;
+    [expr]
+&quot;}&quot;</TT></FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2"><B>kernel</B>: If-expression</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>&quot;if&quot; &quot;(&quot; expr &quot;)&quot; &quot;{&quot;
+    [expr]
+&quot;}&quot;</TT></FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">if (<I>expr</I>) {
+    <I>expr</I>
+} else {
+    null
+}</FONT></PRE>
+		</TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>&quot;if&quot; &quot;(&quot; expr &quot;)&quot; &quot;{&quot;
+    [expr]
+&quot;}&quot; &quot;else&quot; ifExpr</TT></FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">if (<I>expr</I>) {
+    <I>expr</I>
+} else {
+    <I>ifExpr</I>
+}</FONT></PRE>
+		</TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<PRE><FONT SIZE="2">&nbsp;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;try&quot; &quot;{&quot;
+    [expr]
+&quot;}&quot; [&quot;catch&quot; [pattern] &quot;{&quot;
+    [expr]
+&quot;}&quot;] [&quot;finally&quot; &quot;{&quot;
+    [expr]
+&quot;}&quot;]</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2"><B>kernel</B>: Exception-handler..</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;try&quot; &quot;{&quot;
+    [expr]
+&quot;}&quot; &quot;catch&quot; [pattern<SUB>1</SUB>] &quot;{&quot;
+    [expr<SUB>1</SUB>]
+&quot;}&quot; (&quot;catch&quot; [pattern<SUB>i</SUB>] &quot;{&quot;
+    [expr<SUB>i</SUB>]
+&quot;}&quot;)+ [&quot;finally&quot; &quot;{&quot;
+    [expr]
+&quot;}&quot;]</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">try {
+    expr
+} catch x {
+    if (x =~ pattern<SUB>1</SUB>) {
+        expr<SUB>1</SUB>
+    } else ... if (x =~ pattern<SUB>i</SUB>) {
+        expr<SUB>i</SUB>
+    } else ... {
+        throw(x)
+    }
+} finally {
+    expr
+}</FONT></PRE>
+		</TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&nbsp;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;for&quot; assocPatt &quot;in&quot; &quot;(&quot;expr<SUB>1</SUB>&quot;)&quot; [verb] &quot;{&quot;
+    [expr<SUB>2</SUB>]
+&quot;}&quot;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">escape break {
+    <I>expr<SUB>1</SUB></I> associations <I>verb</I>(to run(<I>k</I>, <I>v</I>) {
+        if (<I>k</I> =~ <I>pattern<SUB>k</SUB></I> &amp;&amp; <I>v</I> =~ <I>pattern<SUB>v</SUB></I>) {
+            escape continue { <I>expr<SUB>2</SUB></I> }
+        }
+    })
+}</FONT></PRE>
+		</TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP" ROWSPAN="2">
+			<PRE><FONT SIZE="2">macro</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>BlockMacro macroArg &quot;{&quot;
+    [expr]
+&quot;}&quot; [macro]</TT></FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP" ROWSPAN="2"><FONT SIZE="2"><I># Reserved syntax: will expand according to the </I><TT>defmacro</TT><I>-defined hygenic macro
+			expander</I></FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>DispatchMacro macroArg &quot;{&quot;
+    vtable
+&quot;}&quot; [macro]</TT></FONT></PRE>
+		</TD>
+	</TR>
+	</TABLE>
+</P>
+
+</BLOCKQUOTE>
+
+<H2>Built-in Macros</H2>
+
+
+<BLOCKQUOTE>
+	<P>
+	<TABLE BORDER="1" CELLPADDING="8" CELLSPACING="0" WIDTH="80%" BGCOLOR="#FFFFFF">
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;object&quot; &quot;{&quot;
+    vtable
+&quot;}&quot;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>let {
+    define self := match [<I>verb</I>, <I>args</I>] {
+        escape return {
+            dispatch {
+                <I>vtable</I>
+            } perform(<I>verb</I>, <I>args</I>)
+        }
+    }
+}</TT></FONT></PRE>
+		</TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;switch&quot; &quot;(&quot; expr &quot;)&quot; &quot;{&quot;
+    &quot;\n&quot;* (matcher<SUB>i</SUB> &quot;\n&quot;*)*
+&quot;}&quot;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>let {
+    define <I>x</I> = <I>expr</I>
+    if (<I>x</I> =~ <I>pattern<SUB>1</SUB></I>) {
+        <I>expr<SUB>1</SUB></I>
+    } else if (<I>x</I> =~ <I>pattern<SUB>2</SUB></I>) {
+        <I>expr<SUB>2</SUB></I>
+    ...
+    } else {
+        throw(&quot;no match: &quot; + <I>x</I>)
+    }
+}</TT></FONT></PRE>
+		</TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;while&quot; &quot;(&quot; expr<SUB>1</SUB> &quot;)&quot; &quot;{&quot;
+    [expr<SUB>2</SUB>]
+&quot;}&quot;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>loop break {
+    if (<I>expr<SUB>1</SUB></I>) {
+        escape continue { <I>expr<SUB>2</SUB></I> }
+    } else {
+        break()
+    }
+}</TT></FONT></PRE>
+		</TD>
+	</TR>
+	</TABLE>
+</P>
+
+</BLOCKQUOTE>
+
+<H2>Patterns</H2>
+
+
+<BLOCKQUOTE>
+	<P>
+	<TABLE BORDER="1" CELLPADDING="8" CELLSPACING="0" WIDTH="80%" BGCOLOR="#FFFFFF">
+	<TR>
+		<TD VALIGN="TOP"><FONT SIZE="2">Identifier</FONT></TD>
+		<TD VALIGN="TOP"><FONT SIZE="2"><B>kernel</B>: Identifier-pattern. The only defining occurrence of an Identifier. Always matches
+			and binds to this Identifier in current scope</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP"><FONT SIZE="2">&quot;_&quot;</FONT></TD>
+		<TD VALIGN="TOP"><FONT SIZE="2"><B>kernel</B>: Ignore pattern. Always matches but binds nothing</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP"><FONT SIZE="2">pattern &quot;:&quot; primitive-expression</FONT></TD>
+		<TD VALIGN="TOP"><FONT SIZE="2"><B>kernel</B>: Such-that. Match pattern, and if successful, see of expr evaluates to <TT>true</TT>
+			in the resulting scope</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP"><FONT SIZE="2">&quot;==&quot; primitive-expression</FONT></TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><I>x</I> : <I>x</I> == <I>expr</I></FONT></PRE>
+		</TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP"><FONT SIZE="2">&quot;[&quot; patternList &quot;]&quot; &quot;+&quot; pattern</FONT></TD>
+		<TD VALIGN="TOP"><FONT SIZE="2"><B>kernel</B>: Tuple-pattern. Match tuple elements to corresponding patterns, and match the remaining
+			sub-tuple to the last pattern</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP"><FONT SIZE="2">&quot;[&quot; patternList &quot;]&quot;</FONT></TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">[ <I>patternList</I> ] + ==[]</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP"><FONT SIZE="2">noun QuasiString</FONT></TD>
+		<TD VALIGN="TOP"><FONT SIZE="2"># <I>See expansion</I></FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP"><FONT SIZE="2">QuasiString</FONT></TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">sscanf <I>QuasiString</I></FONT></TD>
+	</TR>
+	</TABLE>
+</P>
+
+</BLOCKQUOTE>
+
+<H2>Helper Productions</H2>
+
+
+<BLOCKQUOTE>
+	<P>
+	<TABLE BORDER="1" CELLPADDING="8" CELLSPACING="0" WIDTH="80%" BGCOLOR="#FFFFFF">
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">patternList</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">[ pattern (&quot;,&quot; pattern)* ]</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">Like a parameter list</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">macroArg</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">/*empty*/
+&quot;(&quot; expr &quot;)&quot;
+pattern</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">What can occur between the macro name and the open curly</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">argList</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">[ expr (&quot;,&quot; expr)* ]</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">Argument list of an invocation</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">verb</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">Identifier</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">Name of operation requested</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">vtable</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;\n&quot;* (method &quot;\n&quot;*)* (matcher &quot;\n&quot;*)*</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">A set of methods, then a sequence of matchers</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">assoc</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">[ expr<SUB>k</SUB> &quot;=&gt;&quot; ] expr<SUB>v</SUB></FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">A key-value association, as occurs in a Mapping expression</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">assocList</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">[ assoc (&quot;,&quot; assoc)* ]</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">A sequence of key-value associations. Left out keys default to their index in the sequence</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">assocPatt</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">[ pattern<SUB>k</SUB> &quot;=&gt;&quot; ] pattern<SUB>v</SUB></FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">A key pattern and a value pattern for enumerating the associations in a Mapping. A left-out key
+			pattern defaults to the ignore pattern.</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">binaryOp</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;+&quot;
+&quot;&amp;&quot;
+&quot;|&quot;
+&quot;^&quot;
+&quot;/&quot;
+&quot;_/&quot;
+&quot;&lt;=&quot;
+&quot;..&quot;
+&quot;..!&quot;
+&quot;&lt;&lt;&quot;
+&quot;%&quot;
+&quot;%%&quot;
+&quot;*&quot;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">add
+and
+or
+xor
+approxDivide
+floorDivide
+lessThanOrEqualTo
+thru
+till
+shiftLeft
+remainder
+mod
+multiply</FONT></PRE>
+		</TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">lvalue</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">Identifier
+postfix &quot;[&quot; expr &quot;]&quot;
+call &quot;get&quot; &quot;(&quot; argList &quot;)&quot;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">Targets of assignment operators</FONT></TD>
+	</TR>
+	</TABLE>
+
+	</BLOCKQUOTE>
+
+</BODY>
+
+</HTML>

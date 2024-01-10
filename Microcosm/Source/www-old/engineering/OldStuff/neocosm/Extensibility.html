@@ -1,0 +1,518 @@
+<HTML>
+<BODY>
+
+<H1>Extensibility</H1>
+<P><B>Last updated: </B>[<A HREF="mailto:tony@communities.com">Tony</A>, 22 May 1998]
+<P>Author(s): Tony, Randy, Scott.
+
+<HR>
+<H2>Related Documents</H2>
+
+
+<LI>
+<A HREF="http:e/e-world-scripting.html">
+E World Scripting Examples</A>. This is an e-mail thread betwwen MarkM and Tony that
+discusses scripting accesibility, a few examples, and some proposed implementation.</LI>
+
+<LI>
+<A HREF="CustomerRequirements.html">Customer Requirements</A>. JohnS' document about
+customer requirements.</LI>
+
+<LI>
+<A HREF="production/ProductionIndex.html">Production Index</A>. Links to the production documentation.
+Information about what we currently support and what we need.</LI>
+
+
+<HR>
+<H2>Extensibility Overview</H2>
+
+We've had lots of talks about ways in which we could a llow the users of our software
+to extend the product.
+
+<H3>Extensibility terminology</H3>
+
+<H4>Extensibility vs. Customization</H4>
+We've often made a distinction between customization and extensibilty,
+where the first is what you're allowed to change via in-world
+mechanisms (choose from the variety of features we supply) and the second is more
+like authoring, where the user is not just exploring permutations, but actually
+adding new content (and potentially new behavior) to the world.
+
+<H4>Appearance vs. Behavior</H4>
+In EC parlance, Appearance refers to the visual manifestation of an
+object. Despite the confusion with the strict definition of the word, things like
+gestures and animations are not considered behavior, but fall underneath the appearance
+umbrella.
+<P>Behavior, in our realm, has always referred to <I>code</I> differences between
+objects. In our current model, objects that have different behavior are different una.
+Scripting language support would land squarely in the behavioral domain.
+
+<H3>Production Tools</H3>
+One obvious way to allow users to extend the world is with production tools. These
+would provide the means for importing all kinds of media, enabling users to create
+their own objects, avatars, and worlds.
+
+<H3>Scripting language</H3>
+Another way to allow extensibility is to offer a scripting language. This would
+allow users to change the behavior of an object. Not just its appearance. For
+examples of things that could be done with a scripting language, see
+<A HREF="http:e/e-world-scripting.html">
+E World Scripting Examples</A>.
+
+<H3>A hybrid approach</H3>
+Another idea that's been discussed is to provide a simple event model (objects
+can know when certain world events have occured, and allow users to select from
+a hard-wired set of behaviors. E.g., when any avatar picks up this object, play this
+sound. Or, when any avatar enters the region, say "Hello!" in a word balloon.
+
+<HR>
+<H2>Previous threads from eng_extensibility</H2>
+
+
+<H3>User-oriented presentation ideas from Randy</H3>
+
+<P>{I'm focusing on presentation related extensibility, not event related...} (in no particular order)
+
+<P>A user might want to...
+
+<LI>Import an arbitrary bitmap as an object (a photo of my pet cat attached to a Helper)</LI>
+<LI>Use a different supplied image for an object (make a Rock-shaped chair)</LI>
+<LI>Make an animating object (on/off light, open/close container, kinetic sculpture)</LI>
+<LI>Import my current web page GIF movies (kinetic)</LI>
+<LI>Create my own moodable images (mood ring)</LI>
+<LI>Import/assign my own sounds to object/avatar gestures (MY laugh/greeting)</LI>
+<LI>Construct a region out of supplied and custom parts</LI>
+<LI>Change the geometry of walls/floors/whatever (esp. endpoints for floors/walls)</LI>
+<LI>Import arbitrary VRML geometry, image masks, and intensity maps (New 3D thing)</LI>
+<LI>Reassign/combine animations/gestures</LI>
+<LI>Author/import animations/gestures (3D)</LI>
+<LI>Author animations/gestures from frames (2D)</LI>
+<LI>Create a 2D orientable appearance from images</LI>
+<LI>Create custom commands for objects (Map 'change state' to 'King me!')</LI>
+
+
+<H3>More ideas from Scott</H3>
+
+<P>Here are some Monday morning musings about what customizations I would
+guess people would find most attractive.  I've tried to list just a couple
+(to get started) of the most obvious kinds of extensibility features first
+from a purely 'implementationless' point of view, and then identify some of
+the technical issues that would result from different approaches to
+providing that capability.  Hopefully, this will stimulate folks to
+generate other kinds of application-level extensibility features (because
+I've just picked three pretty obvious ones).
+
+<H4>Easily/quickly customize the way your avatar appears to yourself others</H4>
+
+
+<OL TYPE="a">
+<LI>How your 'face' looks</LI>
+<LI>How your 'body' looks</LI>
+<LI>How you move (i.e. gestures, walking, other movements associated with avatar)</LI>
+<LI>What sounds you make</LI></OL>
+
+
+<P>Some technical requirements for these features:
+
+<P>For a and b, the levels of customization basically are dependent upon
+*when you can make changes* to the way you look, and *how much flexibility*
+you have in doing it.  For example, for 'when' the answer could range from
+compile time (*we* define how everyone looks when the system is compiled...
+i.e. no flexibility), to off-line...(an appearance editor outside of MC),
+to an appearance editor *of some undefined functionality* within the
+virtual space.  For the 'how' it could be via a palette of available
+bodies and faces (what we have now), and it could be the importation of an
+arbitrary bitmap...it could even be a bitmap editor within the context of
+the space itself (make new looks online).  The use of arbitary bitmaps is
+much more general/desireable, but requires dealing with the issue of
+needing to asynchronously download something...and the attendant problem
+of the need for a global namespace for referencing these graphic objects,
+and then caching them/storing them persistently/keeping them up-to-date, etc).
+
+<P>Note that the 'when' and 'how' can be mixed and matched as appropriate...
+i.e. the answer to 'when' could be: online (which we already have); and the
+answer to 'how' could be: arbitrary .jpgs available through a web server
+(ours or whatever).
+
+<P>For animation of the avatar, I think the 'when' and 'how' questions also
+apply very well.  So, for example, for 'when' we could say: when the
+appearance file is created (before display); and for 'how' we could say:
+<P>via an off-line appearance file editor (that just reads in/manipulates/spits out
+appearance files).  This isn't the extreme on 'when' and 'how'...for example,
+'when' could be online (real time), and how could be an 'animation scripting
+language', but the technical and design requirements for an approach like
+this are harder, because they require things like a) a scripting language
+or GUI simple enough to fit the bill (and probably tailored specifically
+for defining sequences of animations to make it easy); and b) require
+some way to support a scripting language in the distributed system... i.e.
+be able to introduce new avatar behavior (script) in real-time to all the
+places where it's needed (all machines where avatar is being displayed).
+
+<H4>Easily/quickly customize how your 'objects' look</H4>
+<P>Basically, this is the same as above, except that now we're talking
+about all una, rather than just avatars.  It  warrants a separate item,
+however, because I think it is much less important as a user-level feature
+than customizing avatars, and if that point wasn't made clear it would be
+easy to try to produce the same level/kind/UI for customizability for
+everything (e.g. property sheets).  I think having the same access to
+customizability for everything (including avatars) would be a bad idea,
+because customizing the look/sound/animation of objects in the room is
+so much less important, I think, than being able to customize one's
+own appearance to others.
+
+<P>Note that the first two items above do *not* have any *inter-una*
+messaging.  That is, they don't define any interactions between una,
+rather they just allow for flexibility of how an unum (avatar or anything
+else) presents itself visually/aurally...and in terms of how it animates
+itself or presents sounds.  This is a nice characteristic of appearance,
+gestures, animations, sounds...essentially media associated with una...
+it doesn't necessarily require that una interact with one another (it
+might be triggered just by time passing, or user input).  The next item,
+however, is flexibility that requires interaction between una.
+
+<H4>Define new ways for my avatar to interact with other avatars in the virtual space</H4>
+
+Examples:
+<LI>When Ellen's avatar arrives, my avatar automatically waves at her
+(graphically or textually).</LI>
+<LI>When someone whispers to me with the 'magic word' my avatar jumps up and down.</LI>
+<LI>My avatar can do 'Eliza'-like filtering of text chat</LI>
+<LI>I can introduce a new chess game object so you and I can play chess together </LI>
+etc., etc...this is very large category!</LI>
+
+<P>Some technical requirements:  IMHO, the hard part about these kinds
+of interactions between una is having a technical infrastructure that
+allows the 'when' to be online, and the 'how' to be with a large variety
+of interfaces that are *appropriate to the behavior being defined* (and,
+of course, to provide security).  In general, this is a *very* big
+category of behavior extensibility, and I think it makes sense to
+look at each item we identify as important within this category and
+ask:  *when* should the user be able to modify this behavior (e.g.
+compile time, off-line, start-time, run-time), and how do we want
+them to be able to modify it (e.g. write real code, write scripts
+off-line, provide scripts at start time, provide scripts at run time,
+actually create full functionality scripts at run time).  I think that
+as we identify these important interactions, we need to think about
+the when and how each might be provided and keep in mind that it could
+be different for every one (doesn't have to, but it might be).  This
+will keep us from falling into the trap of over-generalization... the
+tendency to only look at the *hardest* and most general 'when' and
+'how' for providing new inter-una interactions.
+
+<H3>More ideas from Tony</H3>
+
+<P>Some of these may not fall neatly into the two camps we've discussed
+so far: the Event/Action script camp or the PresentationToPropertySheet camp.
+
+<P>It seems like one of the goals of this team is to evaluate whether we can
+afford to implement these kinds of things.
+
+<H4>Macros</H4>
+For text and for gestures. This would be *huge*
+
+<H4>Alternative gestures</H4>
+Access gestures other than the fixed set on the button bar. I can imagine a dialog:
+
+<CODE><PRE>
+Gesture button : [Wave           V] (pulldown of gesture buttons)
+Gesture        : [FranticWave    V] (pulldown of available gestures)
+Gesture name   : Tony's Wave        (user-defined name for console-mode)
+Shortcut       : [ctrl-t]           (user-defined shortcuts)
+</PRE></CODE>
+
+<H4>User-defined keyboard shortcuts</H4>
+WorldsAway uses Function keys for gestures, we've got ours mapped mnemonically.
+What if people don't like our mapping?
+
+<H4>More keyboard shortcuts</H4>
+OpenPocket, TeleportHome, others...
+
+<H4>Choosing default gestures</H4>
+We will have more gestures than avatars by the time we ship.
+The nature of our 3D avatars is that we design a gesture once
+and then all the avatars could use it. We'll have a dozen "stand"
+poses, and hopefully several different walk styles. It would be
+great if the user could choose their own gesture for each of these.
+
+<H4>Changing the looping status of gestures</H4>
+<P>Gestures can play a fixed number of times or they can loop
+indefinitely. If users had access to this loop count, they could
+change the loopiness of their gesture.
+
+<H4>Change the sound for a gesture</H4>
+I'm not sure how users would refer to the sounds, though.
+Seems to call for a "sound swatch." Could be off-topic. :-)
+
+<H3>Even more comments from Tony</H3>
+
+<H4>Bang, buck, ease-of-use</H4>
+There's no way we can provide access to all of this.
+There's too much stuff. Even if we could, we'd probably
+choose not to because it would be overwhelming to the user.
+So I think our goal is to choose what extensibilty we can
+provide very carefully.
+
+<H4>Making Appearance data available for modification</H4>
+As I understand things, all the items that are on property
+sheets come from unum state. Randy's done a terrific job of
+keeping the distinction between Appearance data and Unum data
+clear in his list. Why is it relevant? Appearance objects
+are stored in the Repository. As such, they must be static.
+We don't want users to modify them directly, because the
+objects can't change. If we want users to edit the information
+inside the Appearance objects, we have to move the information
+inside the unum, so that it can be checkpointed, and persist.
+The bottom line. Anything in Appearance data that we want the
+users to be able to change has to be stored in the unum so that
+it can override the defaults that exist in the Appearance. This
+makes the Appearance much more like a template, which I believe
+was the original goal.
+
+<P>I believe this is how swatches currently work-- the Appearance
+file has default colors that are applied to the costume, but swatch
+operations override them. I've never seen this persist however,
+even across a region transition, so I'm guessing there's still
+some work to do here.
+
+<H4>Where's the work?</H4>
+I want to know how hard these steps are:
+
+<LI>Storing Appearance information in the unum. Is there a way to
+do this flexibly, so that we don't store a bunch of empty fields
+for una that aren't overriding the appearance files?</LI>
+
+<LI>Updating the Appearance object, when necessary. When the user
+changes the number of loops in a gesture, she is changing the
+loopCount in the unum. This way, when the object is checkpointed,
+that piece of state persists. However, the loopCount also needs
+be copied to the Appearance object so that the loop behavior works
+as expected.</LI>
+
+<LI>Wiring Property sheet UI to a piece of unum state. As with many
+things in our system, I can describe very simply how something ought
+to work: The user chooses his default walk gesture from a pulldown
+list of available gestures. Things tend to be harder to implement
+than they are to describe. How hard is the "plumbing" for this?</LI>
+
+<H3>Randy's Comprehensive list of presentation attributes</H3>
+[grouped by Tony]
+
+<H4>Static attributes from Appearance files</H4>
+<CODE><PRE>
+  2D: Art Scale (Pixels/Meter)
+  2D: [Avatar Height]
+  2D: Thumbnail Icon {deprecated?)
+  2D: Cels (individual bitmaps)
+  2D: Cel size (x, y)
+  2D: Cel offset (x, y)
+  2D: Cel rotation (degrees)
+  2D: Cel x/y flip
+  2D: Frames (Cel composition)
+  2D: Frame registration points (Slots [hand, mask] PLUS Tabs [where to stand, where held, etc.])
+  2D: Frame cels
+  2D: Positions (Frame to orientation mapping)
+  2D: Position Orientations (position to mood mapping)
+  2D: Position
+  2D: Gesture Positions (list)
+  2D: Gesture rotation (list, one per position)
+
+  3D: VRML 2.0 file
+  3D: Style (3d, cartoon, etc?)
+  3D: Pivot points (y/n)
+  3D: Y/Z flipping (y/n)
+  3D: Perspective correct mapping (y/n)
+  3D: Tiling (y/n)
+  3D: Registration points (named points mapped to vrml nodes)
+  3D: Registration point positions/orientations (offsets and orient of regpoint from node.)
+  3D: Moods (named moods)
+  3D: Mood Textures (a bitmap for each texture label)
+  3D: Gesture type (HideShow, VRML)
+  3D: Vrml animation file
+  3D: Hide/Show (node)
+  3D: Idle gesture (y/n)
+
+Both: Default Gesture/Position
+Both: Idle Gesture/Position [in 3D this is in the gesture itself.]
+Both: Idle time (till idle gesture is played)
+Both: Default movement (what to play when walking)
+Both: Default slot (where object goes/holds things when there is no option)
+Both: Slots (regpoint mappings exposed for containership)
+Both: Swatchables and Swatchgroups: Applying textures (how many, names, masks, maps, and defaults)
+Both: Orientation Moods (frame to mood)
+Both: Gestures (are orientation & mood independent [2D: and composed of Positions])
+Both: Gesture looping instructions
+Both: Gesture frame rate
+Both: Gesture distance per frame (for walking/moving)
+Both: Gesture sound play/looping instructions
+
+</PRE></CODE>
+
+<H4>Static attributes (from code)</H4>
+<CODE><PRE>
+Help URL (derived from classname)
+Required animations (HideHead/ShowHead, Open/Close, etc.)
+Required slots/regpoints (Hand, Mask, Default, WalkTo, PutAt, etc.)
+Help web pages (by class)
+Menu item labels
+Menu item positions (override data)
+Unum types (ingredient behaviors & default commands)
+UI button images & mappings (gesture/moods/commands/etc. and tips)
+</PRE></CODE>
+
+<H4>Sorta</H4>
+<CODE><PRE>
+Static data (external sources, expected to go 100% static by ship.)
+
+Catalog entries (currently realm text files)
+Realm layout (ditto)
+Menu items (actual displayed strings)
+Menu item positions
+Standard
+Object gestures, slots, regpoints.
+Standard Avatar textures, moods, gestures, slots, regpoints.
+</PRE></CODE>
+
+<H4>Dynamic attributes (from object state)</H4>
+<CODE><PRE>
+
+
+<H5>Common (Prop)</H5>
+<CODE><PRE>
+
+	Object name
+	description     Long description
+	thumbnail       Pointer to thumbnail bitmap resource
+	destruct        Destruct after clone?
+	p2D             2D 'anchor point', used for background objects. Yuck.
+	reachable       enable walking to this object
+	scale           percent image multiplier
+	orientation     direction the object is pointing
+	lastGesture
+	currentMood
+	myContainer     the Unum that contains this object
+
+	defaultCommand  string sent on click (should be command name, not verb)
+
+	stationary     'Nailed down'
+	lockable       Unimplemented (prevents others from locking/nailing)
+	locked         Unimplemented (prevents opening.)
+	putable        (Floors/Stickies): Can put things here.
+	tab            Accessories only: name of the slot they wish to match.
+
+	Containership (ask Arturo/RobJ if any of these should be exposed.)
+
+	rcContainerOfLastResort
+	    myContainerOfLastResort
+	    myLocationOfLastResort
+	    myLocation
+	    myPresentation
+	    myIsContainer
+	    myHasParent
+	    myIsOpen
+	    myRootTree
+	    myToTrySetContainer
+</PRE></CODE>
+
+<H5>Poster</H5>
+<CODE><PRE>
+	clientTexturizationEnabled      Can clients texturize this object?
+	myTextureStructures             Texture cryptohashes
+        theURL
+</PRE></CODE>
+
+<H5>Containers</H5>
+
+<CODE><PRE>
+    myContents       The una I contain
+    mySubjectToTOS
+    myIsOpen         For openable containers only
+    slotQty          Slotted only: How many slots?
+    slotList         Slotted only: semicolon delimited list.
+</PRE></CODE>
+
+<H5>Camera</H5>
+
+<CODE><PRE>
+    enableEvents     Allow external events?
+    cameraNumber     For explicit control
+    camera vector    What the camera sees
+</PRE></CODE>
+
+<H5>Changer</H5>
+
+<CODE><PRE>
+    enableVerbs      Present a verb interface?
+    enableEvents     Allow external events?
+    enableHosting    Hosted or Local?
+    currentState
+    totalStates      For parsing the state table
+    entriesPerState  Ditto
+    stateTable       Semicolon delimited list of arguments.
+</PRE></CODE>
+
+<H5>Portal (Entry and exit pads)</H5>
+
+<CODE><PRE>
+    myRegion
+    rcRegion                Ask arturo
+    myAnimation             Scroll, etc.
+    myRegionName
+    defaultCamera           Which view to use on arrival
+    myFinalLocation         Where to talk to in new region
+    myInitialLocation       Where to arrive (before walking)
+    myDestination           Where to go
+    rcDestination
+    myDestinationSturdyRef
+
+    myAnimation             Scroll, etc.
+    myFailureAnimation
+    myLocation              Where to walk to when leaving
+    myTransitionName
+</PRE></CODE>
+
+<H5>Avatar (incomplete)</H5>
+
+<CODE><PRE>
+    myLauncher     OBSOLETE URL launcher pointer in AvatarInterface
+
+	Identity - Review with team
+        myRegistrar
+        myName
+        myIdentityForwardRef
+</PRE></CODE>
+
+<H5>Region (incomplete)</H5>
+
+<CODE><PRE>
+    name
+    watermark         File (should be cryptohash!)
+    URL               TOS page
+    BBS               BBS page
+    defaultPad        teleport pad
+    portalData        data to build
+    PortaPortal
+    myChecker         ???
+    avatarLimit
+    myRegionLocked
+    (where is the certificate list?)
+</PRE></CODE>
+
+<H5>Realm</H5>
+
+<CODE><PRE>
+    myChecker
+    myAvatarLimit
+    myRegistrationURL
+    myEventLog
+</PRE></CODE>
+
+<H5>NOT ON LIST</H5>
+
+<CODE><PRE>
+Containable (Scotts realm/region relationship stuff. We need to review.)
+Games [chess, , reversi, etc...] because of specificity.
+</PRE></CODE>
+
+
+</BODY>
+</HTML>

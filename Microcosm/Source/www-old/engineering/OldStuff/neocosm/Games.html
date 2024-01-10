@@ -1,0 +1,143 @@
+<HTML>
+<HEAD>
+   <TITLE>Games</TITLE>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+</HEAD>
+<BODY>
+
+<H1><I>Games</I></H1>
+
+<P><B>Last updated:</B> [98/5/18
+<A HREF="mailto:crock@communities.com">Crock</A>]
+
+<H2>Introduction</H2>
+
+<P>This is a set of board games. They all perform in the same manner.
+The intention is that they be objects in catalogs, but currently,
+they only exist in Randynet. Currently, the games include Chess,
+Xiangqi (Chinese Chess), Makrook (Thai Chess), Tishai (Cheapass
+Chess), Reversi (Othello), Gess (Go Chess),Threeple, Dots and Boxes,
+Mancala.
+
+<H4>Related Documents</H4>
+
+<P>The Help Pages for the games.
+
+<H2>Requirements</H2>
+
+<P>Support for unums and ingredients.
+
+<H2>Architecture</H2>
+
+<H4>Current Architecture Overview</H4>
+
+<P>The games are intended for informal play. The host mediates the
+game. Players submit moves to the host for propogation to the players
+and spectators. Moves are validated at every step. 
+
+<P>The games require a dynamic display. The current system deals very
+poorly with dynamic appearance. The options were to make every game
+piece a separate unum, or to make every square on the game board a
+swatchable. The first option is flexible, but extremely expensive.
+The second option is clumsy. We chose the second option.
+
+<P>The state of the game is kept in the state bundle. The state
+includes a lot of implementation-specific detail about the
+implementation of the game mediation ingredient.
+
+<H4><A NAME="Proposed Architecture Overview"></A>Proposed
+Architecture Overview</H4>
+
+<P>Replace most of the state bundle with a game journal (a record of
+all of the moves played thus far). This will make the state bundle
+simpler and implementation independent. It will make it possible to
+rewind a game, making it possible to examine a game or take back
+moves. It will allow people coming into the game late to have an
+option to see everything that has happened so far. It will make it
+possible to save a game and resume it later. It will make it possible
+for the surviving player in a disconnect to petition the Game
+Federation  to award a win based on the journal.
+
+<P>Design special game sets for tournament play. Capabilities to play
+are given to specific players.
+
+<P>Issue certificates at the conclusion of games, which can be
+submitted to the Game Federation to determine rankings.
+
+<P>The games should be made catalogable. This involves correcting the
+relationship of pixel perfect objects with 3D regions and object
+creation.
+
+<P>The swatching method should be replaced with an animation system.
+
+<H4>Off the shelf alternatives</H4>
+
+<P>There is a wealth of games out there, but they cannot be used in
+the Cosm system. Most simple games can be scripting languages.
+Because we don't have a scripting language, games must be implemented
+as ingredients.
+
+<H4>Other Design Objectives, Constraints and Assumptions</H4>
+
+<P>None.
+
+<H2>Current implementation</H2>
+
+<H4>Which directories on our tree does this subsystem cover?</H4>
+
+<P>cosm1/objects/ingredients/Chess
+
+<P>cosm1/objects/ingredients/Makrook
+
+<P>cosm1/objects/ingredients/Reversi
+
+<P>cosm1/objects/ingredients/Stone
+
+<P>cosm1/objects/ingredients/Threeple
+
+<P>cosm1/objects/ingredients/Tishai
+
+<P>cosm1/objects/ingredients/Xiangqi
+
+<P>cosm1/objects/una/ChessGame
+
+<P>cosm1/objects/una/MakrookGame
+
+<P>cosm1/objects/una/ReversiGame
+
+<P>cosm1/objects/una/Stone
+
+<P>cosm1/objects/una/ThreepleGame
+
+<P>cosm1/objects/una/TishaiGame
+
+<P>cosm1/objects/una/XiangqiGame
+
+<H4>Is it JavaDoc'ed?</H4>
+
+<P>The ingredients are JavaDoc'd. Chess, Reversi, and Threeple are
+completely Doc'd. The other ingredients refer to those.
+
+<H4>Examples</H4>
+
+<P>The games are examples. On of the goals was to make objects which
+were not planned for which are similar to things that customers might
+want to write for themselves. (Conclusion: It is too hard.)
+
+<H4>Testing and Debugging</H4>
+
+<P>The games were very useful in revealing bugs in swatching. The games
+swatch hundreds of times more often than any other unums.
+
+<H2>Design Issues</H2>
+
+<H4>Resolved Issues</H4>
+
+<P>None.
+
+<H4>Open Issues</H4>
+
+<P>See:&nbsp;<A HREF="#Proposed Architecture Overview">Proposed
+Architecture Overview</A>
+</BODY>
+</HTML>

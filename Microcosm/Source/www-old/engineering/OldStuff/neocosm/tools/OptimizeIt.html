@@ -1,0 +1,112 @@
+<html>
+<title>
+Installing and running OptimizeIt 2.01 Professional.
+</title>
+</head>
+<body>
+<h1>Installing and running OptimizeIt 2.01 Professional.</h1>
+</body>
+<h2>Installation</h2>
+<ol>
+<li>
+Install it. You can find the self-extracting installation 
+<A HREF="file:\\alexandria\eng\win32\OptimizeIt\\OptIt201P.exe">here</A>. 
+When you click on that link, your system should prompt you to download 
+file names OptIt201P.exe. Do so. Remember where you save it. It'd be nice
+if the browser would just run it, but... <br>
+BTW, if the link doesn't work for you, you can find it on the unix servers
+in /home/eng/win32/OptimizeIt/.
+<li>
+Using the Windows Explorer (or your favorite command prompt), navigate to
+where you saved it, and run it. This should start the OptimizeIt installation
+process.
+<li>
+At the "User Information" dialog box, enter one of our serial numbers.
+Either <strong>970884</strong> or <strong>970885</strong>. You can 
+leave <strong>Administrator</strong> as the user, or put your own name,
+or whatever you want.
+<li>
+The next dialog box is the "Choose Destination Location". I recommend
+using the browse button and setting the installation directory to
+<strong>the root of your development drive</strong>. For example, "c:\".
+This will install OptimizeIt in "c:\OptimizeIt", and that'll make your
+life easier when it's time to add it to your PATH and CLASSPATH.
+
+<li>
+Finish the installation. 
+<li>
+At this point, you've got an "OptimizeIt 2.01 Professional" entry in your
+start menu. 
+</ol>
+<h2> Using it.  </h2>
+
+There are 2 official ways to use OptimizeIt to examine a java program. You
+can either A) start your application from inside of OptimizeIt (ie. use
+OptimizeIt's GUI tool to select and start your program), or B) run your
+application separately and attach OptimizeIt to it. Personally, I prefer
+to attach to a running program.
+
+<h3>Running your program from inside of OptimizeIt</h3>
+By default, when you first run OptimizeIt, it'll pop up the Program Choose
+window. This is where you set the working directory, main class, CLASSPATH,
+and java options. Unfortunately, it doesn't let you set the PATH variable, so
+if your application depends on custom .dlls that aren't in the system or working
+directory, you're slightly hosed. Cosm has this problem. One way around it is
+to run OptimizeIt from the command line, in a command prompt window that already
+has the environment set. For example, in your 4DOS BUILD or RELEASE window (
+or whatever window you have that already has an appropriate CLASSPATH and PATH,
+etc), you could type <pre>"c:\OptimizeIt\OptimizeIt.exe"</pre> and it'll come
+up, inheriting the proper environment from your window. <p>
+Once it's up with the appropriate environment, you can set the properties you
+need. An example of how to run r167 from \build\release would be:
+<pre>
+ - Select Application (not applet)
+ - Program main class: "ec.e.boot.ELogin" 
+ - Program working directory: "c:\build\release\"
+ - Select "Open a console"
+ - Extra Java parameters: "-ms6m -mx48m"
+ - Extra program parameters: "ec.pl.runtime.Agency -ECproperties props/run.props"
+</pre> 
+
+You shouldn't have to add to the CLASSPATH since your environment was inherited.
+Pressing the "Start Now" button should start Cosm. 
+
+<h3>Attaching OptimizeIt to an already running program</h3>
+OptimizeIt has a fairly painless way to audit a separate Java process. To do this,
+you need to do 3 things. In your favorite command prompt window, with the 
+environment already set so you can run the application you want to audit:
+<ol>
+<li>
+Add OptimizeIt to your PATH. Do this like so:
+<pre> set PATH=%PATH%;c:\OptimizeIt\;c:\OptimizeIt\lib </pre>
+<li>
+Add OptimizeIt to your CLASSPATH
+<pre> set CLASSPATH=%CLASSPATH%;c:\OptimizeIt\lib\classes </pre>
+<li>
+Start your java process via OptimizeIt's intuitive.audit.Audit class. For example,
+if you would have run your program like this:
+<pre>[c:\mydir] java -ms6m MainClass Arg1 Arg2</pre>
+You would instead do:
+<pre>[c:\mydir] java -ms6m intuitive.audit.Audit MainClass Arg1 Arg2</pre>
+</ol>
+
+At this point, your program will start running and will spam out something like
+<pre>
+OptimizeIt 2.0 audit system. (c) 1997,1998 Intuitive Systems Inc.
+Port is 1470
+</pre>
+
+This tells you that your app is running, and can be attached to by OptimizeIt.
+Now, start OptimizeIt via your Start Menu. Use the "Program/Attach" menu to 
+attach to your application. 
+
+
+
+
+
+
+
+
+
+</html>
+

@@ -1,0 +1,112 @@
+<!--NewPage-->
+<!-- Created by Masa Maeda on 05.14.97  -->
+<!-- Copyright 1997 Electric Communitites. -->
+<!-- All rights reserved worldwide.  -->
+<!-- Proprietary and confidential. -->
+<HTML>
+<HEAD>
+<pre>
+<a href="PPTut15.html">Previous</a>  <a
+href="PPTut17.html">Next</a>  <a
+href="PPTutI.html">Index</a>  <a
+href="PPTut1.html">Home</a></pre>
+<TITLE>The PeekPoke Tutorial</TITLE>
+</HEAD>
+<BODY>
+<P><HR WIDTH="100%" SIZE=2></P>
+
+</FONT><B><FONT SIZE=4><P>Part II.  Fanout</P>
+</B></FONT>
+<P>The code in Part I implements PeekPokeShip for a host and a client. To implement
+more than one client, alterations on the code analyzed on Part I focus on the
+ingredient implementations for Peekable, Pokeable, and on the <FONT
+FACE="Courier">go()</FONT> method. </P>
+<P>&nbsp;</P>
+<B><P>Step 1. Modify ingredient implementations</P>
+</B>
+<P>Consider the code for ingredient implementation of Peekable. A vector that will
+handle a set of clients is added and is initialized within <FONT
+FACE="Courier">init()</FONT> to include all other presences of the unum. Messages are
+sent in an envelope, <FONT FACE="Courier">env</FONT>, from the host to all presences
+via <FONT FACE="Courier">sendToClients()</FONT>, which is a new function in the
+ingredient implementation.  UPeek() is also altered so that the host sends the
+message it received to <FONT FACE="Courier">env</FONT> and then calls <FONT
+FACE="Courier">sendToClients()</FONT> to deliver it to all clients. Only the code for
+Peekable is shown.</P>
+
+<P><HR WIDTH="80%" SIZE=2></P>
+<PRE>
+
+	// --------------- Create ingredient implementations ---------------
+	// iiPeekable
+	export ingredient impl iiPeekable {
+	  kind iskPeekable;
+	  kind pkHostPeekable myHost;
+	  boolean iAmTheHost;
+	  Vector myClients;
+	  init (){
+	    this.init(true);
+	  }
+	  init (boolean theHost) {
+	    iAmTheHost = theHost;
+	    if (!iAmTheHost)  {
+	      if (environment.hostPresence instanceof kind pkHostPeekable) {
+	        myHost = (kind pkHostPeekable)environment.hostPresence;
+	      }
+	    } else {
+	      myClients = environment.otherPresences;
+	    }
+	  }
+	  function void sendToClients(RtEnvelope env)  {
+	    BasePresence.sendEnvelopeToOthers(myClients, env);
+	  }
+	  method uPeek (String pokeMessage) {
+	    if (iAmTheHost)  {
+	      System.out.println (pokeMessage + " peeking at a client...");
+	      RtEnvelope env;
+	      env &lt - (kind pkClientPeekable).pClientPeek(pokeMessage);
+	      sendToClients(env);
+	    } else {
+	      myHost &lt - pHostPeek(pokeMessage);
+	    }
+	  }	
+	  method pHostPeek (String pokeMessage) {
+	    uPeek (pokeMessage);
+	  }
+	  method pClientPeek (String pokeMessage) {
+	    System.out.println (whoPeeked + " just peeked at me! " );
+		//uPeek (pokeMessage);
+	  }
+	}
+
+</PRE>
+<P><HR WIDTH="80%" SIZE=2></P>
+
+</FONT><P>The code for PeekerPoker needs no change simply because it is
+PeekablePokeable who will do the broadcast to other presences.</P>
+
+<P><HR WIDTH="100%" SIZE=2></P>
+<pre>
+<a href="PPTut15.html">Previous</a>  <a
+href="PPTut17.html">Next</a>  <a
+href="PPTutI.html">Index</a>  <a
+href="PPTut1.html">Home</a></pre>
+
+</HTML>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

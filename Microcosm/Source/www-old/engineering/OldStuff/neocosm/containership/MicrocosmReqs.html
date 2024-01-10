@@ -1,0 +1,257 @@
+<HTML>
+<HEAD>
+    <TITLE>Containership Requirements for Microcosm Application</TITLE>
+</HEAD>
+<BODY>
+<H1>Containership Requirements for Microcosm Application</H1>
+
+
+<em>This page is maintained by <A HREF="mailto:trev@communities.com">Trev</A>.
+Please let me know of any errors ASAP so I can fix them.
+<br>
+<b>Warning:</b> these pages change frequently. If you've looked at them
+recently hit "reload" on your browser to make sure you're seeing the
+latest version.
+</em>
+<p>
+
+<h2>Introduction</h2>
+
+The requirements below are the requirements for containership within
+the Microcosm application. The requirements are intentionally
+application specific, though in some cases there are additional notes
+about how a requirement could be broadened when we think of a
+platform that would support applications other than Microcosm.
+
+<h2>Requirements</h2>
+
+<h3>Agreed Upon Requirements</h3>
+
+These are requirements that everyone has agreed upon (so far!).
+
+<ul>
+
+<li> A region provides a shared "space" in which all objects recursively
+and openly contained by the region are visible to some set of
+viewers. Both the objects and the viewers can be distributed across
+the network i.e. the authoratitive state of N objects in a region may
+be on N different machines.
+
+<li> Any network link or node in the system can fail at any time. When
+this happens the system must recover and move toward a new
+distributed, consistent state. The system should also clearly
+communicate what happened to the users, so the failure makes
+sense in their terms and they know what to do next.
+
+<li> A container can be open or closed. The contents of an open, visible
+container are visible. The contents of a closed container are not
+visible (and, ideally, should not take up resources on the viewers'
+machines)
+<br>
+<em>NOTE:</em> This is an area where more general approach may make
+sense. Even in Microcosm users see different types of containership
+which may need slightly different handling (e.g. open/close
+containment, as in a rock in a box, surface containment as in a lamp
+on a table, and covering containment as in clothing on an avatar).
+And if we're thinking of a platform, then other applications could
+have other requirements (e.g. LambdaMOO has many types of containment).
+
+<li> A viewer should not pay any resources for world objects which are
+not visible (except for world objects that are being referenced
+for other reasons, e.g. a viewing avatar may own objects, in which
+case resources are needed to maintain ownership). Another way to say
+this is that the objects representing the viewer to viewee
+relationship should get cleaned up as soon as the relationship is
+broken. No presence spread!
+
+<li> From the users point of view, an object can only be contained by
+one container at a time. Though this cannot be enforced globally
+without doing some exclusive rights transfer in a larger context, we
+must avoid violating the users expectations that an object can
+only be in one place at once.
+
+<li> Any object recursively and openly contained by the region is subject
+to the TOS limitations of the region. Currently the only TOS
+limitation we have is that the object's art must be certified by an
+authority acceptable to the region. (Was it a requirement that
+containers in general can apply TOS restrictions to their recursive
+openly contained contents?)
+
+<li> A region should be able to kick out a specific avatar and prevent
+that avatar from re-entering in future (at the moment this is
+implemented via an identity check).
+
+<li> If you are sending word balloons to the region you should know if
+the other avatars can "hear" you, or, at least, you should know that
+they may be in a state where they can't hear you. For example, when
+avatars leave the region you're in, you should know when it is unsure
+whether they can still hear you (i.e. they're in transition) and you
+should know when it is clear that they can't (i.e. they've gone).
+
+<li> The containership and unum model code should have a simple
+programmer API, which provides notifications about status changes.
+
+<li> The containership model must provide multiple coordinate
+spaces; at least slots (e.g. hand, head etc.) and 3D positions
+(e.g. position in region)
+
+<li> It must be possible to save and restore the locally hosted
+part of the containership hierarchy.
+
+</ul>
+
+<h3>Still Under Discussion</h3>
+
+The following may or may not be requirements, they're still under discussion
+
+<ul>
+
+<li> An object should not be contained by some container without consent
+from both the object and the container i.e. both container and object
+have to agree that the object is in the container; either the
+container or the object can veto the relationship.
+
+<li>Should TOS limitations be imposed on entry i.e. do we enforce TOS
+by exclusion or by allowing entry but encapsulating or constraining
+the non compliant object?
+
+<li>Do we need atomic TOS checking? If a tree of objects is to be
+admitted do we atomically decide whether to admit all or none
+of them?
+
+<li>Should containers and their containables <em>appear</em> atomically
+to the user. e.g. should the user ever be able to see an avatar without
+its clothes (or vice versa).
+
+<li>Do we need fully hierarchical TOS? e.g. can a box refuse to contain
+an obscene picture? Or does only the region (top level container) refuse
+objects on TOS grounds?
+
+<li>Can we constrain types of containership transfer to simplify the
+problem? e.g. Maybe you can only transfer container A into container B
+when container A is closed. Then you would open A once it was
+transferred. This would break down the problem into smaller parts -
+single level containership transfer and adding a set of objects to a
+context.
+
+<li>Is the container authoratitive over the position of contained
+objects? Seems likely given that it defines the frame of reference.
+
+<li>Must an explicit viewer (e.g. avatar) be present in order to view
+a region? (Can't stop a viewer propogating their view to someone else
+but you can refuse to hand out a view without identifying a
+responsible party)
+
+<li>Is it necessary to be able to make synchronous calls between
+presences on the same machine (e.g. for menu handling, which is
+done synchronously in our current implementation?)
+
+</ul>
+
+<h3>Preferences</h3>
+
+These are things that aren't necessary for the first version of "new
+Microcosm". But we should keep them in mind. If we come up with a
+solution that makes them easy (or they suggest a direction that would
+be easy) then that's a bonus.
+
+<ul>
+
+<li>At the moment we just have TOS for appearance. Do we need TOS for
+behavior?
+
+<li>Do we need a link between positions and behaviors? e.g. if an
+avatar moves toward a box to pick it up, does it go to a different
+position than it would if it were going to kick the box? Implementing
+this blurs the boundary between model and presentation.
+
+<li>Do we allow avatars to be contained by anything other than the
+region (e.g. avatars in boxes, avatars in pockets?)
+
+<li>How do we do amphitheatres? And what are their TOS properties?
+
+</ul>
+
+<h2>Consistency</h2>
+
+The different views on the region should be as consistent as possible.
+Complete distributed consistency at all times is impossible. But if
+there are no changes to any of the objects in a region, and no network
+failures, then all the views should become consistent, after some
+(hopefully short, but network delay dependent) time. (Even if there
+are changes and failures the system should always be tending toward
+distributed consistency, but if changes and failures happen fast
+enough it would be possible to have a system that never reached a
+consistent state).
+
+<p>
+
+So given the impossibility of complete distributed consistency, the
+real question is: how consistent do we have to be? In our application
+we are trying to mimic people in the real world in a shared space, so
+people have some strong intuitions about how consistent things should
+be.
+
+<p>
+
+For example if someone enters a real world room you expect their
+clothes and anything they are carrying to come in with them at exactly
+the same time. But that's a pretty strong notion of consistency to
+maintain in a distributed system where the avatar body, each item of
+clothing and the "in hand" object may all be hosted on different
+machines.  Even though we may "tend towards consistency" the process
+of getting there may seem very surprising to the user. I suspect this
+will get us into the messy areas of timing and probability (e.g. we
+need a system which usually appears consistent to the viewer within
+1/2 a second).
+
+<p>
+
+There may be some mileage in thinking about local and global
+consistency. Viewers can tolerate at least some global inconsistency;
+they can't see other views so they probably won't notice temporary
+differences between them. But if, for example, an object appears
+without its contents, or in two places in the same region, it's going
+to shatter the illusion we're trying to present.
+
+<p>
+
+From the platform perspective it makes sense to provide different
+levels of consistency. Some applications, and even some parts of
+applications, will require less strict or more strict consistency than
+Microcosm. Ideally each part of the system should be able to choose a
+level of consistency appropriate to its needs.
+
+<h2>Visibility</h2>
+
+I've used "visible" and "visibility" a fair bit e.g. "a region
+provides a shared space in which all objects recursively and openly
+contained by the region are visible to some set of viewers". Clearly
+at the low level the object must have some local representation on the
+viewers machine in order to be visible, so we're talking about a
+distributed object problem.
+
+<p>
+
+But I prefer to talk in terms of visibility rather than unum presences
+or whatever, because ultimately the problem we're trying to solve is
+showing the user something. This affects how we solve the problem
+because, as discussed in the consistency section above, people have
+expectations about how things should look.  Solutions which might be
+quite acceptable for some general consistency problem may not work at
+all when someone is watching the process of moving toward consistency
+(and comparing it to their expectations in the real world).
+
+<p>
+
+Talking about visibility is another example of taking a Microcosm
+specific view. When thinking of the platform we should be sure that it
+supports the kind of visibility we need in Microcosm. But we should
+remember that other applications will have different requirements.
+
+<p>
+
+<A HREF="index.html">Back to design discussion page</A>
+
+</BODY>
+</HTML>

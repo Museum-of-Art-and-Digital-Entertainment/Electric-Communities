@@ -1,0 +1,391 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>ComCom Directory</title>
+</head>
+
+<body bgcolor="#FFFFFF">
+
+<h1>ComCom Directory</h1>
+
+<p><b>Last updated:</b>  98/08/17 <a href="mailto:jeff@communities.com"><i>Jeff</i></a><i>- Original version.</i></p>
+
+<h2>Introduction</h2>
+
+<p>The purpose of the ComCom directory is to provide a mechanism
+for looking up names, handles, and ECIDs. Each entry in the
+directory corresponds to an ECID user. The fields, or attributes,
+associated with the entry include name, email address, and other
+person related info provided by the user. Using a client or web
+based tool it will be possible to search the directory for
+entries with specific attribute values. The ComCom directory will
+be implemented using off-the-shelf LDAP directory server
+software.</p>
+
+<p>What is a directory anyhow? Essentially, a directory has the
+following characteristics:</p>
+
+<ul>
+    <li>Like a database where reads exceed writes by an order of
+        magnitude. </li>
+    <li>Contains entries where each entry may have one or more
+        attributes and values associated with the attributes. </li>
+    <li>Provides mechanisms for retrieving entries and attibutes
+        values within entries.</li>
+    <li>Provides a way to search for entries based on the value
+        of one or more attributes.</li>
+</ul>
+
+<h4>Related Documents</h4>
+
+<h2><a name="requirements">Requirements</a></h2>
+
+<ul>
+    <li>Flexible data schema:<ul>
+            <li>Flexible attribute data contents: text, binary,
+                etc.</li>
+            <li>Flexible entry specification. E.g., we should be
+                able to add additional attributes as we go.</li>
+            <li>Directory system is somewhat general and can be
+                applied to other needs for directories, for
+                example, person and place directories.</li>
+        </ul>
+    </li>
+    <li>Access:<ul>
+            <li>Mechanism for browsing and querying the directory
+                via the web or comcom client application.</li>
+            <li>Mechanism for modifying entries (attribute
+                values) via the comcom client. (Modify via the
+                web might not be needed.)</li>
+        </ul>
+    </li>
+    <li>Security:<ul>
+            <li>&quot;Add&quot; and &quot;Modify&quot; must be
+                done in a secure, non-spoofable manner.</li>
+            <li>Nice to have: There should be a way for the
+                &quot;entry owner&quot; to mark attributes as
+                &quot;private&quot; and ten allow limited access
+                by others to private attributes.</li>
+        </ul>
+    </li>
+    <li>Performance:<ul>
+            <li>Ability to support at least a 100,000 entries
+                initially.</li>
+            <li>Ability to scale to support more entries.</li>
+            <li>Search and retrieval should perform well
+                initially and support 1000 simultaneous
+                &quot;readers&quot;, searching and browsing.</li>
+            <li>There should be a scaling plan to support 50,000
+                &quot;readers&quot; within a near term.</li>
+        </ul>
+    </li>
+</ul>
+
+<h2>Architecture</h2>
+
+<h4>Proposed Architecture Overview</h4>
+
+<p>The proposed plan for directory support is to use
+off-the-shelf directory server software, standard protocols, and
+off-the-shelf protocol implementation. The emerging Internet
+Draft Standard for directory protocols is the Lightweight
+Directory Access Protocol (LDAP). There are a few client side
+protocol implementations of LDAP in C and Java. </p>
+
+<p>Netscape Directory Servers (version 3.0) will be used for the
+servers, most likely running on Solaris.</p>
+
+<p>JNDI and LDAP will be used by java applications (eg ecid) to
+access directory servers.</p>
+
+<p>Netscape Directory SDK will be used for native C/C++ client
+side access on windows.</p>
+
+<h5>LDAP</h5>
+
+<p>LDAP is a simplification of the X.500 Directory Access
+Protocol (DAP). The short story is that X.500 and DAP are
+heavyweight applications and protocols built on OSI protocols.
+LDAP was patterned after DAP and designed to get 90% of the DAP
+functionality with 10% of the cost. </p>
+
+<p>LDAP's directory model is based on the notion of <em>entries</em>.
+An entry is a collection of required and optional <em>attributes</em>.
+One of the entry's attributes is an <em>objectclass</em>
+attribute which is used to provide type specification for the
+entry. An attribute's is by default case-ignore-string. The
+complete list of attribute types are:</p>
+
+<blockquote>
+    <ul>
+        <li>binary</li>
+        <li>case exact string (case must match during
+            comparisons)</li>
+        <li>case ignore string (case is ignored during
+            comparisons)</li>
+        <li>telephone number string (like cis but blanks and
+            dashes `- ' are ignored during comparisons)</li>
+        <li>distinguished name</li>
+    </ul>
+</blockquote>
+
+<p>The entry is referred to by its <em>Distinguished Name</em>,
+or <em>DN</em>. The DN is made up of attributes which can be used
+to refer unambigously to the entry.</p>
+
+<p>LDAP arranges entries in a hierarchical tree structure (though
+directories can just be flat; twig-like). The classic example is
+to structure the directory along organizational lines, with
+people at the leaf nodes of the tree. Here's the obligatory LDAP
+tree diagram:</p>
+
+<p align="center"><img
+src="hierarchy.gif" width="266"
+height="164"></p>
+
+<p align="left">In the above diagram the DN for Barbara J Jensen
+would be &quot;cn=Barbara J Jensen, o=U of M, c=US&quot;.</p>
+
+<h5>LDAP versions</h5>
+
+<p>The LDAP protocol spec has been changing. LDAPv3 is the latest
+version, though its still a Draft Standard. The primary
+differences of LDAPv3 over v2 are:</p>
+
+<ol>
+    <li>Server referrals: a server can send a response to the
+        client that informs the client of another LDAP directory
+        to query, </li>
+    <li>Unicode character support: allows for deploying a
+        directory in languages other than english,</li>
+    <li>Additional security models: LDAP over SSL, and SASL for
+        authentication, </li>
+    <li>Extensible schema: schema can be published and managed
+        through LDAP operations, and </li>
+    <li>Extensible protocol: new functionality can be added to
+        the protocol without requiring a new revision.</li>
+</ol>
+
+<h5>LDAP Servers</h5>
+
+<p>Directory servers implement LDAP to allow clients to browse
+and retrieve directory entries. Typically, the LDAP directory
+server is designed with a &quot;backend&quot; that takes care of
+the actual database access, and storing of entries in a file
+based storage scheme. </p>
+
+<p>A number of LDAP Directory Servers are available. For our
+purposes, two are worth noting: 1) <a
+href="http://www.umich.edu/~dirsvcs/ldap/ldap.html">The
+University of Michigan Standalone LDAP Directory Server (slapd)</a>
+and 2)<a
+href="http://home.netscape.com/directory/v3.0/index.html">
+Netscape's Directory Server 3.0</a>. Netscape's directory server
+is actually based on the UMich code, and in fact three of the
+original UMich slapd developers are working on the Netscape
+product. </p>
+
+<p>The UMich package is LDAPv2, is free, and runs on a variety of
+Unix platforms. There has been some work to port it to NT, but
+this work appears to be incomplete. The Netscape Directory Server
+is LDAPv3, costs $995, and runs on Unix and NT.</p>
+
+<p>I won't attempt to give a complete presentation here of LDAP,
+LDAP servers, and clients. Instead, the reader is directed to the
+following sites:</p>
+
+<ul>
+    <li><a
+        href="http://www.sunworld.com/swol-10-1996/swol-10-ldap.html">LDAP:
+        The next-generation directory? By Dave Kosiur, Sunworld
+        Magazine</a></li>
+    <li><a href="http://www.umich.edu/~dirsvcs/ldap/">UMich LDAP
+        Pages</a></li>
+    <li><a href="http://www.umich.edu/~dirsvcs/ldap/doc/">UMich
+        LDAP Documentation Pages</a></li>
+    <li><a href="http://www.critical-angle.com/ldapworld/">Innosoft's
+        LDAP World </a></li>
+    <li><a
+        href="http://search.netscape.com/newsref/ref/ldap.html">An
+        Internet Approach to Directories from Netscape</a></li>
+    <li><a href="rfc/rfc1777.txt">RFC-1777 Lightweight Directory
+        Access Protocol</a></li>
+</ul>
+
+<p>We will use Netscape's Directory Server mainly because it is a
+supported product.</p>
+
+<h5>LDAP and Java</h5>
+
+<p>In the Java market, Sun has provided the Java Naming and
+Directory Interface (JNDI). JDNI is a generalized API for
+directory-operation semantics. The architecture of JNDI supports
+several &quot;directory&quot; protocols, one being LDAP. JNDI
+supports a &quot;service provider&quot; interface enabling a
+variety of &quot;provider&quot; implementations to plug directly
+into the JNDI framework and work seamlessly with an application
+using JNDI. The Javasoft JNDI page is at <a
+href="http://java.sun.com/products/jndi/index.html">http://java.sun.com/products/jndi/index.html</a>.</p>
+
+<h5>LDAP and E applications</h5>
+
+<p>To support LDAP within an E application, we can use JNDI. Some
+preliminary integration and testing will be neccessary to sort
+this out. The JNDI api is rather straightforward. The only known
+issue which will require consideration is the fact that JNDI
+calls can block on network io. To solve this, we'll have to run
+the JNDI operations in a seperate thread, with a queue between
+the cosm code and JNDI. (This is similar to how the JDBC support
+was integrated.)</p>
+
+<p>Any wrapping of JNDI will be done in a generic way to support
+multiple directories easily. </p>
+
+<p>Attribute and objectclass specification are specific to the
+actual directory. Configuration files on the LDAP server are used
+to specify attributes and objectcalsses.</p>
+
+<h5>LDAP client and server performance</h5>
+
+<p><em>(Note here about tests published on the web that show
+typical response data for loaded ldap servers.)</em></p>
+
+<p>We need to run some tests to find out how the Netscape
+Directory server performs.</p>
+
+<h5>LDAP server scaling model (referal and replication)</h5>
+
+<p>For our application we need to be able to support a large
+number of clients quering and browsing a directory. The design of
+LDAP allows for this through the use of master and slave servers,
+where data at the master is replicated to the slaves. Reads can
+take place from the master and slave servers, but writes can only
+be done on the master. When a slave gets a write (modify)
+request, the slave refers the client to the master server.
+Finally, any writes to the master are replicated to the slaves
+through the use of an LDAP based replication mechanism. The
+following diagram shows the LDAP master/slave model. </p>
+
+<p align="center"><img
+src="replicate.gif" width="542"
+height="336"></p>
+
+<p>Referrals are not directly supported in LDAPv2. UMich
+implements a referral mechanism by overloading LDAP's error
+handling mechanism. This style of referrals needs to be tested
+with the Javasoft LDAP implementation.</p>
+
+<h5>ECID/ComCom Directory integration</h5>
+
+<p>The following diagram shows the relationships between the
+ECID, ComCom, and LDAP directory components.</p>
+
+<p><img src="comcomdir.gif" width="592" height="307"></p>
+
+<h5>Directory Access Scenario: Creating an initial entry for an
+ECID</h5>
+
+<ol>
+    <li>When an ECID _identity_ is first generated on a client
+        machine, the identity is registered with the ComCom LDAP
+        directory. This is done by the client ECID sending a
+        &quot;register&quot; message to the ComCom Directory
+        Registration Server. The register message contains the
+        user's ECID, and directory entry data such as the user's
+        name, interests, and email address. </li>
+    <li>Authentication is provided by the E connection such that
+        the ComCom Directory Registration Server is assured that
+        the ECID being added to the corresponds to the user's
+        ECID. I.e., spoofing the ECID is prevented.</li>
+    <li>The ComCom Directory Registration Server then creates and
+        entry for the ECID identity in the directory server, and
+        includes profile information. </li>
+</ol>
+
+<h5>Directory Access Scenario: Updating an ECID's directory entry</h5>
+
+<ol>
+    <li>If the ComCom Directory Registration Server receives a
+        &quot;register&quot; message, and an entry for the ECID
+        already exists, then the entry is updated. A new entry is
+        not created.</li>
+    <li>Authentication is provided by E to prevent others from
+        updating ECID directory entries which they don't own.</li>
+</ol>
+
+<h5>Directory Access Scenario: Searching and browsing directory
+entries</h5>
+
+<ol>
+    <li>Searching and browsing directory entries is provided by
+        the LDAP protocol.</li>
+    <li>No authentication is used.</li>
+</ol>
+
+<h4>Off the shelf alternatives</h4>
+
+<p>Most, if not all, of this is off-the-shelf.</p>
+
+<h4>Other Design Objectives, Constraints and Assumptions</h4>
+
+<p><em>TBD.</em></p>
+
+<h2>Current implementation</h2>
+
+<p><i>TBD.</i></p>
+
+<h4>Which packages on our tree does this subsystem cover?</h4>
+
+<p><i>TBD.</i></p>
+
+<h4>Implementation overview</h4>
+
+<p><i>TBD.</i></p>
+
+<h4>Exception handling</h4>
+
+<p><i>TBD.</i></p>
+
+<h4>Examples</h4>
+
+<p><i>TBD.</i></p>
+
+<h4>Performance</h4>
+
+<p>TBD. Performance should take into account:</p>
+
+<ul>
+    <li>Impact of JNDI on the rest of the code.</li>
+    <li>Performance of LDAP servers: How well does it scale?, How
+        many servers do we need?, etc.</li>
+</ul>
+
+<h4>Testing Strategy and Debugging</h4>
+
+<p>TBD. Testing will include load testing of the server using
+load test drivers.</p>
+
+<h4>Interactions and dependencies with other subsystems</h4>
+
+<p><i>TBD.</i>&nbsp; </p>
+
+<h2>Design Issues</h2>
+
+<h4>Resolved Issues</h4>
+
+<p><i>History of issues raised and resolved during initial
+design, or during design inspections. Can also include
+alternative designs, with the reasons why they were rejected</i> </p>
+
+<h4>Open Issues</h4>
+
+<p><i>This section of the document is used by the authors and
+moderator to store any incomplete information - issues identified
+during a design inspection but not yet resolved (the task list),
+notes that aren't ready to be put into the main text, etc.</i> <br>
+&nbsp; </p>
+</body>
+</html>

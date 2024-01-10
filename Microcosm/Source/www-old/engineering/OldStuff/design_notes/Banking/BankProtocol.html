@@ -1,0 +1,48 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>hello</TITLE>
+</HEAD>
+<BODY LINK="#0000ff" VLINK="#800080">
+
+<P><!--NewPage--><!-- Created by Masa Maeda on 07.28.97  --><!-- Copyright 1997 Electric Communitites. --><!-- All rights reserved worldwide and beyond.  --><!-- Proprietary and confidential. --></P>
+<B><FONT FACE="Helvetica" SIZE=6><P>The Bank Protocol</P>
+</B></FONT><FONT FACE="Helvetica" SIZE=2><P>&nbsp;</P>
+</FONT><B><FONT FACE="Helvetica" SIZE=4><P>Performing Token Transactions in Microcosm </P>
+</B></FONT><FONT FACE="Helvetica" SIZE=1><P>Copyright 1997 Electric Communities. All rights reserved worldwide and beyond.</P>
+<P>Proprietary and Confidential.</P>
+</FONT><FONT FACE="Helvetica" SIZE=2><P>&nbsp;</P>
+<B><P>Motivation</P>
+</B><P>Avatars in Microcosm can perform token transactions that allow trade using virtual or real currencies. EC’s security specifications indicate that trading with tokens between two or more avatars can only take place through a third-party that the avatars involved trust. Remember that you never ever trust anybody except yourself, and trusted third-parties whose role is to serve as the means through which two or more avatars trade with tokens securely</P>
+<P>An example of a trusted third-party is a bank. Hubs in Microcosm have a bank that contains information on those avatars with an account on it and their corresponding tokens. Avatars can have accounts in as many banks as they want and distribute their token among those banks at will. Tokens in a hub’s bank cannot be spent in another hub, which raises the problem of token transfer between banks. Banks make possible for Avatars with accounts to trade securely in a transparent way, i.e., without the Bank’s presence being tangible to the avatars.</P>
+<P>Banks perform token transactions securely in the sense that prevent hacking of customers’ accounts, give users only the minimal amount of information needed to transfer tokens, prevent users from reaching confidential information, customer’s registry in the data base is accessed only once, at the end of the transaction, to confirm and update accounts.</P>
+<P>For more information on trading in Microcosm consult the Microcosm User Interface Specifications at </FONT><A HREF="http://www-int.communities.com/~ellen/UISpec.html"><FONT SIZE=2>http://www-int.communities.com/~ellen/UISpec.html</FONT></A><FONT FACE="Helvetica" SIZE=2>, in particular the sections on trading, buying from tokens, and real world transactions.</P>
+<P>The description in Banking a la EC is based on the E code for token transfer. </P>
+<P>&nbsp;</P>
+<B><P>Banking a la EC</P>
+</B><P>Each hub in Microcosm contains an independent bank which is the trusted third-party avatars use to transfer tokens. When avatar enters a hub the corresponding bank is informed of such event by presenting the avatar’s ID (see </FONT><A HREF="http:Fig1.html"><FONT SIZE=2>Figure 1</FONT></A> and <A HREF="http://www-int.communities.com/engineering/OldStuff/design_notes/Banking/Fig2.html"><FONT SIZE=2>Figure 2</FONT></A><FONT FACE="Helvetica" SIZE=2>). This is the only time in which avatar identifies itself to the hub. Bank then checks its customer database (the customerDB hash table shown in </FONT><A HREF="http://www-int.communities.com/engineering/design_notes/Banking/Fig3.html"><FONT SIZE=2>Figure 3</FONT></A><FONT FACE="Helvetica" SIZE=2>) to confirm if avatar has an account. If so then a live-account object common to avatar and bank is created (see </FONT><A HREF="http://www-int.communities.com/engineering/design_notes/Banking/Fig3.html"><FONT SIZE=2>Figure 3</FONT></A><FONT FACE="Helvetica" SIZE=2> and </FONT><A HREF="http://www-int.communities.com/engineering/design_notes/Banking/Fig4.html"><FONT SIZE=2>Figure 4</FONT></A>)<FONT FACE="Helvetica" SIZE=2>. Live-account is a data object in Bank’s deposit registrar database (the depositRegistrarDB hash table shown in </FONT><A HREF="http://www-int.communities.com/engineering/design_notes/Banking/Fig3.html"><FONT SIZE=2>Figure 3</FONT></A><FONT FACE="Helvetica" SIZE=2>). Deposit registrar is used in place of customer database to perform token transactions ensuring that avatar’s accounts won’t be hacked; that is, the actual accounts stay away from token transactions so that they cannot be reached and altered by unauthorized means. The only time a customer’s account is accessed is at the end of a transaction to confirm that information in deposit registrar is consistent with that in account, acknowledge the transaction, and update the account in customer database (this is equivalent, but not similar, to a database handshake).</P>
+<P>Token transfer works as follows. Consider a depositor avatar that will transfer tokens to a depositee avatar. First, through direct interaction both avatars will agree on the amount of tokens to be transferred. Depositee sends a message to Bank via its live-account requesting for a deposit slip for the token amount desired (see </FONT><A HREF="http://www-int.communities.com/engineering/OldStuff/design_notes/Banking/Fig4.html"><FONT SIZE=2>Figure 4</FONT></A><FONT FACE="Helvetica" SIZE=2>). Live-account doesn’t make all its information available to avatar, the hash table key for avatar is accessible from the bank only. This feature reduces the chances of hacking into the bank’s deposit registrar database. Live-account forwards the message to bank. Bank creates a new deposit slip to be stored in bank’s deposit slip database (the depositSlipDB hash table in </FONT><A HREF="http://www-int.communities.com/engineering/design_notes/Banking/Fig3.html"><FONT SIZE=2>Figure 3</FONT></A><FONT FACE="Helvetica" SIZE=2> and </FONT><A HREF="http://www-int.communities.com/engineering/design_notes/Banking/Fig5.html"><FONT SIZE=2>Figure 5</FONT></A> and <A HREF="http://www-int.communities.com/engineering/design_notes/Banking/Fig6.html"><FONT SIZE=2>Figure 6</FONT></A><FONT FACE="Helvetica" SIZE=2>) and sends the slip number and an acknowledgement distributor to depositee. The acknowledgement distributor is forwarded at the end of the transfer. Depositee then sends a message to depositor requesting the transfer of tokens ( </FONT><A HREF="http://www-int.communities.com/engineering/design_notes/Banking/Fig1.html"><FONT SIZE=2>Figure 1</FONT></A>)<FONT FACE="Helvetica" SIZE=2>. Note that the only information depositee and depositor handle is the token amount to transfer and the deposit slip number, ensuring no hacking over secure information. The avatars’ records in the bank are not available to them nor is the actual deposit slip. Once depositor receives the token amount and slip information, it verifies that token amount is the one agreed. Depositor forwards both parameters to bank via its live-account (see </FONT><A HREF="http://www-int.communities.com/engineering/design_notes/Banking/Fig4.html"><FONT SIZE=2>Figure 4</FONT></A><FONT FACE="Helvetica" SIZE=2> and </FONT><A HREF="http://www-int.communities.com/engineering/design_notes/Banking/Fig5.html"><FONT SIZE=2>Figure 5</FONT></A>)<FONT FACE="Helvetica" SIZE=2>.</P>
+<P>Bank takes the token transfer request information from both avatars and compares them to ensure information is consistent and verify that requirements for token transfer, such as enough tokens owned by depositor to perform transfer, are passed. The transfer of tokens is then done at deposit registrar level, updating the information in the deposit slip as well. At this point bank validates the transfer through the necessary check and update of information in the customer database. Finally, token transfer acknowledgement is forwarded to depositee and final balances are informed as corresponds to each avatar.</P>
+<P>&nbsp;</P>
+</FONT><FONT FACE="Helvetica"><H5>Development notes</H5>
+
+<UL>
+</FONT><FONT FACE="Helvetica" SIZE=2><LI>Existence of more than one bank in the same Hub is yet to be decided. So far the design is for only one bank per hub. </LI>
+<LI>How tokens are originally stored in a Bank is not defined yet. </LI>
+<LI>How to transfer tokens between Banks is also under analysis. </LI>
+<LI>The interface with Microcosm is yet to be developed </LI>
+<LI>Review the checkup of token transfer info by depositor </LI>
+<LI>How are tokens originally deposited in a bank? </LI>
+<LI>What to do when an avatar enters a hub and has no account? Is it okay to create a 0.00 balance account for such avatar? </LI>
+<LI>Is token transfer going to be under capability transfer or as it works today?</LI></UL>
+
+<P>&nbsp;</P>
+</FONT><FONT FACE="Helvetica"><H5>Bank Unum&nbsp;</H5>
+</FONT><FONT FACE="Helvetica" SIZE=2><P>&nbsp;For integration into Microcosm, the Bank and LiveAccount classes are converted into their corresponding ingredients. Depositee and depositor are avatars and avatars already exist in Microcosm so converting depositee and depositor into ingredients is not needed. Same case with the Hub class; no need to code it into an ingredient. As for DepositSlip class, it is coded as a state bundle for the Bank ingredient because its interface communicates with the bank only.</P>
+<P>State bundle for Bank includes its three databases (customerDB, depositRegistrarDB, and depositSlipDB) and depositSlip in its entirety. LiveAccount’s state bundle consists of what originallywere the instance variables of LiveAccount class.</P>
+</FONT><P>&nbsp;</P>
+<P>You can download the <a href="BankCode.ZIP">code for Bank unum here</a>.</P>
+<P>&nbsp;</P>
+<P>&nbsp;</P></BODY>
+</HTML>

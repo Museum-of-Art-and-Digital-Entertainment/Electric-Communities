@@ -1,0 +1,582 @@
+The E Virtual Machine, version 0.2
+
+Dan Bornstein (with tons o' help from Mark Miller)
+
+
+
+I. Introduction
+
+The Java Virtual Machine (JVM) provides an environment which is very
+close to, but is not in fact, capability secure. It is also not quite
+amenable to orthogonal persistence. However, it is still mostly-useful.
+So, we have defined the E Virtual Machine (EVM) as the combination of
+the capability-secure subset of the JVM, plus orthogonal persistence,
+with a few new classes that make working in the environment easier in
+that they support programming in the capabilities model. The EVM is in
+fact built on top of, and embedded in, a JVM.
+
+A. Capability Security
+
+So, what part of the JVM is not in fact capability secure? It boils down
+to the fact that classes cannot be handed out selectively in general.
+While one can restrict a class to package scope, that doesn't really
+gain one any security, since in general, any class can define itself to
+be in any package. (Because of this, at this point, we will ignore the
+fact that packages exist.) So, arbitrary code can choose to access any
+other nameable class, including accessing static data and methods, and
+constructing objects of that class. (Namability can come through direct
+reference to a qualified class name, or via one of the reflective APIs.)
+
+This is not inherently a problem. The problem is that some classes
+inherently grant authority (other than the use of CPU time and memory,
+which we are not addressing here). For example, the built-in filesystem
+classes of the JVM inherently allow one to create, read, and write
+arbitrary files. JavaSoft has tried to patch this problem through the
+use of a Security Manager architecture, but this has a fatal flaw: It is
+inherently ACL (access control list)-based, which means that a Security
+Manager has to take every access request in isolation and figure out
+whether to allow it. There are three likely outcomes of using such a
+Security Manager: 1) one ends up with a security policy that is so
+restrictive as to be useless; 2) one ends up with a security manager
+that exhibits the classic "Confused Deputy" problem; or, most likely 3)
+both. The Applet Security Manager is an example of the latter.
+
+So, rather than have arbitarily powerful classes and try to a priori
+restrict access to them, the EVM approach is to make objects (not
+classes) the sole source of authority. That is, merely gaining access
+to a class is not enough to do anything other than waste memory and
+CPU time. Part of this is to not expose at all the ability to
+instantiate "omnipotent" objects, that is those objects whose
+authority comes not from access to other objects but rather comes from
+being implicitly trusted by the system, and hence can do whatsoever
+they want. (Nothing is stopping a poor or malicious implementation of
+a matrix math package from making one's windows move around the
+screen, since all code implicitly has access to all public classes.)
+
+For example, while there are filesystem classes in the EVM, there are
+none that may merely get one new abilities via instantiation--one must
+pass in authority-granting objects to the constructor, and it is only by
+the power vested in those other objects that a newly-constructed object
+can do anything. Of course, it all has to bottom-out somewhere if one
+ever wants to get anything done. As the instantiator of a vat (the
+colloquial term for an EVM), one can pass into it whatever capabilities
+one has. If one is in fact the omnipotent instantiator of a vat (living
+in the JVM world), one can choose to delegate one's omnipotence into an
+initial set of powerful objects (filesystem access, etc.), which one can
+then selectively pass into a vat. This is the *only* way that a vat gets
+any power.
+
+Construction of powerful objects isn't the only JVM problem, though.
+Another major problem is that mutable static state allows arbitrary
+objects (which perhaps shouldn't even know that the other exists) to
+communicate with each other. Two objects can engage in covert
+communication by cleverly setting and reading the static state of a
+class. This is disallowed in the EVM world by a simple rule: No mutable
+static state. So, all static variables must be declared final, and if
+such a variable is declared to be an instance, it must either be one of
+the trivially-constant standard wrapper types (Integer, Boolean, etc.)
+or String; or it must be a Const. Const is a new marker interface
+introduced by the EVM. A class marked const must have no mutable
+instance state. (That is, all its instance variables must follow the
+rules just outlined for static variables.)
+
+
+B. Orthogonal Persistence
+
+Another problem with the JVM is that it provides no easy way for one
+to make a computation long-lasting, in that the computation might
+survive a crash or clean shutdown of the JVM or the machine that it is
+running on. Even more desirable would be the ability to survive a
+change in architecture--that is, the ability to shut down a
+computation on one type of (real) machine and bring it back up on
+another type of (real) machine, continuing the computation mostly as
+if nothing strange happened.
+
+The EVM architecture allows for this with a new model of concurrency.
+Under the EVM, many thread operations are verboten, and the rest are
+ignored since they effectively become no-ops given the verbotenness of
+their brethren.
+
+The primary restriction is that the EVM does not allow computation to
+spawn new threads. In lieu of that, it allows code to schedule
+Runnables on a run queue, this run queue being serviced by a single
+JVM thread. The Runnables are intended to run for relatively short
+periods of time, and the EVM provides a watchdog timer to prevent
+accidental CPU hogging. (It doesn't prevent a determined piece of
+malicious code from denial-of-service, however.)
+
+Given that there is effectively only one thread of control in the
+traditional sense, code is no longer allowed to call Object.wait(),
+since there could never be another thread to notify it. However,
+instead of being forbidden, Object.notify(), Object.notifyAll(), and
+"synchronized" blocks are filtered out--given that there could never
+be an object waiting, notification would never cause anything to
+happen; and given that there could never be any other thread
+synchronizing (since there's only one thread, effectively), there's no
+need to ever grab a monitor.
+
+The fallout of this is that, assuming the run queue isn't in the
+middle of calling a Runnable, the heap of objects in a vat are in a
+consistent state. (The heap includes the run queue itself.)  One can
+write out the graph of these objects knowing that the graph itself has
+enough information to preserve the full computational state of the
+EVM. To a first approximation, that is exactly what one can do to
+perform a "checkpoint" (that is, a save of computational state to
+a sturdier medium).
+
+However, stopping the world to copy all the objects to disk isn't the
+ideal. The ideal is a system that continuously checkpoints so that a vat
+"never forgets." By introducing a couple of new restrictions, we can
+start to approximate a continuous checkpoint more closely.
+
+The key here is to realize that in the absence of nondeterministic
+inputs (such as various I/O events from the user, comm system or
+filesystem), the EVM model can be made truly deterministic (in a way
+that is impossible with JVM threads as currently defined). So, if one
+can just get a handle on the nondeterminism that enters a vat, one can
+just checkpoint that much smaller amount of data and be secure knowing
+that the rest of what goes on in the vat can be reproduced. This is
+where strong rules about reachability come in.
+
+Guests in a vat are only allowed to point to other guests or to
+stewards. Stewards are objects provided by the EVM as
+scaffolding. Some stewards are wrapped Java classes. For example,
+there is a steward class that substitutes for
+java.lang.ClassLoader--this is where the special EVM code
+verifications and transformations occur. Some stewards exist to
+support the EVM programming model. For example, there are steward
+classes to support distributed GC. Finally, there is the special
+class of steward known as a Leaf.
+
+In general, stewards are allowed to point at guests, but leaves are
+not. As far as EVM pointability is concerned, leaves are not allowed
+to point anywhere. However, in the JVM sense, they can and do point
+outside of a vat. Leaves are the way--the *only* way--that a vat
+conveys output outside of itself. From the outside perspective,
+analogous to how guests and leaves interact, normal outside objects
+are not allowed to point directly at vat inhabitants (guests and
+stewards). However, there is a special class known as a Root which
+allows this sort of pointing. Roots are the way--the *only* way that
+out-of-vat objects can send messages into a vat.
+
+Roots and Leaves are how nondeterminism enters a vat. As far as a vat
+is concerned, receiving a message through a Root is a nondeterministic
+event, since there is nothing in the vat's computational state which
+could have predicted the receipt. The case with Leaves is a little
+more subtle: While a vat deterministically sends messages to Leaves
+(since a vat does everything deterministically), a Leaf, at its
+prerogative, can do anything in response to the receipt of a message,
+including, in particular, reaching outside of the vat for an
+effictively nondeterministic piece of data.
+
+[BUG--Need to have a diagram here.]
+
+Here's the good news: Given that vats act deterministically with the
+exception of only a well-defined and well-controlled "hole," one
+actually never has to write out a graph of objects to do a checkpoint.
+Instead, one can merely note each nondeterministic choice that was
+made and in what order. From that "script" of nondeterminism, one can
+reproduce exactly a vat's computation. Given that it is a lot faster
+to write out the much smaller amount of nondeterministic data than to
+write out an entire graph of objects, successfully maintaining this
+restriction allows one to perform checkpoints much more often than
+would otherwise be possible.
+
+In practice, the two techniques of graph-writing and nondeterminism
+logging are combined, so that one occasionally writes out a full
+graph, and then maintains more up-to-date state via logging.
+
+During recovery from a crash, here is what happens: The outside system
+that is interested in recovering the state of a vat first instantiates
+a new vat and provides it with a set of "sturdy" Leaves. A sturdy Leaf
+is one that is known by name rather than merely by object reference.
+It then instructs the vat to read in the most recent checkpoint from
+the interrupted computation.  The object graph from this checkpoint is
+reconstituted, with the exception being with Leaves: Sturdy Leaves
+become attached to the existing sturdy Leaves in the vat, and the
+other (fragile) Leaves get initialized in a state where, instead of
+looking to the outside world, they look to the log of nondeterminism
+in order to respond to vat requests. At the same time, the vat also
+"simulates" the outside world by inserting messages as if coming from
+Roots at appropriate points in the computation, based on the log.
+
+C. Ancillary Benefits
+
+There are a couple of side benefits to the new threadless concurrency
+model. In particular, the lack of JVM-style synchronization plugs a
+potential source of denial-of-service and a potential source of covert
+communication (i.e., the ability for two or more objects that have not
+been revealed to each other to communicate with each other). The
+former made net headlines recently when Netscape patched a security
+problem that was attributable to arbitary code synchronizing on a key
+system resource and never letting go.
+
+The EVM solution of no "synchronized" may at first seem draconian, but
+it's not really, since there's a difference between no (JVM-style)
+"synchronized" and no synchronization at all. The EVM model still
+allows synchronization, but it is based on the possibility to relay
+results to objects if and when those results are ready.  This simple
+model can be used to represent at least as much as what you could have
+represented with the JVM thread and synchronization model, and
+probably more.
+
+Also, note that the EVM inherently allows no blocking operations,
+including in particular implicit waiting on I/O. Again, the EVM model
+is that one provides a "result" object to be activated on completion
+of some task or other (e.g., when data has successfully been retrieved
+and is ready).
+
+
+C. Summary
+
+The EVM is an "extended subset" of the JVM. The parts of the JVM that
+make it insecure are omitted, and parts are added to compensate for
+the omissions, to support capability programming in general, and to
+make orthogonal persistence possible.
+
+The tools that the EVM has to implement its environment are twofold,
+and might be thought of as the carrot and the stick. The carrot is the
+set of new classes that make it easier to program in a capability-
+secure fashion. The stick is a special class loader, known as the
+Guest Loader, which performs verifications (such as making sure that
+Object.wait() is never accessed) and transformations (changing the
+names of some classes and methods), and provides a slightly different
+global class namespace (such as omitting java.lang.Thread).  A class
+that is loaded through the Guest Loader and its instances (known as
+guests) are guaranteed, by construction and verification, to play by
+the capability rules and to be able to undergo orthogonal persistence.
+
+All the rest is details.
+
+
+
+II. Details
+
+
+A. Terminology
+
+const: a transitively immutable object. The conditions for being
+considered const are: 1) All instance variables must be final. 2) All
+object instance variables must be const--they must either be one of the
+primitive wrapped types (Integer, Boolean, etc.) or String, or they must
+inherit from Const--where inheriting from const means that a class is
+verified as const. Notably, the EVM enforces the restriction that all
+static instance variables be final and the object ones be const.
+
+crew/crewmember: implicitly-trusted objects that implement the EVM
+universe but which are never "seen" by guests. 
+
+EVM: E Virtual Machine. This refers to the system as a whole, or,
+occasionally, to a particular instantiation. The term "vat" always
+refers to an instantiation.
+
+guest: an object or class that is not implicitly trusted. All guest
+classes are loaded through the Guest Loader, which performs
+transformations and verifications to make sure that guests play by the
+rules. Guests may only point directly at other guests or at stewards.
+
+inhabitant: an object in a vat. The two kinds of inhabitants are
+stewards, whose implementations are provided by the system, and
+guests, whose implementations are provided through new code introduced
+into a vat.
+
+leaf: a kind of tether; a steward that is introduced into a vat from the
+outside. Leaves provide capabilities that a vat would otherwise not
+have. For example, the only way that a vat could get access to a comm
+system is through leaves. (Note that the base EVM architecture doesn't
+even have a notion of a comm system in the traditional sense.) Very
+importantly, leaves may not statefully hold onto guests or stewards,
+because it is possible for the same leaf to be introduced into multiple
+vats. There are two flavors of leaf, in terms of persistence: 1) A
+sturdy leaf is one whose outside-world target survives a persistence
+cycle. This survival guarantee must be provided by the instantiator of
+the vat. Sturdy leaves are maintained in a weak table in a vat mapping
+to them from their names (which are strings). 2) A fragile leaf is one
+whose outside-world connection is lost in a persistence cycle.
+
+root: a kind of tether; an out-of-vat object which refers to an in-vat
+object. Roots are the base objects from which an EVM is traced for
+garbage collection and persistence. A vat holds onto its roots
+strongly. (The outside world can tell it to drop roots, though.)
+Roots exist in part to provide a reachability constraint: that no
+non-vat object directly hold onto a guest or steward. Roots are crew
+but are not stewards. Roots are the only crew that a user of a vat
+ever gets direct references to.
+
+steward: an object whose implementation is provided by the EVM (or
+very carefully by the out-of-vat user of a vat) and which is
+potentially visible to guests. There are three major categories of
+stewards: 1) wrapped JVM classes. These are classes that behave
+similarly to their same-named JVM counterparts, except that they have
+capability nature. (In general, some methods are omitted, and some
+underlying methods change what they're doing, but the overall
+interface remains otherwise unchanged.) 2) built-in stewards. These
+are objects that exist to support the EVM programming model. 3)
+leaves. (See the definition of leaf, above.)
+
+tether: an object that refers to another object that is not necessarily
+in the same objectspace. They are lightweight proxy-like objects whose
+sole purpose is to convey messages to their target.
+
+
+B. The Guest Loader
+
+The Guest Loader has a very simple name as far as guest code is
+concerned: java.lang.ClassLoader. That is, as far as guest code is
+concerned, there isn't really a Guest Loader--except in as much as it
+takes advantage of specific EVM facilities, guest code could have been
+loaded by the default JVM loader and worked just fine. Part of the
+purpose of the Guest Loader is to provide as much as possible the
+illusion to successfully-loaded guest code that it is *not* in a vat.
+The other part is to prevent code from loading that tries to do the
+verboten.
+
+Here's what's verboten:
+
+1. References to Object.wait (). This falls under the rule that no guest
+code may block.
+
+2. Declaring a method as native.
+
+3. Declaring a static variable that isn't final, or declaring a static
+object variable that isn't final and const.
+
+4. Declaring a non-const class as implementing Const. That is, if guest
+code that declares itself to implement Const is successfully loaded,
+then the system inherently knows that it really is const.
+
+5. Using super.hashCode() inside the direct implementor of Const. This
+is bad since the hashCode for Consts needs to be reproducible based on
+the contents of the object and not on the state of a random-number-
+generator (which is what is used to provide default hashCodes for most
+guests).
+
+6. References to non-capability-secure classes. This is achieved by
+omitting some classes from the global namespace of the Guest Loader
+(e.g., java.lang.Thread and java.io.File) and by wrapping others
+(e.g., particularly java.lang.Class and java.lang.ClassLoader).
+
+Here are the transformations:
+
+1. Filter out the use of "synchronized", "notify" and "notifyAll". Given
+the disallowing of most thread operations, these operations become
+superfluous--all guest code would behave the same if they were allowed,
+so, rather than rejecting code that uses it, the Guest Loader merely
+filters it out. (For example, since nothing can ever be "wait"ing,
+calling "notify" would never cause anything to happen.)
+
+synchronized int foo (Object bar)
+{
+    synchronized (bar)
+    {
+        System.out.println ("I am silly.");
+        bar.notifyAll ();
+    }
+}
+
+=>
+
+int foo (Object bar)
+{
+    System.out.println ("I am silly.");
+}
+
+2. Generically transform references to members beginning with "evm$"
+into references beginning with "evm$$"; similarly transform references
+to qualified class names beginning with "ec.evm$" into names beginning
+with "ec.evm$$". This is done to hide the inner workings of the EVM from
+guest code, since those two forms of names are used within the EVM code
+for self-collaboration. Guest code can refer to the original names, but
+in doing so it won't interfere with the guts of the vat that it lives
+in. This is particularly useful if one is interested in instantiating a
+vat-in-a-vat.
+
+    int evm$foo;
+
+    public ec.evm$.Leaf biffo ()
+    {
+        return (new evm$.Leaf ());
+    }
+
+=>
+
+    int evm$$foo;
+
+    public ec.evm$$.Leaf biffo ()
+    {
+        return (new evm$$.Leaf ());
+    }
+
+3. Transform some class references to wrapped equivalents. In
+general, if a class A.B.C is wrapped, the wrapped version is
+ec.evm$.A.B.C. Most classes in java.** are wraped, as are some
+in ec.**.
+
+    java.lang.Class LoadFoo (java.lang.ClassLoader cl)
+    {
+        return (cl.loadClass ("foo.foo.Foo"));
+    }
+
+    =>
+
+    ec.evm$.java.lang.Class LoadFoo (ec.evm$.java.lang.ClassLoader cl)
+    {
+        return (cl.loadClass ("foo.foo.Foo"));
+    }
+
+3. Transform references to Object.getClass into the static
+ec.evm$.ObjectSubstitute.getClass. The original java.lang.Class is
+wrapped in the EVM, so, one can't expose the original Object.getClass
+method (since otherwise, guest code could hold onto a "real" Class.)
+Likewise, transform references to Object.hashCode into the static
+ec.evm$.ObjectSubstitute.hashCode. This is done since the default
+hashCode isn't stable across persistence cycles.
+
+    Object[] myClassAndHash ()
+    {
+        Object[] result = new Object[2];
+        result[0] = getClass ();
+        result[1] = hashCode ();
+        return (result);
+    }
+
+    =>
+
+    Object[] myClassAndHash ()
+    {
+        Object[] result = new Object[2];
+        result[0] = ec.evm$.ObjectSubstitute.getClass (this);
+        result[1] = ec.evm$.ObjectSubstitute.hashCode (this);
+        return (result);
+    }
+
+4. Transform class inheritence from java.lang.Object into inheritence
+from ec.evm$.Guest. This class is the base class of all guest code
+instead of object. Note that Guest inherits from Serialize so that the
+EVM can use the serialization built into JVM 1.1 for persistence.
+
+    class Foo
+    {
+        ...;
+    }
+
+    =>
+
+    class Foo
+    extends ec.evm$.Guest
+    {
+        ...;
+    }
+
+5. Other persistence transformations. These are done for two purposes;
+first of all, to enable the EVM to use JVM 1.1 serialization to do
+persistence, and second, to make guest code's use of the same APIs
+transparent. A) Private readObject and writeObject methods get renamed
+to evm$wrapReadObject and evm$wrapWriteObject. Otherwise, guest code
+could subvert EVM persistence by defining these methods. B)
+Implementation of java.io.Serializable gets transformed into
+implementation of the wrapped version, ec.evm$.java.io.Serializable.
+Again, not doing so could confuse guest code. C) Synthesize new private
+readObject and writeObject methods that just read and write
+(respectively) all instance variables. It isn't sufficient to just rely
+on the default system reading and writing because of the "transient"
+marker for instance variables. (And, we don't want to filter that out
+because guest code might rightly depend on it when it's doing its own
+serialization stuff.)
+
+    class Foo
+    {
+        ...;
+    }
+
+    =>
+
+    class Foo
+    extends ec.evm$.Guest
+    {
+        private void readObject (ObjectInputStream s)
+        {
+            ...;
+        }
+
+        private void writeObject (ObjectOutputStream s)
+        {
+            ...;
+        }
+
+        ...;
+    }
+
+6. GC code synthesis. A new method, evm$mark, is defined on every guest
+class that performs the mark phase for garbage collection for that
+object. The EVM calls on it when it does its GC.
+
+    class Foo
+    {
+        ...;
+    }
+
+    =>
+
+    class Foo
+    extends ec.evm$.Guest
+    {
+        private void evm$mark (ec.evm$.Marker m)
+        {
+            super.mark (m);
+            ...;
+        }
+
+        ...;
+    }
+
+7. Provide a stable hashCode for Const classes that do not provide
+their own.
+
+    class Foo
+    implements Const
+    {
+        ...;
+    }
+
+    =>
+
+    class Foo
+    implements Const
+    {
+        int hashCode ()
+        {
+            ...;
+        }
+
+        ...;
+    }
+
+
+C. A brief tour of the package hierarchy
+
+ec.evm$: This is where the guts of the EVM are. Guest code never
+directly sees reference to these classes, but code from the outside
+does use them in its process of creating vats and populating them with
+outside capabilities (in the form of leaves). Wrapped classes live
+here as their fully-qualified names with dots turned into underscores
+and with a prefix underscore (e.g., "_ec_time_Timer.java").
+
+ec.meta: This package contains a lightweight metasystem. It's
+basically a mix of functionality of java.lang and java.lang.reflect,
+but pared down to the essentials.
+
+ec.time: This package contains timing-related classes.
+
+ec.transform: This package is concerned with code transformation. It is
+relied upon by the EVM code in its implementation of the Guest Loader.
+
+ec.util: This package contains interfaces and classes that are of
+general use to guest code.
+
+
+D. Still not addressed
+
+* Multiple namespaces
+
+* Integrity checks

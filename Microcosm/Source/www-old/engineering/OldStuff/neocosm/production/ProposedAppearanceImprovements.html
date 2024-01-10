@@ -1,0 +1,55 @@
+<HTML>
+<HEAD>
+   <TITLE>Proposed Appearance Improvements</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Proposed Appearance Improvements</H1>
+
+<B>Last updated: </B>[19 May 1998, <A HREF="mailto:tony@communities.com">Tony</A>]
+
+<P>Author(s): <A HREF="mailto:tony@communities.com">Tony</A>, <A HREF="mailto:wolf@communities.com">Wolf</A>, <A HREF="mailto:randy@communities.com">Randy</A>. 
+
+<H2>Introduction</H2>
+This document is meant to capture things we'd like to improve about our 
+Appearance model.
+
+<P>This will need some fleshing out, but I at least wanted to generate 
+a list of things we've already talked about.
+
+<H4>Gesture chaining</H4>
+It would be really nice if all gestures had a field 
+like playWhenDone in which we could specify another gesture that would
+immediately follow.
+
+<H4>Eventable gestures</H4>
+Pick up a drink. Select sip from the drink's menu. 
+It would be great if that could trigger a gesture on the avatar that puts
+the drink up to the mouth. Another example would be sitting. Click 'Sit' on
+a chair and the avatar walks there, turns appropriately, and then sits.
+
+<H4>Play and hold</H4>
+Often times, we'd like to play a gesture and have it remain in its
+ending state. By default, our current model will always play a default gesture
+(Stand, for example) after any other gesture completes.
+
+<H4>Path planning</H4>
+This is obviously more a dynamics engine thing than an
+appearance thing, although objects will likely need to specify a bounding box or at
+least a footprint in order for path planning to work.
+
+<H4>Redundancy of sound support</H4>
+We currently support VRML animation and texture animation for 3D objects. 2D
+objects do cel animation. All types contain syntax for sound support. It would
+be nice to abstract sound info into a form that could be referenced by all the 
+other gesture types. One way to do this would be to make sounds their own gesture
+type and then include on all gestures a field called 'playAlso' which would 
+simultaneously trigger another gesture.
+
+<H4>Better VRML support</H4>
+But, then, you probably knew that already, didn't you. Our VRML parser bites.
+This may not be the best place to track that, but it can't hurt to be worried
+about something in more than one place. :-)
+
+</BODY>
+</HTML>

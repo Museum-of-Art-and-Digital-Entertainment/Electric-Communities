@@ -1,0 +1,113 @@
+<HTML>
+<HEAD>
+   <TITLE>Repository Requirements</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Repository Requirements</H1>
+
+<P><B>Last updated: </B>[<A HREF="mailto:tony@communities.com">Tony</A>, 22 May 1998]
+<P>Maintained by: Tony 
+<P>Contributors: Many
+
+
+<P><B>Last updated: </B>[<A HREF="mailto:tony@communities.com">Tony</A>, 22 May 1998]
+<P>Author(s): Tony, Randy, Scott.
+<P>
+This is a quick dump of an e-mail thread about things we'll want 
+from the new repository.
+<BR>
+[Note, I've used both 'repository' and 'resource manager' interchangeably here...]
+<HR>
+<H3>CryptoHash support</H3>
+Presumably, we still want objects inside of ECHabitats to refer to each other via 
+unique CryptoHashes. Whether this is true or not really isn't my forte, so I'll 
+presume it's still desirable, and if somebody knows better, just squawk.
+
+<H4>[RobJ 27 May 1998]</H4> It definitely simplifies our entire downloading story a lot, since it gives
+a piece of art a "name" that is calculated from the art bits themselves;
+you then never need to worry about mis-namings resulting in redundant art
+or other resources.
+<P>
+(The old repository was horribly broken in that it calculated the
+cryptohashes from not just the names but also from the *network locations*
+from where the art originated.  This was unimaginably wrong and would have
+been caught had there been _any_ formally reviewed design doc.  We won't be
+making _those_ sorts of mistakes again!)
+
+<HR>
+<H3><a name="StringNameSupport">String name support</a></H3>
+I can see at least three reasons for hanging on to the original string filenames 
+of objects in the resource manager. The first would be a function that would turn 
+a working resource file back into a hierarchy of files and folders. Unzip, if you will... 
+<BR>
+The second reason provides for a certain form of versioning. Say I've got a bitmap 
+already in the repository. Any catalog or realm text or geometry files point to that 
+bitmap via its cryptoHash. If I change a few pixels and dump the bitmap back into the 
+repository, it has a new cryptoHash and knows nothing about the other objects that 
+used to point to its old self. I'd like the resource manager to be able to first notice 
+that I'm inputting a bitmap with a filename that already exists and then offer to 
+(or automatically) find all references to the old bitmap and change them to the new 
+bitmap. The lack of this kind of functionality is what makes today's repository so 
+painful to work with for production purposes.
+<BR>
+The third reason is simply for organizational purposes. It makes it possible to display 
+the contents of a repository in a human-readable format-- most likely an emulation of a 
+simple file system.
+<BR>
+Note that many of the reasons (or at least the ones I care about!) for maintaining 
+string support have to do with production. I can imagine a tool that would strip 
+the string names out of a repository for a leaner, meaner data file.
+<HR>
+<H3>Certificate support</H3>
+The repository should be able to hold certificates for its objects. The process 
+of generating and using the certificates should be separate.
+
+
+
+
+<HR>
+<H3>Runtime support & caching</H3>
+[Claire] We need a resource manager which takes over the caching functions of
+textures found in the dynamics engine and genarilizes this for other data
+types.  I have a cache which is meant to handle ui types, harry has one
+which handles textures and on and on.  This all belongs in a better thought
+out resource manager.  We should be able to support the kind of caching and
+cache management of a browser.  If not immediately than evenutally.
+
+<HR>
+<H3>Separate Resource Manager from Repository</H3>
+[Claire] To that end, I'd like to see us break out the Resource Manager which is
+concerned with getting data into, out of  a Resource Repository and the the
+Resource Repository which is involved with storing resources.  I think
+these should be seperate milestones with documentation which details the
+functionality of each.
+
+<HR>
+<H3><a name="ExtraInfo">Track extra info about objects</a></H3>
+Again, this could be stripped out for shipping version, but it would be great 
+to track author, object type (bitmap, vrml, catalog, realmText, certificate, 
+etc...), date submitted, size, etc... 
+
+<HR>
+<H3>Reporting</H3>
+If we store the information described above, we can query vital statistics about 
+our repository: Show me the VRML files over 100k? How many bitmaps aren't referenced 
+by any other objects?
+
+<HR>
+<H3><a name="Speedy">Speedy</a></H3>
+Don't make production people wait to make simple changes. This probably means 
+supporting things like appending changes to the end of the file, and marking 
+objects to be deleted. We could then provide a utility for compacting the 
+repository when necessary.
+
+<HR>
+<H3>File support</H3>
+I'll still maintain that the fastest way for production people to work is via file 
+support. Keep a text file open in your editor. Change a line and launch Cosm. 
+It would be nice if there were at least a production version of the resource manager 
+that could get objects from files if they're available.
+
+<BODY>
+</HTML>

@@ -1,0 +1,344 @@
+Chip, Trev, and I (with MarcS) met over the last few days to talk about the
+repository/downloading story.  I now have a MUCH better grasp of it, and
+feel consequently mellower.
+
+Wayne has become the owner of "unums instantiated from unum templates in the
+repository", which has many implications for certification. Here's a recap
+of the story I just gave him, which many other people will want to hear.
+
+This describes what "unum templates" really are, how certification may work,
+how "resources" are stored and downloaded, and what production tools we'll
+need.  This is all intended to be simple and doable for 1.0.  Since
+everyone's been wondering about this, I sent it to everyone.  Comments to me
+only, please; I'll resend if further drafts are needed.
+
+Table of contents:
+- Unum templates and versioning
+- Unum impl versioning
+- Unum template instances and certification
+- Class information and downloading
+- Resource information and downloading
+- Certificate validation for decoded presences
+- Production tools we need
+- An appendix from Chip about DataHolders
+
+-----------------------------------------------------
+
+---- Unum templates and versioning
+
+"Unum templates" are Java objects which contain fields that specify the
+"fixed state" (as per DaveK's first email) of the unum.  (Ultimately, the
+unum templates will also specify the unum impl class used to construct the
+unum.  Hold that thought for now.)
+
+The first pass at unum templates will likely implement them as Java
+classes.  Since the repository stores Java objects immutably, it will get
+very ugly if we consider unum template classes to be editable.
+
+For example, your first cut at a prop unum template class might be (yes,
+this is terribly abbreviated):
+
+public class PropUnumTemplate {
+    private TextureResource tex;
+    private ModelResource model;
+    private float scale;
+}
+
+You give this to production, and they run off and make 1,000 instances of
+this class.
+
+You then realize you forgot the "description" field.  So you change the
+class to
+
+public class PropUnumTemplate {
+    private TextureResource tex;
+    private ModelResource model;
+    private float scale;
+    private String desc;
+}
+
+Now you have broken all the repositories containing old instances of
+PropUnumTemplate!  For this reason, we are going to adopt the following
+convention for unum template classes:  they have a version number as part
+of their class name.  So the first class would be PropUnumTemplate_1, and
+the second class would be PropUnumTemplate_2.  There is then no notion of
+an "old instance"... every time you want to change the fields in an unum
+template class, you create a _new_ unum template class.  Unum template
+classes are themselves immutable--i.e. you never change an unum template
+class once you've checked it in (and once production's started running
+with it).
+
+Note that originally the repository was going to be very tightly bound to
+Pluribus, so that unum templates would actually be essentially raw state
+bundles just as they appear in our current ingredient code.  The problem
+with this is that changing ingredient code would rapidly obsolete all
+repository templates, and we'd get into a versioning nightmare between now
+and 1.0.  We will avoid this by making explicit unum template classes, and
+by changing the UnumFactory/IngredientFactory to instantiate una from
+templates.  Unum templates become the Things You Don't Change Very Often,
+thereby enabling us to keep hacking Pluribus code at top speed.
+
+Another side issue: it may make sense to have "ingredient template
+classes" so we can have IngredientFactory methods that know how to make
+ingredient state from a given template class.  An unum template class
+would then consist almost entirely of ingredient template class
+instances.  But then we wind up needing to re-version unum template
+classes whenever an ingredient template class gets re-versioned.  This is
+probably still a win, though, given the explicit numberings helping to
+keep things straight.  Yes, dealing with versioning is a pain, but it's
+a NECESSARY pain :-)
+
+The final side issue: templates for items that contain other items. 
+Since entries are immutable, changing a template entry for a region (to
+add a prop) would mean creating a whole new template instance for that
+region.  I think this is likely just fine, and we may want to leverage
+some of the repository directory structures to make this simpler...
+the repository obviously must do a good job of cleaning up unreferenced
+(because their directory entries got dropped) entries.
+
+---- Unum impl versioning
+
+So given an unum template, how do you know what unum impl to make?
+
+For now, we propose that the unum template has the unum impl classname as a
+field:
+
+    String unumImplClassName = "Prop$ui"
+
+Since we are not (for now) explicitly versioning Pluribus elements, this
+means "use the latest version of the Prop unum impl, whatever that is."  We
+must make sure that if we change the Prop unum impl to take more fixed
+creation data, we (as above) define a new unum template class to go with it.
+
+What if you run into an old unum template class?  Probably what should
+happen is that the unum impl class should know which unum template class it
+expects (i.e. always the most recent version); when you create a new-rev
+unum template class, you update the unum impl class to specify it.  If you
+are loading a template from the repository, and it calls an unum impl, and
+the unum impl recognizes that the template is old, then the unum impl can
+use a recipe to upgrade the old template to a new template and replace the
+old template with the new.  (Or perhaps it's the UnumFactory which does all
+this on the unum impl's behalf.)
+
+We still need a real versioning scheme for Pluribus itself... but this
+should be enough to let us start building all the production tools and
+template instances we need for 1.0.
+
+---- Unum template instances and certification
+
+A particular unum template instance in the repository is, of course,
+immutable, as are all things stored in the repository.  So a particular
+instance of PropUnumTemplate_2 above might be something like
+
+{
+    tex = "e://gracie.communities.com/resources/textures/tex1.ppm",
+    model = "e://gracie.communities.com/resources/models/prop1.ppm",
+    scale = 0.5,
+    desc = "A lovely prop."
+}
+
+This unum template instance is immutable once constructed.
+
+You could hand this unum template instance to the hub, which could inspect
+each of the fields according to some logic of its own, determining that
+(for instance) the texture and model are already hub-certified, and that
+the description contains no obscenities.  The hub could then certify the
+entire template instance, and hand you back a certified template instance.
+You can then instantiate una at will from that template instance, knowing
+that those una will themselves meet the hub's certification rules.
+
+This is why unum template instances are important:  they are the immutable
+objects which are certifiable.  You can create an unum from a certified
+template and know that the unum will meet the certification rules of the
+hub which certified it, even if you have no idea what the hub's
+certification rules are.
+
+Note, though, that this is not the same as certifying the unum itself! 
+All this means is that "this data is certified as OK to make an unum
+from."  But the unum _itself_ carries no particular certification.  More
+on this below.
+
+---- Class information and downloading
+
+One question we asked Chip was, "When you 'see a new unum' online, how do
+you get everything you need to know about it?"  The story is this:
+
+When you see a new unum, what that means is the comm system has received an
+encoded instance of some class which it can't find on the local machine.
+
+The comm system (via some not-yet-fully-implemented mechanism) can
+recognize that this packet it just received references classes that aren't
+present.  The comm system can then contact another machine and request that
+it send the appropriate classes.  Separate network connections are created
+to receive those new classes; until they come in, the original packet
+that's causing all the trouble is set aside.  Once the classes arrive,
+they are installed in the local CLASSPATH (this is for 1.0, remember, and
+classes aren't stored in the repository for 1.0).  The original packet can
+then be fully decoded using the newly-arrived classes.
+
+"What about security???" I hear you squawk.  This is two issues:  how do
+you know that the class will not hose you once you run it, and how do you
+know that you got the right class.  The former is handled by our handy
+dandy Vat guest loader.
+
+The latter is finessed for 1.0.  For 1.0, the only place people will ever
+get new classes from is EC.  If someone on another machine tries to send
+you an instance of an unknown class, it'll fail to decode (once your
+machine contacts us at EC and is unable to find the class).
+
+After 1.0, we will be storing classes in the repository, complete with
+cryptohashes and with digital signatures denoting their origin; and we'll
+be referring to classes by their cryptohash names.  Downloading classes
+then becomes a matter of contacting the originating server mentioned in the 
+class's name, downloading, and verifying that the signatures are correct.
+(Or something like that; you know what I mean.)
+
+(Note that this is NOT the "code upgrade" story, since as described this
+only deals with "classes you haven't seen" as opposed to "classes you've
+got obsolete versions of".  The code upgrade story, handling new versions
+of classes which already have persisted instances in your checkpoint, is
+MarkM's Purple From Hell.)
+
+This is how classes get downloaded on demand.  What about resources used by
+the classes?
+
+---- Resource information and downloading
+
+Above, the "tex" and "model" fields of the template instance reference
+network resources obtainable from gracie.communities.com.  Currently, we
+refer to all resources via local filenames.  Soon, we will have two notions
+of resource data, described by the soon-to-exist (being implemented by
+Kari) classes KnownDataHolder and ExpectedDataHolder.
+
+A KnownDataHolder is an object which contains either a raw repository key
+or a pathname within the current repository.  (Repositories can contain
+directory structures, which are of course immutable, but which can be
+rearranged via creating new directory tables.)  The reason it is a
+"Known"DataHolder is that it is known to reference local data--i.e. you
+know you can obtain the data it holds.
+
+An ExpectedDataHolder is an object which contains some network name
+(SturdyRef?) for a given resource object.  The reason it is an
+"Expected"DataHolder is that you expect to be able to get the data, but if
+(for example) the network is down, you may fail.  When you try to get the
+data from an ExpectedDataHolder, it first looks to see if the data has been
+cached locally; if so, it gets it from the cache.  Otherwise, it makes a
+network connection and begins downloading the data, using a callback to
+tell you when the data's arrived.
+
+So anywhere we currently use filenames for referencing resources, we will
+now use ExpectedDataHolders.  Fetching data from ExpectedDataHolders will
+hide the downloading machinery.  When a "new unum" comes over the wire,
+some of its ingredients will contain ExpectedDataHolder members.  The new
+unum as part of its local presentation setup will try to get the data from
+those ExpectedDataHolders.  This will result in the above downloading
+happening.
+
+Presto, our story is complete:  class downloading happens implicitly in the
+decoding logic, resource downloading happens (semi-)explicitly via
+ExpectedDataHolders.
+
+Presumably if a KnownDataHolder gets encoded, it means that the sender is
+assured that the data will be available on the other side.  This is 
+probably a problematic assumption in general.  We should likely stay away
+from sending KnownDataHolders over the wire; if we want to (for example)
+reference data which is on the CD-ROM if the user has the CD-ROM, we
+would send an ExpectedDataHolder containing the repository key and a URL
+to get the art if the user _doesn't_ have the CD-ROM.  The CD becomes 
+essentially a big "precache" of art.  (Or, we could send KnownDataHolders
+referencing data on the CD-ROM if there are resources that you must have
+the CD to use.)
+
+---- Certificate validation for decoded presences
+
+One story is missing, though:  we know how to certify templates, but do we
+know how to certify presences?  If a presence comes in over the wire, how
+do you know whether it's been certified?
+
+This requires a strong definition of what it means to be "admitted".  What
+we are really asking is: when an unum requests to be added to a region, how
+do you know whether to admit it?  This has nothing to do with templates,
+since it's not a template that's being admitted, but a fully-instantiated
+unum.
+
+My proposal:  for 1.0, we do certificate validation only on the
+presentation data that the unum requests to present itself.  In other
+words, if the unum arrives on the region-host machine and says "I use model
+foobar.ppm", the model must have the region's (or realm's) certificate in
+order for the unum to be admitted.
+
+The only way una can make it onto your machine at all is to be added to
+some region that you have a presence of on your machine.  Since you choose
+which hubs to connect to, you can trust that they will prevent any una they
+don't like from being admitted to their regions.
+
+Note that this doesn't involve checking the certificates of the classes
+that unum uses; this is truly certificate-checking for art only.  (Which is
+all we plan to do for 1.0.)
+
+What this DOESN'T get you is protection at the comm-system decode level
+from other una sending you uncertified, icky presences.  That is, there's
+no certification barrier on your local machine at the decode/class level.
+The thing is, these icky una couldn't actually DO anything to you, since in
+order for them to get presented they have to go through the region host.
+So all they do is take up space and/or bandwidth, and we already know there
+are many simpler ways to do denial-of-service CPU/bandwidth attacks in
+version 1.0.  I'm not (extra) worried about this.
+
+---- Production tools we need
+
+As mentioned above in the "Resource information and downloading" section,
+there are mechanisms for creating directory structures within repositories.
+To effectively support production, we need better versions of these tools.
+Production needs tools to:
+
+- import large directories of resources into a repository
+- certify large numbers of resources in a repository
+- publish directories so other network machines can access them
+- synchronize directories across repositories
+    (so one artist can make a bunch of templates, then the
+    production asset master can update their master repository
+    without dropping anything)
+- freeze given directories as "the assets we ship in snapshot 62"
+    (so we can do resource releases sensibly)
+
+As far as creating unum templates goes, production (i.e. Tony et al.) will
+be building tools in whatever's quickest (Visual Basic, Visual C++,
+what-have-you), outputting data in some intermediate form (likely similar
+to RealmText).  We need a tool to import RealmText-ish data into unum
+templates in a repository (probably indexed via some directory).
+
+So the tools we need boil down to:
+
+- repository management for large repositories
+- production tools producing unum descriptions in production-format
+- importing production-format data into actual unum templates
+
+Chip actually suggests that the production tools just talk directly to a
+repository, since we have technology in the bag for getting C apps to talk
+to Java, and since the repository API is so straightforward.  I would love
+it if we could do this, since the fewer extra formats we have, the better.
+
+---- An appendix from Chip about DataHolders
+
+Quoth Chip:
+
+A couple of clarifications on data holders. I don't believe this is material to
+the story you are telling here, but some details will matter for implementors:
+
+A KnownDataHolder contains a repository key. Retrieval is nominally synchronous
+and assumed to be successful except under extraordinary circumstances.
+
+An ExpectedDataHolder contains a repository key together with URL hints about
+where the object might plausibly be obtained. Retrieval is nominally
+asynchronous and while expected to be successful not presumed to be.
+
+The Haberdashery (now to be merged with the Repository) supports an additional
+layer of referencing mechanism which uses the Unit abstraction to support a
+conventional hierarchical namespace on top of raw repository key mechanism. I
+have some additional work (just work, not purple) to do to reconcile the older
+Haberdashery lookup methods that use Unit pathnames with the newer
+Known/ExpectedDataHolder abstraction.
+
+-------------------------------------
+

@@ -1,0 +1,42 @@
+<HTML>
+<HEAD>
+    <TITLE>Microcosm Engineering Issues</TITLE>
+</HEAD>
+<BODY>
+<H2>Microcosm Engineering Task Specific Issues</H2>
+<BR>
+These links describe issues related to specific tasks in Microcosm<BR>
+<UL>
+  <LI><A HREF="3D.html">3D issues</A>
+  <LI><A HREF="crowds.html">Crowds</A>
+  <LI><A HREF="shootable.html">Shootable</A>
+  <LI><A HREF="wordballoons.html">Word Balloons</A>
+</UL>
+<H2>General Microcosm Issues and Problems</H2>
+<OL>
+  <LI>Time estimates in the schedule are in full person days i.e. assuming
+full time work on the task (in practice with meetings etc. you're
+probably going to get around 4 full person days per person per 5 day
+week(?)). Time estimates also have a &quot;certainty&quot; rating -
+soft, medium or firm. Soft means there are still a lot of unknowns,
+medium means a few unknowns and firm means the task is well
+understood.
+  <LI>The architecture of the underlying platform (E, Pluribus) is still
+changing. This is worrying at this stage, when we want to concentrate energy
+on the Microcosm application. 
+  <LI>Are our avatars going to be too big? With all the gestures, animations
+etc. they may be as large as 1MB of image data. This will be too much to
+load over a wire if someone has a customized avatar (it would also be a
+big load on the person sending the customized avatar; if their machine hosts
+their avatar in a simple client/server configuration then their machine
+has to send copies of the data to everyone in the region). <A NAME="operationsNote"></A>
+  <LI>Our dependancies and interations with operations are significant,
+yet terrifyingly undefined at this point. 
+  <LI>We need to define 3D and organize the tasks with more granularity
+and certainty. 
+  <LI>The bsd-db database we are using for the repository is not crash resistant
+(if the system crashes during a write the database could be corrupted).
+What do we do about this? 
+</OL>
+</BODY>
+</HTML>

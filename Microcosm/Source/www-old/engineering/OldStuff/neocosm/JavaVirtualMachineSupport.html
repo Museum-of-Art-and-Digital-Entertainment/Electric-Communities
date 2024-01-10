@@ -1,0 +1,42 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.05 [en] (WinNT; I) [Netscape]">
+   <TITLE>Java Virtual Machine Requirements</TITLE>
+</HEAD>
+<BODY>
+
+<H1>
+Java VM Requirements</H1>
+<B>Last updated:</B><I> [98/0527 <A HREF="../../cobblers@communities.com">Bob</A>]</I>
+<H2>
+Introduction</H2>
+The characteristics of the Java Virtual Machine we will ship with can (and
+probably will) have a significant impact on the design of higher level
+parts of our system. This document is intended as a central clearing point
+for those features which are promised in future versions of the JVM that
+we might be able to use.
+
+<P>As a goal, we'd like to be on top of the VM current at the point that
+we 'freeze' our code (<I>i.e.</I> at the end of RobJ's first stack of infrastructure
+milestones).
+<H4>
+Related Documents</H4>
+<I>(Optional) list any related design documents</I>
+<H2>
+Requirements</H2>
+1. java.lang.ref
+
+<P>The current resource management pre-design could make good use of the
+various "weak" references so that reference counting etc. can be avoided.
+This won't be available until 1.2 (all the current IDEs are only/barely
+up to 1.1.5, let alone 1.1.6).
+<H4>
+Open Issues</H4>
+<I>This section of the document is used by the authors and moderator to
+store any incomplete information - issues identified during a design inspection
+but not yet resolved (the task list), notes that aren't ready to be put
+into the main text, etc.</I>
+<BR>&nbsp;
+</BODY>
+</HTML>

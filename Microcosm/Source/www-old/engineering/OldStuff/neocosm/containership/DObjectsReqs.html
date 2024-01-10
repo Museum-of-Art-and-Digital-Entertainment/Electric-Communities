@@ -1,0 +1,113 @@
+<HTML>
+<HEAD>
+    <TITLE>DObjects Platform Requirements</TITLE>
+</HEAD>
+<BODY>
+<H1>DObjects Platform Requirements</H1>
+
+<em>This page is maintained by <A HREF="mailto:trev@communities.com">Trev</A>.
+Please let me know of any errors ASAP so I can fix them.
+<br>
+<b>Warning:</b> these pages change frequently. If you've looked at them
+recently hit "reload" on your browser to make sure you're seeing the
+latest version.
+</em>
+<p>
+
+<h2>High Level Requirements</h2>
+
+<ol>
+<li> Provide generic 'space' for arbitrary distributed objects (una), that
+are hosted on all participating machines.  This 'space' can be associated
+with a 'region' but it also may represent a 'conference' or some other
+non-spatial concept that represents an application-level grouping of una.
+Allow meaning of group to be defined by application.
+
+<li> Provide minimal but complete support for strategies to keep distributed
+state consistent.  Allow una to determine what strategy they need for
+maintaining consistency based upon their own behavioral semantics, and
+provide an infrastructure that allows these objects to maintain consistency
+as desired (ala Ellen's comments).  Do not force una to pay messaging
+penalties for consistency when they do not need it.
+
+<li> Make entire system completely robust in the face of network partition
+and/or node failure.
+
+<li> Provide minimal but easily implementable support for secure hierarchical
+containment, closed containment, slotted containment, and all other kinds
+semantics that are represented as two-way relations between una.  This
+means providing support for the messaging between una to reliably set
+up/break down such relations, and the appropriate clean up of such
+relations in the face of network partition.
+
+<li> Complete support for capabilities security in three areas:  1)
+Across-process communication for establishing group membership (TOS); 2)
+Unum-Unum communication for within-space between-una interaction; 3) Unum
+presence to local runtime.  1 supports TOS restrictions on the formation of
+open containment relationships.  2 supports unum-level security.  3
+protects each local system from undesired behavior of untrusted Una.  2 and
+3 are provided by the MicroVat notion.
+
+<li> Provide something that will add value to existing component architecture
+systems...e.g. javabeans...with a minimal amount of programmer effort.
+Allow the easy use of components not created at EC to add to the system.
+
+<li> Provide something that can leverage on-going work in multipoint
+messaging (i.e. java messaging service, T.120, infobus, iBus, etc., etc.),
+but still provide significant added technical value by delivering a secure,
+object-based distribution system (not something many others are doing in
+the multipoint case).
+
+<li> Provide basic notification structure so that una can reliably detect 1)
+their own state changes; 2) other una arrival and departure within the
+context defined by the object group.
+
+<li> Provide structure so other pieces can be added (e.g. scripting languages
+for defining inter-una interaction) without changing any of the distributed
+object infrastructure code to support exstensibility.
+
+<li> Use proven approaches for security mechanisms (e.g. post box protocol).
+</ol>
+
+<h2>Infrastructure Requirements</h2>
+
+<ol>
+<li> All Java
+<li> *Minimal* distributed object infrastructure that performs well
+
+<ul>
+<li>Design Goal:  code size < 150K uncompressed for core of system
+<li>Focus on 'middle'-layer distributed system only
+<li>Do not deal with media rendering, UI, or other I/O at all (leverage
+  existing work)
+<li>Runtime performance bound only by network latency
+</ul>
+	
+<li> Allow deep extensibility without rearchitecture
+
+  <ul>
+  <li>Allow easy use of existing EC code
+    <ul>
+    <li> Identity mechanisms
+    <li> Comm system
+    <li> Asynch messaging
+    <li> Scripting languages
+    <li> UI
+    <li> Other I/O
+    </ul>
+  <li>Allow easy addition/use of other's code (e.g. javabeans)
+  <li>Allow runtime download of distributed object code without comprimising
+      capabilities security concepts
+  </ul>
+	
+<li> Make structure easy to understand, but general enough to support a large
+variety of distributed applications
+</ol>
+
+<p>
+
+<A HREF="index.html">Back to design discussion page</A>
+
+</BODY>
+</HTML>
+

@@ -1,0 +1,179 @@
+*
+       propFile is props/run.props
+  realmTextFile is OneRegion
+       userName is
+     checkpoint is
+ publishDirRoot is .
+     publishDir is PublishedRefs
+       realmDir is OneRegion
+        rgnFile is none
+     slOverride is none
+        console is false
+         revive is false
+ maxConnections is 20
+            jit is
+*
+ Your published teleport pads will go in .\PublishedRefs\OneRegion
+C:\EC\FP\COSM\WIN32\BIN\run.bat [195]  Command line too long
+java -noclassgc  -mx48m  ec.e.start.ELogin ec.pl.runtime.Agency -ECproperties props/run.props  RealmTextFile=realm/realm.OneRegion.txt  PublishDirRoot=. PublishDir=PublishedRefs RealmDir=OneRegion UIOverride=none   INSTALLDIR=C:\Build\Release StartupList= StartupClassPreload=
+=== 1997/12/23 16:03:30.120 (TraceController.start:TraceController.java:144) WLD
+trace: Tracing system being started.
+=== 1997/12/23 16:03:30.120 (TraceController.start:TraceController.java:154) WLD
+trace: TEMPORARY: TraceLog set to standard output for backwards compatibility.
+=== 1997/12/23 16:03:30.120 (TraceLog.beginLogging:TraceLog.java:338) WLD
+trace: Logging begins on standard output.
+Repositoryfile key Dictionary in file Repository decoded in 0.694 and is a Hashtable of size 1983
+restoring from Processes\Process_1\checkpoint.evat with passphrase <<null>>
+No VM debugging (no VM DEBUG class found)
+=== 1997/12/23 16:03:51.820 (Registrar.<init>:Registrar.java:111) ERR
+ec.e.net.Registrar: myRegistrarID is lx8chjb48x7luxrn97adwt9bictm7pv
+initing GUI.
+FastFonts Initializing.
+Bienvenido a Microcosm II, the sequel
+Not using hub mbr db
+Initing realm.
+STARTING UP, regionName is null, avatar name is Foo, avatar body is animations/Dax.appearance2d
+Reading in realm text file realm/realm.OneRegion.txt
+Publishing to: C:\Build\Release/./PublishedRefs
+No Registrar - using NullFulfiller, not PublishFulfiller
+Warning - no %Certificates% table in Repository
+Receptionist listening on port# 2398
+ Publishing Aztec Turf's teleport pad as Aztec-Turf.mcm
+=== 1997/12/23 16:04:28.730 (MsgSender.send:MsgSender.java:132) DBG
+ec.e.net.MsgSender: sending #<ec.e.run.RtEnvelope void ec.e.net.SturdyRefFollower<-lookupObjectID(java.lang.String, ec.e.run.EResult_$_Intf) (1849li551jagd, ec.e.run.EDistributor_$_Impl@292352)>
+to proxyID 1 registrarID rzafx3gndmf3wpadqq5n4zcafcn8zos exceptionenv {ec.e.run.ECatchClosure_$_Impl@29234d}
+=== 1997/12/23 16:04:28.890 (MsgSender.send:MsgSender.java:132) DBG
+ec.e.net.MsgSender: sending #<ec.e.run.RtEnvelope void ec.e.net.SturdyRefFollower<-lookupObjectID(java.lang.String, ec.e.run.EResult_$_Intf) (vkgghk126nuu, ec.e.run.EDistributor_$_Impl@292255)>
+to proxyID 1 registrarID ksbelmbo7t75bqwll84awdgh72tuzvh exceptionenv {ec.e.run.ECatchClosure_$_Impl@292250}
+=== 1997/12/23 16:04:30.810 (MsgSender.send:MsgSender.java:132) DBG
+ec.e.net.MsgSender: sending #<ec.e.run.RtEnvelope void ec.e.net.SturdyRefFollower<-lookupObjectID(java.lang.String, ec.e.run.EResult_$_Intf) (m0zveipqo10t, ec.e.run.EDistributor_$_Impl@2922cc)>
+to proxyID 1 registrarID d3yrijhm58rnjiit2q6x74eugh2ki4t exceptionenv {ec.e.run.ECatchClosure_$_Impl@2922c7}
+Changing Region:
+=== 1997/12/23 16:04:31.970 (MsgReceiver.receiveEnvelope:MsgReceiver.java:300) EVN
+ec.e.net.MsgReceiver: received ec.e.run.EDistributor_$_Impl@2922cc <- #<ec.e.run.RtEnvelope void ec.e.run.EResult<-forward(java.lang.Object) (ec.e.net.ProcessLocationServer_$_Proxy@291a04)> {{ec.e.run.ECatchClosure_$_Impl@2922c7}}
+=== 1997/12/23 16:04:32.020 (MsgReceiver.receiveEnvelope:MsgReceiver.java:300) EVN
+ec.e.net.MsgReceiver: received ec.e.run.EDistributor_$_Impl@292255 <- #<ec.e.run.RtEnvelope void ec.e.run.EResult<-forward(java.lang.Object) (ec.e.net.ProcessLocationServer_$_Proxy@291b03)> {{ec.e.run.ECatchClosure_$_Impl@292250}}
+=== 1997/12/23 16:04:32.020 (MsgReceiver.receiveEnvelope:MsgReceiver.java:300) EVN
+ec.e.net.MsgReceiver: received ec.e.run.EDistributor_$_Impl@292352 <- #<ec.e.run.RtEnvelope void ec.e.run.EResult<-forward(java.lang.Object) (ec.e.net.ProcessLocationServer_$_Proxy@291bbc)> {{ec.e.run.ECatchClosure_$_Impl@29234d}}
+=== 1997/12/23 16:04:32.080 (MsgSender.send:MsgSender.java:132) DBG
+ec.e.net.MsgSender: sending #<ec.e.run.RtEnvelope void ec.e.run.EObject<-when(ec.e.run.EResult_$_Intf) (ec.e.run.EWhenClosure_$_Impl@2922d3)>
+to proxyID 2899320675257227565 registrarID d3yrijhm58rnjiit2q6x74eugh2ki4t exceptionenv {ec.e.run.ECatchClosure_$_Impl@2922c7}
+=== 1997/12/23 16:04:32.130 (MsgSender.send:MsgSender.java:132) DBG
+ec.e.net.MsgSender: sending #<ec.e.run.RtEnvelope void ec.e.run.EObject<-when(ec.e.run.EResult_$_Intf) (ec.e.run.EWhenClosure_$_Impl@292290)>
+to proxyID 4155067460767327302 registrarID ksbelmbo7t75bqwll84awdgh72tuzvh exceptionenv {ec.e.run.ECatchClosure_$_Impl@292250}
+=== 1997/12/23 16:04:32.190 (MsgSender.send:MsgSender.java:132) DBG
+ec.e.net.MsgSender: sending #<ec.e.run.RtEnvelope void ec.e.run.EObject<-when(ec.e.run.EResult_$_Intf) (ec.e.run.EWhenClosure_$_Impl@292359)>
+to proxyID 5806954307481854125 registrarID rzafx3gndmf3wpadqq5n4zcafcn8zos exceptionenv {ec.e.run.ECatchClosure_$_Impl@29234d}
+=== 1997/12/23 16:04:32.520 (MsgReceiver.receiveEnvelope:MsgReceiver.java:300) EVN
+ec.e.net.MsgReceiver: received ec.e.run.EWhenClosure_$_Impl@292290 <- #<ec.e.run.RtEnvelope void ec.e.run.EResult<-forward(java.lang.Object) (ec.e.net.ProcessLocationServer_$_Proxy@291b03)> {{ec.e.run.ECatchClosure_$_Impl@292250}}
+=== 1997/12/23 16:04:32.630 (MsgReceiver.receiveEnvelope:MsgReceiver.java:300) EVN
+ec.e.net.MsgReceiver: received ec.e.run.EWhenClosure_$_Impl@292359 <- #<ec.e.run.RtEnvelope void ec.e.run.EResult<-forward(java.lang.Object) (ec.e.net.ProcessLocationServer_$_Proxy@297c0e)> {{ec.e.run.ECatchClosure_$_Impl@29234d}}
+=== 1997/12/23 16:04:32.680 (MsgReceiver.receiveEnvelope:MsgReceiver.java:300) EVN
+ec.e.net.MsgReceiver: received ec.e.run.EWhenClosure_$_Impl@2922d3 <- #<ec.e.run.RtEnvelope void ec.e.run.EResult<-forward(java.lang.Object) (ec.e.net.ProcessLocationServer_$_Proxy@291a04)> {{ec.e.run.ECatchClosure_$_Impl@2922c7}}
+=== 1997/12/23 16:04:32.740 (MsgSender.send:MsgSender.java:132) DBG
+ec.e.net.MsgSender: sending #<ec.e.run.RtEnvelope void ec.e.net.ProcessLocationServer<-register(java.lang.String, java.lang.String) (lx8chjb48x7luxrn97adwt9bictm7pv, 205.162.51.181:2397)>
+to proxyID 4155067460767327302 registrarID ksbelmbo7t75bqwll84awdgh72tuzvh exceptionenv {ec.e.run.ECatchClosure_$_Impl@292250}
+=== 1997/12/23 16:04:32.790 (MsgSender.send:MsgSender.java:132) DBG
+ec.e.net.MsgSender: sending #<ec.e.run.RtEnvelope void ec.e.net.ProcessLocationServer<-register(java.lang.String, java.lang.String) (lx8chjb48x7luxrn97adwt9bictm7pv, 205.162.51.181:2397)>
+to proxyID 5806954307481854125 registrarID rzafx3gndmf3wpadqq5n4zcafcn8zos exceptionenv {ec.e.run.ECatchClosure_$_Impl@29234d}
+=== 1997/12/23 16:04:32.850 (MsgSender.send:MsgSender.java:132) DBG
+ec.e.net.MsgSender: sending #<ec.e.run.RtEnvelope void ec.e.net.ProcessLocationServer<-register(java.lang.String, java.lang.String) (lx8chjb48x7luxrn97adwt9bictm7pv, 205.162.51.181:2397)>
+to proxyID 2899320675257227565 registrarID d3yrijhm58rnjiit2q6x74eugh2ki4t exceptionenv {ec.e.run.ECatchClosure_$_Impl@2922c7}
+Warning - no %Certificates% table in Repository
+=== 1997/12/23 16:05:48.310 (MsgReceiver.receiveEnvelope:MsgReceiver.java:300) EVN
+ec.e.net.MsgReceiver: received ec.e.net.SturdyRefFollower_$_Impl@29789d <- #<ec.e.run.RtEnvelope void ec.e.net.SturdyRefFollower<-sendToObjectID(java.lang.String, ec.e.run.RtEnvelope) (mma8mo04d1jy, #<ec.e.run.RtEnvelope void ec.cosm.objects.ukTeleportPad$kind<-uTeleport(java.util.Hashtable, ec.e.run.EResult_$_Intf) ({notifytransition=ec.cosm.objects.jNotifyTransitionBehaviorWrapper_$_Proxy@293d9f, changeregion=ec.cosm.objects.jChangeRegionBehaviorWrapper_$_Proxy@293dc2}, ec.e.run.EDistributor_$_Proxy@293d91)>)> {{ec.e.run.ECatchClosure_$_Proxy@293f2b}}
+=== 1997/12/23 16:05:48.530 (MsgSender.send:MsgSender.java:132) DBG
+ec.e.net.MsgSender: sending #<ec.e.run.RtEnvelope void ec.cosm.objects.ukAvatarNotifyTransitionBehavior$kind<-uNotifyTransitionStarted(java.lang.String) (Entering Aztec Turf)>
+to proxyID 7508258256582214098 registrarID e81w2akyxn4kgkaie7awkrkgaybw76j exceptionenv {ec.e.run.ECatchClosure_$_Impl@293948}
+=== 1997/12/23 16:05:48.640 (MsgSender.send:MsgSender.java:132) DBG
+ec.e.net.MsgSender: sending #<ec.e.run.RtEnvelope void ec.cosm.objects.ukAvatarChangeRegion$kind<-uChangeRegion(ec.cosm.objects.ukAddUnum$kind_$_Intf, ec.cosm.ui.presenter.RegionTransition, ec.cosm.objects.SurfaceLocation, ec.e.run.EResult_$_Intf) (ec.cosm.objects.ukAddUnum$kind_$_Deflector@29390a[target ec.e.run.EChannel@293919], ec.cosm.ui.presenter.TeleportTransition@293946, SurfaceLocation[Location[point Point3D(0.0,6.0,0.0) ori null] floorNum 0], ec.e.run.EDistributor_$_Impl@2938f5)>
+to proxyID 306387884246857875 registrarID e81w2akyxn4kgkaie7awkrkgaybw76j exceptionenv {ec.e.run.ECatchClosure_$_Impl@2938fa}
+=== 1997/12/23 16:05:49.960 (MsgReceiver.receiveEnvelope:MsgReceiver.java:300) EVN
+ec.e.net.MsgReceiver: received ec.cosm.objects.ukAddUnum$kind_$_Deflector@29390a[target ec.e.run.EChannel@293919] <- #<ec.e.run.RtEnvelope void ec.cosm.objects.ukAddUnum$kind<-uAddUnum(ec.cosm.objects.jUnumTree, java.lang.Object, ec.cosm.objects.ukSetNewParent$kind_$_Intf, ec.cosm.objects.jUnumKey, ec.e.run.EResult_$_Intf, ec.cosm.objects.ukCbsupCInterest$kind_$_Intf, java.lang.Object, ec.pl.runtime.UnumReceiver_$_Intf) (
+[jUT:name]:jUnumTree@29216d:parent<null>:contents {}, ec.cosm.objects.uskAvatarBody$kind, ec.cosm.objects.ukSetNewParent$kind_$_Proxy@29f195,  
+  [jUK|Aztec Turf:name]<-1290911038>, ec.e.run.EDistributor_$_Proxy@2989ad, ec.cosm.objects.efCbsupCInterestFacet_$_Impl@297792[null], SurfaceLocation[Location[point Point3D(0.0,6.0,0.0) ori null] floorNum 0], ec.pl.runtime.eUnumTarget_$_Proxy@297754)> {{ec.e.run.ECatchClosure_$_Proxy@29247d}}
+=== 1997/12/23 16:05:50.020 (MsgSender.send:MsgSender.java:132) DBG
+ec.e.net.MsgSender: sending #<ec.e.run.RtEnvelope void ec.e.run.EResult<-forward(java.lang.Object) (ec.cosm.objects.efCsupCbInterestFacet_$_Impl@296b83[null])>
+to proxyID 8779317884879110271 registrarID e81w2akyxn4kgkaie7awkrkgaybw76j exceptionenv {ec.e.run.ECatchClosure_$_Proxy@29247d}
+=== 1997/12/23 16:05:50.130 (MsgSender.send:MsgSender.java:132) DBG
+ec.e.net.MsgSender: sending #<ec.e.run.RtEnvelope void ec.e.net.SturdyRefFollower<-sendToObjectID(java.lang.String, ec.e.run.RtEnvelope) (nyvbt2j3056p, #<ec.e.run.RtEnvelope void ec.cosm.objects.eIdentity<-confirmCapability(ec.e.run.EObject_$_Intf, ec.cosm.objects.eiConfirmCapability_$_Intf) (ec.cosm.objects.ukSetNewParent$kind_$_Proxy@29f195, ec.cosm.objects.efConfirmCapability_$_Impl@29685b)>)>
+to proxyID 1 registrarID e81w2akyxn4kgkaie7awkrkgaybw76j exceptionenv {ec.e.run.ECatchClosure_$_Impl@296814}
+=== 1997/12/23 16:05:50.240 (MsgSender.send:MsgSender.java:132) DBG
+ec.e.net.MsgSender: sending #<ec.e.run.RtEnvelope void ec.cosm.objects.ukCbsupC$kind<-uSendToContainedUnum(ec.e.run.RtEnvelope) (#<ec.e.run.RtEnvelope void ec.cosm.objects.ukBasicContainableNotify$kind<-uAddedToContainer(ec.cosm.objects.jIdentity, ec.cosm.objects.jContainerInfo) (Identity: name = Foo sturdy ref = ec.e.net.SturdyRef@f23d2f08, Container:Identity: name = Aztec Turf sturdy ref = ec.e.net.SturdyRef@304a955c;Type:0)>)>
+to proxyID 5927603856901340019 registrarID e81w2akyxn4kgkaie7awkrkgaybw76j exceptionenv {ec.e.run.ECatchClosure_$_Impl@295bdb}
+=== 1997/12/23 16:05:50.840 (MsgReceiver.receiveEnvelope:MsgReceiver.java:300) EVN
+ec.e.net.MsgReceiver: received ec.cosm.objects.efConfirmCapability_$_Impl@29685b <- #<ec.e.run.RtEnvelope void ec.cosm.objects.eiConfirmCapability<-confirmCapability(boolean) (true)> {{ec.e.run.ECatchClosure_$_Impl@296814}}
+=== 1997/12/23 16:05:50.950 (MsgSender.send:MsgSender.java:132) DBG
+ec.e.net.MsgSender: sending #<ec.e.run.RtEnvelope void ec.cosm.objects.ukSetNewParent$kind<-uSetNewParent(java.lang.Object, ec.pl.runtime.UnumReceiver_$_Intf, java.lang.Object, java.lang.Object, ec.cosm.objects.ukfRsupCb$kind_$_Intf, ec.cosm.objects.jEditableCapabilityGroup) (ec.cosm.objects.uskAvatarBody$kind, ec.pl.runtime.eUnumTarget_$_Impl@294f70, Aztec Turf RegionSessionKey<-1413333071>,  
+  [jUK|Aztec Turf:name]<682261741>, ec.cosm.objects.ukfRsupCb$kind_$_Deflector@294f13[target ec.e.run.EStone@294f36], ec.cosm.objects.jEditableCapabilityGroup@295027)>
+to proxyID 4735747443352409982 registrarID e81w2akyxn4kgkaie7awkrkgaybw76j exceptionenv {ec.e.run.ECatchClosure_$_Impl@296814}
+=== 1997/12/23 16:05:51.550 (MsgSender.send:MsgSender.java:132) DBG
+ec.e.net.MsgSender: sending #<ec.e.run.RtEnvelope void ec.pl.runtime.UnumReceiver<-uReceiveUnum(ec.pl.runtime.UnumRouter, java.lang.Object, java.lang.Object) (ec.pl.runtime.UnumRouter@293b12[Identity: name = Foo sturdy ref = ec.e.net.SturdyRef@a4a2d3a1<-1327868065>], Identity: name = Foo sturdy ref = ec.e.net.SturdyRef@a4a2d3a1<-1327868065>,  
+  [jUK|Aztec Turf:Chair]<-192578258>)>
+to proxyID 3070884307197186872 registrarID e81w2akyxn4kgkaie7awkrkgaybw76j exceptionenv {noex}false
+=== 1997/12/23 16:05:51.720 (MsgSender.send:MsgSender.java:132) DBG
+ec.e.net.MsgSender: sending #<ec.e.run.RtEnvelope void ec.pl.runtime.UnumReceiver<-uReceiveUnum(ec.pl.runtime.UnumRouter, java.lang.Object, java.lang.Object) (ec.pl.runtime.UnumRouter@293ac7[Identity: name = Foo sturdy ref = ec.e.net.SturdyRef@a4a2d3a1<-1327868065>], Identity: name = Foo sturdy ref = ec.e.net.SturdyRef@a4a2d3a1<-1327868065>,  
+  [jUK|Aztec Turf:Small Vase]<-1217141921>)>
+to proxyID 3070884307197186872 registrarID e81w2akyxn4kgkaie7awkrkgaybw76j exceptionenv {noex}false
+=== 1997/12/23 16:05:51.770 (MsgSender.send:MsgSender.java:132) DBG
+ec.e.net.MsgSender: sending #<ec.e.run.RtEnvelope void ec.pl.runtime.UnumReceiver<-uReceiveUnum(ec.pl.runtime.UnumRouter, java.lang.Object, java.lang.Object) (ec.pl.runtime.UnumRouter@293a78[Identity: name = Foo sturdy ref = ec.e.net.SturdyRef@a4a2d3a1<-1327868065>], Identity: name = Foo sturdy ref = ec.e.net.SturdyRef@a4a2d3a1<-1327868065>,  
+  [jUK|Aztec Turf:Aztec Turf]<1590669372>)>
+to proxyID 3070884307197186872 registrarID e81w2akyxn4kgkaie7awkrkgaybw76j exceptionenv {noex}false
+=== 1997/12/23 16:05:51.940 (MsgSender.send:MsgSender.java:132) DBG
+ec.e.net.MsgSender: sending #<ec.e.run.RtEnvelope void ec.pl.runtime.UnumReceiver<-uReceiveUnum(ec.pl.runtime.UnumRouter, java.lang.Object, java.lang.Object) (ec.pl.runtime.UnumRouter@293a32[Identity: name = Foo sturdy ref = ec.e.net.SturdyRef@a4a2d3a1<-1327868065>], Identity: name = Foo sturdy ref = ec.e.net.SturdyRef@a4a2d3a1<-1327868065>,  
+  [jUK|Aztec Turf:name]<-340743004>)>
+to proxyID 3070884307197186872 registrarID e81w2akyxn4kgkaie7awkrkgaybw76j exceptionenv {noex}false
+=== 1997/12/23 16:05:52.100 (MsgSender.send:MsgSender.java:132) DBG
+ec.e.net.MsgSender: sending #<ec.e.run.RtEnvelope void ec.pl.runtime.UnumReceiver<-uReceiveUnum(ec.pl.runtime.UnumRouter, java.lang.Object, java.lang.Object) (ec.pl.runtime.UnumRouter@2939cb[Identity: name = Foo sturdy ref = ec.e.net.SturdyRef@a4a2d3a1<-1327868065>], Identity: name = Foo sturdy ref = ec.e.net.SturdyRef@a4a2d3a1<-1327868065>,  
+  [jUK|Aztec Turf:Jungle]<979136777>)>
+to proxyID 3070884307197186872 registrarID e81w2akyxn4kgkaie7awkrkgaybw76j exceptionenv {noex}false
+=== 1997/12/23 16:05:52.100 (MsgSender.send:MsgSender.java:132) DBG
+ec.e.net.MsgSender: sending #<ec.e.run.RtEnvelope void ec.pl.runtime.UnumReceiver<-uReceiveUnum(ec.pl.runtime.UnumRouter, java.lang.Object, java.lang.Object) (ec.pl.runtime.UnumRouter@2938ec[Identity: name = Foo sturdy ref = ec.e.net.SturdyRef@a4a2d3a1<-1327868065>], Identity: name = Foo sturdy ref = ec.e.net.SturdyRef@a4a2d3a1<-1327868065>,  
+  [jUK|Aztec Turf:Floor]<-1424855377>)>
+to proxyID 3070884307197186872 registrarID e81w2akyxn4kgkaie7awkrkgaybw76j exceptionenv {noex}false
+=== 1997/12/23 16:05:54.740 (MsgReceiver.receiveEnvelope:MsgReceiver.java:300) EVN
+ec.e.net.MsgReceiver: received ec.cosm.objects.pskRegionHost$kind_$_Deflector@2935fd[target ec.cosm.objects.pskRegionHost$kind_$_Deflector@293609[target ec.pl.runtime.PresenceRouter@293619]] <- #<ec.e.run.RtEnvelope void ec.pl.runtime.PresenceHost<-newOtherPresence(ec.pl.runtime.Presence_$_Intf, long) (ec.cosm.objects.pskRegionClient$kind_$_Proxy@292d27, 1)> {{noex}true}
+=== 1997/12/23 16:05:56.940 (MsgReceiver.receiveEnvelope:MsgReceiver.java:300) EVN
+ec.e.net.MsgReceiver: received ec.pl.runtime.eUnumTarget_$_Impl@294f70 <- #<ec.e.run.RtEnvelope void ec.pl.runtime.UnumReceiver<-uReceiveUnum(ec.pl.runtime.UnumRouter, java.lang.Object, java.lang.Object) (ec.pl.runtime.UnumRouter@292743[Aztec Turf RegionSessionKey<-1413333071>], Aztec Turf RegionSessionKey<-1413333071>,  
+  [jUK|Aztec Turf:name]<682261741>)> {{noex}true}
+=== 1997/12/23 16:05:57.100 (MsgSender.send:MsgSender.java:132) DBG
+ec.e.net.MsgSender: sending #<ec.e.run.RtEnvelope void ec.pl.runtime.PresenceHost<-newOtherPresence(ec.pl.runtime.Presence_$_Intf, long) (ec.cosm.objects.pskAvatarBodyClient$kind_$_Deflector@2926c8[target ec.pl.runtime.PresenceRouter@292741], 1)>
+to proxyID 1572540728112499181 registrarID e81w2akyxn4kgkaie7awkrkgaybw76j exceptionenv {noex}true
+=== 1997/12/23 16:05:57.380 (MsgSender.send:MsgSender.java:132) DBG
+ec.e.net.MsgSender: sending #<ec.e.run.RtEnvelope void ec.pl.runtime.PresenceHost<-pHostSendUnum(ec.pl.runtime.UnumReceiver_$_Intf, java.lang.Object, java.lang.Object) (ec.pl.runtime.eUnumTarget_$_Proxy@297754, Identity: name = Foo sturdy ref = ec.e.net.SturdyRef@a4a2d3a1<-1327868065>,  
+  [jUK|Aztec Turf:name]<682261741>)>
+to proxyID 1572540728112499181 registrarID e81w2akyxn4kgkaie7awkrkgaybw76j exceptionenv {ec.e.run.ECatchClosure_$_Impl@296814}
+=== 1997/12/23 16:05:57.810 (MsgReceiver.receiveEnvelope:MsgReceiver.java:300) EVN
+ec.e.net.MsgReceiver: received ec.cosm.objects.eConversationInputFacet_$_Impl@295011 <- #<ec.e.run.RtEnvelope void ec.cosm.objects.ukConversationInput$kind<-uSetOutput(ec.cosm.objects.ukConversationOutput$kind_$_Intf) (ec.cosm.objects.eConversationOutputFacet_$_Proxy@28e6b5)> {{ec.e.run.ECatchClosure_$_Proxy@28e6ad}}
+=== 1997/12/23 16:05:57.980 (MsgReceiver.receiveEnvelope:MsgReceiver.java:300) EVN
+ec.e.net.MsgReceiver: received ec.cosm.objects.pskPropHost$kind_$_Deflector@291024[target ec.cosm.objects.pskPropHost$kind_$_Deflector@29102e[target ec.pl.runtime.PresenceRouter@291038]] <- #<ec.e.run.RtEnvelope void ec.pl.runtime.PresenceHost<-newOtherPresence(ec.pl.runtime.Presence_$_Intf, long) (ec.cosm.objects.pskPropClient$kind_$_Proxy@28e799, 2)> {{noex}true}
+=== 1997/12/23 16:05:58.030 (MsgReceiver.receiveEnvelope:MsgReceiver.java:300) EVN
+ec.e.net.MsgReceiver: received ec.cosm.objects.pskPropHost$kind_$_Deflector@290cfa[target ec.cosm.objects.pskPropHost$kind_$_Deflector@290d05[target ec.pl.runtime.PresenceRouter@290d14]] <- #<ec.e.run.RtEnvelope void ec.pl.runtime.PresenceHost<-newOtherPresence(ec.pl.runtime.Presence_$_Intf, long) (ec.cosm.objects.pskPropClient$kind_$_Proxy@28e884, 3)> {{noex}true}
+=== 1997/12/23 16:05:58.580 (MsgReceiver.receiveEnvelope:MsgReceiver.java:300) EVN
+ec.e.net.MsgReceiver: received ec.cosm.objects.pskTeleportPadHost$kind_$_Deflector@29090e[target ec.cosm.objects.pskTeleportPadHost$kind_$_Deflector@290920[target ec.pl.runtime.PresenceRouter@29092a]] <- #<ec.e.run.RtEnvelope void ec.pl.runtime.PresenceHost<-newOtherPresence(ec.pl.runtime.Presence_$_Intf, long) (ec.cosm.objects.pskTeleportPadClient$kind_$_Proxy@28e980, 4)> {{noex}true}
+=== 1997/12/23 16:05:58.690 (MsgReceiver.receiveEnvelope:MsgReceiver.java:300) EVN
+ec.e.net.MsgReceiver: received ec.cosm.objects.pskAvatarBodyHost$kind_$_Deflector@2932f5[target ec.cosm.objects.pskAvatarBodyHost$kind_$_Deflector@290605[target ec.pl.runtime.PresenceRouter@290617]] <- #<ec.e.run.RtEnvelope void ec.pl.runtime.PresenceHost<-newOtherPresence(ec.pl.runtime.Presence_$_Intf, long) (ec.cosm.objects.pskAvatarBodyClient$kind_$_Proxy@28eaff, 5)> {{noex}true}
+=== 1997/12/23 16:05:58.800 (MsgReceiver.receiveEnvelope:MsgReceiver.java:300) EVN
+ec.e.net.MsgReceiver: received ec.cosm.objects.pskPropHost$kind_$_Deflector@29305d[target ec.cosm.objects.pskPropHost$kind_$_Deflector@293073[target ec.pl.runtime.PresenceRouter@293081]] <- #<ec.e.run.RtEnvelope void ec.pl.runtime.PresenceHost<-newOtherPresence(ec.pl.runtime.Presence_$_Intf, long) (ec.cosm.objects.pskPropClient$kind_$_Proxy@28ebea, 6)> {{noex}true}
+=== 1997/12/23 16:05:59.630 (MsgReceiver.receiveEnvelope:MsgReceiver.java:300) EVN
+ec.e.net.MsgReceiver: received ec.cosm.objects.pskSurfaceHost$kind_$_Deflector@292f29[target ec.cosm.objects.pskSurfaceHost$kind_$_Deflector@292f33[target ec.pl.runtime.PresenceRouter@292f3f]] <- #<ec.e.run.RtEnvelope void ec.pl.runtime.PresenceHost<-newOtherPresence(ec.pl.runtime.Presence_$_Intf, long) (ec.cosm.objects.pskSurfaceClient$kind_$_Proxy@28ece9, 7)> {{noex}true}
+=== 1997/12/23 16:06:00.180 (MsgReceiver.receiveEnvelope:MsgReceiver.java:300) EVN
+ec.e.net.MsgReceiver: received ec.cosm.objects.pskAvatarBodyClient$kind_$_Deflector@2926c8[target ec.pl.runtime.PresenceRouter@292741] <- #<ec.e.run.RtEnvelope void ec.cosm.objects.pkCompositableClient$kind<-pClientSetMood(java.lang.String) (null)> {null}
+=== 1997/12/23 16:06:00.290 (MsgReceiver.receiveEnvelope:MsgReceiver.java:300) EVN
+ec.e.net.MsgReceiver: received ec.cosm.objects.pskRegionHost$kind_$_Deflector@2935fd[target ec.cosm.objects.pskRegionHost$kind_$_Deflector@293609[target ec.pl.runtime.PresenceRouter@293619]] <- #<ec.e.run.RtEnvelope void ec.cosm.objects.pkRegionContainableHost$kind<-pGetAllTeleportPads(ec.e.run.EResult_$_Intf) (ec.e.run.EDistributor_$_Proxy@28efc7)> {{ec.e.run.ECatchClosure_$_Proxy@28efbf}}
+=== 1997/12/23 16:06:00.340 (MsgSender.send:MsgSender.java:132) DBG
+ec.e.net.MsgSender: sending #<ec.e.run.RtEnvelope void ec.e.run.EResult<-forward(java.lang.Object) (ec.e.lang.jObjectFuture_$_Impl@28f0c4)>
+to proxyID 6746165639850193005 registrarID e81w2akyxn4kgkaie7awkrkgaybw76j exceptionenv {ec.e.run.ECatchClosure_$_Impl@28f0c0}
+=== 1997/12/23 16:06:00.450 (MsgReceiver.receiveEnvelope:MsgReceiver.java:300) EVN
+ec.e.net.MsgReceiver: received ec.e.run.EDistributor_$_Impl@2938f5 <- #<ec.e.run.RtEnvelope void ec.e.run.EResult<-forward(java.lang.Object) (ec.e.run.ETrue_$_Impl@291def)> {{ec.e.run.ECatchClosure_$_Proxy@28efbf}}
+=== 1997/12/23 16:06:00.450 (MsgSender.send:MsgSender.java:132) DBG
+ec.e.net.MsgSender: sending #<ec.e.run.RtEnvelope void ec.cosm.objects.ukAvatarNotifyTransitionBehavior$kind<-uNotifyTransitionComplete(java.lang.String) (null)>
+to proxyID 7508258256582214098 registrarID e81w2akyxn4kgkaie7awkrkgaybw76j exceptionenv {ec.e.run.ECatchClosure_$_Impl@2938fa}
+=== 1997/12/23 16:06:00.510 (MsgSender.send:MsgSender.java:132) DBG
+ec.e.net.MsgSender: sending #<ec.e.run.RtEnvelope void ec.e.run.EResult<-forward(java.lang.Object) (ec.e.run.ETrue_$_Impl@291def)>
+to proxyID 2186069836540081410 registrarID e81w2akyxn4kgkaie7awkrkgaybw76j exceptionenv {ec.e.run.ECatchClosure_$_Impl@2938fa}
+=== 1997/12/23 16:06:01.110 (MsgReceiver.receiveEnvelope:MsgReceiver.java:300) EVN
+ec.e.net.MsgReceiver: received ec.e.lang.jObjectFuture_$_Impl@28f0c4 <- #<ec.e.run.RtEnvelope void ec.e.run.EObject<-when(ec.e.run.EResult_$_Intf) (ec.e.run.EWhenClosure_$_Proxy@28f520)> {{ec.e.run.ECatchClosure_$_Proxy@28efbf}}
+=== 1997/12/23 16:06:01.220 (MsgSender.send:MsgSender.java:132) DBG
+ec.e.net.MsgSender: sending #<ec.e.run.RtEnvelope void ec.e.run.EResult<-forward(java.lang.Object) ({Aztec Turf=ec.e.net.SturdyRef@99c8b2e0})>
+to proxyID 442325611308130229 registrarID e81w2akyxn4kgkaie7awkrkgaybw76j exceptionenv {ec.e.run.ECatchClosure_$_Proxy@28efbf}

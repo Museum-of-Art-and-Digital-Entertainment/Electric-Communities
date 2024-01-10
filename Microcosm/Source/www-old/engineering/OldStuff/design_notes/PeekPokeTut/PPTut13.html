@@ -1,0 +1,204 @@
+<!--NewPage-->
+<!-- Created by Masa Maeda on 05.14.97  -->
+<!-- Copyright 1997 Electric Communitites. -->
+<!-- All rights reserved worldwide.  -->
+<!-- Proprietary and confidential. -->
+<HTML>
+<HEAD>
+<pre>
+<a href="PPTut12.html">Previous</a>  <a
+href="PPTut14.html">Next</a>  <a
+href="PPTutI.html">Index</a>  <a
+href="PPTut1.html">Home</a></pre>
+<TITLE>The PeekPoke Tutorial</TITLE>
+</HEAD>
+<BODY>
+<P><HR WIDTH="100%" SIZE=2></P>
+<P>&nbsp;</P>
+
+<B><P>Steps 4 through 8 for PeekerPoker</P>
+</B>
+<P>Following is the code that corresponds to steps 4 through 8 for the Peeker and
+Poker. The code resembles that for Peekable and Pokeable.  The main difference
+resides, as previously mentioned, in their behavior; namely that Peeker and Poker do
+Peek and Poke over Peekable and Pokeable respectively.  Such difference is reflected
+in the parameter of kind <FONT FACE="Courier">ukPeekable</FONT> or <FONT
+FACE="Courier">ukPokeable</FONT> depending on the method being called.  The rest of
+the code requires no further explanation.</P>
+
+<P><HR WIDTH="80%" SIZE=2></P>
+<PRE>
+
+	// ----- Create ingredient implementations -----
+	// iiPeeker
+	export ingredient impl iiPeeker {
+	  kind iskPeeker;
+	  kind pkHostPeeker myServer;
+	  boolean iAmTheHost;
+	  init() {
+	    this.init(true);
+	  }
+	  init (boolean theHost) {
+	    iAmTheHost = theHost;
+	    if (!iAmTheHost)  {
+	      if (environment.hostPresence instanceof kind pkHostPeeker) {
+	        myServer = (kind pkHostPeeker)environment.hostPresence ;
+	      }
+	    }
+	  }
+	  method uPeekUnum (kind ukPeekable peekable, String pokeMessage) {
+	    if (iAmTheHost)  {
+	      peekable &lt - uPeek(pokeMessage);
+	    } else { 
+	      myServer &lt - pHostPeekUnum(peekable, pokeMessage);
+	    }
+	  }	
+	  method pHostPeekUnum(kind ukPeekable peekable, String pokeMessage) {
+	    uPeekUnum (peekable, pokeMessage);
+	  }
+	  method pClientPeekUnum(kind ukPeekable peekable, String pokeMessage) {
+	    uPeekUnum (peekable, pokeMessage);
+	  }
+	}
+	
+	// iiPoker
+	export ingredient impl iiPoker {
+	  kind iskPoker;
+	  kind pkHostPoker myServer;
+	  boolean iAmTheHost;
+	  init() {
+	    this.init(true);
+	  }
+	  init (boolean theHost) {
+	    iAmTheHost = theHost;
+	    if (!iAmTheHost)  {
+	      if (environment.hostPresence instanceof kind pkHostPoker) {
+	        myServer = (kind pkHostPoker)environment.hostPresence;
+	      }
+	    }
+	  }
+	  method uPokeUnum (kind ukPokeable pokeable, String pokeMessage) {
+	    if (iAmTheHost)  {
+	      pokeable &lt - uPoke(pokeMessage);
+	    } else {
+	      myServer &lt - pHostPokeUnum(pokeable, pokeMessage);
+	    }
+	  }
+	  method pHostPokeUnum (kind ukPokeable pokeable, String pokeMessage) {
+	    uPokeUnum (pokeable, pokeMessage);
+	  }
+	}
+
+
+	// ---------- Create Unum structure ---------------
+	unum structure usPeekerPoker {
+	  kind uskPeekerPoker;
+	  presence upnHostPeekerPoker kind pskHostPeekerPoker 
+	      makes upnClientPeekerPoker;
+	  presence upnClientPeekerPoker kind kEmpty 
+	      makes upnClientPeekerPoker;
+	  prime upnHostPeekerPoker;
+	}
+
+	// --------------- Create presence structure ---------------
+	// psHostPeekerPoker
+	presence structure psHostPeekerPoker {
+	  kind pskHostPeekerPoker;
+	  ingredient pinHostPeeker {
+	    kind iskPeeker;
+	    deliver unum ukPeeker;
+	    deliver presence pkHostPeeker;
+	  }
+	  ingredient pinHostPoker {
+	    kind iskPoker;
+	    deliver unum ukPoker;
+	    deliver presence pkHostPoker;
+	  }
+	}
+
+	// psClientPeekerPoker
+	presence structure psClientPeekerPoker {
+	  kind pskClientPeekerPoker;
+	  ingredient pinClientPeeker {
+	    kind iskPeeker;
+	    deliver unum ukPeeker;
+	  }
+	  ingredient pinClientPoker {
+	    kind iskPoker;
+	    deliver unum ukPoker;
+	  }
+	}
+
+	// --------------- Create presence implementations ---------------
+	// piHostPeekablePokeable
+	export presence impl piHostPeekablePokeable {
+	  structure psHostPeekablePokeable;
+	  // presence instantiation kludge
+	  presenceBehavior IsHostPresence, TrackOtherPresences;
+	  // presence implementation name for peekable host
+	  ingredient pinHostPeekable template {
+	    impl iiPeekable;
+	  }
+	  // presence implementation name for pokeable host
+	  ingredient pinHostPokeable template {
+	    impl iiPokeable;
+	  }
+	  // initialization for host
+	  prime init () {
+	    (ingredient pinHostPeekable).init(true);
+	    (ingredient pinHostPokeable).init(true);
+	  }
+	  make upnClientPeekablePokeable;
+	}		
+
+	// piClientPeekablePokeable
+	export presence impl piClientPeekablePokeable {
+	  structure psClientPeekablePokeable;
+	  // presence instantiation kludge
+	  presenceBehavior IsClientPresence, DieWhenNoOtherPresences;
+	  // presence implementation name for peekable client
+	  ingredient pinClientPeekable template {
+	    impl iiPeekable;
+	  }
+	  // presence implementatino name for pokeable client
+	  ingredient pinClientPokeable template {
+	    impl iiPokeable;
+	  }
+	  // initialization for clients
+	  init () {
+	    (ingredient pinClientPeekable).init(false);
+	    (ingredient pinClientPokeable).init(false);
+	  }
+	  make upnClientPeekablePokeable;
+	}
+	
+	// --------------- Build unum implementation ---------------
+	export unum impl uiPeekablePokeable {
+	  structure usPeekablePokeable;
+	  presence upnHostPeekablePokeable impl piHostPeekablePokeable;
+	  presence upnClientPeekablePokeable impl piClientPeekablePokeable;
+	}
+
+
+
+<P><HR WIDTH="100%" SIZE=2></P>
+<pre>
+<a href="PPTut12.html">Previous</a>  <a
+href="PPTut14.html">Next</a>  <a
+href="PPTutI.html">Index</a>  <a
+href="PPTut1.html">Home</a></pre>
+
+</HTML>
+
+
+
+
+
+
+
+
+
+
+
+
+

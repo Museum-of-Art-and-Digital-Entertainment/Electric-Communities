@@ -1,0 +1,231 @@
+This document is divided into:
+    a) Direct Vtune contacts at Intel
+    b) 3.0 Vtune Beta Status (as of 4/30/98)
+        c) How to profile EChabitat using Vtune 2.5 and Semantec VM/JIT
+
+Direct Vtune contacts at Intel
+==============================
+
+   Corey Alsamriae  corey.alsamriae@intel.com
+   Bruce Bartlett   bruce.h.bartlett@intel.com
+
+Corey has been my principal contact for the Vtune 2.5 and 3.0 Betas.
+Recently, he has referred questions to Bruce Bartlett. Each of
+them has responded to direct email inquiries, usually within
+a few days, sometimes within a few hours. Bruce seems
+to have a more inside (close to Vtune developers) role.
+
+3.0 Vtune Beta Status
+=====================
+
+We are in it and have the CD. However I haven't tried it.
+The Wizard is different so at least the profiling setup rules below
+will change.  It still (as of 4/1/98) requires 
+the problematic Semantec version 210.065 JIT (see below). An
+upgrade to the 3.0 Beta, to be posted by 5/18/98 reportedly
+will fix the bad timing value bug we found in the Call Graph
+Function List in the 2.5 Beta [ I don't know how to pick
+up a posted upgrade, you may want to check with Corey or Bruce].   
+   
+How to profile EChabitat using Vtune 2.5 and Semantec VM/JIT
+============================================================
+
+Major caveats:
+        a) BIG ONE: as of 4/1/98, only get Java method profiling 
+           if use Semantec 210.065 JIT.
+           but that one causes a crash in startup soon after bundles
+           load (suspect bug handling JNI but don't know).  
+
+       Action items: 1) Check with Semantec or Intel to
+                        find out if there's a newer Symantec
+                            JIT that gets Java method profiling.
+             2) Determine if ECHabitat still crashes
+                in startup (with either JIT) and
+                if so isolate the problem (e.g. is it
+                the JNI problem Sidney had isolated) 
+        b) must zip all EC classes into a single zip file.
+        c) Vtune 2.5 still gets bad timing values (some) for Java methods
+       in the Call Graph (e.g. in the Call Graph's function list)
+
+
+Note: Other ways to profile ECHabitat may be possible. But this way worked
+on Windows NT (didn't try Win95 recently using Cafe 2.5 or latest ECHabitat).
+
+Note: ECHabitat java process crashes in startup shortly after state
+bundles are loaded. Didn't analyze why, but it is known that the older
+jits like version 210.065 can't handle some JNI usage. So this
+approach currently only works for profiling up until that failure.
+
+1. Install Symantec Visual Cafe 2.5 (by CD if you can find one, or, by
+grabbing the three .exe files VCafe_p[123].exe from /home/jay/Cafe25).
+
+Note: Cafe 2.1 is probably also okay and is what Russ and I used
+in our previous Vtune 2.5 Beta profiling. Intel recommends Cafe 2.0. 
+
+The following steps  assume that during install you select the option that
+puts environment settings in vcenv.bat.
+
+
+The following steps assumed Cafe is installed at C:\VisualCafePDE
+
+[ Note: all that's really needed is the runtime, the Cafe GUI interface is
+   not necessary for profiling with Vtune. ]
+
+2. Save the jit Symantec Visual Cafe came with
+
+    cd c:\VisualCafePDE\Java\Bin
+    mv javai.dll sav_javai.dll
+
+3. Instead let Symantec Cafe use the Symantec JIT  version 210.065 (the
+version 300.012 JIT that comes with Cafe 2.5 will not provide profiling
+of the Java methods. However, you can use it to get profiling of javai.dll
+and the other modules of the system, which may be adequate if the
+Java methods are not a big performance factor. 
+
+I have a copy of the 210.065 jit, it's at /home/wayne/jit210-065. Put
+a copy in your
+
+     c:\VisualCafePDE\Java\Bin
+
+I no longer have release notes for this jit, but they are available
+from Semnantec (if not via their web site, then according to Intel
+should be available via Semantec customer support).
+
+4. Install Vtune 2.5 [ EC has several CD's. I have one ].
+
+I recommend you print the release notes (at the end of the install
+you are offered a chance to read them). There are a few steps
+in them that are needed:
+
+    a) if you are using Vtune on NT, on page 5 of the release notes 
+       follow the steps in the 3rd paragraph (begins "In order for
+       Vtune..."). [Didn't check whether this actually applies,
+       but it won't hurt].
+
+    b) on page 7, follow the instructions in the last paragraph
+    (begins "Whenever Vtune attempts to load ..") but rather
+     than adding the MSVC++ bin directory, add the directory 
+     "C:\build\release\lib". [ Unfortunately this ties Vtune
+     to profiling of ECHabitat, so if you are doing other
+     profiling it would be safest to remove this directory
+     from Vtune's registry path info]
+    
+
+
+The following steps assume vtune is installed at C:\Vtune
+
+5. Install a ECHabitat release number NNN:
+
+        \\Alexandria\Eng\internal-releases\microcosm\rNNN\Setup.bat 
+ 
+or prepare a development buid: the basic  problem with using development
+build is the long classpath, so if you zip up the .class files into 1 zip
+file via "make build-zipclasses" and adjust accordingly, a development 
+build can be used.
+
+6. Vtune 2.5 does not appear to do proper Java method profiling
+if it is started in a shell (e.g. by C:\vtune\vtune). 
+
+7. In the Vtune window, select File->New Project. A New Project Wizard
+should appear, indicating Step 1 of 8. 
+
+7a. Step 1: enter "C:\VisualCafePDE\Java\Bin\java.exe" as the program to test,
+  then click Next.
+
+7b. Step 2: enter "C:\build\release" as the working directory
+   then click Next.
+
+7c. Step 3: to prepare the proper parameters:
+
+        1 - Open a 4DOS Build shell.
+
+        2 - cd \build\release
+
+        3 - now start ECHabitat via run.bat with whatever arguments you want
+        the test to correspond to. I'll assume here to illustrate
+
+                run console = true
+                
+        Interrupt (via control-C")  after the java interpreter execution line
+        appears, e.g.
+
+        .\bin\java -noclassgc -mx48m -ss1m ec.e.start.ELogin
+ec.pl.runtime.Agency -ECproperties console.props
+RealmTextFile=realm.Preview.txt  PublishDirRoot=.  Publish Dir=PublishedRefs
+RealmDir=Preview UIOverride=none AvatarName=Dax
+
+        4- Copy that line (into clipboard buffer)
+        5- invoke an editor (e.g. vi) 
+                vi profile.bat
+        and paste into profile.bat. 
+        
+        6- Remove the beginning of the line ".\bin\java" (i.e. so only
+        arguments appear) since we only need the program arguments in this
+        step. 
+
+        7 -At the very beginning of the line, enter the following 
+        classpath information (the last 2 zipfile entries in the path
+        assume you are profiling an ECHabitat release):
+
+        -classpath
+.;\VisualCafePDE\Java\lib\classes.zip;\VisualCafePDE\Java\lib;
+\build\release\classes\ucosm.zip
+
+        [ Note: the Symantec java.exe does not read the CLASSPATH
+        environment setting ]
+
+        8 - Cut everything on the line after "console.props". 
+
+        9 - Open (using vi for example) C:\cosm-start\console.props
+        and paste to the end of it (the arguments just cut) and 
+        exit with save.
+        
+That supplies the program parameters. Then click Next. 
+
+7d. Step 4: Just click Next (i.e. no starting keystrokes) 
+
+7e. Step 5: Just click Next (i.e. no ending keystrokes)
+
+7f. Step 6: Enter 5000, then click Next. 
+
+7g. Step 7: Just click Next (i.e. you can always enter source directories
+  later as needed, depending on the source files you choose to examine).
+
+7h. Step 8: Enter "C:\build\release\vtune" as the vtune output directory,
+  then click Finish.
+
+   Thereby avoiding "C:\build\release" as the output directory, so it
+   doesn't become cluttered with Vtune output files. 
+
+8. If you want to get a call graph and method list, then select 
+   (from the Vtune window) View->Project Options, then select "Advanced"
+    and then click the box labeled "Enable Java Call Graph Profiling".
+
+   Note: this must be done before each and every run you want call graph
+  profiling for. Without it, you only get HotSpot information ( percentages
+  only, no hard times or counts). Call graph profiling is quite expensive 
+  (time, perhaps memory also), however, compared to just getting HotSpot
+   info. 
+
+9. Select (from the Vtune window) Run->Start Monitor Session 
+
+If Microcosm finished before 5000 seconds have passed, select Run->End
+Monitor Session. Vtune will chug away analyzing results and building a
+ database.  When it's done, you should get a Sessions Window with 
+entries for Session 001 (or higher on subsequent runs if saving sessions).
+Click on the line with "Clockticks" in it to get HotSpot info. Or click on
+a line with "Java Call Graph" in it to see a Call Graph (and Method list with
+counts and times in milliseconds).
+
+Note: Vtune profiles the entire PC, so if you have other applications running,
+they will show up in the Hotspots report as well. You may want to close 
+all applications not essential to the profiling.
+
+Note: We tested on samsara, which has 128 MEG RAM, so don't know yet
+what profiling (especially with Call Graph) on a 64 MEG RAM PC will be like.
+
+
+
+
+   
+

@@ -1,0 +1,287 @@
+<HTML>
+<HEAD>
+    <TITLE>Avatar Change Region Ingredient</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Avatar Change Region Ingredient</H1>
+
+<em>This page is maintained by <A HREF="mailto:trev@communities.com">Trev</A>.
+</em>
+
+<h2>Introduction</h2>
+
+The avatar change region ingredient is the ingredient in the avatar
+which knows how to move the avatar between regions, and keeps track of
+which region the avatar is in. Moving the avatar between regions has
+two parts.  The first is moving the avatar body between the two regions
+(see the <A href="avatar_body.html">avatar and avatar body</a>
+document for more on the difference between the avatar and the avatar
+body). The second is to bring over presences of all objects in the
+region and then to change the UI to display the newly entered region.
+<p>
+The avatar change region ingredient is also used to do body swapping,
+when a new body is selected from the avatar catalog. Doing a body
+swap introduces a new body into the region, so it shares some of the
+code needed to move an avatar body between regions.
+
+<h4>Related Documents</h4>
+
+<ul>
+<li><A href="avatar_body.html">Avatar And Avatar Body</a>
+</ul>
+
+<h2>Architecture</h2>
+
+<h4>Architecture Overview</h4>
+
+<h5>Changing Regions</h5>
+
+The change region ingredient registers a "change region" behavior with
+the avatar's behavior manager (RobJ will be documenting
+behaviors). When the user clicks on a portal or a teleport list item
+this will result in a call to the behavior, which will call into the
+<code>uChangeRegion</code> method of the avatar change region
+ingredient.
+<p>
+The <code>uChangeRegion</code> method basically moves the body into
+the new region and then calls into the composition code to display the
+newly entered region. In fact, if you look at the code, the meat of it
+is a call to <code>moveBodyIntoRegion</code>, followed by a call to
+<code>showRegion</code>.
+<p>
+This seems fairly simple but the error handling is tricky, especially
+in the case where the new region throws a TOS exception. In that case
+the exception is examined and an alert is displayed. If the TOS
+exception was because of an uncertified "in hand" object the alert
+allows the user to request the item to be pocketed and then to retry
+region entry. This pocketing and retry code is also in avatar change
+region.
+<p>
+When you enter a region, you need presences of all other objects in
+the region. This is a complicated task but the composition and
+containership code does all the hard work; the avatar change region
+ingredient just initiates the containership transfer request and then
+calls into the composition code to display the new region once the
+transfer is complete.
+<p>
+Changing a region takes a while, and involves several asynchronous
+messages and round trips over the wire. Much confusion would result if
+another change region request were to be processed before the current
+one finished. To avoid this problem the avatar change region
+ingredient maintains channels of pending requests. When a request
+arrives it is put in the current pending channel, and a new "pending
+channel" is creates. As each request completes, whether it succeeds or
+fails, it forwards the next pending channel to the ingredient so the
+following request, if any, can get started. All this complicates the
+code. Maybe it would be better to have a way to cancel partially
+completed requests?
+
+<h5>Body Swapping</h5>
+
+A body swap request makes use of the same
+<code>moveBodyIntoRegion</code> method used by <code>uChangeRegion</code>.
+However it doesn't need to show the region again. It does:
+<ol>
+<li>Get old body, and location of old body
+<li>Use the avatar body link ingredient to set the new body as the current body
+<li>Move the new body into the current region
+</ol>
+Again the basic idea is simple, but the error handling is horrible; the
+new body might fail TOS, or a disconnect might happen half way through the
+swap. If so the old body must be put back into place.
+<p>
+Body swaps are serialized, just like region changes. So each body swap
+or region change completes fully (either fully successful or failed and
+cleaned up) before the next happens.
+
+<h5>Region of Last Resort and Disconnect Handling</h5>
+
+The avatar body is an unusual containable because it doesn't have a
+"container of last resort". A container of last resort is a container
+that a containable moves itself into if it loses contact with its
+current container.
+<p>
+But the avatar body is entirely controlled by the avatar. We don't
+want it to asynchronously decide to move itself somewhere else, even
+if it is disconnected from its region, because that would further
+complicate the code in the avatar which moves the body around.
+<p>
+So, instead, the avatar body has no region of last resort, but when it
+loses its containing region it sends a message back to the avatar
+change region ingredient. The avatar change region ingredient then
+moves the body into the region of last resort, using the usual region
+changing code. This also ensures that the move to the region of last
+resort is serialized together with any other region changes or body
+swaps.
+
+<h5>Teleport Pad Handling</h5>
+
+When the avatar enters a new region it calls into the region to
+get the default teleport pad for the region (if any) plus the
+list of teleport pads for the current realm. These calls are
+made in the avatar change region ingredient, though the real
+work is done in the region, realm and teleport list code.
+
+<h4>Design Objectives, Constraints and Assumptions</h4>
+
+<ul>
+<li>The code is all E/Pluribus code, so it assumes single threading and
+does no synchronization or locking.
+<li>The code is intended to be robust in the face of a disconnect
+happening at any time, including half way through a region transition
+or body swap. It certainly needs to be this robust, but I suspect there
+are still bugs in there at the moment.
+</ul>
+
+<h2>Detailed Design</h2>
+
+Normally this section would contain JavaDoc for the ingredient classes.
+Unfortunately JavaDoc doesn't work on Pluribus code. So here's the
+full Pluribus kinds for doing region changing and body swapping:
+
+<pre>
+  /**
+   * Unum avatarChangeRegion interface. Used to move an avatar between
+   * regions.
+   */
+  export kind ukAvatarChangeRegion {
+
+    /**
+     * Moves the avatar to the given region. The avatar will use the
+     * given transition and appear at the given location.
+     * @param newRegion - the new region. Must be an actual unum, not a channel
+     * @param transition - the graphical transition to use on moving to the
+     *   new region.
+     * @param initialLocation - location in new region
+     * @param whenDone - If non null, is forwarded to etrue if the region
+     *   change succeeds and efalse if the user cancels the transition.
+     *   The user may cancel for many reasons including getting a TOS
+     *   notice, being refused entry to a hub etc.
+     *   Not forwarded if an exception is thrown.
+     * @exception eeChangeRegionException - thrown if can't get into the
+     *   new region due to network error or some other infrastructure
+     *   problem.
+     */
+    uChangeRegion(kind ukAddUnum newRegion,
+                  RegionTransition transition,
+                  SurfaceLocation initialLocation,
+                  EResult whenDone);
+  }
+
+
+  /**
+   * Full ingredient interface; union of unum, presence and ingredient
+   * messages (though in this case there's only unum messages)
+   */
+  export kind iskAvatarChangeRegion {
+
+    /**
+     * Go to initial region (i.e. turf) at startup or revival time. The
+     * change region ingredient keeps a permanent reference to the initial
+     * region, which MUST be locally hosted, so this call should always
+     * succeed.
+     * <p>
+     * In addition this method checks with the avatar receptionist to see
+     * if there is an initial teleport location. If so it causes a teleport
+     * to that location (AFTER moving the avatar into the turf). This
+     * teleport may not succeed, in which case the avatar is left in its
+     * turf.
+     * @param isRevive - indicates whether this is a revive from checkpoint
+     *   or initial startup.
+     * @param whenDone - forwarded to etrue when the transition is complete
+     * @exception - none
+     */
+    iGoToInitialRegion(boolean isRevive, EResult whenDone);
+
+    /**
+     * Method for swapping the current body for a new, currently uncontained
+     * body. Should only be used for locally hosted bodies.
+     * Sets the owner of newBody and then puts it into the current region.
+     * If there is a TOS exception, swaps it back. If there is a really
+     * exception (network error, disconnect) the body swap will always
+     * succeed but the avatar will be switched back to its turf.
+     * @param newBody - the new body
+     * @param whenDone - forwarded to true if body swap succeeds, not
+     *   forwarded if exception thrown.
+     * @exception eeTOSAddUnumFailed - if body fails TOS of current region
+     */
+    iSwapBody(kind ukBodySetOwner newBody, EResult whenDone);
+
+    /**
+     * Send given envelope to the current region unum
+     */
+    iSendEnvelopeToCurrentRegionUnum(RtEnvelope envelope);
+
+    /** Unum kind */
+    kind ukAvatarChangeRegion;
+
+    /**
+     * A couple of body related kinds because this ingredient is in charge
+     * of moving the body between regions
+     */
+    kind ukBodyInNewRegion;
+    kind ukBodyRegionDisconnectHandler;
+  }
+</pre>
+
+The avatar change region ingredient also provides a notification service
+that can notify other ingredients whenever the current region changes:
+
+<pre>
+  public interface jiRegionChangeNotifier {
+      /**
+        * Method for registering an object that is interested in hearing
+        * about region changes.
+        */
+      public void iRegisterRegionChangeInterest(eiAvatarChangeRegionInterest obj);
+
+      /**
+        * Method for un-registering region change interest object.
+        */
+      public void iUnRegisterRegionChangeInterest(eiAvatarChangeRegionInterest obj);
+
+  }
+
+  public einterface eiAvatarChangeRegionInterest {
+      emethod iNotifyRegionChange(Unum currentRegion);
+  }
+</pre>
+
+<h4>Testing and Debugging</h4>
+
+<ul>
+<li>Turn on the "changeregion" trace category to get tracing during region
+transitions and body swaps.
+</ul>
+
+<h2>Design Issues</h2>
+
+<h4>Open Issues</h4>
+
+<ul>
+<li>Like the avatar to body link the avatar change region ingredient will
+probably change out of recognition (and hopefully become <em>much</em>
+simpler) when containership is re-written.
+<li>If the current code does need to be maintained error handling is
+probably the area most in need of improvement. The current code
+assumes that the body containership transfer done during a region
+transition will either succeed or throw an exception but not both. In
+practice this isn't true, which leads to assertion failures in the
+current code. Some of this is due to unexpected, non fatal, exceptions
+being propogated up the E causality chain when they shouldn't be. But
+there is also a legitimate case where a transition could succeed but
+then see an exception - if the transition succeeds just before a network
+partition. In that case the disconnect exception may get propogated to
+the original exception environment before it gets garbage collected,
+even though the request has successfully completed.
+</ul>
+
+<p>
+
+<A href="index.html">Back to design notes index</a>
+<br>
+<a href="../index.html">Back to Microcosm engineering main page</a>
+
+</BODY>
+</HTML>

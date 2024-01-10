@@ -1,0 +1,77 @@
+<HTML>
+<HEAD>
+    <TITLE>Incremental Builds</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Incremental Builds</H1>
+
+<em>This page is maintained by <A HREF="mailto:trev@communities.com">Trev</A>.
+Please let me know of any errors ASAP so I can fix them.
+<br>
+<b>Warning:</b> these pages change frequently. If you've looked at them
+recently hit "reload" on your browser to make sure you're seeing the
+latest version.
+</em>
+<p>
+Once you've done an initial build you will
+doubtless make further changes, update your trees etc. You'll then
+need to do incremental builds, according to what has changed. HabiFoo
+and the EC runtime are complicated so there are some things to watch
+out for when you make changes. This document lists some of the common
+problems you'll encounter. See also the <a href="FAQ.html">FAQ</a>,
+especially the section on
+<a href="FAQ.html#ScratchBuild">building from scratch</a>, which
+you need to do before checking in.
+<p>
+<ul>
+<li><a href="#MakeDependencies">Make Dependencies</a>
+<li><a href="#ChangePersistedClass">Changing a Persisted Class</a>
+<li><a href="#RepositoryMediaChanges">Repository Media Changes</a>
+</ul>
+
+<h2><a name="MakeDependencies">Make Dependencies</a></h2>
+
+One big gotcha in our environment is that the makefiles do not track
+dependencies. If you change an interface on which other classes
+depend, those other classes will NOT get automatically rebuilt. If you
+change interfaces it's wise to rebuild from scratch anything that may
+depend on those interfaces. Note that building from scratch can be
+harder than you'd think; see
+<a href="FAQ.html#ScratchBuild">How do I rebuild from scratch?</a>
+for details.
+
+
+<h2><a name="ChangePersistedClass">Changing a Persisted Class</a></h2>
+
+When you quit HabiFoo it creates a checkpoint. If you then make changes
+in the source and recompile the checkpoint may no longer be valid. This
+happens if you change the layout of some class which has instances saved
+in the checkpoint. To get around this (for now) you need to delete all
+your old checkpoints and create new avatars. You can do this from a 4dos
+(Build) window by:
+<blockquote>
+  cd \Build\Release
+<br>
+  deltree /y Avatars Processes <em>OR, on NT</em> rd /qs Avatars Processes
+<br>
+  md Avatars Processes
+<br>
+  cd \src\cosm1\start
+<br>
+  make template
+</blockquote>
+
+<h2><a name="RepositoryMediaChanges">Repository Media Changes</a></h2>
+
+When someone adds or changes art in the "\media" directory you'll need
+to rebuild your repository to get it. "cd \media" and then type "make"
+(to make the new repository), followed by "make install" (to get it
+into the \Build\Release area). This is currently a slow process (up to
+20 minutes). Felix is working on a way to add a repository to the
+build somehow so that not everyone has to build their own.
+
+<p>
+<A href="index.html">Back to the index</a>
+</BODY>
+</HTML>

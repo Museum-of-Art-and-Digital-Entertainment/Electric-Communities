@@ -1,0 +1,185 @@
+<!--NewPage-->
+<!-- Created by Masa Maeda on 05.14.97  -->
+<!-- Copyright 1997 Electric Communitites. -->
+<!-- All rights reserved worldwide.  -->
+<!-- Proprietary and confidential. -->
+<HTML>
+<HEAD>
+<pre>
+<a href="PPTut1.html">Previous</a>  <a
+href="PPTut3.html">Next</a>  <a
+href="PPTutI.html">Index</a>  <a
+href="PPTut1.html">Home</a></pre>
+<TITLE>The PeekPoke Tutorial</TITLE>
+</HEAD>
+<BODY>
+<P><HR WIDTH="100%" SIZE=2></P>
+<B><P>Peek Poke Peek Poke Peek Poke…</P></B>
+<FONT SIZE=1>
+<P>&nbsp;</P>
+<H2>Part I.  PeekPokeShip</H2>
+</FONT>
+<P></P>
+<P>Ingredients relate to each other according to their function.  At its basic level
+an ingredient can affect other ingredients or be affected by another ingredient.
+Consider, for example, a ‘peekship’ relationship between two ingredients located in
+separate presences. One ingredient ‘peeks’ while the other one allows to be ‘peeked’
+at; thus the former is a ‘peeker’ whereas the latter is a ‘peekable’. Such
+peekpokeship behavior can be extrapolated to distributed systems. A host can demand an
+action from a client and such action must indeed be taken (a peeker peeking). There is
+also the possibility of having a client ask its host for some task, nonetheless the
+host does not have the obligation to attend the request.
+</P>
+<P>To implement an unum is necessary to follow a set of steps that consist on the
+definition of kinds, ingredients, structures and implementations in that order.  This
+convention provides a simple structure that is straighforward to code and understand.
+</P>
+<P>In this tutorial the code for PeekPokeShip is presented. PeekPokeShip consists of a
+PeekablePokeable unum and a PeekerPoker unum that behave as in the ‘peekship’
+‘pokeship’ relationship described earlier. Explanation over the code will focus on the
+PeekablePokeable part only for simplicity and because a good portion of the
+PeekerPoker counterpart is similar. The difference between them is all that will be
+explained later about PeekerPoker.
+</P>
+<FONT SIZE=1></FONT>
+<P ALIGN="CENTER"><CENTER><TABLE BORDER CELLSPACING=2 BORDERCOLOR="#000000"
+CELLPADDING=7 WIDTH=432>
+<TR><TD WIDTH="17%" VALIGN="TOP" BGCOLOR="#ffffff">
+<B><P>Prefix</B></TD>
+<TD WIDTH="51%" VALIGN="TOP" BGCOLOR="#ffffff">
+<B><P>Description</B></TD>
+<TD WIDTH="32%" VALIGN="TOP" BGCOLOR="#ffffff">
+<B><P>Classification</B></TD>
+</TR>
+<TR><TD WIDTH="17%" VALIGN="TOP">
+<B><P>u</B></TD>
+<TD WIDTH="51%" VALIGN="TOP">
+<P>Unum</TD>
+<TD WIDTH="32%" VALIGN="TOP" ROWSPAN="3">
+<P>Message name prefixing</TD>
+</TR>
+<TR><TD WIDTH="17%" VALIGN="TOP">
+<B><P>p</B></TD>
+<TD WIDTH="51%" VALIGN="TOP">
+<P>Presence</TD>
+</TR>
+<TR><TD WIDTH="17%" VALIGN="TOP">
+<B><P>i</B></TD>
+<TD WIDTH="51%" VALIGN="TOP">
+<P>Ingredient</TD>
+</TR>
+<TR><TD WIDTH="17%" VALIGN="TOP">
+<B><P>uk</B></TD>
+<TD WIDTH="51%" VALIGN="TOP">
+<P>Unum kind</TD>
+<TD WIDTH="32%" VALIGN="TOP" ROWSPAN="3">
+<P>Element kind prefixing</TD>
+</TR>
+<TR><TD WIDTH="17%" VALIGN="TOP">
+<B><P>pk</B></TD>
+<TD WIDTH="51%" VALIGN="TOP">
+<P>Presence kind</TD>
+</TR>
+<TR><TD WIDTH="17%" VALIGN="TOP">
+<B><P>ik</B></TD>
+<TD WIDTH="51%" VALIGN="TOP">
+<P>Ingredient kind</TD>
+</TR>
+<TR><TD WIDTH="17%" VALIGN="TOP">
+<B><P>us</B></TD>
+<TD WIDTH="51%" VALIGN="TOP">
+<P>Unum structure</TD>
+<TD WIDTH="32%" VALIGN="TOP" ROWSPAN="2">
+<P>Structure</TD>
+</TR>
+<TR><TD WIDTH="17%" VALIGN="TOP">
+<B><P>ps</B></TD>
+<TD WIDTH="51%" VALIGN="TOP">
+<P>Presence structure</TD>
+</TR>
+<TR><TD WIDTH="17%" VALIGN="TOP">
+<B><P>usk</B></TD>
+<TD WIDTH="51%" VALIGN="TOP">
+<P>Unum structure kind</TD>
+<TD WIDTH="32%" VALIGN="TOP" ROWSPAN="3">
+<P>Grouping kind</TD>
+</TR>
+<TR><TD WIDTH="17%" VALIGN="TOP">
+<B><P>psk</B></TD>
+<TD WIDTH="51%" VALIGN="TOP">
+<P>Presence structure kind</TD>
+</TR>
+<TR><TD WIDTH="17%" VALIGN="TOP">
+<B><P>isk</B></TD>
+<TD WIDTH="51%" VALIGN="TOP">
+<P>Ingredient structure kind</TD>
+</TR>
+<TR><TD WIDTH="17%" VALIGN="TOP">
+<B><P>ui</B></TD>
+<TD WIDTH="51%" VALIGN="TOP">
+<P>Unum implementation</TD>
+<TD WIDTH="32%" VALIGN="TOP" ROWSPAN="3">
+<P>Implementation</TD>
+</TR>
+<TR><TD WIDTH="17%" VALIGN="TOP">
+<B><P>pi</B></TD>
+<TD WIDTH="51%" VALIGN="TOP">
+<P>Presence implementation</TD>
+</TR>
+<TR><TD WIDTH="17%" VALIGN="TOP">
+<B><P>ii</B></TD>
+<TD WIDTH="51%" VALIGN="TOP">
+<P>Ingredient implementation</TD>
+</TR>
+<TR><TD WIDTH="17%" VALIGN="TOP">
+<B><P>upn</B></TD>
+<TD WIDTH="51%" VALIGN="TOP">
+<P>Unum presence name</TD>
+<TD WIDTH="32%" VALIGN="TOP" ROWSPAN="3">
+<P>Name</TD>
+</TR>
+<TR><TD WIDTH="17%" VALIGN="TOP">
+<B><P>pin</B></TD>
+<TD WIDTH="51%" VALIGN="TOP">
+<P>Presence implementation name</TD>
+</TR>
+<TR><TD WIDTH="17%" VALIGN="TOP">
+<B><P>iin</B></TD>
+<TD WIDTH="51%" VALIGN="TOP">
+<P>Ingredient ingredient name</TD>
+</TR>
+</TABLE>
+</CENTER></P>
+
+<P ALIGN="CENTER">Table 1. Pluribus code prefixes.</P>
+<P>Table 1 shows the Pluribus code notation for prefixes. Usage of these prefixes
+makes code far more readable and easier to maintain. This notation will be used
+extensively along the code in this tutorial. Note that ingredient structures are not
+needed because ingredient implementations are formed from the ingredients themselves.
+Also note that for <FONT FACE="Courier">Names</FONT> (last three prefixes in Table 1)
+the three characters in these prefixes denote scope, message name, and 'name'
+respectively.</P>
+
+<P><HR WIDTH="100%" SIZE=2></P>
+<pre><a href="PPTut1.html">Previous</a>  <a
+href="PPTut3.html">Next</a>  <a
+href="PPTutI.html">Index</a>  <a
+href="PPTut1.html">Home</a></pre>
+</HTML>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

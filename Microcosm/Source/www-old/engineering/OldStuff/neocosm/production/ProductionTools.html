@@ -1,0 +1,206 @@
+<HTML>
+<HEAD>
+   <TITLE>Production Tools</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Production Tools</H1>
+
+<B>Last updated: </B>[98/05/14 <A HREF="mailto:tony@communities.com">Tony</A>]
+
+<P>Author(s): <A HREF="mailto:Tony@communities.com">Tony</A>. 
+
+<H2>Introduction</H2>
+
+Production tools cover a fairly broad category of utilities and tools used 
+for getting all kinds of media into the system. The current set of tools uses
+a mixture of Visual Basic and C. In February, 1998, we had laid out a roadmap for
+porting the existing tools to Java and adding new functionality. 
+
+<H4>Related Documents</H4>
+
+<LI><A HREF="ProductionIndex.html">Production Index</A>. Index of all the Production documentation.</LI>
+
+<LI><A HREF="ProductionOverview.html">Production Overview.</A> This document, created 
+by Pauline, is an overview of our production processes.</LI>
+
+<LI><A HREF="TaskList.html">Task List and Schedule For Production Tools.</A> This 
+was the draft task list and schedule generated in late February.</LI>
+
+<LI><A HREF="AppearanceToolNotes.txt">AppearanceTool notes.</A> This is the notes.txt document that
+John and use to track decisions made in the early development of the Java tools. A few design decisions
+and some information and getting the whole thing running under Symantec Cafe. </LI>
+
+<H2>Requirements</H2>
+
+The production tools must be able to import a variety of media, allow the user
+to manipulate and annotate the media, and then save it in a format recognizable
+by the ECHabitats software. Specifically the tools must allow import of:
+<LI>2D bitmaps</LI>
+<LI>3D geometry, with textures and animation data</LI>
+
+<P>The tools must be able to produce output compatible with ECHabitats. 
+Today, that means:
+<LI>Appearance2D Files</LI>
+<LI>Appearance3D Files</LI>
+<LI>RealmText Files</LI>
+<LI>Catalog Files</LI>
+
+<P>
+
+<H2>Architecture</H2>
+
+<H4>Current Architecture Overview</H4>
+
+The current tools are essentially import only. They allow the user to import
+art-- 2D or 3D-- and they output working Appearance files and/or RealmText
+files for the object(s) being imported.
+<P>There are 3 main import tools:<BR>
+
+<LI><B>SceneEater2D.</B> Allows the user to import layered Photoshop files in which
+each layer of the image is a separate object in the region. Outputs separate
+BMP and Appearance files for each object and a RealmText file that contains
+all of them.</LI>
+
+<LI><B>SceneEater3D.</B> Allows the user to import a VRML region. Saves separate
+VRML and Appearance files for each object and a RealmText file that contains
+all of them.</LI>
+
+<LI><B>Import3D.</B> Allows the user to import single 3D objects, including avatars.</LI>
+
+<H4>Proposed Architecture Overview</H4>
+
+Please see the <A HREF="TaskList.html">Task List and Schedule For Production Tools</A> 
+for a detailed list of the proposed tools and estimates at a schedule.
+<P>
+<P>Here's a summary of
+
+<H4>Off the shelf alternatives</H4>
+<B>Reading/Writing Image Formats.</B> We've already purchased a toolkit for dealing with image file formats. This will allow us 
+to use any image format we'd want to. The toolkit is very complete and includes support for
+BMP, PNG, GIF, JPG and many others. <B><I>We need to get a license squared away if we're
+going to have GIF support in our software.</I></B> Arnold was looking into this at one point. I believe
+I still have the contact information. Randy and I have talked about GIF support in general. 
+We could probably get away with using Java's GIF support for standalone images and then 
+convert them internally to some other format-- PNG, e.g. One thing that the toolkit 
+provides, and that Randy, for one, really wants, is Animated GIF support.
+
+<P><B>Macromedia FLASH.</B> Doug had mentioned Macromedia's FLASH technology as an excellent format for 
+lightweight, programmable graphics. The good news is that Macromedia has made public
+the specs for the file format. The downside, as far as I can tell, is that we'd need
+to write our own Flash renderer to use it-- or license on from Macromedia. I didn't see
+a licensable renderer last time I looked. Most of their focus seems to be on 
+web browser support.
+
+<P><B>VRML.</B> We currently have a crappy VRML parser. It supports just a minimum set 
+of compliant VRML. I've seen two possibilities for improving this. Cosmo Software
+(SGI's VRML division) has a public domain parser available: 
+<A HREF="http://www.cosmosoftware.com/developer/">http://www.cosmosoftware.com/developer/</A>. 
+Look for the "Parsers and Code section. 
+<P>I also found another company, 3dWeb, that sells a VRML parser. 
+<A HREF="http://www.3dweb.com/html/products.html">http://www.3dweb.com/html/products.html</A>
+The advantage of their product is that it actually builds a scene graph, which would make it 
+much easier to integrate with any internal format we have.
+
+<P><B>3DS MAX Plugin</B>Another idea that has been tossed around is to write a plugin for MAX that would either
+save directly into our own format, or save to VRML, while fixing a couple of known bugs in the current
+MAX VRML export plugin. This is probably more trouble than its worth, and it would tie us to MAX. Providing
+better, more general VRML support is still our best bet for 3D geometry input.
+
+<P><B>Java 2D and Java3D.</B> I haven't looked at these enough to see if they'd help us in any way.
+
+<P><B>[XXX Others???]</B>
+
+<H4>Other Design Objectives, Constraints and Assumptions</H4>
+<I>Lists any special objectives and assumptions of the code e.g. reusability,
+thread safety, security, performance, use of resources, compatibility with
+existing code etc. This section gives important context for reviewers</I>
+
+<H2>Current implementation</H2>
+
+Here's the flow from the working tools.
+
+<H3>Import3D</H3>
+Again, this tool is for importing single 3D objects/avatars.
+<P>
+
+<LI>
+Read in VRML file. This calls down to Kirk's code, which parses the VRML and creates an AgMesh object.</LI>
+
+
+
+<H4>Which directories on our tree does this subsystem cover?</H4>
+The early work that John and I had started on the Java tools is at:<BR>
+\src\cosm1\tools\appearance
+
+<H4>Is it JavaDoc'ed?</H4>
+Yes, it is. (Thanks John!) Although admittedly, there's not too much here yet.
+
+<H4>Examples</H4>
+
+<H4>Testing and Debugging</H4>
+Our VRML parser is not very good at reporting error messages. It would be great if
+we had an easier way to validate VRML files. The proposed VRML parsers above would
+probably improve this significantly.
+
+<H2>Design Issues</H2>
+
+<H4>Resolved Issues</H4>
+<LI>Appearance file discussion. Why they're separate.</LI>
+<LI>Why they can still be misleading.</LI>
+<LI>Getting data in the right place. Some belongs in appearance. If it's not static,
+it belongs in the unum.</LI>
+
+<H4>Open Issues</H4>
+This section is copied from the top of the Task List. It was a running list of items
+that needed to be discussed.
+
+
+<H5>Discuss modular approach to Appearance editors.</H5>
+Talk about how each editor could either be a part of a big tool or a separate module
+of a group of tools. Talk about why modular is better.
+
+<H5>Discuss unums as files in tool land</H5>
+If we want to keep using the text files at all, it makes sense to have a .unum
+file which contains essentially the text inside of a CreateUnum block in a RealmText
+file. Objects should be able to exist and be edited outside of the context of a RealmText
+or a Catalog file.
+
+<H5>Discuss when to port the vb tools</H5>
+Sooner vs. later. Keep using the ones that work. Design and implement first the tools that
+offer us new functionality. This might change if we do any kind of major architectural
+overhaul.
+
+ 
+<H5>Discuss Interconnectivity of modules</H5>
+XXX
+ 
+<H5>Discuss State dictionaries with Arturo</H5>
+Evaluate the State dictionaries that Gordie started against RealmText. Would they
+provide a better alternative to RealmText. Should we be using standard Java Serialization
+instead, where possible?
+
+<H5>Discuss Gesture class and file format for sharing anims among avatars</H5>
+XXX
+
+<H5>Discuss tool classes: app2d, app3d, unum, region, realm, catalog</H5>
+
+<H5>Discuss visual editing (3D objects, all regions)</H5>
+Do we want to have 3D rendering support in the tools. It would be nice to a least
+have the ability to preview, even if we don't offer significant editing features. 
+I'm a little nervous about going overboard here. We could spend a lot of time fiddling
+with a 3D interface.
+
+<H5>Discuss repository/curation</H5>
+Tightly integrate and write directly to repositories or write out .cur files 
+and shell out to run the curator?
+
+<H5>Discuss Certificate support</H5>
+This is impacted by who's using the tool. One can imagine a button in the tool that says
+"Certify this now" and allows for the creation of new certificate types. One can also imagine
+a button more for end users that says "Submit this for certification." Mike and I have
+had some prreliminary discussions about this-- enough to realize that this is a non-trivial
+chunk of work that hasn't been worked all the way through.
+
+</BODY>
+</HTML>

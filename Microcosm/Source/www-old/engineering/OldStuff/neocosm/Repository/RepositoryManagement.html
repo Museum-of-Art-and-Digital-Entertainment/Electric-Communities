@@ -1,0 +1,132 @@
+<HTML>
+<HEAD>
+   <TITLE>Repository Management Design</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Repository Management Design</H1>
+
+<UL>
+<LI><B>Last updated:</B><I> [98/07/07 <A HREF="mailto:karl@communities.com">Karl</A>]</I>
+Fleshed out requirements and interface specs.
+<LI><B>Last updated:</B><I> [98/07/02 <A HREF="mailto:karl@communities.com">Karl</A>]</I>
+Created page.
+</UL>
+
+<H2>Introduction</H2>
+
+[<I>98/07/02 <A HREF="mailto:karl@communities.com">Karl</A></I>]
+The RepositoryManager picks up all of the meta-tasks such as organizing
+multiple Repositories (files, caches, network sources) and dealing with
+cacheing recently looked up data with options to reread the original source
+instead of using a cached version.  It will also handle streaming from one
+Repository to another for large sets of data, and it will allow manipulation
+of the protocol governing how things are looked up--Either from local caches
+or files first, or from the network first, or whatever other schemes we may
+come up with.
+
+<H4>Related Documents</H4>
+
+The <A HREF="index.html">general</A> Repository design document</A>.
+<BR>The <A HREF="Repository.html">Repository</A> design document</A>.
+<BR>The <A HREF="RepositoryFile.html">Repository File</A> design document</A>.
+<BR>The <A HREF="RepositoryProduction.html">Repository Production</A> design document</A>.
+
+<a name="Requirements">
+<H2>Requirements</H2>
+[<I>98/07/02 <A HREF="mailto:karl@communities.com">Karl</A></I>]
+
+<ol>
+	<li>handle multiple  <A HREF="RepositoryFile.html#RepositoryFile">(Writeable)RepositoryFiles</A>
+	<li>open remote repositories via hints Vector information
+	<li>provide caching strategies so that single instances of data
+	blobs are loaded and managed without intervention by the clients.
+	<li>provide mechanism for streaming from one <A HREF="Repository.html#Repository">(Writeable)Repository</A> into another
+	<li>provide mechanism for defining lookup protocols (local first, hints first, etc.)
+	<li>provide mechanism for downloading via hints
+</OL>
+
+<H2>Architecture</H2>
+
+<H4><a name="PAO">Proposed Architecture Overview</A></H4>
+
+[<I>98/07/09 <A HREF="mailto:karl@communities.com">Karl</A></I>] I am proposing
+two Java elements for Repository management; the <b>RepositoryManagement</b>
+interface and the <b>RepositoryManager</b> class:
+
+<ul>
+<a name="RepositoryManagement"></a>
+<li>interface <b>RepositoryManagement</b>
+	<ul>
+	<li>extends <A HREF="RepositoryFile.html#WriteableRepositoryFiling">WriteableRepositoryFiling</A>
+	<li>open/close RepositoryFile
+	<li>set lookup protocol
+	</ul>
+<a name="RepositoryManager"></a>
+<li>class <b>RepositoryManager</b>
+	<ul>
+	<li>implements <b>RepositoryManagement</b>
+	<li>contains Vector of <A HREF="RepositoryFile.html#RepositoryFile">RepositoryFiles</A>
+	<li>contains Vector of remote <A HREF="Repository.html#Repository">Repositories</A>
+	<li>contains Hashtable of recently looked up data
+	<li>provides mechanism for streaming from one <b>Repository</b> into another
+	<li>provides mechanism for downloading via hints
+	<li>provides mechanism for defining lookup protocols (local first, hints first, etc.)
+	</ul>
+</ul>
+
+In addition to the methods from the 
+<A HREF="RepositoryFile.html#WriteableRepositoryFiling">WriteableRepositoryFiling</A>
+interface, the <B>RepositoryManagement</B> interface will require
+further methods.  The main one will be for opening and closing
+RepositoryFiles (either read-only or read/writeable).  Another will be
+for setting the lookup protocol.
+
+<P>The <b>RepositoryManager</b> class will implement <b>RepositoryManagement</b>
+and contain Vectors of <A HREF="RepositoryFile.html#RepositoryFile">RepositoryFiles</A>
+which have been opened and of remote Repositories which have been accessed
+via the following of hints.  Any data that is requested from the
+<b>RepositoryManager</b> via the "getting and caching data by CryptoHash"
+method from the
+<A HREF="RepositoryFile.html#RepositoryFiling">RepositoryFiling</A>
+interface will be stored into a local Hashtable for quicker access in case it
+is requested again.
+
+
+<P>There will be internal methods which will deal with opening streams
+for copying data from one Repository to another when large pieces/quantities
+of data need to be moved around.  There will alse be methods for decoding/interpreting
+the hints and going out onto the net to find the appropriate data.
+
+<P>The lookup protocol method(s) will accept
+lists of Repositories (by name, probably) and/or types (i.e. "Local", "Network")
+defining the desired search order.
+
+</P>
+
+<H4>Off the shelf alternatives</H4>
+
+[<I>98/07/02 <A HREF="mailto:karl@communities.com">Karl</A></I>]
+None I can think of at the moment.
+
+<H2>Design Issues</H2>
+
+<H4>Resolved Issues</H4>
+
+<I>History of issues raised and resolved during initial design, or during
+design inspections. Can also include alternative designs, with the reasons
+why they were rejected</I>
+
+<H4>Open Issues</H4>
+
+<UL>
+<LI>[<I>98/07/08 <A HREF="mailto:karl@communities.com">Karl</A></I>]
+	I'm not sure I've captured everything a RepositoryManager needs to do...
+</UL>
+<BR>
+To main <A HREF="index.html">Repository</A> page<BR>
+To <A HREF="../CosmSurvey.html">Cosm Survey</A> page<BR>
+<BR>
+<BR>
+</BODY>
+</HTML>

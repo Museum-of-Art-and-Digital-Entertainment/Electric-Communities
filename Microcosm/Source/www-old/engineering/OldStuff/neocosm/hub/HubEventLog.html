@@ -1,0 +1,322 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>Design Document Template</title>
+</head>
+
+<body>
+
+<h1><i>Hub Event Log</i></h1>
+
+<p><b>Last updated:</b><i> [98/05/29 Jeff]</i> </p>
+
+<p>Author: Jeff Crilly <a href="mailto:jeff@communities.com">jeff@communities.com</a></p>
+
+<h2>Introduction</h2>
+
+<p>The Hub Event Log is a mechanism that allows for logging of
+interesting hub related events, mainly for use by post-processing
+analysis tools. Currently, only events related to avatar
+realm-entry/exit, and region entry/exit are logged.</p>
+
+<h4>Related Documents</h4>
+
+<p>Realm una.</p>
+
+<h2>Requirements</h2>
+
+<p>Provide ability for an external tool to derive the following
+information:</p>
+
+<ul>
+    <li>Aggregate hourly usage for the realm</li>
+    <li>Aggregate hourly usage for regions</li>
+    <li>Identify popular regions</li>
+    <li>Calculate hourly usage per avatar</li>
+</ul>
+
+<h2>Architecture</h2>
+
+<h4>Current Architecture Overview</h4>
+
+<p>The Hub Event Log architecture is pretty straightforward.
+There is an einterface (EEventLogIntf) which specifies how the
+realm sends information to the event log. This interface provides
+emethods for indicating an avatar has entered or left the realm
+or a region. Currently, there is one eclass (EHubEventLog) that
+implements the EEventLogIntf einterface. EHubEventLog implements
+a specific log format which is a flat file on the local file
+system. The format is basically a comma seperated value type
+file.</p>
+
+<h4>Proposed Architecture Overview</h4>
+
+<p>The only proposed architecture item is the consideration of
+additional implemetations of EEventLogIntf. A HubEventLog eclass
+that writes to a database may be useful.</p>
+
+<h4>Off the shelf alternatives</h4>
+
+<p>One alternative is to adopt the NCSA webserver log format.
+However, this may prove to be non-practical since NCSA logs were
+designed for other purposes. Another alternative is to use the
+Windows NT &quot;event log&quot; or Unix &quot;syslog&quot;
+mechanisms. These are very application specific and not suitable
+to the application.</p>
+
+<h4>Other Design Objectives, Constraints and Assumptions</h4>
+
+<p>The design and implementation must take into account issues
+related to the vat. For example, log file writing must be aware
+of quake. This is handled by using the QuakeProofAppendFile class
+for the file; on revive, EHubEventLog will write an
+&quot;revived&quot; log record to the log.</p>
+
+<h2>Current implementation</h2>
+
+<p>The package for the hub event log is ec.hub.eventlog. </p>
+
+<p>EEventLogIntf emethods:</p>
+
+<table border="1" cellpadding="4" cellspacing="1"
+bordercolor="#000000" bordercolordark="#808080"
+bordercolorlight="#C0C0C0">
+    <tr>
+        <td width="5%" bgcolor="#FFFFFF" bordercolor="#000000"
+        bordercolordark="#808080" bordercolorlight="#C0C0C0"><strong>emethod</strong></td>
+        <td width="33%" bgcolor="#FFFFFF" bordercolor="#000000"
+        bordercolordark="#808080" bordercolorlight="#C0C0C0"><strong>Definition</strong></td>
+        <td width="33%" bgcolor="#FFFFFF" bordercolor="#000000"
+        bordercolordark="#808080" bordercolorlight="#C0C0C0"><strong>Parameters</strong></td>
+    </tr>
+    <tr>
+        <td width="5%" bordercolor="#000000"
+        bordercolordark="#808080" bordercolorlight="#C0C0C0">setMaxSize</td>
+        <td width="33%" bordercolor="#000000"
+        bordercolordark="#808080" bordercolorlight="#C0C0C0">Set
+        the max size the log file can grow to. When the file gets
+        larger than the specified size, a new file is created.</td>
+        <td width="33%">Max log file size</td>
+    </tr>
+    <tr>
+        <td width="5%" bordercolor="#000000"
+        bordercolordark="#808080" bordercolorlight="#C0C0C0">newLog</td>
+        <td width="33%" bordercolor="#000000"
+        bordercolordark="#808080" bordercolorlight="#C0C0C0">Switch
+        to a new log file. The current file is closed, and new
+        one is opened. The filename will be the same as the old
+        filename.</td>
+        <td width="33%">Optional: name of log, logfile directory
+        path</td>
+    </tr>
+    <tr>
+        <td width="5%">closeLog</td>
+        <td width="33%">Closes the log file.</td>
+        <td width="33%">None.</td>
+    </tr>
+    <tr>
+        <td width="5%">realmStartEvent</td>
+        <td width="33%">Logs a &quot;REALMSTART&quot; event.</td>
+        <td width="33%">Name of Realm (string).</td>
+    </tr>
+    <tr>
+        <td width="5%" bordercolor="#000000"
+        bordercolordark="#808080" bordercolorlight="#C0C0C0">realmStopEvent</td>
+        <td width="33%" bordercolor="#000000"
+        bordercolordark="#808080" bordercolorlight="#C0C0C0">Logs
+        a &quot;REALMSTOP&quot; event.</td>
+        <td width="33%">Name of Realm (string).</td>
+    </tr>
+    <tr>
+        <td width="5%" bordercolor="#000000"
+        bordercolordark="#808080" bordercolorlight="#C0C0C0">newIdentEvent</td>
+        <td width="33%" bordercolor="#000000"
+        bordercolordark="#808080" bordercolorlight="#C0C0C0">Logs
+        a new identity entering the world. </td>
+        <td width="33%">Identity sturdy ref and name.</td>
+    </tr>
+    <tr>
+        <td width="5%" bordercolor="#000000"
+        bordercolordark="#808080" bordercolorlight="#C0C0C0">removeIdentEvent</td>
+        <td width="33%" bordercolor="#000000"
+        bordercolordark="#808080" bordercolorlight="#C0C0C0">Logs
+        a new identity leaving the realm. </td>
+        <td width="33%">Identity sturdy ref and name.</td>
+    </tr>
+    <tr>
+        <td width="5%" bordercolor="#000000"
+        bordercolordark="#808080" bordercolorlight="#C0C0C0">idEnterRegionEvent</td>
+        <td width="33%" bordercolor="#000000"
+        bordercolordark="#808080" bordercolorlight="#C0C0C0">Logs
+        a new identity entering a region. </td>
+        <td width="33%">Identity sturdy ref and name, region
+        sturdy ref and name.</td>
+    </tr>
+    <tr>
+        <td width="5%" bordercolor="#000000"
+        bordercolordark="#808080" bordercolorlight="#C0C0C0">idLeaveRegionEvent</td>
+        <td width="33%" bordercolor="#000000"
+        bordercolordark="#808080" bordercolorlight="#C0C0C0">Logs
+        a new identity leaving a region. </td>
+        <td width="33%">Identity sturdy ref and name, region
+        sturdy ref and name.</td>
+    </tr>
+    <tr>
+        <td width="5%" bordercolor="#000000"
+        bordercolordark="#808080" bordercolorlight="#C0C0C0">logIdSessionLength</td>
+        <td width="33%" bordercolor="#000000"
+        bordercolordark="#808080" bordercolorlight="#C0C0C0">Logs
+        the session time for an avatar id. </td>
+        <td width="33%">Identity strudy ref and name, start time,
+        end time.</td>
+    </tr>
+</table>
+
+<p>EHubEventLog is an implemetation of EEventLogIntf. It
+implements the Event Log by writing to a flat text file. The
+format of a log record is as follows:</p>
+
+<blockquote>
+    <blockquote>
+        <pre>date-time, Event-id, &lt;additional fields dependent on event-id&gt;</pre>
+    </blockquote>
+</blockquote>
+
+<p>date-time is of the form <font size="2" face="Courier">yyyy.mm.dd-hh.mm.ss.mmm</font>.
+For example: <font size="1" face="Courier">1998.04.17-13.14.05.396</font><br>
+The date-time fields are year, month, day-of-month &lt;dash&gt;
+hour (in 24 hour format), minutes, seconds, and milliseconds.</p>
+
+<p>The Event-ids are defined below:</p>
+
+<table border="1" cellpadding="4" cellspacing="0"
+bordercolor="#000000" bordercolordark="#808080"
+bordercolorlight="#C0C0C0">
+    <tr>
+        <td bgcolor="#FFFFFF" bordercolor="#000000"
+        bordercolordark="#808080" bordercolorlight="#C0C0C0"><strong>Event
+        Id</strong></td>
+        <td bgcolor="#FFFFFF" bordercolor="#000000"
+        bordercolordark="#808080" bordercolorlight="#C0C0C0"><strong>Definition</strong></td>
+        <td bgcolor="#FFFFFF" bordercolor="#000000"
+        bordercolordark="#808080" bordercolorlight="#C0C0C0"><strong>Additional
+        fields</strong></td>
+        <td bgcolor="#FFFFFF" bordercolor="#000000"
+        bordercolordark="#808080" bordercolorlight="#C0C0C0"><strong>EEventLogIntf
+        emethod(s) that cause the event to be logged</strong></td>
+    </tr>
+    <tr>
+        <td>NEWLOG</td>
+        <td>A new log file has been created. This will be the
+        first record in the log file.</td>
+        <td>none</td>
+        <td>Constructor, newLog()</td>
+    </tr>
+    <tr>
+        <td>CLOSELOG</td>
+        <td>The log file is being closed. This will be the last
+        record in the log file.</td>
+        <td>none</td>
+        <td>finalization, closeLog(), newLog()</td>
+    </tr>
+    <tr>
+        <td>REALMSTART</td>
+        <td>The realm is starting up.</td>
+        <td>none</td>
+        <td>RealmStartEvent()</td>
+    </tr>
+    <tr>
+        <td>REALMSTOP</td>
+        <td>The realm is shutting down.</td>
+        <td>none</td>
+        <td>RealmStopEvent()</td>
+    </tr>
+    <tr>
+        <td>NEWIDENT</td>
+        <td>A avatar identity has entered the realm.</td>
+        <td>avatar id, avatar name</td>
+        <td>NewIdentEvent()</td>
+    </tr>
+    <tr>
+        <td>REMOVEIDENT</td>
+        <td>An avatar identity has left the realm.</td>
+        <td>avatar id, avatar name</td>
+        <td>RemoveIdentEvent()</td>
+    </tr>
+    <tr>
+        <td>ENTERREGION</td>
+        <td>An avatar identity has entered a region.</td>
+        <td>region id, region name, avatar id, avatar name</td>
+        <td>IdEnterRegionEvent()</td>
+    </tr>
+    <tr>
+        <td>LEAVEREGION</td>
+        <td>An avatar identity has left a region.</td>
+        <td>region id, region name, avatar id, region name</td>
+        <td>IdLeaveRegionEvent()</td>
+    </tr>
+    <tr>
+        <td>REVIVED</td>
+        <td>The vat was revived, and the log file reconstructed.</td>
+        <td>none</td>
+        <td>none.</td>
+    </tr>
+    <tr>
+        <td>SESSIONLENGTH</td>
+        <td>Specifies the duration an avatar was in the realm.</td>
+        <td>avatar id, avatar name, duration in seconds</td>
+        <td>logIdSessionLength()</td>
+    </tr>
+</table>
+
+<h4>Which directories on our tree does this subsystem cover?</h4>
+
+<p>src/hub/eventlog</p>
+
+<h4>Is it JavaDoc'ed?</h4>
+
+<p>EEventLogInfo.e and EHubEventLog.e are java-doc'ed however the
+output javadoc has not been generated.</p>
+
+<h4>Examples</h4>
+
+<p>The following is an example of the EHubEventLog ouput file.</p>
+
+<pre><font size="2">1998.04.16,18.57.49.037,NEWLOG
+1998.04.16,18.58.02.616,REALMSTART
+1998.04.16,19.03.43.807,NEWIDENT,rf9e0fxf5r49km2k3p1nf86zggxhnl0/2v9b13,testAvatar 
+1998.04.16,19.03.43.847,ENTERREGION,sshkdogmdk3gpl2n6r2y3nn3679v26z/1nkneuqbtr7dw,The City,rf9e0fxf5r49km2k3p1nf86zggxhnl0/2v9b13,testAvatar
+1998.04.16,19.04.14.041,LEAVEREGION,sshkdogmdk3gpl2n6r2y3nn3679v26z/1nkneuqbtr7dw,The City,rf9e0fxf5r49km2k3p1nf86zggxhnl0/2v9b13,testAvatar
+1998.04.16,19.04.14.101,SESSIONLENGTH,rf9e0fxf5r49km2k3p1nf86zggxhnl0/2v9b13,testAvatar,31
+1998.04.18,11.34.22.853,CLOSELOG
+1998.04.18,11.34.22.903,NEWLOG
+</font></pre>
+
+<h4>Testing and Debugging</h4>
+
+<p>None.</p>
+
+<h2>Design Issues</h2>
+
+<h4>Resolved Issues</h4>
+
+<p>None.</p>
+
+<h4>Open Issues</h4>
+
+<ul>
+    <li>The &quot;realm stop&quot; event is never logged. </li>
+    <li>Current simultaneous user count should be logged when an
+        avatar enters or leaves the realm.</li>
+    <li>Should there be an event log implementation that logs to
+        a database?</li>
+    <li>An event log parser tool is needed.</li>
+    <li>A tool to take log files and present usage graphs, etc.,
+        is needed.<br>
+        </li>
+</ul>
+</body>
+</html>

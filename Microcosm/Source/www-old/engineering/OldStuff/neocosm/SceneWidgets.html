@@ -1,0 +1,126 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>Scene Widget</TITLE>
+<META NAME="Template" CONTENT="C:\Program Files\Microsoft Office\Office\html.dot">
+</HEAD>
+<BODY LINK="#0000ff" VLINK="#800080">
+
+<I><H1>Scene Widgets</H1>
+</I><ADDRESS>This page was originally written by <A HREF="mailto:claire@communities.com">Claire</A>.</ADDRESS>
+<B><P>Last updated:</B><I> [98/06/12 </I><A HREF="mailto:claire@communities.com"><I>Claire</I></A><I>]</I> </P>
+<H2>Introduction</H2>
+<P>Scene widget or Scene GUI is a library of widgets and event handlers used to support UI elements in a DirectDraw Scene canvas. The library includes the most common user interface elements as well as some custom ones such as Pie Menus.</P>
+<H4>Related Documents</H4>
+<ADDRESS><A HREF="GUIFramework.html">GUI Framework</A></ADDRESS>
+<H2>Requirements</H2>
+<P>The original requirement was for the main window to support simple UI elements including labels, buttons, menus that would be "honored" by DirectDraw which was being used for the renderer. Current UI libraries and toolkits have no way of signaling there presence to direct draw unless they are a window. Since DirectDraw blits directly to the screen, buttons and menus would be drawn over each time the renderer redraws it's canvas. </P>
+<P>In addition, the library would support the special ui requirements of the una and any special in-world display needs.</P>
+<H2>Architecture</H2>
+<H4>Current Architecture Overview</H4>
+<P>The rationale for specific display types such as pie menus and sliding button panels can be found in the UI Design Document. The structure of the current library is largely divided into widget classes and corresponding event handlers. The decision to separate the widget from the event handler was motivated by the realization that the widget as a display object might remain constant while the actual response to specific events might change and visa versa. </P>
+<P ALIGN="CENTER"><IMG SRC="SceneWidgetFig1.gif" WIDTH=257 HEIGHT=300></P>
+<DFN><BLOCKQUOTE>Constructing a Widget using a Factory</BLOCKQUOTE>
+</DFN><P>&nbsp;</P>
+<P>There are two ways to construct most widgets. The first is to specify the needed data elements in the constructor. This allows easy testing and permits widgets to make one another without creating an intermediary data object. In addition, all of the information needed to construct a specific widget is encapsulated in a data object that can be stored in a file or repository and read in at startup. The file used to store these objects is a text file and can be modified by anyone familiar with the data format. When building the repository, the data in the file is converted to serialized data objects. These are stored in the repository under the key given in the original text file. The text file allows internationalization, widget locations to be moved onscreen, shortcuts to be changed etc. without changing the underlying code. At runtime, the widget data object is reconstructed and stored on UI Framework startup in the Unum UI Presenter Factory. To construct the object you need only specify the key of the data object. </P>
+<P ALIGN="CENTER"><IMG SRC="SceneWidgetFig2.gif" WIDTH=432 HEIGHT=480></P>
+<DFN><P ALIGN="CENTER">Event Propagation for a Scene Widget</P>
+</DFN><P>Once a widget is constructed, if it is going to respond to events, it must be given an event handler before adding it into the scene. This event handler will be called back by the Scene to handle an event if that widget is picked. In many instances, the event handler is shared by all objects of a particular type. This is true of all control panel and their contained buttons. The location of an event is enough to determine the context. The actual polygon that is picked determines who owns it and that owner handles the event. In this instance, the common event handler acts as a dispatcher to and from the widget and the framework. The handlers for Unum menus and labels rely on the Unum to provide the necessary context, which is done by setting the handlers controlled widget to the appropriate one once a context shifting event occurs. Once a handler, has resolved an event it will send the command represented by that event to the assigned command target. &lt;scene, groups,event handler links here&gt;</P>
+<P>Most widgets are lazily constructed form stored data templates. Menus are currently not stored but are constructed from a list returned by the Unum on an update context call. The menu items are referenced by string identifier in the Unum and the menu is constructed by building a menu using the menu item list. </P>
+<H4>Proposed Architecture Overview</H4>
+<P>There are no major changes being proposed for this subsystem.  The following smaller changes are being suggested:</P>
+<OL>
+
+<LI>The principle change needed is the reduction of the number of main window elements which must be non-standard.  The buttons on the top and bottom of the screen should be standard java elements.  </LI>
+<LI>It is unclear if we will be able to overlay standard linear menus on top of the existing renderer.  Previous attempts failed.  If we cannot we will need to make additional widgets to support linear menus and popups.</LI>
+<LI>The main problem currently is the event handling lag.  I propose added render locked updates for those events which are time sensitive to avoid the lag.  This won't help with the lag, if the dynamics engine already has the renderer lock and is performing a long update.  It will however guarentee that every event which should be drawn is actually drawn.</LI>
+<LI>The camera is currently not in the resource file and needs to be added to the file.</LI>
+<LI>The main event handler needs to have better support for swapping event handlers.  </LI></OL>
+
+<H4>Off the shelf alternatives</H4>
+<P>None that work with our current renderer</P>
+<H4>Other Design Objectives, Constraints and Assumptions</H4>
+<FONT FACE="Arial"><P>Resource management</P>
+</FONT><P>All construction is lazy. There are two means to construct an item. In one instance, the object is cached. In the other, it is constructed and returned but never stored. Only the former is used outside of the framework package. Once a label or menu is created it is kept in memory until the next region change. This means that the first attempt to make a menu after scene transitions is the slowest. Because of the high level of reuse of menu item elements however the lag after this is negligible. All other widgets can in principle be removed by storage by a call the Unum UI Presenter Factory. In actual fact, this not done because the remainder of the UI elements are main window elements are created for the duration of the session. The location in which an item is stored is not relevant. The objects could in fact be stored in a centralized repository</P>
+<FONT FACE="Arial"><P>Threading</P>
+</FONT><P>Three primary threads will interact with an event handler. The first is the scene event handler thread that handles callbacks to the handler. The second is the SceneWidgetTimer thread a separate thread used to time UI events such as highlights. The third is main UI thread which is used to instantiate the controllers on startup. The major source of deadlocks is between the timer thread and the event handler thread.</P>
+<H2>Current implementation</H2>
+<P>Source directory: src/cosm1/ui/gui/scenewidget package: ec.cosm.gui.scenewidget</P>
+<H4>Basic widget types:</H4>
+
+<UL>
+<FONT SIZE=2><LI>GUIObject: an interface that abstracts away the actual windowing library and contains some common calls used by all of them. (IFC, AWT, SceneGUI) </LI>
+<LI>SceneGUI: This is the base object class for all widgets </LI>
+<LI>CompositeGUI: This is a compositor class and allows multiple layers of SceneGUI and CompositeGUI to be structured into a single widget </LI>
+<LI>MultiStateImageGUI: This is a special case of CompositeGUI which contains the most common states for displaying a widget. Normal, Selected, Disabled.</LI></UL>
+
+</FONT><H4>Border or Frame Elements:</H4>
+
+<UL>
+<FONT SIZE=2><LI>WindowBorder: a widget that holds the collection of border widgets on the main window. These widgets are not responsive to events therefore, there is no corresponding event handler. </LI>
+<LI>WindowButtonHandler: A handler for the window buttons and panels on the main screen. These buttons unlike ControlStrips are not grouped around a single command and cannot be dragged along the window border. </LI>
+<LI>ControlStrip: widget class for a panel of buttons that can be dragged along a window border. </LI>
+<LI>ControlStripHandler: the event handler for handling events in a collection of ControlsStrips</LI></UL>
+
+</FONT><H4>Event handling</H4>
+
+<UL>
+<FONT SIZE=2><LI>UnumEventHandler: the primary event handler for event to the Unum. There is only one of these. It is used to update the user context on mouse enter/exit and propagate events to the appropriate menu and label handlers.</LI></UL>
+
+</FONT><H4>Label classes:</H4>
+
+<UL>
+<FONT SIZE=2><LI>Label: the base label widget </LI>
+<LI>ImageLabel: a widget for labels which are images </LI>
+<LI>StringLabel: a widget for labels which are strings </LI>
+<LI>LabelHandler: a simple event handler for labels </LI>
+<LI>UnumLabelHandler: the event handler used by the UnumEventHandler to handle events for an unum’s label. There is only ever one of these. The labels are swapped in an out on a context update.</LI></UL>
+
+</FONT><H4>PieMenu classes:</H4>
+
+<UL>
+<FONT SIZE=2><LI>PieMenu: a widget for displaying PieMenus </LI>
+<LI>PieMenuHandler: the event handler used by the UnumEventHandler to handle events for an unum’s piemenu. There is only ever one of these. The piemenu and submenus are swapped in an out on a context update </LI>
+<LI>ImageCmdPresenter: a widget for displaying an image menu item that supports commands and multiple states </LI>
+<LI>StringCmdPresenter: a widget for displaying a string menu item that support commands and multiple states</LI></UL>
+
+</FONT><H4>Misc. In-World classes:</H4>
+
+<UL>
+<FONT SIZE=2><LI>BalloonScroller: arrow widgets for scrolling in-world text balloons </LI>
+<LI>BalloonScrollerHandler: the event handler for handling events in a BalloonScroller widget </LI>
+<LI>GUIFrontPlanePresenter: a UI presenter class which allows a widget to be added by the unum to the front or GUI plane. This is the only class besides menus and labels which is created on an unum request. </LI>
+<LI>MultiCam: a widget for switching camera views in a scene canvas region </LI>
+<LI>MultiCamHandler: the event handler for the MultiCam widget</LI></UL>
+
+</FONT><H4>Scrollbar classes: (for a scrolling list- not currently used!)</H4>
+
+<UL>
+<FONT SIZE=2><LI>ScrollBar: a widget for displaying a scrollbar </LI>
+<LI>ScrollBarHandler: an event handler for scroll bars </LI>
+<LI>Scroller: the scrollable canvas widget which can be linked to a ScrollBar</LI></UL>
+
+</FONT><H4>Support Data classes:</H4>
+
+<UL>
+<FONT SIZE=2><LI>CommandPresenterData: a collection of data classes created to support display of commands ie menu items and menus to users. </LI>
+<LI>FontStringInfo: data classes used to store font , string and the bitmaps for in-world strings. </LI>
+<LI>SceneWidgetData: a collection of data objects used to construct a widget. These are stored in a file or the repository and read in on by the framework Owner on startup.</LI></UL>
+
+</FONT><H4>Utility classes:</H4>
+
+<UL>
+<FONT SIZE=2><LI>SceneWidgetTimer: a timer utility class used to handle all time-based display of highlights, etc.</LI></UL>
+
+</FONT><H4>Examples</H4>
+<H4>Testing and Debugging</H4>
+<P>There are currently no test apps that are up-to-date which allow testing of widgets without bringing up Microcosm. Most widgets can be tested by comparing behavior against the current UI spec.</P>
+<H2>Design Issues</H2>
+<H4>Resolved Issues</H4>
+<P>Fixed timer so it will always perform a task even if the time has elapsed, if the scene hasn't been drawn at least once. This fixed a number of problems with highlights failing to show.</P>
+<H4>Open Issues</H4>
+<P>There is currently support throughout the code to permit a linear menu as wells as a piemenu or in addition to a piemenu. <A HREF="mailto:walendo@communities.com"><I>Walendo</I></A> has code that allows for the display and picking of an array of strings. This needs to be wrapped and added as a standard widget&nbsp;</P>
+<P>The clear line of separation between widget and handler has not always been maintained this is especially true of the PieMenuHandler. Ideally, the handlers should contain very little state information about a specific handler. In the case of Pie Menus some of the state for example, cursor warping and submenu state, is stored in the handler.</P>
+<P>Many time-based functions still do not occur in a "timely" manner from the users point of view. Some highlight and selection events will simply not occur on a slow, heavily loaded machine when the renderer is busy with dynamics engine task. Some effort needs to be made to get a redraw front-plane event to occur separate from the dynamics engine update. Either the renderer needs to be able to draw the front plane separately or a lock and draw mechanism needs to be implemented.</P></BODY>
+</HTML>

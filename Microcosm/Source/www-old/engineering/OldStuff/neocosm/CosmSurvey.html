@@ -1,0 +1,711 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="Author" CONTENT="Arturo Bejar">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.03 [en] (Win95; U) [Netscape]">
+   <TITLE>Cosm Subsystems</TITLE>
+</HEAD>
+<BODY>
+
+<H1>
+Cosm Subsystems</H1>
+<I>This page is under construction by <A HREF="mailto:arturo@communities.com">Arturo</A>
+and many others. Please send suggestions, questions or comments.</I>
+<CENTER>This page links to all of the documentation we have gathered of
+our technology so far, eventually it will link to all of our design documentation
+as it gets fleshed out.</CENTER>
+
+<CENTER>&nbsp;</CENTER>
+
+<CENTER><TABLE BORDER COLS=5 WIDTH="100%" >
+<TR>
+<TD>
+<CENTER><A HREF="#Customer Requirements">Customer Requirements</A> <A HREF="#Customer Requirements">&amp;
+Planning Documents</A>&nbsp;</CENTER>
+</TD>
+
+<TD>
+<CENTER><A HREF="#Process Documentation">Process Dox</A>&nbsp;</CENTER>
+</TD>
+
+<TD>
+<CENTER><A HREF="#E and its replacement">E and its replacement</A>&nbsp;</CENTER>
+</TD>
+
+<TD>
+<CENTER><A HREF="#Tools">Tools:</A> <A HREF="#Tools">PLS, Cert, Repository,
+Identity, Performance</A>&nbsp;</CENTER>
+</TD>
+
+<TD>
+<CENTER>&nbsp;<A HREF="#UI Subsystems">UI Subsystems:</A> <A HREF="#UI Subsystems">GUID,
+Renderer, Dynamics, Sound</A>&nbsp;</CENTER>
+</TD>
+</TR>
+
+<TR>
+<TD>
+<CENTER><A HREF="#Pluribus and its replacement">Pluribus and its DO Replacement</A>&nbsp;</CENTER>
+</TD>
+
+<TD>
+<CENTER>&nbsp;<A HREF="#Cosm application">Cosm application support</A>&nbsp;</CENTER>
+</TD>
+
+<TD>
+<CENTER>&nbsp;<A HREF="#Ingredients and Una">Ingredients and Una</A>&nbsp;</CENTER>
+</TD>
+
+<TD>
+<CENTER>&nbsp;<A HREF="#Development Tools">Development Tools</A>&nbsp;</CENTER>
+</TD>
+
+<TD>
+<CENTER>&nbsp;<A HREF="#Production Documents">Production Dox</A>&nbsp;</CENTER>
+</TD>
+</TR>
+</TABLE></CENTER>
+
+<CENTER>Click a section heading above to go straight to that section, or
+just scroll down through all sections.</CENTER>
+
+
+<P><B><I><FONT SIZE=+1>Last updated: 98/06/19 Arturo - Cleaned up formatting</FONT></I></B>
+
+<P>As part of figuring out the best way to move forward we need to understand
+what we have. The application can be divided into subsystems, and we need
+to survey them and the code that we have. Doing this will help get a good
+comprehensive plan of the work ahead.
+
+<P>If you are documenting a subsystem please use the <A HREF="SubsystemDocTemplate.html">Subsystem
+Document Template</A>.
+
+<P>Once we have sorted out who will be working on which subsystems we will
+need to define requirements, issues, and decide on the future of legacy
+code, identifying carefully what is the functionality that we need, as
+well as possible alternatives.
+
+<P><B>The items are tagged: [Documenter: Reviewer(s)]</B>
+<BR><B>Documenter?</B> - The person is out of the office so we made a tentative
+assignment.
+<BR><B>??</B> - No one has signed up for this, please help.
+<BR><U>Underlined*</U> - Items done.
+<BR>Italics+ - In progress
+
+<P>
+<HR>
+<H2>
+<A NAME="Customer Requirements"></A>Customer Requirements &amp; Planning
+Information</H2>
+This section holds all documents that are requirements for the system based
+on customer information and feedback, as well as all current roadmaps and
+planning documents for our ship trajectory.
+<UL>
+<H4>
+<A HREF="CustomerRequirements.html">Initial Customer Requirements</A> [JohnS+
+: ??]</H4>
+
+<H4>
+<A HREF="ExternalDates.htm">External Dates</A> [JohnS: ??]</H4>
+
+<H4>
+<A HREF="Milestones.html">Milestone List</A> [JohnS &amp; RobJ &amp; ???:
+everyone]</H4>
+</UL>
+
+<HR>
+<H2>
+<A NAME="Process Documentation"></A>Process documentation</H2>
+This section holds all documents related to our development process.
+<UL>
+<H4>
+<A HREF="http://www-int.communities.com/engineering/tools/">Engineering
+Tools and Procedures</A> [??: ??] (Needs owner)</H4>
+
+<H4>
+<A HREF="CheckinProcedures.html">Checkin Procedure</A> [<U>Claire*</U>:
+Everyone]</H4>
+
+<H4>
+<A HREF="EvaluatingVendorSoftware.html">External Vendor Criteria</A> [Scott:
+??]</H4>
+
+<H4>
+<A HREF="IDESelection.html">IDE Selection &amp; Info Page</A> [Karl: Everyone]</H4>
+
+<H4>
+<A HREF="idefiles/RunningEC5Cafe.html">Running EC5 in Cafe</A> [Started
+by Bill who knows nothing about the subject]</H4>
+</UL>
+
+<HR>
+<H1>
+<B>Subsystem Survey</B></H1>
+Each one of these should link to the corresponding web pages maintained
+by the subsystem's owner, for now the outline will be here for easy browsing,
+this is more of a component listing based on browsing of our source tree.
+<BR>Summary notes about the subsystem's development status are in italics.&nbsp;
+This includes info about what the plans for the subsystem are, what alternatives
+may exist, etc.
+
+<P><I>[RobJ 22 May 98] This italicized information is ONLY PARTIALLY REVIEWED,
+so do NOT take it as gospel.&nbsp; At the moment, in all cases it reflects
+only RobJ's perception of what the decision space is.&nbsp; So <A HREF="mailto:robj@communities.com">tell
+me</A> if you disagree with something!&nbsp; Please!&nbsp; I've only commented
+the subsystems that are big enough to pose major issues, again in my current
+estimation--please correct me.</I>
+
+<P>
+<HR>
+<H2>
+<A NAME="E and its replacement"></A>E and its replacement</H2>
+
+<UL>
+<H4>
+<A HREF="e/semantics.html">E's Semantics</A> [MarkM+: Arturo]</H4>
+
+<UL>
+<LI>
+The RunQ.</LI>
+
+<LI>
+RtTethers including EUniChannels, EStone and EProxy.</LI>
+
+<BR><I>ELib implements the core runtime providing the basic E semantics.&nbsp;
+This is checked in and is being maintained under our chose pure Java IDE.</I></UL>
+
+<H4>
+<A HREF="CoreESupport.html">Core E language support</A> [<U>Chip*</U>:
+Robj]</H4>
+
+<UL>
+<LI>
+All the core language eclasses EInteger, EBoolean, etc.</LI>
+
+<BR><I>We do not need these so much given the new E runtime; they will
+mostly go away and not be missed.</I></UL>
+
+<H4>
+<A HREF="CommSystemOverview.html">Comm System</A> [<U>Bill*</U>: Robj,
+Bob]</H4>
+
+<UL>
+<LI>
+Point-to-point E comm system:</LI>
+
+<LI>
+Encrypted links.</LI>
+
+<LI>
+Unforgeable network object references with handoff logic.</LI>
+
+<LI>
+SturdyRefs and the Registrar.</LI>
+
+<LI>
+Message encode/decode.</LI>
+
+<BR><I>The design for this is well underway.&nbsp; It looks now like we
+will be reusing almost all the logic and good portions of the code of the
+current comm system, with the exception of the encoding system; we'll use
+standard Java serialization instead, which will reduce the amount of code
+we have to maintain.</I></UL>
+<I>Indented&nbsp; by RobJ these are notes which are most germane to the
+comm system at the moment:</I>
+<UL>
+<H4>
+<A HREF="ProxyManager.html">Proxy Management</A> [Bob: MarkM, Bill]</H4>
+
+<H4>
+<A HREF="DeconstructingE.html">Notes on Deconstructing E and the Comm system</A>
+[Arturo]</H4>
+
+<H4>
+<A HREF="StateSerialization.html">State Serialization</A> [<U>Arturo*</U>:
+Scott, Bob]</H4>
+</UL>
+
+<H4>
+<A HREF="MultipointCommSystem.html">Multipoint Comm System</A> [Scott:
+Arturo, RobJ, Bob, et al]</H4>
+
+<UL>
+<LI>
+<I>We agree we need some form of multipoint communication support at a
+low level in the comm system.&nbsp; The design for this is underway and
+being reviewed heavily.&nbsp; The resolution of this affects some of the
+architecture of the point-to-point comm system but is not a major gating
+factor on the implementation of that comm system.</I></LI>
+</UL>
+
+<H4>
+<A HREF="EncodeDecodeOverview.html">Encode/decode system</A> (db) [<U>Bill*</U>:
+Arturo]</H4>
+<I>We will likely use Java serialization instead of this.</I>
+<H4>
+<A HREF="cert/CertificateSubsystem.html">Certification</A> [Mike: Robj,
+Karl Bob]</H4>
+
+<UL>
+<LI>
+<I>No plan yet.&nbsp; Likely will use most of the current certification
+logic for art.</I></LI>
+</UL>
+
+<H4>
+<A HREF="FileWrappers.html">File Wrappers</A> [<U>Chip*</U>: ??]</H4>
+
+<H4>
+<A HREF="EBoot.html">EEnvironment and boot management</A> [Chip: ??]</H4>
+
+<H4>
+<A HREF="MagicPowers.html">Magic powers interface and mechanism</A> [Chip:
+??]</H4>
+
+<H4>
+The inspector [??: ??]</H4>
+
+<H4>
+Console support [Claire+: ??]</H4>
+
+<UL>
+<LI>
+<I>Here is where customer requirements are more critical than anywhere
+else... do we need a console mode [i.e. a text mode, like a text-only MUD]
+architected into the product (at the presentation layer)???&nbsp; At the
+moment it's not clear we have the right milestones for that.</I></LI>
+</UL>
+
+<H4>
+Serialization Support (Openers Serialization) [MarkM: Scott, Bob]</H4>
+
+<UL>
+<LI>
+<I>It is likely we will move away from Openers as well, so our one serialization
+system will be Java serialization.&nbsp; The goal of all this is to reduce
+how much code we must maintain.</I></LI>
+</UL>
+
+<H4>
+<A HREF="Timers.html">Timer support</A> [Chip : Bill]</H4>
+
+<H4>
+Comm Coexistence support [Robj: ??]</H4>
+
+<UL>
+<LI>
+<I>It is not clear how much of a comm coexistence story we will need.&nbsp;
+We will have to look closely at this as we get deeper into customer requirements
+and the u</I>se of the new comm system.</LI>
+</UL>
+
+<H4>
+<A HREF="http://www-int.communities.com/engineering/tools/tracing/Tracing.html">Trace
+System</A> [<U>Brian*</U>: ??]</H4>
+
+<UL>
+<LI>
+<I>Doesn't appear that much if any work will be needed here.</I></LI>
+</UL>
+
+<H4>
+<A HREF="ExceptionHandling.html">Exception handing</A> [Claire: Arturo,
+??]</H4>
+
+<UL>
+<LI>
+<I>No code here per se, but we do need to get our story <U>straight</U>
+and stick to it.</I></LI>
+</UL>
+
+<H4>
+EC Collections [Sidney: ??]</H4>
+</UL>
+
+<HR>
+<H2>
+<A NAME="Tools"></A>Tools</H2>
+
+<UL>
+<H4>
+Process Location Server [Bob: Jeff, MarkM]</H4>
+
+<UL>
+<LI>
+Most of the current PLS design seems fairly solid.&nbsp; The biggest issues
+are needing to move it onto the new comm system (because it uses some old-E
+code), and needing to figure out our firewall story.</LI>
+</UL>
+
+<H4>
+<A HREF="cert/CertAgencySubsystem.html">Certification agency</A> [Mike:
+Jeff, Bob]</H4>
+
+<UL>
+<LI>
+Again it's likely "use the current model and most of the current code".</LI>
+</UL>
+
+<H4>
+<A HREF="Identity.html">Identity management</A> [<U>Scott*</U>: Jeff, Karl]</H4>
+
+<H4>
+<A HREF="Repository/index.html">Repository</A>, Curator and resource management
+[Karl: Chip, Mike?]</H4>
+
+<UL>
+<LI>
+We have no good plan here, but one thing we do agree on is that the repository
+is currently bigger than it needs to be, and can solve its problems more
+simply.</LI>
+</UL>
+
+<H4>
+Development and Performance tools [Chip: Tony, Karl]</H4>
+
+<UL>
+<LI>
+Hopefully the Java biz will continue to give us more to play with here,
+especially in the new IDE world.</LI>
+</UL>
+</UL>
+
+<HR>
+<H2>
+<A NAME="UI Subsystems"></A>UI Subsystems</H2>
+
+<UL>
+<H3>
+Display</H3>
+</UL>
+
+<UL>
+<UL>
+<H4>
+<A HREF="RendererSubsystem.html">Renderer Subsystem</A> [Mike: Claire,
+Tony]</H4>
+
+<UL>
+<LI>
+<I>The current plan is to use the existing AnyChannel renderer. See the
+<A HREF="RendererAnalysis.html">Renderer Analysis</A> page for a list of
+the issues involved in maintaining the AnyChannel renderer and porting
+to a new one.</I></LI>
+</UL>
+
+<H4>
+<A HREF="dynamics\DynamicsEngine.html">Dynamics Engine</A> [Tony, Harry,
+Mike): Claire, Tony]</H4>
+
+<UL>
+<LI>
+<I>This is in pure Java but has always been a major source of deadlock
+bugs, and should be redesigned to greatly reduce their incidence. One big
+problem is the <A HREF="dynamics\Dynamo3D.html">Dynamo3D</A> code which
+is possibly not shippable; redoing this will be a sizable piece of work.</I></LI>
+</UL>
+
+<H4>
+<A HREF="ECFonts.html">ECFonts</A> (the in-world text/balloon generator)
+[Walendo:?]</H4>
+
+<UL>
+<LI>
+<I>The code could use some cleanup and a review, but it's been stable for
+a long time. If we will want the same in-world text styles, there's probably
+no need to change the native code. The Java wrappers would need to change
+to reflect any new calling paradigms or renderer interfaces, should we
+change them.</I></LI>
+
+<BR><I>Note that ECFonts just makes the graphics, it doesn't put them on
+the screen.</I></UL>
+</UL>
+
+<H3>
+Sound [Ronin: Claire]</H3>
+
+<UL>
+<H4>
+<A HREF="audio/Audio-Subsystem.html">DirectSound Java support.</A></H4>
+
+<H4>
+<A HREF="audio/VoxNotes.html">VoxChat.</A></H4>
+
+<UL>
+<LI>
+<I>It looks plausible that we could just use the NetMeeting SDK instead
+of TNT's VoxChat (which is no longer supported at all, and thus basically
+unshippable).&nbsp; The problem would then be, as it currently is, using
+chat while listening to sounds; we don't know if DirectSound coexists any
+better with NetMeeting's call API than it did with VoxChat (which was "not").</I></LI>
+</UL>
+</UL>
+
+<H3>
+UI Support [Claire: Tony, Arturo, Karl, Robj]</H3>
+
+<UL>
+<H4>
+IFC</H4>
+
+<UL>
+<LI>
+<I>The likeliest contender here is either Swing or JFC, as IFC is unsupported
+and WFC would require using <U>all</U> Microsoft tools.</I></LI>
+</UL>
+
+<H4>
+StoneLook</H4>
+
+<UL>
+<LI>
+<I>It is undecided whether we even continue to <U>have</U> a custom StoneLook-esque
+interface.&nbsp; It would certainly expedite matters to be able to use
+an off-the-shelf GUI builder....</I></LI>
+</UL>
+
+<H4>
+<A HREF="ConsoleFramework.html">Console Framework</A></H4>
+
+<H4>
+<A HREF="GUIFrameworkOverview.html">Gui Framework</A></H4>
+</UL>
+</UL>
+
+<HR>
+<H2>
+<A NAME="Pluribus and its replacement"></A>Pluribus and its replacement</H2>
+
+<UL>
+<H4>
+<A HREF="containment/Introduction.htm">Introduction to containment issues</A>
+[<U>Robj*</U> : Scott, Arturo]</H4>
+
+<UL>
+<LI>
+<I>The document itself lays out most of the issues here.&nbsp; Generally
+we need something smaller, simpler, and easier to verify as correct.&nbsp;
+The goal is to avoid some of the hard problems we don't completely solve
+in the current code, while leveraging as much of the current logic as makes
+sense.&nbsp; The code itself is likely to need a complete rewrite to get
+to pure Java.</I></LI>
+</UL>
+
+<H4>
+Pluribus as we know it [Robj: ??]</H4>
+
+<H4>
+<A HREF="DObjects.html">Distributed object issues and future DO system</A>
+[Scott: Chip, Robj, Arturo]</H4>
+
+<UL>
+<LI>
+<I>This is a major design area.&nbsp; We all agree that there are some
+basic services this layer needs to provide, and we mostly agree on what
+those services are.&nbsp; We also know how to implement all of the ones
+we really need.&nbsp; The issue is fleshing out the concrete design, and
+this will be very carefully reviewed and expedited over the next few weeks.</I></LI>
+</UL>
+
+<H4>
+<A HREF="wo/WorldObjectSpec.html">World Object Support </A>[Arturo: Scott,
+Robj, Chip]</H4>
+
+<UL>
+<LI>
+<I>This document outlines the composition support for constructing world
+objects.</I></LI>
+</UL>
+</UL>
+
+<HR>
+<H2>
+<A NAME="Cosm application"></A>Cosm application support</H2>
+
+<UL>
+<H4>
+<A HREF="AccountManager.html">Account manager</A> [<U>Masa*</U>: ??]</H4>
+
+<UL>
+<LI>
+<I>Not known what we do here.&nbsp; We need another milestone for this.</I></LI>
+</UL>
+
+<H4>
+<A HREF="EBoot.html">Startup</A> [<U>Chip*</U>: Arturo]</H4>
+
+<UL>
+<LI>
+<I>Chip is looking at documenting and vastly simplifying this (as he successfully
+did with Pluribus).</I></LI>
+</UL>
+
+<H4>
+<A HREF="UnumInstantiation.html">Unum Creation (Factories &amp; Catalog)</A>
+[Arturo (Charles)+: Chip]</H4>
+</UL>
+
+<HR>
+<BR>&nbsp;
+<H2>
+<A NAME="Ingredients and Una"></A>Ingredients and Una</H2>
+
+<UL>
+<LI>
+<I>In general, most of our features are implemented at this level (with
+UI support elsewhere).&nbsp; For most of these features we will use the
+same or very similar logic, possibly even translating ingredients (by hand,
+but somewhat mechanically) into New-E if possible.&nbsp; We haven't fully
+designed the new unum model, but we do know that it needs to provide basically
+the functionality that the current code relies on.</I></LI>
+</UL>
+
+<UL>
+<H3>
+<A HREF="IngredientSurvey.html">Karl's Ingredient Survey</A></H3>
+</UL>
+
+<UL>
+<H4>
+Basic support:</H4>
+
+<UL><A HREF="containment/Containment.html">Containership, composition,
+TOS</A> [Robj: Scott, Claire]
+<BR>(now links to new version of containment subsystem doc; needs to also
+have a composition subsystem doc, soon)
+
+<P>Containment, identity, <A HREF="Conversation.html">conversation</A>,
+<A HREF="Telepathy.html">telepathy</A> [Scott?: ??]
+
+<P>behavior, portability, eventable, description, property, destination,
+URL [Randy?: Karl]
+
+<P>Verb,&nbsp; interface, modification [Robj?: Karl]
+
+<P>Cloneable, cloner [Arturo: ??]</UL>
+
+<H4>
+Avatar</H4>
+
+<UL><A HREF="http://www-int.communities.com/engineering/OldStuff/design_notes/avatar_body.html">avatar,
+avatarBody</A>, avatarIdentity. [Arturo: ??]</UL>
+
+<H4>
+Basic una/world support</H4>
+
+<UL><A HREF="RealmAndRegionUna.html">Realm, region,</A> portal, directory,
+sysadmin.&nbsp; [Scott?: ??]
+
+<P><A HREF="Teleportation.html">Teleportation</A> [Karl:??]</UL>
+
+<H4>
+World object support:</H4>
+
+<UL>Camera, changeable, texturize [??: ??]</UL>
+
+<H4>
+<A HREF="Games.html">Games</A>: [Crock: ??]</H4>
+
+<UL>Chess, makrook, reversi, stone, threeple, tishai, xiangqi.</UL>
+
+<H4>
+<A HREF="SupportFacetClasses.html">Support Classes</A> [Robj: ??]</H4>
+
+<UL>Facets, location and presentation information.</UL>
+
+<H4>
+Postponed (should we document/review these?)</H4>
+
+<UL>Trading, vending.</UL>
+</UL>
+
+<HR>
+<H2>
+<A NAME="Hub tools"></A>Hub tools [Jeff: ??]</H2>
+
+<UL>
+<LI>
+<I>Major customer requirements work needed here, but in general the current
+stuff works reasonably well as a basic account creation/setup process.&nbsp;
+We would need to make it much simpler to use before shipping it outside
+of EC, however.</I></LI>
+</UL>
+
+<UL>
+<LI>
+<A HREF="hub/mbrdb/hubMbrDB.html">Member DB</A></LI>
+
+<LI>
+<A HREF="hub/HubManagement.html">NT Hub management files</A></LI>
+
+<LI>
+<A HREF="hub/HubEventLog.html">Hub Event Log</A></LI>
+
+<LI>
+<A HREF="hub/hubworrylist.html">Hub Worry List</A></LI>
+</UL>
+
+<HR>
+<H2>
+<A NAME="Development Tools"></A>Development Tools / IDE [Bob: Everyone]</H2>
+
+<UL>Also see <A HREF="http://www-int.communities.com/engineering/tools/">Engineering
+Tools and Procedures</A> for notes on our current development tools.
+
+<P><A HREF="IDESelection.html">IDE Selection notes</A>: Bottom line --
+<A HREF="idefiles/cafe.html">Symantec Cafe</A> in lieu of any outstanding
+reasons for anything else.</UL>
+
+<UL><A HREF="JavaSafeEvaluation.html">JavaSafe Evaluation</A>:&nbsp; Bottom
+line -- Stay with CVS until JavaSafe is a clear winner (which it is not
+right now).</UL>
+
+<HR>
+<H2>
+<A NAME="Production Documents"></A>Production Documents [<U>Tony*</U>:
+Robj, Claire, Arturo]</H2>
+
+<UL><I>Production tools may wind up being one of our most serious concerns.&nbsp;
+The current production path is not usable outside EC without great pain.&nbsp;
+Simplifying it, such that it's straightforward to produce basic objects,
+is likely to be a significant planning priority--possibly even at the expense
+of some features.</I></UL>
+
+<UL>
+<LI>
+&nbsp;<A HREF="production/ProductionWorryList.html">Production Worry List</A></LI>
+
+<LI>
+&nbsp;<A HREF="production/ProductionIndex.html">Production Documentation
+Index</A></LI>
+
+<LI>
+&nbsp;<A HREF="production/ProductionTools.html">Production Tools</A></LI>
+
+<LI>
+&nbsp;<A HREF="production/ProductionOverview.html">Production Processes
+Overview</A></LI>
+</UL>
+
+<H2>
+&nbsp;</H2>
+
+<HR>
+<H2>
+<A NAME="Future issues"></A>Future issues</H2>
+
+<UL>
+<H4>
+<A HREF="Extensibility.html">Extensibility</A> [Tony: MarkM, Randy]</H4>
+</UL>
+
+<UL>
+<UL>
+<LI>
+(this is s.t. we don't paint ourselves into a corner extensibility-wise)</LI>
+
+<BR>Capture assets, risks, known purples.</UL>
+</UL>
+<I>&nbsp;</I>
+</BODY>
+</HTML>

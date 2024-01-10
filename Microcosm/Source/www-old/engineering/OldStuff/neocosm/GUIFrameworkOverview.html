@@ -1,0 +1,84 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>GUI Framework Overview</TITLE>
+<META NAME="Template" CONTENT="C:\Program Files\Microsoft Office\Office\html.dot">
+</HEAD>
+<BODY LINK="#0000ff" VLINK="#800080">
+
+<I><H1>GUI Framework Overview</H1>
+</I><ADDRESS>This page was originally written by <A HREF="mailto:claire@communities.com">Claire</A>.</ADDRESS>
+<B><P>Last updated:</B><I> [1998-05-21 </I><A HREF="mailto:claire@communities.com"><I>Claire</I></A><I>]</I> </P>
+<H2>Introduction</H2>
+<P>The GUI Framework includes a collection of packages to support the fully graphical 3D user interface with voice chat. These include all of the Presenters needed by the GUI Framework factories and the code libraries to support them.</P>
+<H4>Related Documents</H4>
+<ADDRESS><A HREF="UIFramework.html">UI Framework</A></ADDRESS>
+<ADDRESS><A HREF="ConsoleFramework.html">Console Framework</A></ADDRESS>
+<ADDRESS><A HREF="GUIFramework.html">GUI Framework</A></ADDRESS>
+<H2>Requirements</H2>
+<P>The GUI Framework once started is responsible for displaying various presenters to users in a graphical display. The GUI Presenters are implementations of those in the standard UI Framework. In addition, the GUI Framework includes the packages and classes necessary to support the actual presenters.</P>
+<H2>Architecture</H2>
+<H4>Current Architecture Overview</H4>
+<H4 ALIGN="CENTER"><IMG SRC="MainWindowDisplay.gif" WIDTH=408 HEIGHT=144></H4>
+<DFN><P ALIGN="CENTER">fig 1. Main Window Display Architecture</P>
+<P>&nbsp;</P>
+<P>&nbsp;</P>
+</DFN><P ALIGN="CENTER"><IMG SRC="MainWindowEvent.gif" WIDTH=366 HEIGHT=300></P>
+<DFN><P ALIGN="CENTER">fig2. Main Window Event Architecture</P>
+</DFN><P>The GUI Framework packages are built on a third party rendering engine and Netscape's IFC interface library. This represents one possible combination of graphical display technologies. The GUI display can be thought of as two separate collections of packages based on these two separate display mechanisms. First, the main windows display that depends on the framework package as well as scene, font, dynamics and scenewidget. Second, the external windows that are built with IFC and a collection of wrapper and utility classes for customization found in the ec/ tree.</P>
+<P>The current cosm gui framework packages are as follows:</P>
+
+<UL>
+<LI>Framework: the GUI implementation of the UI Framework, the UI Framework Factories and the Notification Manager. </LI>
+<LI>UIPresenter: the GUI implementation of most of the presenters created by the UIPresenterFactory and the SessionUIPresenter factory. </LI>
+<LI>Windows: some external window presenters including the VoxChat, progress, preferences and log windows. </LI>
+<LI>Login: support classes including presenter to permit user login, which must occur before the framework is fully in place </LI>
+<LI>Scene: the wrapper around the AnyChannel renderer and the classes that support the main window's scene canvas. This includes event handling and picking functions. </LI>
+<LI>Fonts: a wrapper around native font support that allows the display of fonts and stylized text and balloons in the scene canvas. </LI>
+<LI>Dynamics: the dynamics engine and the presenters used for in-world display of an unum. It handles compositing and animation of objects within the scene. It also handles the scrolling word balloons and the texture cache. </LI>
+<LI>SceneWidget: a package of classes used to display scene canvas widgets including buttons, labels and menus. They are drawn by the renderer and they receive events from the scene's event queue. </LI>
+<LI>Texture: the texture presenter. </LI>
+<LI>Sound: the VoxChat support that is currently used only by the GUI Framework. </LI>
+<LI>Utils: miscellaneous utility classes</LI></UL>
+
+<H4>Proposed Architecture Overview</H4>
+<P>It is unknown at this time how extensive the changes need to be in the current architecture. A few of them have however been decided. More details about specific changes can be found in the subsystem document.</P>
+<OL>
+
+<LI>All windows will be Swing based rather than IFC based. This eliminates all of the stonelook type classes as well as the IFC application. It will require most of the current windows to be rewritten using the Swing class equivalents. Any essential functionality that was part of IFC application will have to be moved to the EC Main class or into the G/UI Framework.</LI>
+<LI>We will no longer be using VoxChat to support point to point audio sessions. We will be using Net Meeting instead.</LI>
+<LI>Scene Widgets should only be used for things that must be displayed inside the main scene. This means using standard Swing widgets for the border areas.</LI>
+<LI>Linear Menu or Popup menu support needs to be completed in the fonts and balloon code.</LI>
+<LI>Fonts, Texture, Dynamics Engine and Scene Widget will need to be rewritten or rewrapped should we change render engines.</LI>
+<LI>Login needs to be simplified and duplicate code should be removed and moved into a utility class.</LI>
+<LI>The main Framework package needs to be reorganized to better manage the multiplicity of functions that have been added to GUIFramework class and to prevent such confusion in the future.</LI>
+<LI>The Notification Manager support needs to be cleaned up. The need to make the notification objects stewards made them overly complex.</LI></OL>
+
+<H4>Off the shelf alternatives</H4>
+<P>For the main window: dependent on render technology</P>
+<P>For the external window: AWT, Swing and MFC</P>
+<P>For audio: Net Meeting</P>
+<H4>Other Design Objectives, Constraints and Assumptions</H4>
+<H2>Current implementation</H2>
+<P>Current directory for GUI packages: src\cosm1\ui\gui\ </P>
+<H4>Current packages:</H4>
+
+<UL>
+<LI>ec.cosm.gui.framework </LI>
+<LI>ec.cosm.gui.fonts </LI>
+<LI>ec.cosm.gui.login </LI>
+<LI>ec.cosm.gui.scene. </LI>
+<LI>ec.cosm.gui.scenewidget </LI>
+<LI>ec.cosm.gui.texture </LI>
+<LI>ec.cosm.gui.appearance </LI>
+<LI>ec.cosm.gui.uipresenter </LI>
+<LI>ec.cosm.gui.window</LI></UL>
+
+<P>Current directory for VoxChat :src\cosm1\ui\sound</P>
+<H4>Examples</H4>
+<H4>Testing and Debugging</H4>
+<H2>Design Issues</H2>
+<H4>Resolved Issues</H4>
+<H4>Open Issues</H4></BODY>
+</HTML>

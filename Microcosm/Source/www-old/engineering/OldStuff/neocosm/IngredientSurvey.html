@@ -1,0 +1,1659 @@
+<HEAD>
+<TITLE>
+Ingredient Code Status
+</TITLE>
+</HEAD>
+<A NAME="top"></A>
+
+<h1><center><u>Ingredient Code Status</u></h1></center>
+
+<p>
+<b>JAVADOC COMMENTS:</b> <br>
+N		- No, it's not Javadoc'd<br>
+NA	- Needs @author<br>
+NE	- Needs @exceptions<br>
+NM	- Needs more<br>
+NP	- Needs @params<br>
+NV	- Needs variable comments<br>
+Y	- Yes, it's Javadoc'd properly<br>
+
+<p>
+The CONDITION is just my cursory impression of amount of comments, length
+of methods/functions and seeming complexity of code
+<p>
+<p>
+
+
+
+<table border cellpadding=5 width="100%">
+
+<tr>
+<td valign="top" width="40%">FILE</td>
+<td valign="top" width="12%">OWNER</td>
+<td valign="top" width="13%">JAVADOC</td>
+<td valign="top" width="30%">CONDITION AND CLASSES</td>
+<td valign="top" width="5%">DATE</td>
+</tr>
+
+<tr>
+<td valign="top">avatar\AvatarAddressBook_ingr.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">NA,NP</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarAddressBook_kind.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">NA</td>
+<td valign="top">Good; jAvatarInformation</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarAddressBook_state.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">NA</td>
+<td valign="top">Good; istAvatarAddressBook</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarBodyLink_kind.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">NA</td>
+<td valign="top">Good; jInHandObjectDescription & eeAvatarBodyAlreadyOwned (eeException)</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarCatalog_ingr.plu</td>
+<td valign="top">Charles</td>
+<td valign="top">NA,NP</td>
+<td valign="top">Okay</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarCatalog_kind.plu</td>
+<td valign="top">Charles</td>
+<td valign="top">N</td>
+<td valign="top">Okay</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarCatalog_state.plu</td>
+<td valign="top">Charles</td>
+<td valign="top">N</td>
+<td valign="top">Good; istAvatarCatalog</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarChangeRegion_ingr.plu</td>
+<td valign="top">Trev,Charles</td>
+<td valign="top">NA,NP</td>
+<td valign="top">Good; eeUserCancelledRegionChangeException (eeException); eclasses--eBodyInNewRegionFacet, eBodyRegionDisconnectHandler, jChangeRegionBehaviorWrapper, jAvatarTeleportBehaviorWrapper</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarChangeRegion_kind.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">NA</td>
+<td valign="top">Great; eeChangeRegionException</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarChangeRegion_state.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">NA</td>
+<td valign="top">Good; istAvatarChangeRegion (Serializable)</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarEncounters_ingr.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">NA,NP</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarEncounters_kind.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">NA,NP</td>
+<td valign="top">Great</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarEncounters_state.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">NA</td>
+<td valign="top">Good; istAvatarEncounters (Serializable)</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarInitialize_ingr.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">NA</td>
+<td valign="top">Great</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarInitialize_kind.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">NA</td>
+<td valign="top">Great</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarInitialize_state.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">NA,NP</td>
+<td valign="top">Good;istAvatarInitialize (Serializable)</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarInventory_ingr.plu</td>
+<td valign="top">Charles</td>
+<td valign="top">NA,NM,NP</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarInventory_kind.plu</td>
+<td valign="top">Charles</td>
+<td valign="top">NA,NM,NP</td>
+<td valign="top">Okay</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarInventory_state.plu</td>
+<td valign="top">Charles</td>
+<td valign="top">NA,NV</td>
+<td valign="top">Good; istAvatarInventory</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarLinkToBody_ingr.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">NA</td>
+<td valign="top">Good; eAvatarFacetForBody</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarLinkToBody_kind.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">NA</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarLinkToBody_state.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">NA,NP</td>
+<td valign="top">Good; public class istAvatarLinkToBody (Serializable)</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarMakePortal_ingr.plu</td>
+<td valign="top">Karl</td>
+<td valign="top">N</td>
+<td valign="top">Good; eMakePortalBehaviorWrapper (jBehaviorWrapper)</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarMakePortal_kind.plu</td>
+<td valign="top">Karl</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarMakePortal_state.plu</td>
+<td valign="top">Karl</td>
+<td valign="top">N</td>
+<td valign="top">Good; istAvatarMakePortal</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarNotifications_ingr.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">NA,NP</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarNotifications_kind.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">NA</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarNotifications_state.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">NA</td>
+<td valign="top">Good; istAvatarNotifications (Serializable)</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarPocket_ingr.plu</td>
+<td valign="top">Trev,Robj?</td>
+<td valign="top">NA,NM,NP</td>
+<td valign="top">Okay; jOpenPocketVerbHandler (jiVerbHandler),jPutInPocketVerbHandler (jiVerbHandler); eclass jPutObjectInPocketBehaviorWrapper (jBehaviorWrapper)</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarPocket_kind.plu</td>
+<td valign="top">Trev,Charles?</td>
+<td valign="top">NA,NM</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarPocket_state.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">N</td>
+<td valign="top">Okay; istAvatarPocket (Serializable)</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarRealmAdmin_ingr.plu</td>
+<td valign="top">slewis</td>
+<td valign="top">NA,NM,NE</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarRealmAdmin_kind.plu</td>
+<td valign="top">slewis</td>
+<td valign="top">NA,NM,NP</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarRealmAdmin_state.plu</td>
+<td valign="top">slewis</td>
+<td valign="top">NA,N</td>
+<td valign="top">Good; istAvatarRealmAdmin</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarReceptionist_ingr.plu</td>
+<td valign="top">walendo</td>
+<td valign="top">NA,NM,NV</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarReceptionist_kind.plu</td>
+<td valign="top">walendo</td>
+<td valign="top">NA,NP</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarReceptionist_state.plu</td>
+<td valign="top">walendo</td>
+<td valign="top">NA</td>
+<td valign="top">Good; istAvatarReceptionist (Serializable)</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarTeleport_ingr.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">NA,NP</td>
+<td valign="top">Okay</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarTeleport_kind.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">NA,NP</td>
+<td valign="top">Okay; eeBadTeleportPadException (eeException)</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarTeleport_state.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">N</td>
+<td valign="top">Okay; istAvatarTeleport (Serializable)</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarTrade_ingr.plu</td>				
+<td valign="top">Wayne,Trev</td>
+<td valign="top">NA</td>
+<td valign="top">Good; TradingMachineInfo (pretty much undoc'd); eclass eAvatarTradeFacet</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarTrade_kind.plu</td>				
+<td valign="top">Wayne,Trev</td>
+<td valign="top">NA</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarTrade_state.plu</td>			
+<td valign="top">Wayne,Trev</td>
+<td valign="top">N</td>
+<td valign="top">Okay; istAvatarTrade</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarUIContext_ingr.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">NA,NP</td>
+<td valign="top">Okay</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarUIContext_kind.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">NA,NP</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarUIContext_state.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">N</td>
+<td valign="top">Okay; istAvatarUIContext (Serializable)</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarUIFactories_ingr.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">NA,NP</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarUIFactories_kind.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">NA,NM</td>
+<td valign="top">Okay</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarUIFactories_state.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">NA</td>
+<td valign="top">Okay; istAvatarUIFactories (Serializable)</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarVoxChat_ingr.plu</td>
+<td valign="top">ronin</td>
+<td valign="top">NA,NM</td>
+<td valign="top">Good; jVoxChatResponse (pretty much undoc'd); eclasses--EVoxConnectionInfo, ETimerTick (ETickHandling)</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarVoxChat_kind.plu</td>
+<td valign="top">Trev,slewis</td>
+<td valign="top">N</td>
+<td valign="top">Okay</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatar\AvatarVoxChat_state.plu</td>
+<td valign="top">ronin,slewis</td>
+<td valign="top">N</td>
+<td valign="top">Good; istAvatarVoxChat (Serializable)</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatarbody\AvatarBodyInHand_ingr.plu</td>
+<td valign="top">Trev,Robj?</td>
+<td valign="top">NA,NM,NP</td>
+<td valign="top">Good; jGiveVerbHandler (jiVerbHandler); eclasses--jPutAtBehaviorWrapper & jPickUpBehaviorWrapper & jPutInHandInPocketBehaviorWrapper (jBehaviorWrappers)</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatarbody\AvatarBodyInHand_kind.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">NA</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatarbody\AvatarBodyInHand_state.plu</td>
+<td valign="top">Trev,Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good; istAvatarBodyInHand</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatarbody\BodyLinkToAvatar_ingr.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">NA,NM,NP</td>
+<td valign="top">Good; eclass eBodyOwnerLocalCapabilities</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatarbody\BodyLinkToAvatar_kind.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">NA,NP</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">avatarbody\BodyLinkToAvatar_state.plu</td>
+<td valign="top">Trev</td>
+<td valign="top">NA,NM</td>
+<td valign="top">Okay; istBodyLinkToAvatar</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">behavior\AvatarBehavior_kind.plu</td>		
+<td valign="top">Robj,Trev</td>
+<td valign="top">NA,NM,NP</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">behavior\Behavior_ingr.plu</td>				
+<td valign="top">Robj,Trev</td>
+<td valign="top">N</td>
+<td valign="top">Good; jBehaviorRevoker (jiBehaviorRevoker)</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">behavior\Behavior_kind.plu</td>				
+<td valign="top">Robj</td>
+<td valign="top">N</td>
+<td valign="top">Good, Has regular comments which can be turned into Javadoc; abstract eclass jBehaviorWrapper (jiBehaviorWrapper)</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">behavior\Behavior_state.plu</td>				
+<td valign="top">Robj</td>
+<td valign="top">N</td>
+<td valign="top">Okay; istBehaviorManager</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">camera\CameraSimple_ingr.plu</td>			
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">camera\CameraVisible_ingr.plu</td>			
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good; jCameraVerbHandler (jiVerbHandler)</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">camera\Camera_kind.plu</td>					
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">camera\Camera_state.plu</td>					
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good; istCamera</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">changeable\ChangeableChatty_ingr.plu</td>	
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good; jChattyChangeVerbHandler (jiVerbHandler)</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">changeable\ChangeableDestructo_ingr.plu</td>	
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">changeable\ChangeableNot_ingr.plu</td>		
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">changeable\ChangeableRandom_ingr.plu</td>	
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">changeable\ChangeableSimple_ingr.plu</td>	
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good; jChangeVerbHandler (jiVerbHandler)</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">changeable\Changeable_kind.plu</td>			
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Okay</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">changeable\Changeable_state.plu</td>			
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good; istChanger</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">chess\Chess_ingr.plu</td>					
+<td valign="top">Crock</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">chess\Chess_kind.plu</td>					
+<td valign="top">Crock</td>
+<td valign="top">NV,NP</td>
+<td valign="top">Good</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">chess\Chess_state.plu</td>					
+<td valign="top">Crock</td>
+<td valign="top">Y</td>
+<td valign="top">Good; istChess</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">cloneable\Cloneable_ingr.plu</td>			
+<td valign="top">Charles</td>
+<td valign="top">NA,NM</td>
+<td valign="top">Good; jCloneableVerbHandler (jiVerbHandler)</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">cloneable\Cloneable_kind.plu</td>			
+<td valign="top">Charles</td>
+<td valign="top">NA</td>
+<td valign="top">Good</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">cloneable\Cloneable_state.plu</td>			
+<td valign="top">Charles</td>
+<td valign="top">N</td>
+<td valign="top">Good; istCloneable</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">cloner\Cloner_ingr.plu</td>					
+<td valign="top">Charles</td>
+<td valign="top">NA,NP,NV,NM</td>
+<td valign="top">Good; eclass eCloneReceiverBehaviorWrapper (jBehaviorWrapper)</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">cloner\Cloner_kind.plu</td>					
+<td valign="top">Charles</td>
+<td valign="top">NA</td>
+<td valign="top">Good</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">cloner\Cloner_state.plu</td>					
+<td valign="top">Charles</td>
+<td valign="top">NA</td>
+<td valign="top">Good; istCloner</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">composition\Compositable_ingr.plu</td>		
+<td valign="top">Robj</td>
+<td valign="top">N</td>
+<td valign="top">Okay; long & complex (no surprises here); CompositionState (RtCodeable), MoveContext, ETransitionCounter (jiTransitionCounter); eclasses--jufRlocalsupCb, jMoveToBehaviorWrapper  (jBehaviorWrapper<b>:</b>ukfCompositableOp), jGestureBehaviorWrapper, jMoodBehaviorWrapper, EPathMover (jiManagePathMover)</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">composition\Compositable_kind.plu</td>		
+<td valign="top">Robj</td>
+<td valign="top">NA,NP</td>
+<td valign="top">Good; jPresenterNotifier (jiRegisterPresenterCallbackInterest), jCompositableDescription</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">composition\Compositable_state.plu</td>		
+<td valign="top">Robj</td>
+<td valign="top">N</td>
+<td valign="top">Good; istCompositable, istCompositor, istRootCompositor</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">containership\Containable_ingr.plu</td>		
+<td valign="top">Arturo</td>
+<td valign="top">N</td>
+<td valign="top">Good, surpringly short for the subject; eclasses--eufSupContainerOp, epfSupContainerOp</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containership\Containable_kind.plu</td>		
+<td valign="top">Arturo</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containership\Containable_state.plu</td>		
+<td valign="top">Arturo</td>
+<td valign="top">N</td>
+<td valign="top">Good; istContainable (jsbContainable), istContainer (jsbContainer)</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containership\Containership_facet.plu</td>	
+<td valign="top">Robj</td>
+<td valign="top">N</td>
+<td valign="top">Long, lots of classes; jFacetInterest, ECsupCbRouterTether (RtTether), Complainer (RtTether); eclasses efNotifyFailThrower, eRevocableFacet, efWrappedTrySetContainer, eInterestFacet, ECbsupCRouterTether (RtTether), efCbsupCInterestFacet (eInterestFacet), efCbsupC (eRevocableFacet), efCsupCbInterestFacet (eInterestFacet), efCsupCb (eRevocableFacet), efCsupCbQueuingFacet, efContainerQueuingFacet, efSetNewParent (eRevocableFacet), eStonecastAddUnum, eStonecastRequestTransfer</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containership\Containership_ingr.plu</td>	
+<td valign="top">Robj</td>
+<td valign="top">N</td>
+<td valign="top">Good, but 4000+ lines; eclasses efConfirmCapability (ConfirmCapability, jiActivateConfirmer)</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containership\Containership_kind.plu</td>	
+<td valign="top">Robj</td>
+<td valign="top">NA,NM</td>
+<td valign="top">Good, lots of comments, but only about 10% are Javadocs</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containership\Containership_state.plu</td>	
+<td valign="top">Robj</td>
+<td valign="top">N</td>
+<td valign="top">Good; istContainership (RtCodeable)</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containership\Containership_support.plu</td>	
+<td valign="top">Robj</td>
+<td valign="top">N</td>
+<td valign="top">Good, only about 100 lines :}; jUnumKey (RtCodeable), jUnumBundle, jContainableEntry, jUnumTree (RtCodeable), jRootUnumTree, jChannelTree; eclass efRsupCb</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containership\OpenableContainer_ingr.plu</td>	
+<td valign="top">Robj</td>
+<td valign="top">N</td>
+<td valign="top">Good, but only one or two Javadoc comments; jOpenVerbHandler (jiVerbHandler), jViewVerbHandler (jiVerbHandler);
+eclass efNotifyAlertFail (ukNotifyFail)</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containership\OpenableContainer_kind.plu</td>	
+<td valign="top">Robj</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containership\OpenableContainer_state.plu</td>	
+<td valign="top">Robj</td>
+<td valign="top">N</td>
+<td valign="top">Good; istOpenableContainer</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containership\SlottedContainable_ingr.plu</td>	
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good; jSlottedContainableVerbHandler (jiVerbHandler)</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containership\SlottedContainable_kind.plu</td>	
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containership\SlottedContainable_state.plu</td>	
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good; istSlottedContainable</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containership\SlottedContainer_ingr.plu</td>		
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containership\SlottedContainer_kind.plu</td>		
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containership\SlottedContainer_state.plu</td>	
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good; istSlottedContainer</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containment\BasicContainable_ingr.plu</td>	
+<td valign="top">slewis</td>
+<td valign="top">NA</td>
+<td valign="top">Good; ContainmentRelation, eeContainableRemoveException (eeException), eeContainableAddException (eeException), eeContainableAddInProgressException (eeContainableAddException), eeContainableRemoveInProgressException (eeContainableRemoveException); eclass ETick (ETickHandling)</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containment\BasicContainable_kind.plu</td>	
+<td valign="top">slewis</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containment\BasicContainable_state.plu</td>	
+<td valign="top">slewis</td>
+<td valign="top">N</td>
+<td valign="top">Good; istBasicContainable</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containment\BasicContainer_ingr.plu</td>		
+<td valign="top">slewis</td>
+<td valign="top">NA,NE</td>
+<td valign="top">Good; Container, eeContainerException (eeException)</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containment\BasicContainer_kind.plu</td>		
+<td valign="top">slewis</td>
+<td valign="top">NA,NP,NV</td>
+<td valign="top">Good, but lots of classes for an "interface" file; BasicContainerFacetCreatorUnum, BasicContainerFacetCreatorIngr, AddRemoveResult  {, eeHostAddException extends eeException {, jContainerInfo; eclasses BasicContainerAddFacetIngr extends BaseFacet, BasicContainerAddFacetUnum (UnumFacet), BasicContainerAddRemoveFacetIngr (BasicContainerAddFacetIngr), BasicContainerAddRemoveFacetUnum (BasicContainerAddFacetUnum), BasicContainableFacetIngr (BaseFacet<b>:</b>jiContainable), BasicContainableFacetUnum (UnumFacet<b>:</b>jiContainable), EAddRemoveResult</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containment\BasicContainer_state.plu</td>	
+<td valign="top">slewis</td>
+<td valign="top">N</td>
+<td valign="top">Good; istBasicContainer</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containment\BodyContainable_ingr.plu</td>	
+<td valign="top">slewis</td>
+<td valign="top">N</td>
+<td valign="top">Good; IdentityNotify (jiContainable), BogusInterest1 (jiIdentityInterest), BogusInterest2 (jiIdentityInterest)</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containment\BodyContainable_kind.plu</td>	
+<td valign="top">slewis</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containment\BodyContainable_state.plu</td>	
+<td valign="top">slewis</td>
+<td valign="top">N</td>
+<td valign="top">Good; istBodyContainable</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containment\OpenContainable_ingr.plu</td>	
+<td valign="top">slewis</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containment\OpenContainable_kind.plu</td>	
+<td valign="top">slewis</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containment\OpenContainable_state.plu</td>	
+<td valign="top">slewis</td>
+<td valign="top">N</td>
+<td valign="top">Good; istOpenContainable</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containment\OpenContainer_ingr.plu</td>		
+<td valign="top">slewis</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containment\OpenContainer_kind.plu</td>		
+<td valign="top">slewis</td>
+<td valign="top">N</td>
+<td valign="top">Good; eclasses OpenContainerAddFacetUnum (UnumFacet), OpenContainerAddRemoveFacetUnum (OpenContainerAddFacetUnum), OpenContainableFacetUnum (BasicContainableFacetUnum)</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containment\OpenContainer_state.plu</td>		
+<td valign="top">slewis</td>
+<td valign="top">N</td>
+<td valign="top">Good; istOpenContainerState</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containment\RegionContainable_ingr.plu</td>	
+<td valign="top">slewis</td>
+<td valign="top">N</td>
+<td valign="top">Good, only has one or two Javadocs; eclass ContainableFacet</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containment\RegionContainable_kind.plu</td>	
+<td valign="top">slewis</td>
+<td valign="top">N</td>
+<td valign="top">Good; eclass RegionContainableFacet (BasicContainableFacetIngr)</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containment\RegionContainable_state.plu</td>	
+<td valign="top">slewis</td>
+<td valign="top">Y</td>
+<td valign="top">Good; istRegionContainable</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containment\RegionContainer_ingr.plu</td>	
+<td valign="top">slewis</td>
+<td valign="top">N</td>
+<td valign="top">Good, only has a few Javadocs</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containment\RegionContainer_kind.plu</td>	
+<td valign="top">slewis</td>
+<td valign="top">N</td>
+<td valign="top">Good; eeHostAddRegionException (eeException), eeTOSBundleException (eeException), eclasses RegionContainerFacet (BaseFacet<b>:</b>RegionContainerAddRemoveFacet), EExceptionWrapper, EIdentityWrapper, ERegionContainable, ERegionVector, ETOSBundleException</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">containment\RegionContainer_state.plu</td>	
+<td valign="top">slewis</td>
+<td valign="top">N</td>
+<td valign="top">Good; istRegionContainer</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">conversation\Conversation_ingr.plu</td>		
+<td valign="top">Trev</td>
+<td valign="top">NA,NP</td>
+<td valign="top">Good; eclass eConversationInputFacet</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">conversation\Conversation_kind.plu</td>		
+<td valign="top">Trev</td>
+<td valign="top">NA</td>
+<td valign="top">Good</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">conversation\Conversation_state.plu</td>		
+<td valign="top">Trev</td>
+<td valign="top">NA</td>
+<td valign="top">Good; istConversation</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">conversation\Converser_ingr.plu</td>			
+<td valign="top">Trev</td>
+<td valign="top">NA,NP</td>
+<td valign="top">Good; eclass eConversationOutputFacet</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">conversation\Converser_kind.plu</td>			
+<td valign="top">Trev</td>
+<td valign="top">NA,NP</td>
+<td valign="top">Good</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">conversation\Converser_state.plu</td>		
+<td valign="top">Trev</td>
+<td valign="top">NA</td>
+<td valign="top">Good; istConverser</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">description\DescribeWithLink_ingr.plu</td>	
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">description\Describe_ingr.plu</td>			
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good; jDescribeVerbHandler (jiVerbHandler)</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">description\Describe_kind.plu</td>			
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">description\Describe_state.plu</td>			
+<td valign="top">Randy</td>
+<td valign="top">NA,NM</td>
+<td valign="top">Good; istDescriber</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">destination\WalkNot_ingr.plu</td>			
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">destination\WalkToBackground_ingr.plu</td>	
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">destination\WalkToFloor3D_ingr.plu</td>		
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">destination\WalkToFloor_ingr.plu</td>		
+<td valign="top">Randy</td>
+<td valign="top">NA</td>
+<td valign="top">Good</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">destination\WalkToPortal_ingr.plu</td>		
+<td valign="top">Randy</td>
+<td valign="top">NA,NP</td>
+<td valign="top">Good</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">destination\WalkToThis_ingr.plu</td>			
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">destination\Walk_kind.plu</td>				
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">destination\Walk_state.plu</td>				
+<td valign="top">Randy</td>
+<td valign="top">NA</td>
+<td valign="top">Okay; istDestination, jMoveToVerbHandler (jiVerbHandler)</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">directory\Directory_ingr.plu</td>			
+<td valign="top">Trev,Walendo</td>
+<td valign="top">NA,NM</td>
+<td valign="top">Good; jDirectoryVerbHandler (jiVerbHandler); half commented</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">directory\Directory_kind.plu</td>			
+<td valign="top">Trev,Walendo</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">directory\Directory_state.plu</td>			
+<td valign="top">Trev,Walendo</td>
+<td valign="top">NM</td>
+<td valign="top">Only has variables doc'd; istDirectory</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">eventable\EventableCamera_ingr.plu</td>		
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">eventable\EventableChanger_ingr.plu</td>		
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">eventable\EventableNot_ingr.plu</td>			
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">eventable\Eventable_kind.plu</td>			
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">eventable\Eventable_state.plu</td>			
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good; istTrigger, istEventable</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">eventable\TriggerSimple_ingr.plu</td>		
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good; jTriggerVerbHandler (jiVerbHandler)</td>
+<td valign="top">05.14.98</td></tr>
+<tr>
+<td valign="top">identity\Identity_ingr.plu</td>				
+<td valign="top">slewis,Trev</td>
+<td valign="top">NA,NE,NP</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">identity\Identity_kind.plu</td>				
+<td valign="top">slewis,Trev</td>
+<td valign="top">NA</td>
+<td valign="top">Good; defines jiIdentityIngredient</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">identity\Identity_state.plu</td>				
+<td valign="top">slewis,Trev</td>
+<td valign="top">NA,NM,NP</td>
+<td valign="top">Good; istIdentity</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">interface\AvatarInterface_ingr.plu</td>		
+<td valign="top">Trev</td>
+<td valign="top">N</td>
+<td valign="top">Good, rather long, but it's a complex object; abstract jAvatarVerbHandler (jiVerbHandler), jSayVerbHandler (jAvatarVerbHandler), jTelepathyVerbHandler (jAvatarVerbHandler), jGestureVerbHandler (jiVerbHandler), jChangeFacingVerbHandler (jiVerbHandler), jMoodVerbHandler (jiVerbHandler), jAvatarInventoryVerbHandler (jiVerbHandler), jAvatarCatalogVerbHandler (jiVerbHandler); eclass jURLLaunchBehaviorWrapper (jBehaviorWrapper), jCheckpointBehaviorWrapper (jBehaviorWrapper), jNotifyTransitionBehaviorWrapper (jBehaviorWrapper), jAlertBehaviorWrapper (jBehaviorWrapper), jListAvatarsInRegionBehaviorWrapper (jBehaviorWrapper), jListRealmAvatarsBehaviorWrapper (jBehaviorWrapper), jGetDirectoryEntryInfoBehaviorWrapper (jBehaviorWrapper), eAlertCallbackHandler</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">interface\AvatarInterface_kind.plu</td>		
+<td valign="top">Trev</td>
+<td valign="top">N</td>
+<td valign="top">Good; RealmAvatarNameInfo; eclass ERealmAvatarList</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">interface\AvatarInterface_state.plu</td>		
+<td valign="top">Trev</td>
+<td valign="top">NA</td>
+<td valign="top">Good; istAvatarInterface (Serializable)</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">interface\InterfaceAvatarBody_ingr.plu</td>	
+<td valign="top">Trev</td>
+<td valign="top">NA,NM,NP</td>
+<td valign="top">Okay</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">interface\InterfacePortal_ingr.plu</td>		
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">interface\InterfaceProp_ingr.plu</td>		
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Okay</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">interface\InterfaceRegion_ingr.plu</td>		
+<td valign="top">Robj</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">interface\Interface_kind.plu</td>			
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">interface\Interface_state.plu</td>			
+<td valign="top">Randy</td>
+<td valign="top">NA</td>
+<td valign="top">Good; istInterface</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">makrook\Makrook_ingr.plu</td>
+<td valign="top">Crock</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">makrook\Makrook_kind.plu</td>
+<td valign="top">Crock</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">makrook\Makrook_state.plu</td>
+<td valign="top">Crock</td>
+<td valign="top">N</td>
+<td valign="top">Good; istMakrook</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">modification\ModifyThis_ingr.plu</td>		
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good; jModifyVerbHandler (jiVerbHandler)</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">modification\Modify_kind.plu</td>			
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">modification\Modify_state.plu</td>			
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good; istModifier</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">portability\PortableNot_ingr.plu</td>		
+<td valign="top">Randy,Robj</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">portability\Portable_ingr.plu</td>			
+<td valign="top">Randy,Robj</td>
+<td valign="top">N</td>
+<td valign="top">Good; jPickUpVerbHandler (jiVerbHandler)</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">portability\Portable_kind.plu</td>			
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">portability\Portable_state.plu</td>			
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good; istPortable, jPutAtVerbHandler (jiVerbHandler)</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">portability\PutableAtFloor3D_ingr.plu</td>	
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">portability\PutableAtFloor_ingr.plu</td>		
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">portability\PutableAtSticky3D_ingr.plu</td>	
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">portability\PutableAtSticky_ingr.plu</td>	
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">portability\PutableIntoContainer_ingr.plu</td>	
+<td valign="top">Robj</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">portability\PutableNot_ingr.plu</td>			
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">portability\Putable_kind.plu</td>			
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">portability\Putable_state.plu</td>			
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good; istPutable</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">portal\ChangeRegion_ingr.plu</td>			
+<td valign="top">Trev</td>
+<td valign="top">NA,NE,NM,NP</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">portal\ChangeRegion_kind.plu</td>			
+<td valign="top">Trev</td>
+<td valign="top">NA</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">portal\ChangeRegion_state.plu</td>			
+<td valign="top">Trev</td>
+<td valign="top">N</td>
+<td valign="top">Good; istChangeRegion</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">portal\EntryPad_ingr.plu</td>				
+<td valign="top">Trev</td>
+<td valign="top">NA,NP</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">portal\EntryPad_kind.plu</td>				
+<td valign="top">Trev</td>
+<td valign="top">NA</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">portal\EntryPad_state.plu</td>				
+<td valign="top">Trev</td>
+<td valign="top">NA</td>
+<td valign="top">Good; istEntryPad</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">portal\ExitPad_ingr.plu</td>					
+<td valign="top">Trev</td>
+<td valign="top">NA,NP</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">portal\ExitPad_kind.plu</td>					
+<td valign="top">Trev</td>
+<td valign="top">NA</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">portal\ExitPad_state.plu</td>				
+<td valign="top">Trev</td>
+<td valign="top">NA,NP</td>
+<td valign="top">Good; istExitPad</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">property\Property_ingr.plu</td>				
+<td valign="top">Wayne</td>
+<td valign="top">Y</td>
+<td valign="top">Great, very well commented; jPropertyManagerFacet (jiPropertyManagerFacet), jPropertySheetVerbHandler (jiVerbHandler)</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">property\Property_kind.plu</td>				
+<td valign="top">Wayne</td>
+<td valign="top">N</td>
+<td valign="top">Good; eePropertySheetNoPropertiesException (eeException), eePropertySheetNoPermissionException (eeException), eePropertySheetClientNotSupportedException (eeException); eclass jSysadminAccessBehaviorWrapper (jBehaviorWrapper)</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">property\Property_state.plu</td>				
+<td valign="top">Wayne</td>
+<td valign="top">NP</td>
+<td valign="top">Good; istProperty</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">region\RegionBehavior_ingr.plu</td>			
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good; jRegionVerbsHandler extends jiVerbHandler</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">region\RegionBehavior_kind.plu</td>			
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good; eclass jRegionSysadminBehaviorWrapper (jBehaviorWrapper)</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">region\RegionBehavior_state.plu</td>			
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good; istRegionBehavior</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">reversi\Reversi_ingr.plu</td>
+<td valign="top">Crock</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">reversi\Reversi_kind.plu</td>
+<td valign="top">Crock</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">reversi\Reversi_state.plu</td>
+<td valign="top">Crock</td>
+<td valign="top">N</td>
+<td valign="top">Good; istReversi</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">stone\Dot_ingr.plu</td>		
+<td valign="top">Crock</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">stone\Dot_kind.plu</td>		
+<td valign="top">Crock</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">stone\Dot_state.plu</td>		
+<td valign="top">Crock</td>
+<td valign="top">N</td>
+<td valign="top">Good; istDot</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">stone\Gess_ingr.plu</td>		
+<td valign="top">Crock</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">stone\Gess_kind.plu</td>		
+<td valign="top">Crock</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">stone\Gess_state.plu</td>	
+<td valign="top">Crock</td>
+<td valign="top">N</td>
+<td valign="top">Good; istGess</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">stone\Mancala_ingr.plu</td>	
+<td valign="top">Crock</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">stone\Mancala_kind.plu</td>	
+<td valign="top">Crock</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">stone\Mancala_state.plu</td>	
+<td valign="top">Crock</td>
+<td valign="top">N</td>
+<td valign="top">Good; istMancala</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">stone\Phdball_ingr.plu</td>	
+<td valign="top">Crock</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">stone\Phdball_kind.plu</td>	
+<td valign="top">Crock</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">stone\Phdball_state.plu</td>	
+<td valign="top">Crock</td>
+<td valign="top">N</td>
+<td valign="top">Good; istPhdball</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">Support\f_TOSContainership.plu</td>			
+<td valign="top">Randy,Trev</td>
+<td valign="top">N</td>
+<td valign="top">Good; jTOSCheckPropClass, jTOSCheckGunClass; eclasses eufSupTOSLocalAdd, eufSupTOSContainerOp , epfSupTOSContainerOp, epfSupContainableOp, eufSupContainableOp, eufTopRemoveOp, epfChangeContainerOp, eufChangeContainerOp, eufEvilSupTOSContainerOp</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">Support\Global.java						
+<td valign="top">Randy,Trev</td>
+<td valign="top">NA,NV</td>
+<td valign="top">Good; class Global</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">Support\jRealmAvatarIdInfo.java			
+<td valign="top">Jeff</td>
+<td valign="top">N</td>
+<td valign="top">Good; jRealmAvatarIdInfo</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">Support\j_BaseFacet.java				
+<td valign="top">slewis</td>
+<td valign="top">N</td>
+<td valign="top">Good; eeFacetRevokedWithID; eclasses BaseFacet (RtCodeable, jiRevokeableFacet, jiIdentityFacet),UnumFacet (BaseFacet)</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">Support\j_Exceptions.java				
+<td valign="top">Randy et al</td>
+<td valign="top">N</td>
+<td valign="top">Good; RuntimeExceptions--eeException, jeException; eeExceptions--eeOhNoYouDont, eeFacetRevoked, eeTimeoutException, eeKeyCollision, eeNotInContents, eeExitPadLookupException, eeException<b>:</b>RtCodeableThrowables--eeTOSAddUnumFailed, eeTOSSetContainerFailed; jeException<b>:</b>RtCodeableThrowables)--jeTOSCheckFailed
+</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">Support\j_Facets.java					
+<td valign="top">Randy,Trev</td>
+<td valign="top">N</td>
+<td valign="top">Good; jFacetPair (jiRevokableFacet); eclasses--eUnumFacet , ePresenceFacet (jiRevokableFacet), eUnumContextFacet (eUnumFacet), eUnumKeyFacet (eUnumContextFacet), ePresenceKeyFacet (ePresenceFacet)</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">Support\j_Space.java					
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Okay, *lots* of classes; Point2DFloat, Line2DFloat, PolyIntersection2DFloat, Polygon2DFloat, PolygonSet2DFloat; Exceptions-- ZeroLengthException, ParallelException, NotClosedPolygonException, NoRouteException</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">Support\j_Tickets.java					
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good, simple, clean; TicketData; eclass EJavaObjectFuture</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">Support\j_Utilities.java				
+<td valign="top">Randy,Robj</td>
+<td valign="top">N</td>
+<td valign="top">Okay, *lots* of classes; jsbPresentationState, jsbRegionPState, PresentationState, SpatialState, FloorPlane, SpaceMap, Location, SurfaceLocation, SurfacePath, LocationNotReachableException (Exception)</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">Support\misc_kind.plu</td>					
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">Support\NamedSturdyRef.java				
+<td valign="top">Karl</td>
+<td valign="top">N</td>
+<td valign="top">Good, should be named jNamedSturdyRef; jNamedSturdyRef</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">Support\TextureStructure.java			
+<td valign="top">Karl</td>
+<td valign="top">NA,NM,NP</td>
+<td valign="top">Good, should be named jTextureStructure?; TextureStructure</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">Support\UnumCertChecker.java			
+<td valign="top">Mike</td>
+<td valign="top">NA,NM,NP</td>
+<td valign="top">Good; UnumCertChecker</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">sysadmin\SysadminPower_ingr.plu</td>			
+<td valign="top">Sidney</td>
+<td valign="top">N</td>
+<td valign="top">Good; jSysadminPowerVerbHandler (jiVerbHandler); eclass jSysadminPasswordHandler (SimplePasswordHandler)</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">sysadmin\SysadminPower_kind.plu</td>			
+<td valign="top">Sidney</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">sysadmin\SysadminPower_state.plu</td>		
+<td valign="top">Sidney</td>
+<td valign="top">N</td>
+<td valign="top">Good; istSysadminPower</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">telepathy\TelepathyManager_ingr.plu</td>		
+<td valign="top">Trev</td>
+<td valign="top">NA,NP</td>
+<td valign="top">Good; eclass eTelepathyCapability</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">telepathy\TelepathyManager_kind.plu</td>		
+<td valign="top">Trev</td>
+<td valign="top">NA</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">telepathy\TelepathyManager_state.plu</td>	
+<td valign="top">Trev</td>
+<td valign="top">NA</td>
+<td valign="top">Good; istTelepathyManager</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">teleportation\PortablePortal_ingr.plu</td>
+<td valign="top">Karl</td>
+<td valign="top">NA,NP,NM</td>
+<td valign="top">Okay; jPortablePortalVerbHandler (jiVerbHandler)</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">teleportation\PortablePortal_kind.plu</td>
+<td valign="top">Karl</td>
+<td valign="top">NA,NP</td>
+<td valign="top">Okay</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">teleportation\PortablePortal_state.plu</td>
+<td valign="top">Karl</td>
+<td valign="top">NA</td>
+<td valign="top">Okay; istPortablePortal</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">teleportation\TeleportList_ingr.plu</td>
+<td valign="top">Karl</td>
+<td valign="top">NA,NE,NP,NV</td>
+<td valign="top">Okay; jTeleportVerbHandler (jiVerbHandler)</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">teleportation\TeleportList_kind.plu</td>
+<td valign="top">Karl</td>
+<td valign="top">NA,NP</td>
+<td valign="top">Okay; eeTeleportLookupException (eeException)</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">teleportation\TeleportList_state.plu</td>
+<td valign="top">Karl</td>
+<td valign="top">NA,NP,NV</td>
+<td valign="top">Okay; istTeleportList (Serializable)</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">teleportation\TeleportPad_ingr.plu</td>		
+<td valign="top">Trev</td>
+<td valign="top">NA,NP,NV</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">teleportation\TeleportPad_kind.plu</td>		
+<td valign="top">Trev</td>
+<td valign="top">NA</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">teleportation\TeleportPad_state.plu</td>		
+<td valign="top">Trev</td>
+<td valign="top">N</td>
+<td valign="top">Good; istTeleportPad</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">texturize\TexturizeNot_ingr.plu</td>			
+<td valign="top">Randy</td>
+<td valign="top">NA,NV</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">texturize\Texturize_ingr.plu</td>
+<td valign="top">Karl</td>
+<td valign="top">NA,NM,NP</td>
+<td valign="top">Okay; jTexturizerVerbHandler (jiVerbHandler), jTexturizableBehavior; eclass eTexturizableBehaviorWrapper (jBehaviorWrapper)</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">texturize\Texturize_kind.plu</td>
+<td valign="top">Karl</td>
+<td valign="top">N</td>
+<td valign="top">Okay</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">texturize\Texturize_state.plu</td>
+<td valign="top">Karl</td>
+<td valign="top">NA,NP,NV</td>
+<td valign="top">Okay; istTexturizabl, istTexturizer</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">threeple\threeple_ingr.plu</td>
+<td valign="top">Crock</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">threeple\threeple_kind.plu</td>
+<td valign="top">Crock</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">threeple\threeple_state.plu</td>
+<td valign="top">Crock</td>
+<td valign="top">N</td>
+<td valign="top">Good; istThreeple</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">tishai\Tishai_ingr.plu</td>	
+<td valign="top">Crock</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">tishai\Tishai_kind.plu</td>	
+<td valign="top">Crock</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">tishai\Tishai_state.plu</td>	
+<td valign="top">Crock</td>
+<td valign="top">N</td>
+<td valign="top">Good; istTishai</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">tos\RealmTosPeer_ingr.plu</td>				
+<td valign="top">slewis</td>
+<td valign="top">NA,NP,NV</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">tos\RealmTosPeer_kind.plu</td>				
+<td valign="top">slewis</td>
+<td valign="top">NA,NM,NP,NV</td>
+<td valign="top">Good; jRealmTOSException (eeException<b>:</b>RtCodeableThrowable), jRealmIdentityException (eeException); eclasses HubBundleChecker (eTOSBundleChecker, jiTOSBundleChecker), HomeBaseBundleChecker (eTOSBundleChecker, jiTOSBundleChecker), RealmAdminFacet (BaseFacet)</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">tos\RealmTosPeer_state.plu</td>				
+<td valign="top">slewis</td>
+<td valign="top">N</td>
+<td valign="top">Good; istRealmTOSPeer</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">tos\TosPeer_ingr.plu</td>					
+<td valign="top">Robj,slewis</td>
+<td valign="top">N</td>
+<td valign="top">Good; jRegionTOSException (eeException), jContainableWrapper (jiContainable); eclass EExceptionWrapper</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">tos\TosPeer_kind.plu</td>					
+<td valign="top">Robj</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">tos\TosPeer_state.plu</td>					
+<td valign="top">Robj</td>
+<td valign="top">N</td>
+<td valign="top">Good; istTOSPeer, jTOSCheckNoTexturizer</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">trading\Trading_ingr.plu</td>				
+<td valign="top">Wayne</td>
+<td valign="top">N</td>
+<td valign="top">Good, kinda long</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">trading\Trading_kind.plu</td>				
+<td valign="top">Wayne</td>
+<td valign="top">NA,NM,NP</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">trading\Trading_state.plu</td>				
+<td valign="top">Wayne</td>
+<td valign="top">N</td>
+<td valign="top">Good; istTradingCommon, istTradingHost, jiGetClientState</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">url\UrlFollow_ingr.plu</td>					
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good; jURLLaunchVerbHandler (jiVerbHandler)</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">url\UrlFollow_kind.plu</td>					
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">url\UrlFollow_state.plu</td>					
+<td valign="top">Randy</td>
+<td valign="top">N</td>
+<td valign="top">Good; istURLFollowable</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">vending\Vending_ingr.plu</td>				
+<td valign="top">Wayne</td>
+<td valign="top">NA,NM,NP</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">vending\Vending_kind.plu</td>				
+<td valign="top">Wayne</td>
+<td valign="top">NA,NP</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">vending\Vending_state.plu</td>				
+<td valign="top">Wayne</td>
+<td valign="top">N</td>
+<td valign="top">Good; VendableStockInfo, istVendingHost, jiGetClientState</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">verb\Verb_ingr.plu</td>						
+<td valign="top">Robj</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">verb\Verb_kind.plu</td>						
+<td valign="top">Robj</td>
+<td valign="top">NA,NP,NV</td>
+<td valign="top">Good, it's got lots of extra classes & code in it for an "interface" file; abstract jiVerbHandler (UnumUIResponder), jSimpleVerbHandler (jiVerbHandler), jGenericVerbHandler (jiVerbHandler), jVerbContext, jMenuEntry (UnumUIMenuEntry), jPieMenuRecord (UnumUIMenuTable)</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">verb\Verb_state.plu</td>						
+<td valign="top">Robj</td>
+<td valign="top">N</td>
+<td valign="top">Good; istVerbManager</td>
+<td valign="top">05.15.98</td></tr>
+<tr>
+<td valign="top">xiangqi\Xiangqi_ingr.plu</td>
+<td valign="top">Crock</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">xiangqi\Xiangqi_kind.plu</td>
+<td valign="top">Crock</td>
+<td valign="top">N</td>
+<td valign="top">Good</td>
+<td valign="top">05.05.98</td></tr>
+<tr>
+<td valign="top">xiangqi\Xiangqi_state.plu</td>
+<td valign="top">Crock</td>
+<td valign="top">N</td>
+<td valign="top">Good; istXiangqi</td>
+<td valign="top">05.05.98</td></tr>
+
+</table>
+
+</body>
+
+</html>

@@ -1,0 +1,105 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>Hub Worry List</title>
+</head>
+
+<body bgcolor="#FFFFFF">
+
+<h1>Hub Worry List</h1>
+
+<p><strong>Last Updated:</strong> [02 June 98,<a
+href="mailto:jeff@communities.com"> Jeff</a>]</p>
+
+<h2>Introduction</h2>
+
+<p>These are issues related to the &quot;HUB&quot; version of the
+product that we need to consider moving forward.</p>
+
+<p>The following are based on the assumption that we'll be
+carrying forward some (all?) of the &quot;hub&quot; related
+features.&nbsp; I'm open to rethinking any of this..&nbsp;&nbsp;</p>
+
+<h2>Worries</h2>
+
+<h4>Database access from within cosm</h4>
+
+<p>[Jeff 02 June 98] Hub db access:&nbsp; The database access on
+the hub side is very specific to the concept of the &quot;member
+db&quot;, and the avatar registration process.&nbsp; It needs to
+be more general so we can (if we want) have databases other than
+the member db (eg, turf database)</p>
+
+<h4>Avatar registration</h4>
+
+<p>[Jeff 02 June 98] I'm not overly thrilled with the
+&quot;avatar registration&quot; concept; it serves the purpose of
+limiting access to a world based on login/password.&nbsp; In
+addition it provides the &quot;avatar directory&quot;
+mechanism.&nbsp; These two things should be uncoupled.</p>
+
+<h4>Directory Server</h4>
+
+<p>[Jeff 02 June 98] General directory server - We currently have
+a &quot;hub avatar directory&quot;. We've also planned for
+&quot;turf directories&quot; and a &quot;global avatar
+directory&quot;.&nbsp; I'm not thrilled with the current
+_implementation_ of avatar and turf directories.&nbsp; I'd rather
+we develop a more general &quot;directory&quot; mechanism (maybe
+a lightweight server app), which can maintain data in an opaque
+and extensible manner. Presentation would still be on the
+web.&nbsp; In addition to what we have now, this directory
+mechanism needs to be able to detect and remove garbage
+entries.&nbsp; Finally, its possible that this is a
+&quot;generalized&quot; object directory server... that is, it
+doesn't have to just hold entries for avatars. If so, then there
+probably needs to be a generalized mechanism for getting an
+object registered in the directory, etc. This sounds as though
+there is some overlap with the PLS, but I think it is distinctly
+different.</p>
+
+<h4>Hub control panel for administrators</h4>
+
+<p>[Jeff 02 June 98] Lightweigh hub control panel.&nbsp; We're
+doing some things with console mode on the hub and its a bit
+rickity.&nbsp; A while back I strawman-spec'ed a hub control
+panel but in the crunch we didnt implement it.&nbsp; Features
+like finding out how many users are on-line, start/stop, etc.,
+would be useful.&nbsp; Yes, you can do some of this from a
+habicosm, but its rather heavyweight when all you want to do is
+find out who's on before you restart.&nbsp; Also a
+&quot;broadcast to all in realm&quot; would be useful.</p>
+
+<h4>BBS - Asynchronous user-user messaging</h4>
+
+<p>[Jeff 02 June 98] We're currently using webboard for
+asynchronous communication.&nbsp; The problem with this is it has
+a seperate user db.&nbsp; webboard3.0 might help us out (it uses
+SqlServer) but its more expensive.&nbsp; First we need to sort
+out what, if any, are our asynch communication
+requirements.&nbsp; Then we can look at alternatives. </p>
+
+<h4>Web-related content server</h4>
+
+<p>[Jeff 02 June 98] I'm assuming that we'll always have some
+components that are &quot;web-based&quot;.&nbsp; Eg, the avatar
+directory, the BBS, possibly repositories, etc. We're currently
+somewhat tied to IIS (MS web server).&nbsp; Do we want to
+consider supporting other web servers?&nbsp; Again we need to
+first define what the requirements are... however, knowing this
+sooner than later would be a big plus. </p>
+
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
+</body>
+</html>

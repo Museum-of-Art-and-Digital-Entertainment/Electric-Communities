@@ -1,0 +1,128 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>UI Framework Document</TITLE>
+<META NAME="Template" CONTENT="C:\Program Files\Microsoft Office\Office\html.dot">
+</HEAD>
+<BODY LINK="#0000ff" VLINK="#800080" BGCOLOR="#ffffff">
+
+<I><H1>UIFramework</H1>
+</I><ADDRESS>This page was originally written by <A HREF="mailto:claire@communities.com">Claire</A>. </ADDRESS>
+<B><P>Last updated:</B><I> [98/05/11 </I><A HREF="mailto:claire@communities.com"><I>Claire</I></A><I>]</I> </P>
+<H2>Introduction</H2>
+<P>A UI Framework is quite simply that portion of the application that is responsible for taking input from the user and propagating it to the appropriate subsystem while displaying output from all other subsystems to the user. A collection of interfaces is used to establish the contract with the application to adequately represent it to the user. How the framework implements the contract is determined by the nature of the framework. </P>
+<H4>Related Documents</H4>
+<ADDRESS><A HREF="GUIFrameworkOverview.html">GUI Framework Overview</A> </ADDRESS>
+<ADDRESS><A HREF="GUIFramework.html">GUI Framework</A> </ADDRESS>
+<ADDRESS><A HREF="ConsoleFramework.html">Console Framework</A> </ADDRESS>
+<H2>Requirements</H2>
+<P>The UI Framework was constructed to allow the application to attach a specific UI by checking startup parameters at runtime. The Presenter Framework was created to abstract away the presentation layer from the agency and the una. There are currently two such frameworks, the console framework which allows text only input and output and the GUI or perhaps more appropriately the AWT/AnyChannel Render framework. There is nothing in the current architecture that restricts the number or style of frameworks. The desire for two frameworks was to act as a check on the basic design assumption that the agency and una be presentation neutral. The preference for a console framework was motivated by a desire to have a lighter weight chat application and a hub framework that could run anywhere.</P>
+<H2>Architecture</H2>
+<H4>Current Architecture Overview</H4>
+<P ALIGN="CENTER"><IMG SRC="UIFrameworkOverview.gif" WIDTH=372 HEIGHT=372></P>
+<P>The UIFramework is started by the UIFrameworkOwner. The UIframeworkOwner was created as a wrapper class to separate out the application startup elements that were independent of any specific framework. More importantly, the application could be restarted with a different framework from the one it was last saved after a quake. The UIFramworkOwner is responsible for initializing the current UIFramework and loading in UI data resources.</P>
+<P>The UIFramework has responsibility for providing visual presenters for the una and other part of the system. Factories are a common design pattern used for creating families of related objects without specifying their concrete classes. The factory pattern was used to build interfaces for classes that could be requested to return some object without needing to know the details of how the object is constructed. The bare bones framework acts a container for the various UI factories and some initialization and setup routines. The majority of the work is performed in the various factories. Each factory is constructed lazily. They are used by both the una and the framework to construct presenter objects, as they are needed. </P>
+<P>The UI Factory was divided into four factories to separate out the various families of related and dependent Presenters. They were further subdivided based on the level of security needed. The Una Presenter Factory is used to create the representation of una for in-world display. The Unum UI Presenter Factory is used to create an Unum's menu and labels and any other menu or button elements. The UI Presenter Factory is used to create external windows that are not deemed sensitive. The Session UI Presenter Factory is used to create external and in-world elements that are deemed sensitive and/or should be created once per session.</P>
+<P>Each framework has its version of the factories. Interfaces are used to guarantee that the factory will return an object usable by the requester. After receiving the request for a presenter, each factory returns an object with an interface of the correct presenter type. Frameworks also share data types used to construct and initialize presenter elements. The presenter a framework factory returns however is not guaranteed to work in all cases for all objects. The actual implementation of an object may include data or methods that are ignored. Where common elements could be found to exist across implementation an abstract parent class was used to capture the common behavior.</P>
+<H5>Notification Manager</H5>
+<P>The notification manager was added as a means to allow the Unum to display notifications to the user in a presentation neutral manner.  This is a fifth factory really. A notification can be anything from a set cursor, alert dialog, to a scene transition.  It is an object that wraps the framework specific behavior for a specific notification type. You must request a notification object of the correct kind from the notification manager.  It is always given a specific id that must be used to actually use it.  This can be changed to allow objects across package and call boundaries to be able to reference it.  It must however be unique or an exception will be thrown.  Every notification object has start and stop methods that are called to start and stop the notification.  A notification can be used multiple times. A specific framework is supposed to perform the appropriate action for that notification which may mean outputting message to the console or displaying a dialog or some other visual effect.  The notification manager was added late in the development cycle and it should eliminate some of the UI Presenter Factory methods like alert and scene transition.  </P>
+<H5>Unum UI Support:</H5>
+<P>A framework is responsible through its various presenters for providing elements that allow a user to communicate with the Unum and visa versa. This requires synchronization between the user and the Unum. When a user expresses interest in an Unum, either by clicking or by using a command, the Unum is notified by it Unum UI Presenter to update its menu and label. The commands available is a function of where the Unum is located, what the avatar is holding and its own state. The call is a synchronous call. The Unum returns a state that is correct at the instant of the request. If the state changes, the Unum can either notify its Unum UI Presenter or wait for the next request to update. Once the commands and current name are known, they can be constructed to display when appropriate to the user. A user can send a command to the Unum through text, a button push or a menu selection. This command is checked against the current list of available commands and then forwarded to the UnumUIResponder assigned to that command.</P>
+<P>A detailed discussion of the design and architecture of the Unum UI support can be found in an earlier document: <A HREF="/www-int/design/specs/designspec/unumui.html">UnumUI</A></P>
+<H4>Proposed Architecture Overview</H4>
+<P>The changes to the basic framework are minimal.  The primary mechanism of binding a specific UI framework to a running program is largely working.   The principle areas for change are</P>
+<OL>
+
+<LI>Eliminate the UI Framework Owner class that was constructed for orthogonal persistence.  It is no longer needed.  This will eliminate a layer of indirection.  There is a Common UI Framework class that is the shared implementation of the UI Framework interface.  This is all that is needed.  It can perform all of the tasks performed by the UI Framework Owner.</LI>
+<LI>Eliminate all of the crew/steward/guest code wrappers and distinctions.  These were added to support orthogonal persistence.  They have added layers of indirection and confusion.  In most instances, this just requires consolidating the code into a single class and eliminating the remaining classes.</LI>
+<LI>All of the factories except the Unum UI Factory require continual updating to add a new presenter type.  If we assumed a base data object that contained the information necessary to create the correct object and we return opaque objects, we would allow the interfaces to be simplified to a single command.  This would allow the collapse of all the factories into a single factory that is data rather than method driven.  Security is maintained through access to the specific data object rather than to a specific factory.  It does mean that you will have to either trust the factory to return the right object <I>or</I> perform an <CODE>instanceof</CODE> test on the object which is returned.  Currently the Unum UI Factory always returns a class of Object.  This object is cast into the appropriate type on return as it is assigned to a local variable.  This simplifies the Unum UI Factory interface and allows me to return objects which must be minimally acceptable (because of interface inheritance) to the recipient.  Should the cast fail an exception is thrown.</LI>
+<LI>Even should we keep the current one method per presenter format, the total number of factories is not necessarily optimal. One factory is too few and doesn't allow you to keep the secure vs. insecure distinction.  I propose keeping the main Unum presenter factory that will create the Unum and the Unum UI presenter.  The remaining two factories then are the secure presenter and the insecure presenter factories.  The current Unum UI Presenter factory has a single public function, the majority of the functions provided by the factory are actually a function of the Unum UI Presenter class which speaks to the factory.  All of the public methods on the Unum UI Presenter factory are for the framework not for the Unum.</LI>
+<LI>Until we have a definite feature set, the majority of the calls to the UI Presenter Factory are unneeded.  The specific UI Presenters are closely mapped to the feature set.</LI>
+<LI>There are currently two separate code paths for console support.  One for the GUI Framework which has a log/console window and the actual console framework.  These need to be collapsed into a single code path.</LI>
+<LI>In general, all duplicate code should be collapsed wherever possible into a single implementation of shared code.</LI>
+<LI>The notification manager should be used for all notifications in preference to the older individual notification types found in the UI Presenter factory.</LI></OL>
+
+<P>&nbsp;</P>
+<H5>Unum-UI Support</H5>
+<P>The current Unum-UI model has several problems that need to be corrected.</P>
+<OL>
+
+<LI>The context manager is part of the Unum or specifically a part of the avatar that is located inside the Unum for convenience.  Although the Avatar needs the context manager, it does not need to BE a context manager.  The context manager has mostly a lookup and mapping function that should probably stored with the master table for the Unum UI Presenter.  This master table needs to be created to support the Unum UI Presenter to named object table needed to make the console function more fully.  This is currently being handled by the avatar for some instances and is not the avatars problem.</LI>
+<LI>Currently calls to <CODE>updateContext</CODE> always result in the recreation of new menus and labels even if there has been no change to either.  To avoid this at the presenter level requires a series of string compares.  The Unum UI Presenter should have a method that makes it clear when an update context call is really needed.  This would avoid an enormous amount of useless churn.</LI>
+<LI>The call to <CODE>getBestPossibleMenus</CODE> should be outside of the Unum.  Currently the call does nothing should there be a slot collision.  Since slot collision is a function of the display mechanism i.e. Pie Menus, the display should be handling collisions.  The policy for slot collision is largely a UI issue, if we switch to linear menus <CODE>getBestPossibleMenus</CODE> in the Unum would need to change. Menu Items should be described in the menu.uitext file with the preferred slot with -1 used to indicate the "default action" and 0 to indicate not to be shown.  This is important for the avatar that has other ways to display commands.</LI>
+<LI>Some of the features of the current Unum-UI model have been poorly used.  This include the ability to pre-store submenus or menus of known elements. Randy assumed that there was no way to bind a single command presenter to a responder at runtime, so submenus had to be dynamically built.  The Unum UI Presenter does permit items to be assigned a responder at runtime.  Entire menus can be loaded in and then the individual elements can be assigned the appropriate responder or "default" responder should no individual responder be assigned.</LI>
+<LI>The Command Presenter Event was created to encapsulate all of the information known by the UI framework about a specific event.  Currently we still have calls that take the older &lt;verb, object, direct object&gt; syntax.  All of these calls need to be changed to use the Command Presenter Event.  This will greatly simplify the notifyResponder call.</LI>
+<LI>There is currently the ability in the GUI framework to switch event handlers in the  Unum UI Presenter.  This ability to should be made available to the Unum.  This will allow the Unum to have custom behavior for mouse events.  It will be the Unum's responsibility to add and remove the event handler and it will have to take responsibility for all mouse events.  This should allow a good deal of  Unum programmer customization without adding a lot of extra infrastructure.</LI>
+<LI>There is a significant use of hashtables throughout the Unum-UI code.  This usage needs to be looked at and alternative data types should be used where appropriate.</LI>
+<LI>There are several jiBlah interfaces in the Unum which are duplicates of existing interfaces.  These should be eliminated and where additional functionality has been added it should be moved into the main interface.</LI></OL>
+
+<H4>Off the shelf alternatives</H4>
+<P>None.</P>
+<H4>Other Design Objectives, Constraints and Assumptions</H4>
+<H2>Current implementation</H2>
+<H4>Which directories on our tree does this subsystem cover?</H4>
+<P>Current directory: src/cosm1/ui/presenter. </P>
+<P>Current package ec.cosm.ui.presenter</P>
+<P>These hold the interfaces and any common implementation code as well as data classes and interfaces</P>
+<P>The console implementation of the framework can be found in: src/cosm1/ui/console and ec.cosm.consoleui package</P>
+<P>The gui implementation of the framework can be found in src/cosm1/ui/gui/framework and ec.cosm.gui.framework package</P>
+<FONT FACE="Arial"><H5>Factory breakdown of presenter :&nbsp;</H5>
+
+<UL>
+</FONT><LI>UnaPresenterFactory: Used to create una presenters. This is the in-world representation of an Unum. It can be a string or a complex collection of three-D textured objects. &lt; link to realmtext formats, dynamics engine&gt; </LI>
+
+<UL>
+<BLOCKQUOTE><LI>Avatar Presenter: presenter for the avatar </LI></BLOCKQUOTE>
+<BLOCKQUOTE><LI>Prop Presenter: presenter for a prop </LI></BLOCKQUOTE>
+<BLOCKQUOTE><LI>Compositor Prop Presenter: presenter for a prop which can hold other props </LI></BLOCKQUOTE>
+<BLOCKQUOTE><LI>Region Presenter: presenter for a region </LI></BLOCKQUOTE>
+<BLOCKQUOTE><LI>Texture Presenter: presenter for a texture used to texturize all or part of an unum </LI></BLOCKQUOTE>
+<BLOCKQUOTE><LI>FrontPlane Presenter: presenter for a static front plane object like the watermark </LI></BLOCKQUOTE></UL>
+
+<LI>UnumUIPresenterFactory: Used to create an Unum's UI presenters, in other words it's menu and label. This can be a list of strings, a linear menu or a pie menu. This factory is also used to store the UI data resources that were loaded by the UIFrameworkOwner on startup. This factory is never called directly from the Unum. The Unum uses its UnumUIPresenter to speak to the UnumUIPresenterFactory. It is used directly by the framework, however to create UI elements. There is only a single type of UnumUIPresenter </LI>
+<LI>UIPresenterFactory: Used to create external UI Presenters that do not need to be closely held by the avatar or region. This includes alerts, catalogs, etc. It is also used to create the UnumUIPresenter that is held by the Unum and used to speak to the UnumUIPresenterFactory. The factory currently is responsible for the following presenters: </LI>
+
+<UL>
+<BLOCKQUOTE><LI>Alert Presenter: external alert windows </LI></BLOCKQUOTE>
+<BLOCKQUOTE><LI>Catalog Presenter: the catalog windows </LI></BLOCKQUOTE>
+<BLOCKQUOTE><LI>Trading Machine Presenter: not currently used but supports the trading machine </LI></BLOCKQUOTE>
+<BLOCKQUOTE><LI>Property Sheet Presenter: the property sheet window </LI></BLOCKQUOTE>
+<BLOCKQUOTE><LI>UnumUI Presenter: support for the Unum ui menus, labels and context updating </LI></BLOCKQUOTE>
+<BLOCKQUOTE><LI>List Presenter: support for pockets(?) and other lists </LI></BLOCKQUOTE></UL>
+
+<LI>SessionUIPresenterFactory: Used to create external UI Presenters that are created once per session and/or which should be tightly held by the avatar or region. In addtion, there are several utility routines used to set or get session information. The factory is currently responsible for the following presenters. </LI>
+
+<UL>
+<BLOCKQUOTE><LI>Session Speech Presenter: wraps the support necessary for maintaining the speech that has occurred during a session. </LI></BLOCKQUOTE>
+<BLOCKQUOTE><LI>In-world Message Presenter: non editable message balloons for system messages </LI></BLOCKQUOTE>
+<BLOCKQUOTE><LI>Transition Presenter: wraps transition display (obsolete should be replaced by the Notification manager) </LI></BLOCKQUOTE>
+<BLOCKQUOTE><LI>Notification Manager: a class for supporting user notifications in a framework neutral manner </LI></BLOCKQUOTE>
+<BLOCKQUOTE><LI>Console Presenter: the console window </LI></BLOCKQUOTE>
+<BLOCKQUOTE><LI>Teleport List Presenter: used to display the teleport list </LI></BLOCKQUOTE>
+<BLOCKQUOTE><LI>Address Book Presenter: used to display the address book </LI></BLOCKQUOTE>
+<BLOCKQUOTE><LI>Inventory Presenter: used to display the inventory </LI></BLOCKQUOTE>
+<BLOCKQUOTE><LI>VoxChat Presenter: used to display the audio window and voice audio support </LI></BLOCKQUOTE>
+<BLOCKQUOTE><LI>Password Presenters: used to change and create passwords </LI></BLOCKQUOTE>
+<BLOCKQUOTE><LI>Editable Message Presenter: Editable in-world message balloons for example telepathy, which can be triggered by the avatar usually from a request for telepathy from outside the main window. </LI></BLOCKQUOTE></UL>
+</UL>
+
+<H5>Unum UI Support:</H5>
+
+<UL>
+<LI>UIResponder: e interface implemented by any Unum that would like to be able to receive ui events from the UnumUIPresenter </LI>
+<LI>UnumUIPresenter: presenter for presenting and holding Unum ui elements </LI>
+<LI>UnumUIUpdater: the updater interface called when its time to update the current menus </LI>
+<LI>UnumUIResponder: the verb handler </LI>
+<LI>UnumUIContextManager: the agency context manager </LI></UL>
+
+<P>&nbsp;</P>
+<H4>Examples</H4>
+<H4>Testing and Debugging</H4>
+<H2>Design Issues</H2>
+<H4>Resolved Issues</H4>
+<I><P>History of issues raised and resolved during initial design, or during design inspections. Can also include alternative designs, with the reasons why they were rejected</I> </P>
+<H4>Open Issues</H4>
+<P>The current mechanism used to construct elements still includes support for the steward/crew/guest distinctions. This adds unnecessary layers of indirection and makes the code difficult to understand.</P>
+<P>The Unum UI support needs to be revisited to simplify and remove any unused elements. </P></BODY>
+</HTML>

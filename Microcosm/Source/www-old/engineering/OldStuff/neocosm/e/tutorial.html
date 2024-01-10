@@ -1,0 +1,363 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!--last modified on Monday, August 24, 1998 11:53 PM -->
+<HTML>
+
+<HEAD>
+	<META NAME="GENERATOR" Content="Visual Page 1.0 for Windows">
+	<META NAME="Author" Content="Mark S. Miller">
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html;CHARSET=iso-8859-1">
+	<TITLE>E Tutorial</TITLE>
+</HEAD>
+
+<BODY BACKGROUND="../../../../WINDOWS/DESKTOP/multilav.jpg">
+
+<H1>E Tutorial</H1>
+<P>Adapted by MarkM from a document by Amy Mar.
+<H2>Starting E</H2>
+<P>The shell command &quot;e&quot; can be used to start an interactive E command-line session, or to execute E
+programs stored in files. To run &quot;e&quot;, you currently need our standard build environment, and to have
+built in ec4 at least the following directories:</P>
+
+
+<BLOCKQUOTE>
+	<P>src/ec4/javasrc/ec/util<BR>
+	src/ec4/javasrc/ec/util/assertion<BR>
+	src/ec4/javasrc/ec/trace<BR>
+	src/ec4/javasrc/ec/tables<BR>
+	src/ec4/javasrc/ec/elib/quasi<BR>
+	src/ec4/javasrc/ec/elib/base<BR>
+	src/ec4/javasrc/ec/elib/prim<BR>
+	src/ec4/javasrc/ec/e/scope<BR>
+	src/ec4/javasrc/ec/e/evm<BR>
+	src/ec4/javasrc/ec/e/syntax</P>
+
+</BLOCKQUOTE>
+
+<P>Given our standard build environment, a</P>
+
+
+<BLOCKQUOTE>
+	<P>$ cd /src<BR>
+	$ make everything</P>
+
+</BLOCKQUOTE>
+
+<P>Should accomplish this. Alternatively, E can be built in Semantic Cafe (<A HREF="../../neocosm/idefiles/RunningEMainInCafe.html">here's
+how</A>), but someone (Bob? Karl?) would have to figure out how to make the result callable from the command line.</P>
+<P>To start E, merely type &quot;e&quot; at the shell prompt:</P>
+
+
+<BLOCKQUOTE>
+	<P>$ e<BR>
+	?</P>
+
+</BLOCKQUOTE>
+
+<P><I>Note, in bash under Windows95, you may see two question marks instead of one. Don't worry about it.</I></P>
+<P>The question mark is E's prompt. If you type in an E expression, it'll get evaluated, and the resulting value
+printed out:</P>
+
+
+<BLOCKQUOTE>
+	<P>? 2 + 3<BR>
+	# value: 5
+
+</BLOCKQUOTE>
+
+<P>Alternatively, if you invoke &quot;e&quot; with a command line argument, it will assume this is the name of
+a file containing an E program. For example, if we put</P>
+
+
+<BLOCKQUOTE>
+	<P>println(2 + 3)</P>
+
+</BLOCKQUOTE>
+
+<P>into a file named &quot;add-test.e&quot;, then, going back to our command shell, we can run this program:</P>
+
+
+<BLOCKQUOTE>
+	<P>$ e add-test.e<BR>
+	5</P>
+
+</BLOCKQUOTE>
+
+<P>You need to surround the &quot;2 + 3&quot; with the &quot;println&quot; in this case since E does not print
+results by default when interpreting a file.</P>
+<P><I>Note: You may also be getting a bunch of tracing spam when E starts up. To suppress this, use &quot;</I><TT>TraceLog_name=foo.log</TT>&quot;
+<I>as an additional argument. This will put the tracing spam into the </I><TT>foo.log</TT><I> file.</I></P>
+<H2>Example program: finding text</H2>
+<P><I>The examples are presented assuming they are all entered interactively, but they should all work when run
+from a file, as above.</I></P>
+<P>In this tutorial, you are going to write an E program that finds occurrences of a specific text string in a
+file. You will need an example file to work with. Use a text editor to create a text file containing the following
+stanzas of the poem &quot;Jabberwocky&quot;:
+
+
+<BLOCKQUOTE>
+	<P>'Twas brillig and the slithy toves<BR>
+	Did gyre and gimble in the wabe:<BR>
+	All mimsy were the borogoves,<BR>
+	And the mome raths outgrabe.
+	<P>&quot;Beware the Jabberwock, my son!<BR>
+	The jaws that bite, the claws that catch!<BR>
+	Beware the Jubjub bird and shun<BR>
+	The frumious Bandersnatch.&quot;
+
+</BLOCKQUOTE>
+
+<P>Save the text in a file called jabberwocky.txt in the top level of your file system.
+<H3>Loops: the for statement</H3>
+<P>A loop is one or more statements to be executed multiple times. You use a for statement to create a loop.<BR>
+Type the following for statement in the Program window:
+
+
+<BLOCKQUOTE>
+	<PRE>? for line in file:/jabberwocky.txt {
+&gt;     print(line)
+&gt; }</PRE>
+
+</BLOCKQUOTE>
+
+<P>After the first or second line, E knows it doesn't yet have a complete expression so it keeps prompting for
+more. After typing the third line, you should see the contents of the file jabberwocky.txt:
+
+
+<BLOCKQUOTE>
+	<P>'Twas brillig and the slithy toves<BR>
+	Did gyre and gimble in the wabe:<BR>
+	All mimsy were the borogoves,<BR>
+	And the mome raths outgrabe.
+	<P>&quot;Beware the Jabberwock, my son!<BR>
+	The jaws that bite, the claws that catch!<BR>
+	Beware the Jubjub bird and shun<BR>
+	The frumious Bandersnatch.&quot;
+
+</BLOCKQUOTE>
+
+<P>For every line found in the file jabberwocky.txt, the for statement prints the line to the display. It repeats
+this operation until it has read all the lines in the file.
+<H3>Functions</H3>
+<P>The for statement you have written is good for printing the file jabberwocky.txt, but suppose you want to print
+a different file? You would like to have the same code perform the same operation for any input you provide. A
+function does just that.<BR>
+<BR>
+Add lines before and after the for statement and change the for statement so it looks like this:</P>
+<PRE>	? define show(file) {
+	&gt;     for line in file {
+	&gt;         print(line)
+	&gt;     }
+	&gt; }
+	&gt; show(file:/jabberwocky.txt )</PRE>
+<P>As in the previous example, the contents of the file jabberwocky.txt are output in the Program window.
+<H4>Function definition</H4>
+<P>The define statement, which begins at the word define and ends at the last curly brace, }, defines a function
+called show. Executing the define statement performs no action; it creates entities to be used later.
+<H4>Parameters</H4>
+<P>The show function contains the for statement operating on the variable file. The variable file is called the
+function's parameter. An parameter is a placeholder for data provided when the function is executed. Wherever file
+appears in the function definition, the actual data provided will be used.
+<H4>Function call</H4>
+<P>The last line is not part of the function definition. It is a function call: it executes the show function.
+The name file:/jabberwocky.txt is given as the argument to the show function. You could execute the same function
+for a different file by providing a different file name. (There is a space between the URL and the closing parenthesis
+since parentheses are legal URL characters, but this parenthesis isn't supposed to be part of the URL.)
+<H3>Conditions: the if statement</H3>
+<P>Suppose you want to print only certain lines of a file, not all of them. Suppose you want to print only those
+lines containing a text string you specify. Use the if statement to execute code only if a condition tests true.</P>
+<P>Add lines before and after the print function call, change the name of the function to find, and add a second
+argument to it, so that the function definition looks like this:</P>
+<PRE>	? define find(file, substring) {
+	&gt;     for line in file {
+	&gt;         if (line includes(substring)) {
+	&gt;             print(line)
+	&gt;         }
+	&gt;     }
+	&gt; }</PRE>
+<P>Add a second argument value to the function call:</P>
+<PRE>	? find(file:/jabberwocky.txt, &quot;and&quot;)</PRE>
+<P>Now only the lines in the file jabberwocky.txt that contain the string &quot;and&quot; are printed in the Program
+window.
+
+
+<BLOCKQUOTE>
+	<P>'Twas brillig and the slithy toves<BR>
+	Did gyre and gimble in the wabe:<BR>
+	Beware the Jubjub bird and shun<BR>
+	The frumious Bandersnatch.&quot;
+
+</BLOCKQUOTE>
+
+<P>The line that contains &quot;Bandersnatch&quot; is included because of the &quot;and&quot; in &quot;Bandersnatch&quot;.
+The line that contains &quot;And&quot; is not included because the comparison is case-sensitive.</P>
+<P>Try the function call again specifying a different text string.
+<H3>Built-in functions and methods</H3>
+<P>You have been using the print function to display text. The print function is a predefined function built into
+E.<BR>
+<BR>
+A built-in method you use in this example is <TT>includes</TT>. This method is called on a string and takes another
+string as an argument. It returns true if the argument string can be found within the string the method is called
+on. In the method call:</P>
+<PRE>	line includes(substring)</PRE>
+<P><TT>line</TT> is the string that <TT>includes</TT> is called on, and <TT>substring</TT> is the<BR>
+argument to <TT>includes</TT>.
+<H2>Mappings: the =&gt; operator</H2>
+<P>E supports several features that facilitate working with files. You have already used one of these features
+in the function call:</P>
+<PRE>	find(file:/jabberwocky.txt, &quot;and&quot;)</PRE>
+<P>The prefix <TT>file:</TT> tells E to open the designated file and read its contents. In E, all collections are
+mappings from keys of some sort to values of some sort. A for loop can be used on any collection. When used on
+a file, the file is assumed to be a text file, and considered a collection mapping from line numbers (starting
+at 1, since this is the text file convention) to corresponding lines of the file. Each time around the for loop,
+the key is the next line number and the value is a string with the contents of that line (including a terminating
+newline). So for your example file, the mapping is:
+
+
+<BLOCKQUOTE>
+	<P>1 'Twas brillig and the slithy toves<BR>
+	2 Did gyre and gimble in the wabe <BR>
+	3 All mimsy were the borogoves,<BR>
+	4 And the mome raths outgrabe.<BR>
+	5 <BR>
+	6 &quot;Beware the Jabberwock, my son!<BR>
+	7 The jaws that bite, the claws that catch!<BR>
+	8 Beware the Jubjub bird and shun<BR>
+	9 The frumious Bandersnatch.&quot;
+
+</BLOCKQUOTE>
+
+<P>You can access the keys of a mapping using the =&gt; operator. This operator is read <I>maps to</I>, as in &quot;k
+=&gt; v&quot; reading &quot;k maps to v&quot;.</P>
+<P>Add to the for statement and the print function call so your program looks like this:</P>
+<PRE>	? define find(file, substring) {
+	&gt;     for num =&gt; line in file {
+	&gt;         if (line includes(substring)) {
+	&gt;             print(&quot;&quot; + num + &quot;:&quot; + line)
+	&gt;         }
+	&gt;     }
+	&gt; }
+	&gt; find(file:/jabberwocky.txt, &quot;and&quot;)</PRE>
+<P>You get the same lines that printed before, and now the lines are numbered.
+
+
+<BLOCKQUOTE>
+	<P>1:'Twas brillig and the slithy toves<BR>
+	2:Did gyre and gimble in the wabe:<BR>
+	8:Beware the Jubjub bird and shun<BR>
+	9:The frumious Bandersnatch.&quot;
+
+</BLOCKQUOTE>
+
+<H2>String concatenation</H2>
+<P>The + operator performs addition if its operands are numeric. When its left operand is a string, it performs
+concatenation; it appends the second argument -- converted to a string -- to the end of the first and returns the
+result. In the statement:</P>
+<PRE>	print(&quot;&quot; + num + &quot;:&quot; + line)</PRE>
+<P>the argument to the <TT>print</TT> function is a concatenation of four strings.</P>
+<P>Why the empty string? The variable <TT>num</TT> actually contains a numeric value, not a string. The concatenation
+succeeds because E automatically converts the numeric value in <TT>num</TT> to the equivalent string as a result
+of trying to concatenate <TT>num</TT> with the empty string. If the expression began with <TT>num</TT><BR>
+<BR>
+print(num + &quot;:&quot; + line)<BR>
+<BR>
+E would expect a numeric value to add to num and would generate an exception when it encountered the string &quot;:&quot;
+instead.</P>
+<H2>Calling Java methods</H2>
+<P>The E interpreter, which runs on Java, uses the Java class String to implement its strings. E strings are normal
+Java String objects, instances of the Java class java.lang.String. This means that all of String's public methods,
+the methods that belong to the class String and that can be called from outside String, are available to E strings.
+Refer to <A HREF="../../API_doc/ec4/packages.html">javadoc-umentation</A> for information about Java classes.</P>
+<P>Change the if statement condition:</P>
+<PRE>	? define find(file, substring) {
+	&gt;     for num =&gt; line in file {
+	&gt;         if (line indexOf(substring) != -1) {
+	&gt;             print(&quot;&quot; + num + &quot;:&quot; + line)
+	&gt;         }
+	&gt;     }
+	&gt; }</PRE>
+<P>You get the same result as before. Since line is a string, you can call the String method <TT>indexOf</TT>,
+which returns the index (or position) of a specified substring if the substring exists, or -1 if the substring
+is not found.
+<H3>Calling a function from another function</H3>
+<P>So far you have written a function that reads a specified file and prints out any lines containing a specified
+string. To make good use of the function you have written, you would call it more than once.</P>
+<P>Let's write another function that calls your function for all .txt files in a directory.</P>
+<PRE>	? define findall(dir, substring) {
+	&gt;     for file in dir {
+	&gt;         if (file getName endsWith(&quot;.txt&quot;)) {
+	&gt;             find(file, substring)
+	&gt;         }
+	&gt;     }
+	&gt; }
+	&gt; findall(file:/, &quot;and&quot;)</PRE>
+<P>You get at least the same result as before. If you have other .txt files in your top-level directory, and if
+they contain the string &quot;and&quot;, you will get additional lines.
+<H2>The File class</H2>
+<P>The for statement</P>
+<PRE>	for file in dir {</PRE>
+<P>executes once for each element of dir. The elements of dir are File objects, instances of the java.io.File class.
+On each iteration of the loop, the variable file contains a different File object.</P>
+<P>The if statement</P>
+<PRE>	if (file getName endsWith(&quot;.txt&quot;)) {</PRE>
+<P>contains two method calls:</P>
+<PRE>	file getName </PRE>
+<P>calls the <TT>getName</TT> method of the File class, which returns as a String the name of the file that the
+File object represents.</P>
+<PRE>	endsWith(&quot;.txt&quot;) </PRE>
+<P>calls the <TT>endsWith</TT> method of the String class, which returns true if the String object ends with the
+specified argument string.
+<H2>Recursion: calling a function from itself</H2>
+<P>Now you have a function that checks all the files in a directory. However, it ignores subdirectories. It would
+be useful if it could check files in subdirectories as well.</P>
+<P>Checking subdirectories is tricky, because a directory tree can have any number of branches of any length. You
+cannot know ahead of time how many levels of subdirectories to search. What you need is a way to say &quot;keep
+going until you get to the end.&quot; Recursion provides this functionality. Recursion happens when a function
+calls itself.</P>
+<P>To create a simple directory tree to test, create a subdirectory in your top-level directory called <TT>test</TT>.
+Make a copy of jabberwocky.txt and put the copy in the <TT>test</TT> subdirectory.</P>
+<P>Change the <TT>findall</TT> function by renaming the dir argument and replacing the for statement with a compound
+if statement:</P>
+<PRE>	? define findall(dirfile, substring) {
+	&gt;	if (dirfile isDirectory) {
+	&gt;		for file in dirfile {
+	&gt;			findall(file, substring)
+	&gt;		}
+	&gt;	} else if (dirfile getName endsWith(&quot;.txt&quot;)) {
+	&gt;		find(dirfile, substring)
+	&gt;	}
+	&gt; }
+	&gt; findall(file:/, &quot;and&quot;)</PRE>
+<P>You get (at least):
+
+
+<BLOCKQUOTE>
+	<P>/jabberwocky.txt:1:'Twas brillig and the slithy toves<BR>
+	/jabberwocky.txt:2:Did gyre and gimble in the wabe:<BR>
+	/jabberwocky.txt:8:Beware the Jubjub bird and shun<BR>
+	/jabberwocky.txt:9:The frumious Bandersnatch.&quot;<BR>
+	/test/jabberwocky.txt:1:'Twas brillig and the slithy toves<BR>
+	/test/jabberwocky.txt:2:Did gyre and gimble in the wabe:<BR>
+	/test/jabberwocky.txt:8:Beware the Jubjub bird and shun<BR>
+	/test/jabberwocky.txt:9:The frumious Bandersnatch.&quot;
+
+</BLOCKQUOTE>
+
+<P>plus the lines containing &quot;and&quot; from any other .txt files you have anywhere in your file system.
+<H3>Compound if statement</H3>
+<P>The above if statement has a second clause, the else if block.</P>
+<P>If the condition of the first clause is true, the first clause is executed and the second clause is ignored.</P>
+<P>If the condition of the first clause is false, and the condition of the second clause is true, the second clause
+is executed.</P>
+<P>If the condition of the first clause is false, and the condition of the second clause is false, none of the
+if statement is executed.</P>
+<P>In this case, the variable dirfile will contain an object of the File class that represents either a directory
+or a file. The first clause of the if statement is executed if the object in dirfile represents a directory. If
+it does not, you know that the object represents a file. In that case, the second clause performs the string search
+operation that you have been doing all along.</P>
+<P>A danger in recursion is that with each function call, the function calls itself again, creating a never-ending
+loop. In this example, the findall function will stop calling itself when it can find no more directories, which
+has to happen eventually.
+
+</BODY>
+
+</HTML>

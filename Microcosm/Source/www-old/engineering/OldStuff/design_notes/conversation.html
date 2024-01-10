@@ -1,0 +1,245 @@
+<HTML>
+<HEAD>
+    <TITLE>Conversation Ingredients</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Conversation Ingredients</H1>
+
+<em>This page is maintained by <A HREF="mailto:trev@communities.com">Trev</A>.</em>
+
+
+<h2>Introduction</h2>
+
+The conversation ingredients manage the networking and group
+membership part of speech within a region. They do not manage
+telepathy and they do not know any of the details of presentation
+(e.g. speech balloons etc.). They take care of taking a Speech object
+(which is not much more than a string) and transmitting it to everyone
+in a region.
+<p>
+There are two parts to this code. The Conversation ingredient is part
+of the region. The Converser ingredient is part of the avatar. A
+Conversation manages a group of Conversers, one for each avatar in
+the region.
+
+<h4>Related Documents</h4>
+
+<ul>
+<li><A href="identity.html">Identity</a>
+<li><A href="telepathy.html">Telepathy</a>
+</ul>
+
+
+
+<h2>Architecture</h2>
+
+<h4>Architecture Overview</h4>
+
+As mentioned in the introduction, a Conversation manages a group of
+Conversers, one for each avatar in a region. The Conversers and the
+Conversation communicate via facets, set up at region entry time.
+<p>
+The Converser communicates with the Conversation via a revokable
+"identi-facet". This is a filler facet; the Converser calls
+<code>uSay(speech)</code> on its end of the facet, and the facet then
+calls <code>uSay(identity, speech)</code> on the Conversation i.e. it
+adds in the identity of the speaker.
+<p>
+This facet is created by the Conversation when the avatar enters the
+region. The Conversation is notified by the containership code when an
+avatar enters. The notification contains the identity of the
+entering avatar - the containership code will have done an identity
+check, to make sure the avatar is who they say they are.  So the
+Conversation passes in the checked identity when it creates the facet.
+From then on any speech arriving over that facet is stamped with the
+identity of the speaker - the speaker can't pretend to be someone
+else. In addition the facet is revoked when the avatar leaves the
+region (again via a notification from the containership code). This
+ensures the avatar can't speak when it's no longer in the region.
+<p>
+The Conversation communicates with the Converser via a simple
+revokeable facet, also set up at region entry. When the avatar
+leaves the region it revokes this facet, ensuring that the
+Conversation can no longer send it any speech.
+
+<h4>Speech Flow</h4>
+
+The normal flow of a piece of speech (one balloons worth!) is:
+<ol>
+<li>The Converser receives the speech from the UI input handling
+<li>The Converser calls <code>uSay(speech)</code> on its conversation
+input facet
+<li>The speech travels (possibly across the wire) to the filler part
+of the facet, which knows the speaker's identity and calls
+<code>uSay(speakersIdentity, speech)</code> on the Conversation
+<li>The Conversation calls <code>uSay(speakersIdentity, speech)</code>
+on each one of its list of conversation output facets
+<li>Each conversation output facet calls into its corresponding
+Converser, which calls on the UI code to display the speech
+</ol>
+Note that the speech is not reflected locally; even the speaker doesn't
+see it until after the round trip to the Conversation. This can
+introduce noticeable delay, and make the application seem unresponsive,
+but it preserves conversation ordering.
+
+<h4>Some Complications</h4>
+
+Overall the design of Conversation and Converser is pretty simple.
+There are a few messy side issues though:
+<ul>
+<li>When an avatar enters a region it's actually the avatar body
+that goes through the containership negotiation (the avatar itself
+is not containable). So the conversation facet exchange has to
+go via the avatar body and the avatar body link. This complicates
+things, and would raise new security issues if we had remotely
+hosted bodies. At the moment we don't; and even if we did they'd
+probably be hosted by the region, which we're trusting anyway.
+<li>The conversation ingredients are currently used to transmit
+name changes i.e. if someone in the region changes their name
+this notification travels via the conversation to others in the
+region. This should probably be done by entirely separate facets.
+<li>If a Converser can't reach a Conversation, or vice versa, then
+the avatar has almost certainly lost contact with the region. The
+current code assumes this is the case and goes into a pending mode
+where it buffers up any incoming speech to use in the next region.
+It's not clear that this is the right thing to do.
+</ul>
+
+<h4>Design Objectives, Constraints and Assumptions</h4>
+
+<ul>
+<li>This conversation implementation is only as secure as the
+region. Given a well behaved region, no-one can pretend to be someone
+they aren't. But if the region wants to generate speech and pretend it
+comes from someone else, it can do it.
+<li>All the code runs in the E run thread, it is not thread safe.
+</ul>
+
+<h2>Detailed Design</h2>
+
+The conversation ingredients are Pluribus code, so they're not
+JavaDoc'd.  What follows are the main interfaces ("kinds" in Pluribus)
+used between the Converser and Conversation ingredients.
+
+<h4>kind Conversation Output</h4>
+
+A conversation keeps a list of conversation outputs, one for each
+participant in the conversation. Whenever someone says something, or
+changes their name, the conversation fans out the appropriate message
+to all its outputs. Each output implements the following interface:
+
+<pre>
+    /**
+     * The given identity has said the given speech
+     * @param identity    the identity who spoke
+     * @param speech      what they said
+     */
+    uSay(SturdyIdentity identity, Speech speech);
+
+    /**
+     * The given identity has changed their name
+     * @param identity    the identity which changed names; identity.getName()
+     *   can be used to the new name
+     * @param oldName     their name before the name change
+     */
+    uNameChange(SturdyIdentity identity, String oldName);
+</pre>
+
+<h4>kind ukConversationInput</h4>
+
+A conversation also keeps a list of conversation input facets, one for
+each participant in the conversation. Conversation inputs are "filler
+facets"; they store the identity associated with them and each call to
+the facet is translated into a similar call on the conversation, with
+the identity as argument. e.g. the person holding the facet calls
+'uSay(speech)'; the facet then calls 'iSay(identity, speech)' on the
+conversation object. So, once the facet is set up, all communication
+through the input to the conversation is stamped with the
+participant's identity.
+
+<pre>
+    /**
+     * uSetOutput is used during setup to let the conversation know where
+     * to send output for the participant corresponding to this input.
+     * @param output      the output facet for the participant
+     */
+    uSetOutput(kind ukConversationOutput output);
+
+    /**
+     * Say something; this speech will be stamped with the identity
+     * associated with this participant and will then be distributed
+     * to everyone in the conversation.
+     * @param speech      what was said
+     */
+    uSay(Speech speech);
+
+    /**
+     * The given participant has changed it's name (i.e. it's "handle";
+     * it can't change it's nickname because that is decided by others).
+     * This name change will be stamped with the identity associated
+     * with this participant and will then be distributed to everyone
+     * in the conversation.
+     * @param newName     the new name (the input facet knows the old name
+     *   because it is part of the identity object held by the facet)  
+     */
+    uNameChange(String newName);
+</pre>
+
+<h4>Facet Setup</h4>
+
+A facet implementing <code>kind ukConversationInput</code> is created
+by the Conversation and then given (via the body) to the avatar, when
+the avatar enters a region. The avatar then creates a facet of
+<code>kind ukConversationOutput</code> and links it up by calling
+<code>uSetOutput</code> on the input facet.
+<p>
+At this point the newly entered avatar has an input facet (for
+sending speech to everyone else) and an output facet (for
+receiving speech). Any speech sent via the input facet is
+"stamped" with the avatar's identity and then fanned out to
+everyone in the region, including the sending avatar.
+<p>
+On region exit the Conversation is notified that the avatar has
+left. It removes both the input and output facet from its tables,
+and revokes the input facet. The Converser (in the avatar) knows
+the avatar has left so discards its useless input facet and revokes
+and discards its output facet, replacing them with new facets for
+the new region it is entering.
+
+<h4>Testing and Debugging</h4>
+
+<ul>
+<li>Use trace category "conversation" to track the conversation code.
+</ul>
+
+<h2>Design Issues</h2>
+
+<h4>Open Issues</h4>
+
+<ul>
+<li>This conversation design might change radically if we changed
+to a more session based architecture like Scott's DObjects. In that
+case it might make more sense for the host "presence" of the avatar
+to send conversation messages to each of its remote presences, rather
+than using an explicit central planning point. This might lead to
+some ordering problems though; at the moment everyone is guaranteed
+to see conversation in the same order, because it all goes through
+a central fanning point.
+<li>More work is needed at region entry and exit time. Users need
+to have a common view on what is "heard" by others, even if one
+of them is just leaving or just entering the region.
+<li>In the current design, the region can spoof conversation. Making
+conversation truly secure (so the region couldn't spoof it) would
+involve either encrypting every piece of speech with the speakers
+private key (currently too expensive) or setting up a series of short
+lived, but cheaper, keys.
+</ul>
+
+<p>
+<a href="index.html">Back to design notes index</a>
+<br>
+<a href="../index.html">Back to Microcosm engineering main page</a>
+
+</BODY>
+</HTML>

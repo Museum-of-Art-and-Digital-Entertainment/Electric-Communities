@@ -1,0 +1,96 @@
+<!--NewPage-->
+<!-- Created by Masa Maeda on 05.14.97  -->
+<!-- Copyright 1997 Electric Communitites. -->
+<!-- All rights reserved worldwide.  -->
+<!-- Proprietary and confidential. -->
+<HTML>
+<HEAD>
+<pre>
+<a href="PPTut6.html">Previous</a>  <a
+href="PPTut8.html">Next</a>  <a
+href="PPTutI.html">Index</a>  <a
+href="PPTut1.html">Home</a></pre>
+<TITLE>The PeekPoke Tutorial</TITLE>
+</HEAD>
+<BODY>
+<P><HR WIDTH="100%" SIZE=2></P>
+
+
+<P>&nbsp;</P>
+<B><P>Steps 1…3 for Peeker and Poker.</P>
+</B>
+<P>The code that corresponds to steps 1…3 for PeekerPoker is shown next. Note the
+resemblance with the code for PeekablePokeable. The important difference lies in the
+behavior. The purpose of a Peeker is to Peek at a Peekable, and in order to do so
+Peeker should be able to refer to Peekable, thus the need to add a parameter of kind
+<FONT FACE="Courier">ukPeekable</FONT> within its parameter list.  The second
+parameter is a string containing the actual message sent between Peekable and
+Peeker.</P>
+<P>Note that for PeekerPoker there is no client code since PeekerPoker is utilized only to have some effect over Peekable and Pokable. That is, even if a client for PeekerPoker is created it would not be used at all. Beware that this might not be so in other applications and in such cases a client would have to be coded.</P>
+
+<P><HR WIDTH="80%" SIZE=2></P>
+<PRE>
+
+	// =====     For PeekerPoker     =====
+	// ----- Create Unum structure kind -----
+	export kind ukPeeker {
+	  uPeekUnum(kind ukPeekable peekable, String pokeMessage);
+	}
+	export kind ukPoker {
+	  uPokeUnum(kind ukPokeable pokeable, String pokeMessage);
+	}
+	export kind uskPeekerPoker  {
+	  kind ukPeeker;
+	  kind ukPoker;
+	}
+	// ----- Create Presence structure kind -----
+	export kind pkHostPeeker {
+	  pHostPeekUnum(kind ukPeekable peekable, String pokeMessage);
+	}
+	export kind pkHostPoker {
+	  pHostPokeUnum(kind ukPokeable pokeable, String pokeMessage);
+	}
+	export kind pskHostPeekerPoker  {
+	  kind pkHostPeeker;
+	  kind pkHostPoker;
+
+	}
+
+	// ----- Create Ingredients kind -----
+	export kind iskPeeker  {
+	  kind ukPeeker;
+	  kind pkHostPeeker;
+	}
+	export kind iskPoker  {
+	  kind ukPoker;
+	  kind pkHostPoker;
+	}
+
+</PRE>
+<P><HR WIDTH="80%" SIZE=2></P>
+
+<P>This finalizes the basic elements needed for the PeekPoke unum. The next step is to
+define the actual behavior of the unum in the ingredient implementation.</P>
+
+<P><HR WIDTH="100%" SIZE=2></P>
+<pre>
+<a href="PPTut6.html">Previous</a>  <a
+href="PPTut8.html">Next</a>  <a
+href="PPTutI.html">Index</a>  <a
+href="PPTut1.html">Home</a></pre>
+
+</HTML>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,591 @@
+<HTML>
+
+<HEAD>
+<TITLE>ECDAF Application Startup and Core System Services</TITLE>
+</HEAD>
+
+<BODY>
+
+<P>
+<H2>The Electric Communities Distributed Application Framework (ECDAF)</H2>
+<P>
+<H1>Application Startup and Core System Services</H1>
+<P>
+<B>Last updated:</B> [98/07/17 Chip]
+<P>
+<I>This page was written by <A HREF="mailto/chip@communities.com"><I>Chip.</I></A>
+<BR>
+</I>
+<P>
+This document describes ECDAF API for application startup and
+initial access to core system services. <BR>
+
+<P>
+<H2>Basic Startup API</H2>
+<P>
+The basic API for application startup is very simple. However
+it is highly configurable and it is in this configurability where
+most of the details reside.
+<P>
+An ECDAF application must provide a startup class which implements
+the interface <FONT FACE="Courier">ec.boot.ELaunchable</FONT>.
+This interface consists of a single method:
+<PRE>
+    public interface ELaunchable {
+        void go(EEnvironment env);
+    }
+</PRE>
+<P>
+In addition to implementing <FONT FACE="Courier">ELaunchable</FONT>,
+the startup class must have a public, zero-argument constructor,
+so that the boot code can create an instance of it by invoking
+the <FONT FACE="Courier">newInstance()</FONT> method on the startup
+class's <FONT FACE="Courier">Class</FONT> object.
+<P>
+The application is started with a command line of the form:
+<PRE>
+    java ec.boot.Boot <I>startclass args... </I>
+</PRE>
+<P>
+where <I><FONT FACE="Courier">startclass</FONT></I> is the fully
+qualified path name of your application startup class, and <I><FONT FACE="Courier">args...</FONT></I>
+are any command line arguments that you wish to pass to the application
+itself.
+<P>
+The <FONT FACE="Courier">Boot</FONT> class parses the command
+line, initializes the core system services, constructs the <FONT FACE="Courier">EEnvironment</FONT>,
+creates an instance of your startup class, and then actually starts
+the application by sending the <FONT FACE="Courier">EEnvironment</FONT>
+to the startup object in a <FONT FACE="Courier">go()</FONT> message.
+From the <FONT FACE="Courier">EEnvironment</FONT> object your
+application can then obtain the command line arguments, the properties,
+and the root capabilities for all the core system services (see
+<B>Core System Services</B> below).
+<P>
+For example, you might create an application:
+<PRE>
+    package com.fudco.cool;
+
+    public class CoolApp implements ELaunchable {
+        public void go(EEnvironment env) {
+            <I>your stuff here...
+</I>        }
+    }
+</PRE>
+
+<P>
+and then you might start it with a command line something like:
+<PRE>
+    java ec.boot.Boot com.fudco.cool.CoolApp <I>args...
+</I>
+</PRE>
+
+<P>
+<H2>Properties and Command Line Arguments</H2>
+<P>
+The application can obtain the command line arguments from the
+<FONT FACE="Courier">EEnvironment</FONT>. Before being given to
+the application, however, the command line will first be parsed
+for arguments which modify the property settings and any such
+arguments will be removed from the arguments made available to
+the application. The property settings are also available from
+the <FONT FACE="Courier">EEnvironment</FONT>, but are indexed
+by keyword rather than by position on the command line.
+<P>
+Property settings may come from property files or from the command
+line directly. A properties file is simply a file with a series
+of lines of the form:
+<PRE>
+    <I>name</I>=<I>value</I>
+</PRE>
+
+<P>
+which is interpreted as setting the value of the property specified
+by the keyword <I><FONT FACE="Courier">name</FONT></I> to the
+string <I><FONT FACE="Courier">value</FONT></I>.
+<P>
+Prior to processing the command line itself, a set of default
+properties files are read. Currently, ECDAF tries to read three
+default properties files: &quot;<FONT FACE="Courier">/usr/local/lib/eprops/systemdefault</FONT>&quot;,
+&quot;<FONT FACE="Courier">.eprops/default</FONT>&quot; (in the
+user's home directory), and &quot;<FONT FACE="Courier">/eprops.txt</FONT>&quot;,
+in that order. If any or all of these files are missing, the absence
+is silently ignored. Furthermore, a startup command line argument
+of the form:
+<PRE>
+    -ECNoDefaults
+</PRE>
+
+<P>
+will suppress the reading of these default properties files entirely,
+leaving only those properties which are explicitly derived from
+the command line.
+<P>
+A command line argument of the form:
+<PRE>
+    -ECproperties <I>filename</I>
+</PRE>
+
+<P>
+will cause property settings to be read from the properties file
+named by <I><FONT FACE="Courier">filename</FONT></I>.
+<P>
+A command line argument of the form:
+<PRE>
+    <I>name</I>=<I>value</I>
+</PRE>
+
+<P>
+will be interpreted as a direct property assignment.
+<P>
+All these property settings are cumulative. That is, you can specify
+any number of individual property settings and property files
+and they will all be interpreted. Property settings are processed
+from left to right and a later setting of a given property will
+replace an earlier setting.
+<P>
+Any command line arguments remaining, after the property setting
+arguments are removed, are made available to the application in
+an args array.
+<P>
+For example, if we started the sample application with a command
+line like:
+<PRE>
+    java ec.boot.Boot com.fudco.cool.CoolApp arg1 Checkpoint=D:\foobar.cpt arg2
+</PRE>
+
+<P>
+then the application would see the command line arguments &quot;<FONT FACE="Courier">arg1</FONT>&quot;
+and &quot;<FONT FACE="Courier">arg2</FONT>&quot; and the &quot;Checkpoint&quot;
+property would be set to &quot;<FONT FACE="Courier">D:\foobar.cpt</FONT>&quot;.
+<BR>
+
+<P>
+<H2>Configurability</H2>
+<P>
+ECDAF applications may be configured from the environment by the
+selective setting of properties.<BR>
+
+<P>
+<B>Class preloading: &quot;StartupClassPreload&quot; and &quot;PreloadListFile&quot;
+</B>
+<P>
+Class preloading is a feature wherein the startup code forces
+the loading of a collection of classes in order to (a) avoid having
+to wait for class load later when it might be less convenient
+to have a delay, and (b) to get some control over the in-memory
+placement of the classes (in terms of ordering and memory packing)
+in hopes of improving virtual memory performance. This is a semi-experimental
+feature, in that the benefits are somewhat unclear and vary from
+case to case. However, the feature is available if you wish to
+make use of it.
+<P>
+Class preloading can be enabled by setting the &quot;StartupClassPreload&quot;
+property. If the property is set to the value &quot;<FONT FACE="Courier">preload</FONT>&quot;,
+the classes will be preloaded directly as part of the startup
+sequence. If the property is set to the value &quot;<FONT FACE="Courier">background</FONT>&quot;,
+the classes will be preloaded in a separate thread that will run
+concurrently with the startup sequence. If the property is set
+to any other value or if it is not set at all, no class preloading
+will be done. In either of the cases where class preloading is
+enabled, the value of the property &quot;PreloadList&quot; will
+be taken as the name of a file containing a list of the classes
+to be preloaded. The format of this file is simple: one line per
+class to be preloaded, each line containing one fully qualified
+class name.<BR>
+
+<P>
+<B>Short-circuiting entropy collection: &quot;DeveloperEntropy&quot;
+</B>
+<P>
+The normal startup sequence goes through various motions to collect
+entropy with which to seed the cryptographic random number generator.
+Unfortunately, this process takes a bit of time, which can be
+especially annoying during program development when frequent restarts
+of the application are common and the security value of good random
+numbers is small to non-existent. As a development aid, the startup
+sequence provides a mechanism to short-circuit this entropy collection
+by seeding from some fast but not-highly-unguessable sources.
+<P>
+The entropy collection short-circuit feature can be enabled by
+setting the &quot;DeveloperEntropy&quot; property to &quot;<FONT FACE="Courier">true</FONT>&quot;.
+Setting it to any other value or not setting it at all will disable
+this feature.<BR>
+
+<P>
+<B>Customizable login interface: &quot;LoginUIClass&quot;</B>
+<P>
+Many applications, notably Microcosm, begin with a user login
+dialog, to capture a user name and passphrase. Ideally this login
+should happen as early in the startup process as possible so as
+to avoid making the user wait for all the various initializations
+to complete. In addition, the user passphrase can be used to secure
+the checkpoint file (see <B>Persistent long-term state</B> below).
+The ECDAF startup procedure provides a hook for the application
+to provide its own login dialog.
+<P>
+A custom login dialog can be enabled by setting the property &quot;LoginUIClass&quot;
+to the fully qualified class name of an application login dialog
+class. Such a class must have a public, zero-argument constructor
+and must implement the interface <FONT FACE="Courier">ec.boot.login.LoginPresenter</FONT>.
+If the &quot;LoginUIClass&quot; property is not set, no login
+dialog will be invoked. Instead, the startup sequence will proceed
+with launching the application. However, in the absence of a passphrase,
+the application may be unable to run, or at least unable to restore
+from its checkpoint file, so take care.
+<P>
+If &quot;LoginUICLass&quot; <I>is</I> set, the startup code will create
+an instance of the login dialog class and then call its <FONT FACE="Courier">login()</FONT>
+method:
+<PRE>
+    public interface LoginPresenter {
+        public void login(ec.boot.login.LoginCompletionHandler completion,
+                          ec.util.ECProperties properties,
+                          ec.boot.login.PassphraseVerifier verifier);
+    }
+</PRE>
+
+<P>
+where <FONT FACE="Courier">completion</FONT> is a call-back object
+via which the login dialog indicates the result of the login dialog,
+<FONT FACE="Courier">properties</FONT> is the collection of properties
+which the startup code has collected (see <B>Properties and Command
+Line Arguments</B> above); and <FONT FACE="Courier">verifier</FONT>
+is a passphrase verifier which the login dialog can use to check
+a passphrase against the checkpoint file.
+<P>
+The login dialog may do whatever it wishes to capture the user
+identity and passphrase (and whatever other information the application
+may be interested in getting, for its own purposes, as part of
+login). The passphrase verifier should be called if the application
+is concerned with using a passphrase-protected checkpoint file.
+The passphrase verification interface, <FONT FACE="Courier">ec.boot.login.PassphraseVerifier</FONT>,
+is quite simple:
+<PRE>
+    public interface PassphraseVerifier {
+        public boolean verify(String passphrase);
+    }
+</PRE>
+
+<P>
+The <FONT FACE="Courier">verify</FONT> method will return true
+if and only if the given passphrase matches the one associated
+with the current checkpoint file (see below).
+<P>
+The login dialog may also modify the property settings to alter
+the application's behavior as it sees fit. In particular, it may
+set the &quot;Checkpoint&quot; property to select the checkpoint
+file (say, on the basis of the user name). Furthermore, it <I>must</I>
+set the &quot;Passphrase&quot; property to indicate the checkpoint
+file passphrase, if there is one.
+<P>
+When the login dialog is finished, it should call the login completion
+handler's <FONT FACE="Courier">afterLogin()</FONT> method to inform
+the startup code of the outcome. This interface, <FONT FACE="Courier">ec.boot.login.LoginCompletionHandler</FONT>,
+is also quite simple:
+<PRE>
+    public interface LoginCompletionHandler {
+        public void afterLogin(boolean success);
+    }
+</PRE>
+
+<P>
+where <FONT FACE="Courier">success</FONT> indicates the success
+or failure of the login. Success means that the application should
+proceed with the rest of startup. Failure means that the startup
+code will immediately exit.<BR>
+
+<P>
+<B>User interface selection: &quot;UIFrameworkClass&quot;</B>
+<P>
+The ECDAF is agnostic about the application's user interface or
+user interface framework. However, it does have a notion that
+the application at least possesses some kind of user interface,
+so there is support for this concept in the environment. In particular,
+we would like the user interface to be configurable so that alternative
+UI implementations may be selected in different contexts (for
+example, we often wish to select a GUI for a client-side startup
+and a CLI for a server-side startup).
+<P>
+The user interface framework is selected by setting the &quot;UIFrameworkClass&quot;
+property to the fully qualified class name of a user interface
+framework class. Such a class must have a public, zero-argument
+constructor and must implement the interface ec.boot.UIFramework.
+If the &quot;UIFrameworkClass&quot; property is not set, no UI
+framework will be established and the application will be entirely
+on its own in the user interface department.
+<P>
+If the &quot;UIFrameworkClass&quot; is set, the startup code will
+create an instance of the UI framework class and then call its
+<FONT FACE="Courier">init()</FONT> method:
+<PRE>
+    public interface UIFramework {
+        public void init(ec.boot.EEnvironment env);
+    }
+</PRE>
+
+<P>
+where <FONT FACE="Courier">env</FONT> is the <FONT FACE="Courier">EEnvironment</FONT>
+that is established as part of the normal application startup.
+This is the same <FONT FACE="Courier">EEnvironment</FONT> that
+is passed to the application startup object in the <FONT FACE="Courier">go()</FONT>
+message.
+<P>
+The UI framework object will itself be placed in the <FONT FACE="Courier">EEnvironment</FONT>
+where it will be accessible to the application startup class.
+<BR>
+
+<P>
+<B>Persistent long-term state: &quot;Checkpoint&quot; and &quot;Passphrase&quot;
+</B>
+<P>
+The ECDAF supports a form of non-orthogonal persistence built
+around the concept of a single checkpoint file which captures
+all the important state of an application (where &quot;important&quot;
+is defined here as being whatever the application considers worth
+saving plus the information that ECDAF itself needs to save to
+keep working). The persistence mechanism per se is accessed via
+the <FONT FACE="Courier">EEnvironment</FONT> and will be explained
+in more detail below. However, property settings control the mechanism's
+general behavior.
+<P>
+The persistence mechanism can be enabled by setting the &quot;Checkpoint&quot;
+property to the name of a checkpoint file. This can name either
+an existing checkpoint file somewhere on the computer or a checkpoint
+file that has yet to be created. If the &quot;Checkpoint&quot;
+property is not set, the execution of the application will be
+considered ephemeral and it will not be able to save its state.
+<P>
+If the checkpoint file does not exist at startup time, a new persistent
+ECDAF process will be created, including a new <FONT FACE="Courier">VatIdentity</FONT>
+and an empty <FONT FACE="Courier">Registrar</FONT> table, and
+the application's state will be null. If the checkpoint file exists,
+it will be deserialized to yield the previously saved application
+state, <FONT FACE="Courier">VatIdentity</FONT>, and so on.
+<P>
+The checkpoint file may be passphrase protected. If so, the file
+will be saved in encrypted form using a passphrase to generated
+the encryption key. The operation of restoring from this checkpoint
+file at application startup time will then require this same passphrase
+in order to succeed in decrypting the file. The passphrase for
+decrypting and encrypting the checkpoint file may be specified
+by setting the &quot;Passphrase&quot; property. If this property
+is not set or if it is set to the empty string (<FONT FACE="Courier">&quot;&quot;</FONT>),
+the file will be saved in unencrypted form. And if the passphrase
+is null, startup will only succeed if directed to an unencrypted
+checkpoint file.
+<P>
+Note that by setting the &quot;Checkpoint&quot; and &quot;Passphrase&quot;
+properties while omitting to set the &quot;LoginUIClass&quot;
+property, it is possibly to startup an ECDAF application non-interactively,
+even if would normally have an interactive login.<BR>
+
+<P>
+<B>Participation in the networked world: &quot;ListenAddress&quot;
+and &quot;SearchPath&quot;</B>
+<P>
+In order to be a fully functional networked application, it is
+generally necessary not only to be able to communicate with other
+entities on the net but to enable them to communicate with you.
+To this end, the data communications subsystem needs two critical
+pieces of configuration information: what address and port to
+listen for incoming connections on, and what information to provide
+to others (for example, in SturdyRefs) to enable them to locate
+the application's process in the future.
+<P>
+The network address and port upon which to listen for incoming
+connections is specified by setting the &quot;ListenAddress&quot;
+property. This property should be set to a string of the form:
+<PRE>
+    <I>domainname</I>:<I>portnumber</I> 
+</PRE>
+
+<P>
+or simply
+<PRE>
+    <I>domainname</I>
+</PRE>
+
+<P>
+where <I><FONT FACE="Courier">domainname</FONT></I> is the either
+an Internet domain name or dotted-quad IP address; and <I><FONT FACE="Courier">portnumber</FONT></I>
+is the (decimal integer) port number. If the port number is omitted,
+it defaults to 0. If the &quot;ListenAddress&quot; property is
+not set at all, it will default to the local host name, or &quot;<FONT FACE="Courier">localhost</FONT>&quot;
+if the local host name cannot be determined. Confusingly, however,
+the <I><FONT FACE="Courier">domainname</FONT></I> portion of the
+address will be ignored for purposes of setting up data communications;
+the network address being listened upon will always be that of
+the computer that the application is running on (as it should
+be). For example, our sample application might specify a listen
+address of:
+<PRE>
+    coolserv.fudco.com:2347
+</PRE>
+
+<P>
+which would indicate that the domain name is &quot;<FONT FACE="Courier">coolserv.fudco.com</FONT>&quot;
+and the port number is 2347.
+<P>
+An ECDAF process is located in the network using a &quot;search
+path&quot;. This is simply a list of network addresses which are
+tried in sequence as either plausible candidates for the actual
+process host machine itself or as the addresses of Process Location
+Servers (PLSs) which might know the actual address. When an application
+starts up, it is given such a search path that should be usable
+for finding itself. The <FONT FACE="Courier">Registrar</FONT>
+that the startup process creates will use this search path in
+constructing any <FONT FACE="Courier">SturdyRef</FONT>s which
+the application creates. In addition, as part of startup, each
+of the elements in the search path will be treated as the possible
+address of a PLS and the communications subsystem will attempt
+to register the ECDAF process with each of them (and, as long
+as the process continues to execute, will periodically refresh
+these registrations so that they don't expire).
+<P>
+The search path is specified by setting the &quot;SearchPath&quot;
+property. The value of the &quot;SearchPath&quot; property should
+consist of one or more network addresses in the form described
+above for the &quot;ListenAddress&quot; property. Multiple addresses
+should be separated by semicolon (&quot;<FONT FACE="Courier">;</FONT>&quot;)
+characters. Our example thus might have a search path something
+like:
+<PRE>
+    coolserv.fudco.com:2347;pls.fudco.com;pls.communities.com 
+</PRE>
+
+<P>
+which would first direct someone to a plausible address for the
+process itself, then have them check with the FUDCO PLS and then
+the Electric Communities PLS. Upon startup the process would register
+itself with these two PLSs.<BR>
+
+<P>
+<H2>Core System Services</H2>
+<P>
+The final important function of the ECDAF startup code is to initialize
+the core system services and make them available to the application.
+These services are all encapsulated by the <FONT FACE="Courier">EEnvironment</FONT>
+object which is passed to the application in the <FONT FACE="Courier">go()</FONT>
+message. All these services are then usable either directly via
+methods on the <FONT FACE="Courier">EEnvironment</FONT> object
+itself or via capabilities which can be obtained from the <FONT FACE="Courier">EEnvironment</FONT>
+object.<BR>
+
+<P>
+<B>Properties and command line arguments</B>
+<P>
+The <FONT FACE="Courier">EEnvironment</FONT> provides access to
+the command line arguments and the property settings. Command
+line arguments are obtainable via the method:
+<PRE>
+    String[] args();
+</PRE>
+
+<P>
+which returns the arguments in an array. If there were no command
+line arguments the result will be a 0 element array.
+<P>
+Access to the properties is via a set of methods which echo the
+read-only portion of the <FONT FACE="Courier">ec.util.ECProperties</FONT>
+method protocol. That is, entities with access to the <FONT FACE="Courier">EEnvironment</FONT>
+can interrogate the property settings but may not modify them.
+The methods available are:
+<PRE>
+    String getProperty(String key);
+    String getProperty(String key, String defaultValue);
+    int intProperty(String key, int defaultValue);
+    boolean testProperty(String key);
+    Enumeration propertyNames();
+</PRE>
+
+<P>
+see the Javadoc for <FONT FACE="Courier">ec.util.ECProperties</FONT>
+for full descriptions of these.<BR>
+
+<P>
+<B>Persistence</B>
+<P>
+The <FONT FACE="Courier">EEnvironment</FONT> provides access to
+the persistent data storage mechanism. In addition to the information
+which ECDAF saves for its own use, the application may specify
+an arbitrary Serializable object of its own which is to be saved.
+This object should be the root of a reference graph of objects
+which encompasses all state that the application cares to have
+persisted. The method:
+<PRE>
+    void setApplicationStateBundle(Serializable bundle);
+</PRE>
+
+<P>
+specifies the object which is to fill this role (i.e., be saved
+when the application persists), while the method:
+<PRE>
+    Serializable applicationStateBundle();
+</PRE>
+
+<P>
+returns the object which is currently in this role. Upon application
+startup, this can be interrogated to determine if the startup
+is a restore from checkpoint. If <FONT FACE="Courier">applicationStateBundle()</FONT>
+returns null, then either this is a freshly minted ECDAF process
+or the process persisted with no application-relevant state (which
+is functionally the same thing from the application's point of
+view).
+<P>
+The methods:
+<PRE>
+    void commit();
+    void commit(StableStoreWatcher watcher);
+</PRE>
+
+<P>
+cause the current state of the ECDAF process (including the application
+state bundle if there is one) to be serialized to the checkpoint
+file. The second form of the method allows you to specify an object
+which will be asynchronously notified when the checkpoint completes
+(see the Javadoc for <FONT FACE="Courier">ec.persist.StableStoreWatcher</FONT>
+for details).
+<P>
+As discussed above under <B>Persistent long-term state</B>, the
+checkpoint file can be protected with a passphrase. The method:
+<PRE>
+    String passphrase();
+</PRE>
+
+<P>
+returns the passphrase currently being used, while the method:
+<PRE>
+    void setPassphrase(String passphrase);
+</PRE>
+
+<P>
+changes the passphrase, including rewriting the checkpoint file
+with the new encryption key.<BR>
+
+<P>
+<B>Core Service capabilities</B>
+<P>
+The ECDAF sets up a variety of services that are accessed by capabilities
+available from the <FONT FACE="Courier">EEnvironment</FONT>. The
+methods:
+<PRE>
+    DirectoryRootMaker directoryRootMaker();
+    ProxyManager proxyManager();
+    Registrar registrar();
+    UIFramework uiFramework(); 
+</PRE>
+
+<P>
+return these various capabilities: the capability-oriented file
+system root, the proxy manager (which is actually the main capability
+to the communications subsystem), the Registrar and the user interface
+framework. Consult the Javadoc for the various classes (<FONT FACE="Courier">ec.file.DirectoryRootMaker</FONT>,
+<FONT FACE="Courier">ec.elib.net.proxy.ProxyManager</FONT>, <FONT FACE="Courier">ec.elib.net.proxy.Registrar</FONT>,
+and <FONT FACE="Courier">ec.boot.UIFramework</FONT>) for more
+detail on these capabilities and their use.<BR>
+
+</BODY>
+
+</HTML>
+

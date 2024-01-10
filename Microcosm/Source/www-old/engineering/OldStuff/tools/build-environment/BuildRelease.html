@@ -1,0 +1,132 @@
+<HTML>
+<HEAD>
+    <TITLE>Building a Release</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Building a Release</H1>
+
+<em>This page is maintained by <A HREF="mailto:trev@communities.com">Trev</A>.
+Please let me know of any errors ASAP so I can fix them.
+<br>
+<b>Warning:</b> these pages change frequently. If you've looked at them
+recently hit "reload" on your browser to make sure you're seeing the
+latest version.
+</em>
+<p>
+If you need to build a release to distribute to other people this is
+how to do it. Building a release is pretty simple (thanks to lots of
+work by Eric and Felix) but it is time consuming, because care is
+taken to ensure that everything is rebuilt from scratch. Before
+building a release you should make sure you already have a working
+build (e.g. by following the steps in <A href="BuildAll.html">Building
+the entire EC world</a>). If you are trying to merge changes or add
+new features, use normal builds to work out the bugs and then build a
+release when you're sure things work.
+<p>
+You must have Microsoft Developer Studio installed and you must have checked
+out EC, media and src before you start.
+<p>
+
+<h3>Step 1 - Start Shell</h3>
+<dl>
+<dt>To do
+<dd>Start up a 4dos (Release) shell, using the shortcut in your Programs
+menu.
+<dt>Background
+<dd>This starts up a 4dos shell with a minimal <code>PATH</code> and
+<code>CLASSPATH</code>, which will ensure that you don't pick up any
+prebuilt classes or binaries.
+</dl>
+
+<h3>Step 2 - Build The Release In A Minimal Environment</h3>
+<dl>
+<dt>To do <dd><code>cd \src</code> and type <code>bash config.build
+release.config make full-release</code> or (possibly) <code>bash
+config.build myconfigfile make full-release</code>.  <dt>Background
+<dd>This is the cool bit. It builds all the sources, sets up a release
+directory, zips up all the classes into the release directory and
+finally builds and installs the repository, all in a single step. This
+takes a while, well over two hours on some machines.
+<p>
+<code>config.build</code> is a shell script which takes a
+configuration file and a command as arguments. It sets up the
+environment according to the configuration file and then runs the
+command in that environment (in our case the command we run is
+<code>make</code>, with the <code>full-release</code> target as its
+argument).
+<p>
+For many people the standard configuration file, <code>release.config</code>,
+will be fine. But you should look at it and make sure it corresponds to
+the setup on your machine. If it doesn't, make a copy, say
+<code>myconfigfile</code>, edit it, and then give your edited config file
+as the first argument to <code>config.build</code>.
+<p>
+When this step completes (assuming it succeeds) there will be a
+complete release in <code>\Build\Release</code>, including zipped up
+class files, DLLs, repository, supporting software, supporting files etc.
+</dl>
+
+<h3>Step 3 - Set Up The Registry</h3>
+<dl>
+<dt>To Do
+<dd> <code>cd \Build\Release\bin</code> and type <code>.\regupdate</code>.
+<dt>Background
+<dd>This updates the registry so that clicking on <code>mcmav</code> and
+<code>mcm</code> files (or selecting "Account Manager" from your Windows
+Start Menu) starts up the AccountManager, from which you can start HabiFoo.
+</dl>
+
+
+<h3>Step 4 - Running HabiFoo</h3>
+<dl>
+<dt>To Do
+<dd>You can now select "Account Manager" from the Windows Start Menu or double
+click on an <code>mcm</code> file (if you have any) to start
+HabiFoo. See
+<A href="RunHabiFoo.html#AccountManager">Running the HabiFoo application</a>
+for more details.
+</dl>
+
+
+<h2>Further builds</h2>
+
+If you get errors during the build you may want to make changes to
+source and rebuild. To do this you should <em>not</em> do a <code>make
+full-release</code> again; the first thing <code>full-release</code>
+does is delete your <code>\Build</code> tree, forcing a build from
+scratch. You can, however, go to <code>\src</code> and then type
+<code>bash config.build <em>configfile</em> bash</code>. This leaves
+you in a bash shell with the environment set correctly. Using this
+shell, you can then repeat the parts of the build that failed or
+weren't started.  <code>full-release</code> does the following:
+<code>tag-start clean-build everything release zipclasses makerep
+tag-end</code>.  You don't need to do the <code>tag-start</code>,
+<code>clean-build</code> or <code>tag-end</code> targets. But you can
+repeat the other ones.  And, for small changes, you can also go to the
+appropriate part of the source tree and rebuild locally, using just
+<code>make</code>.
+<p>
+As always, there are some gotchas to watch out for. See
+<A href="IncBuild.html">Incremental Builds</a> for more details.
+
+
+<h2>Building an FP Release</h2>
+
+If, instead of <code>full-release</code>, you use the
+<code>fp-release</code> target, the build will package up all the
+First Party software (E, Pluribus, HabiFoo etc.) into
+<code>\Build\FP</code>, in addition to building a full release.
+<code>\Build\FP</code> can then be copied into <code>\EC\FP</code> and
+checked in as part of the build environment. Normally only Felix uses
+the <code>fp-release</code> target, in order to keep
+<code>\EC\FP</code> up to date. If you do decide to use it be warned
+that it is <em>not</em> suitable for incremental development. The
+stage which packages up the classes and libraries into
+<code>\Build\FP</code> also removes them from where they were built, so
+any subsequent <code>make</code> will have to rebuild them all.
+
+<p>
+<A href="index.html">Back to the index</a>
+</BODY>
+</HTML>

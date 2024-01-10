@@ -1,0 +1,181 @@
+<HTML>
+<HEAD>
+    <TITLE>Building the Entire Source Tree</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Building the Entire Source Tree</H1>
+
+<em>This page is maintained by <A HREF="mailto:trev@communities.com">Trev</A>.
+Please let me know of any errors ASAP so I can fix them.
+<br>
+<b>Warning:</b> these pages change frequently. If you've looked at them
+recently hit "reload" on your browser to make sure you're seeing the
+latest version.
+</em>
+<p>
+If you need to build the entire source tree (include E, Pluribus etc.)
+here's the simple way to do it. It assumes you have already checked
+out the EC, media and src. You can actually do most of the separate
+steps below in a single command e.g. <code>make everything release
+getrep</code>. It is split into separate steps to make it easier to
+explain.
+<p>
+Note that if you want to test a change by "building from scratch" there
+is a little more to do; see the <a href="FAQ.html#ScratchBuild">FAQ</a>
+for more details. If you want to build a full release, see
+<a href="BuildRelease.html">Building a Release</a>.
+<p>
+You'll need to have Microsoft Developer Studio installed to build the
+entire tree, because you'll need to build some native code. See the <a
+href="FAQ.html#MSDEV">FAQ</a> for details on installing Studio. You
+should also see the <a href="FAQ.html#C:Drive">FAQ</a> if this is your
+first build and you are not building on the <code>C:</code> drive.
+
+
+
+<h3>Step 1 - Start Shell</h3>
+<dl>
+<dt>To do
+<dd>Start up a 4dos (Build) shell.
+<dt>Background
+<dd>This starts up a 4dos shell with the <code>PATH</code> and
+<code>CLASSPATH</code> set so that it will look for things first in
+the local build area then the local release area and finally in the
+build environment. This means that any locally compiled changes will
+override those in the build environment.
+</dl>
+
+<h3>Step 2 - Build The Sources</h3>
+<dl>
+<dt>To do
+<dd><code>cd \src</code> and type <code>make everything</code>
+<dt>Background
+<dd>This builds all the sources for the runtime,
+support and the HabiFoo application. It will take a long time, over two
+hours on some machines. The class files and libraries are put into
+<code>\Build</code>, which comes first on your <code>PATH</code>
+and <code>CLASSPATH</code>. In subsequent
+builds, if you use <code>make everything</code>, ecomp and hackdepends always
+get rebuilt, but otherwise only changed files should be rebuilt, as you'd
+expect.  Note that one of the advantages of the new build environment
+is that the cosm classes are all available, pre-built, in the build
+environment. So if you are very careful you can just build your
+changes in <code>\src\ec3</code> and not rebuild <code>\src\cosm1</code>
+at all (but you better be 100% sure your changes don't cause the
+<code>\src\cosm1</code> build to break!).
+</dl>
+
+
+<h3>Step 3 - Setting Up The <code>\Build\Release</code> Directory</h3>
+<dl>
+<dt>To do
+<dd>Still in <code>\src</code>, type <code>make release</code>
+<dt>Background
+<dd>This step creates a <code>\Build\Release</code> directory and
+copies or creates the support files needed to run HabiFoo. These files
+are: the template.evat file, the realm, catalog and menu text files, the
+props files, java, 3rd party DLLs (e.g. Vox, Renderer)
+and the (empty) <code>Avatars</code> and <code>Processes</code> directories.
+You don't need to rerun this step on subsequent builds unless you need to
+recreate one of the files mentioned above.
+<p>
+If you were building a full release there would be additional work at
+this stage - packaging up all your classes into a zipfile and putting
+them into <code>\Build\Release</code>.  This what's needed for
+a fully self contained release, but it is overkill for day to
+day development. See <a href="BuildRelease.html">Building a
+Release</a> for details.
+</dl>
+
+
+<h3>Step 4 - Build Or Copy A Repository</h3>
+<dl>
+<dt>To do
+<dd>Still in <code>\src</code> type <code>make makerep</code> (if you
+want to build your own repository) or <code>make getrep</code> (if you
+want to copy the pre-built one in <code>/home/eng</code>).
+<dt>Background
+<dd><code>make makerep</code> builds the repository and then moves it
+into the release area, <code>\Build\Release</code>. It will take a
+long time, up to 20 minutes. Most people can use the pre-built
+repository so they should use <code>make getrep</code>, which is
+quicker though it still takes some time to copy the repository (which
+is over 50MB) across the network.  The reasons why you might build
+your own repository are:
+<ul>
+<li>You want some newly checked in media which is not in the pre-built
+repository yet.
+<li>You've changed one of the classes that is persisted in the repository
+(e.g. Appearance2D) so the pre-built repository won't work for you.
+<li>You are on a low bandwidth link, so it's quicker to update just the
+changed parts of <code>\media</code> and rebuild your own repository than
+to suck the pre-built repository over the wire.
+<li>You've changed low level E runtime or serializer classes in such a
+way that the pre-built repository is no longer compatible.
+</ul>
+Note that you should build the repository <em>after</em> building all the
+sources, in case there are recent changes in persisted classes such as
+Appearance2D that you need to pick up from your newly built classes.
+</dl>
+
+
+<h3>Step 5 - Set Up The Registry</h3>
+<dl>
+<dt>To Do
+<dd> <code>cd \Build\Release\bin</code> and type
+<code>.\regupdate -savepaths</code>.
+<dt>Background
+<dd>This updates the registry so that clicking on <code>mcmav</code>
+and <code>mcm</code> files (or selecting "Account Manager" in your 
+Windows Start Menu) starts up the AccountManager, from which you can
+start HabiFoo. The <code>-savepaths</code> argument is needed so that
+AccountManager will pick up libraries and binaries from
+<code>\EC</code> and <code>\Build</code> as well as
+<code>\Build\Release</code> i.e. it will work even if you haven't
+built a standalone release, with all the binaries and class files
+packaged up in <code>\Build\Release</code>.  You don't need to do this
+step on subsequent rebuilds, unless the path and classpath have
+changed.
+</dl>
+
+
+<h3>Step 6 - Running HabiFoo</h3>
+<dl>
+<dt>To Do
+<dd>You can now use <code>run.bat</code> or <code>AccountManager</code> to
+start HabiFoo. See
+<A href="RunHabiFoo.html">Running the HabiFoo application</a>
+</dl>
+
+
+<h2>Further builds</h2>
+
+Once you've got an initial build you'll want to make changes, merge in
+new changes etc. Usually you can just go back to <code>\src</code> and
+type <code>make everything</code> again (or you can just use
+<code>make</code> in the subdirectories you've changed, if you're
+careful about
+<A href="IncBuild.html#MakeDependencies">dependencies</a>).
+This should rebuild just your changes (though at the moment it will
+rebuild hackdepends and ecomp every time, for some reason).  Your
+class path is set up to look for class files in
+<code>\Build\steward</code>, <code>\Build\crew</code> etc.
+<em>before</em> it looks in the standard zip files. This means your
+local, newly compiled, changes override anything else.
+<p>
+You don't have to run <code>make release</code> or <code>make
+getrep</code> or <code>make makerep</code> again, because your
+<code>\Build\Release</code> directory is already set up and your
+repository should still be up to date.
+<p>
+There are some gotchas to watch out for. See
+<A href="IncBuild.html">Incremental Builds</a> for more details.
+Before you checkin you need to build "from scratch". There are
+more gotchas here; see the <a href="FAQ.html#ScratchBuild">FAQ</a>
+for details.
+
+<p>
+<A href="index.html">Back to the index</a>
+</BODY>
+</HTML>

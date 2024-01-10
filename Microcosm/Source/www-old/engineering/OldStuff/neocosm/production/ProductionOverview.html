@@ -1,0 +1,1096 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>Production Overview</TITLE>
+</HEAD>
+<BODY LINK="#0000ff" VLINK="#800080">
+
+<H1>Production Overview</H1>
+<P><B>Last updated: </B>[98/15/09 <A HREF="mailto:tony@communities.com">Pauline James</A>]
+<P>Author(s): <A HREF="mailto:pauline@communities.com">Pauline James</A>.
+
+<H2>Introduction</H2>
+<P>As part of building an Electric Communities (EC) virtual world, various types of media are required to create the visual and audible elements that make up the user experience. This document specifies the types of media, which are currently acceptable to the EC software and the processes to take those media objects into EC objects. A list of the current set of EC objects, along with a description of their in-world behavior is also described. Specific tools are required for transforming the media objects into EC objects. These tools are in a current state of development. The current state of the tools are described, as these evolve the processes and acceptable media objects will change.
+<P> This document Contains the following sections :
+
+<P><BLOCKQUOTE ><BLOCKQUOTE ><A  HREF = "#Objects"> Electric Communities Objects </A></BLOCKQUOTE></BLOCKQUOTE>
+<P><BLOCKQUOTE ><BLOCKQUOTE ><A HREF="#Unum Types"> In World Behavior Types (Una) Types</A></BLOCKQUOTE></BLOCKQUOTE>
+<P><BLOCKQUOTE ><BLOCKQUOTE ><A HREF="#Tools"> Existing Post-Production Tools </A></BLOCKQUOTE></BLOCKQUOTE>
+<P><BLOCKQUOTE ><BLOCKQUOTE ><A HREF="#ProcessingObjects">Processing Objects</A></BLOCKQUOTE></BLOCKQUOTE>
+<P><BLOCKQUOTE ><BLOCKQUOTE ><A HREF="#Catalogs">Processing Catalogs</A></BLOCKQUOTE></BLOCKQUOTE>
+<P><BLOCKQUOTE ><BLOCKQUOTE ><A HREF="#Turfs">Processing Turfs </A></BLOCKQUOTE></BLOCKQUOTE>
+<P><BLOCKQUOTE ><BLOCKQUOTE ><A HREF="#Avatars">Processing Avatars </A></BLOCKQUOTE></BLOCKQUOTE>
+
+
+<H3>Related Documents</H3>
+
+<P><A HREF="ProductionTools.html">Production Tools.</A> A discussion of the Production tools.
+
+<P><H3><A NAME ="Objects" > Electric Community Objects</H3> </A>
+<P>The main purpose for the Post-production is to provide a step to bring art and sound into EC Habitats software format. In general all resources are kept in an encrypted file called a repository.  In this document we consider the types EC Habitats objects that can be created and the media that are acceptable to create these.
+<P>The major categories of EC objects that can be created are:
+<UL>
+<BLOCKQUOTE><LI><H5>Catalog Information files</H5></LI></BLOCKQUOTE>
+<BLOCKQUOTE><LI><H5>Avatar Description files</H5></LI></BLOCKQUOTE>
+<BLOCKQUOTE><LI><H5>Region Description</H5></LI></BLOCKQUOTE>
+<BLOCKQUOTE><LI><H5>Realm Text files</H5></LI> </UL></BLOCKQUOTE>
+
+<P>Catalogs list objects that users may select for various purposes. In the case of the turf catalog, users select a turf to own. Object catalogs contain items which a user may select to decorate a turf. There are currently the following catalog types:
+
+<UL>
+<LI>Turfs - containing turf regions.</LI>
+<LI>Objects - objects such as in-world furniture.</LI>
+<LI>Masks - 2D heads for putting on an Avatar.</LI>
+<LI>Swatches - small images to texturize in-world objects.</LI>
+<LI>Accessories - objects that can be worn by avatars.</LI>
+<LI>Avatars  - Individual objects for creating new identities.</LI></UL>
+
+<H5>Avatar Information</H5>
+<UL>
+<LI>New avatar geometry.</LI>
+<LI>Avatar animations.</LI></UL>
+
+<P><B>Realm Information files</B>
+<P>These files are an interim script for creating a virtual world starting point. They contain region descriptions and their interconnections.
+
+<UL>
+<LI>Chat Realm - realm for users who only create an avatar and chat about.</LI>
+<LI>Turf Realm - realm for users who "live" in a turf they customize.</LI>
+<LI>Hub Realm - realm of interconnected regions for sponsors of hubs.</LI></UL>
+
+<H5>Region Information files</H5>
+<P>These files describe the individual placement of objects and camera angles for a given region.
+
+<UL>
+<LI>Turf Regions - available to Turf users in catalogs. </LI>
+<LI>Hub Sponsored Regions - created by the Hub level owners.</LI></UL>
+
+<A NAME="Unum Types"> <H3>In World Behavior Types (Una)</H3></A>
+<P>An EC Habitats object is distinguished by its in-world behavior. In-world behavior includes things like a floor being an object you click on and an avatar walks to that point. The following is a list of the current distinct object behaviors along with a brief description of their special properties and the fields required to create them. 
+<H4>Prop</H4>
+<P>This is an object that may decorate a region, be carried around by an avatar, be placed on other objects or painted against backgrounds. All other objects (except teleport pads) are based on the prop and have added functionality. These currently are distinguished by 2D and 3D type. 3D objects are SimpleProp3D types.
+<P>A prop requires the following information:
+<P><I>Name</I> - This is displayed over an object when mouse is over it.
+<P><I>Description</I> - Describes a little about the object you're seeing.
+<P><I>ImageFile</I> - The appearance file associated with the object.
+<P><I>Thumbnail</I> - The GIF file which is displayed to preview the object.
+<P><I>Position</I> - Locates object in-world coordinates.
+<P><I>Scale</I> - Sizing info for in-world display.
+<P><I>Orientation</I> - which way the image faces in-world.
+<P><I>AnchorPoint</I> - Indicates where to put object in world
+<P><I>Stationary/portable flag</I> - makes object not available for picking up.
+<P><I>Unreachable flag</I> - when specified, this flag disables the walk-to response in the avatar.
+
+<H4>Floor</H4>
+<P>This is a special class of in-world object on which avatars walk. Every region must have a floor for avatars to walk on. These come in two varieties, Floor and Floor3D. A floor requires all the same fields as the prop, but may not have the unreachable flag set.
+
+<H4>Token</H4>
+<P>This object has special in world property that allows it to be a basic unit of trade. Tokens are defined with a denomination.
+<P>A token requires all the same fields as a prop, plus:
+<P><I>LabelKey</I> - "LABEL:Token" - flag to indicate that this is a special object.
+<P><I>Denomination</I> - Specifies how much the money is worth in world.
+
+<H4>Poster</H4>
+<P>This object has two special properties. It has a connection either to an internet web site or to another in-world region, and it can be repainted with different images or textures. An example of this would be a bill board advertisement that may change from time to time. The designer of the poster decides if the poster can be re-textured by the public or not.
+<P>Poster requires all the same fields as a prop, plus:
+<P><I>URL</I> - Internet location to go to upon clicking.
+
+<H4>Swatch</H4>
+<P>A swatch is an image or texture bitmap that can be applied to other objects, such as a poster. The object on which the swatch is applied must be defined as texturizable.
+<P>Swatch requires all the same fields as a prop, plus:
+<P><I>Texture</I> - This is the actual artwork displayed when the swatch is applied.
+
+<H4>Sticky</H4>
+<P>This object has a special property that if an object is placed on it, the object will stick to it. An example of this would be a vertically placed chessboard. Pawns placed on the sticky (chessboard) would stay where placed. As with floors, these come in two types, 2D and 3D.
+<P>This objects requires no extra fields other than fields defined in the prop object.
+
+<H4>Teleport Pad</H4>
+<P>This object is defined at the region level but operates at a higher realm level. When a teleport pad is defined in a region, the teleport pad becomes visible to every region defined in the realm. An avatar may go through the teleport to that region, when invoked.
+<P>Requires the following additional fields:
+
+<P><I>FinalEntryPoition</I> - Indicates where to land in that region on entry
+
+<H4>Portal</H4>
+<P>A portal is a connection between two regions. To specify a portal, it is necessary to have another region with a portal in it, to which the first portal connects. Two portals are connected to each other, so you can't have one without the other. (Note: to have a one way portal, a poster unum may be used).
+<P>Portal requires all the same fields as a prop, plus:
+<P><I>ConnectToRegion</I> - Region to go to upon transport out through the portal.
+<P><I>ConnectToPortal</I> - TeleportPad name to land on.
+<P><I>FinalEntryPosition</I> - coordinate to land in when entering through portal.
+<P><I>ExitPosition</I> - Coordinates to walk to when exiting the portal.
+
+<H4>Accessory</H4>
+<P>This object may be worn by Avatars.
+<P>Unum Accessory requires prop plus:
+<P><I>Tab</I> "TabNameGoesHere" – name of tab to reference later
+
+<H4>SimpleContainer</H4>
+<P>This type may hold other objects. An example of this would be a table that can be outfitted with place-setting slots to hold plates or cups.
+<P>SimpleContainer requires all the same fields as a prop plus:
+<P><I>Capacity</I> &lt;NumberOfSlots&gt; - Used alone for most containers (tables, shelves)
+<P><I>Slots</I> "&lt;SlotNames&gt;" – must have a parallel name in Tab accessory
+
+<H4>GamePiece</H4>
+<P>As the name sounds, this object is used to play games, although it may be used for other purposes. It has a special property that it can change state, for example a pawn may become a queen when clicked on.
+<P>This requires the prop fields plus:
+<P><I>CurrentState</I> - Current game state for the piece.
+<P><I>TotalStates</I> - number of states game piece can have
+<P><I>EntriesPerState</I> - total number of states per gamepiece
+<P><I>StateTable</I> - List of different states the game piece can be in.
+
+<H4>VisualCamera</H4>
+<P>The camera is the view into the room that the user sees in a 3D region. VisualCameras have images associated with them. They have the property that when you click on that image, the camera angle changes to the one specified by that camera.
+<P>VisualCamera requires all the same fields as a prop, plus:
+<P><I>Camera</I> - Specifies location and info about the camera.
+
+<H4>SimpleCamera </H4>
+<P>The SimpleCamera is similar to the VisualCamera, except there is no image associated with it. The interface will have a change camera angle button that will invoke this option.
+<P>SimpleCamera requires all the same fields as a prop, plus:
+<P><I>Camera</I> - Specifies location and info about the camera.
+
+<H4>Helper</H4>
+<P>This object has the property that it will send out information when clicked on. Helpers are stored in catalogs. It has a visual representation once it is brought into a region.     
+<P>Helper requires all the same fields as a prop, plus:
+
+<P><I>Current State</I>
+<P><I>Total States </I>
+<P><I>Entries Per State </I> 
+<P><I>State Table</I>
+
+<H4>Avatar</H4>
+<P>Avatars within Habitats are not specified with animations. The animation information is stored in a separate avatar independent format that is accessible to all avatars. An avatar unum requires the same fields as a prop. The appearance file specifies a much more complicated set of information relating to the animation and behavior.
+<P>An example showing a specification for each unum is contained in the file: realm.OneUnumEach.txt New unum types are created on a random schedule and the above list may change. It does not show the avatar information.
+
+<P><A NAME="Tools"><H3>Existing Post Production Tools for Creating Objects</H3></A>
+
+<H3>Import3D</H3>
+<P>This Visual Basic application takes in VRML 2.0 files of two varieties: Single VRML object, and VRML Region.
+<P>The user is required to supply a region name. Switches are available for
+<P><B>Scaling objects</B> - the current default for scaling assumes that the object is specified in feet and converts into meters.
+<P><B>Appearance file version</B> - this specifies the current version being created.
+<P><B>Swapping x-y</B> - this can be checked for mirroring objects.
+<P><B>Tiling On/Off</B> - This sets tiling on/off in the appearance file (currently not working). All files are created with tiling turned off.
+<P>Upon saving a VRML object or region, the tool creates a directory of the region name specified and saves the following files
+<B><P>Appearance files</B> - these files tell the Habitats software how to display the object in-world
+<B><P>Modified VRML files</B> - these are files with VRML nodes not supported stripped out.
+<B><P>Realm text file</B> - This is a basic template script specifying the minimum unum type. For example, most objects are created as SimpleProp3D. Any VRML node with the word Floor in it is turned into a Floor3D unum. Similarly Camera nodes are turned into SimpleCamera unum types. The template also specifies a teleport pad.
+<B><P>Curator Script</B> - this file is not working at this time, see other tools. The script that is created can be deleted
+<P>The current plan is to rewrite this application and the one below (SceneEater) in Java.
+
+<H3>SceneEater</H3>
+<P>This Visual Basic application takes in Photoshop files and turns each layer into individual photoshop files. A second step is required to turn the individual files into bitmaps. There are no switches or options in this tool. The user sees a menu bar, can only open the file and save out the file.
+<P>This tools produces the following files:
+<UL>
+<B><LI>BMP files</B> - one for each layer in the original Photoshop file</LI>
+<B><LI>Appearance files</B> - these files tell the Habitats software how to display the object in-world </LI>
+<B><LI>Realm text file</B> - Also a basic template as above. This version does not create a default teleport pad. If one is desired, the user must add this into the realm text file. </LI>
+<B><LI>Curator file</B> - this specifies files to go into a repository and the locations for finding the resources. </LI>
+<B><LI>Curator batch file</B> - specifies the command to invoke curator (described below)</LI></UL>
+
+</FONT><H3>Curator</H3>
+<P>This Java based utility requires is run at the command line via a DOS shell. The tool takes an argument filename which is a file specifying the art files and appearance files. The tool produces a repository file, the single secure file from which Habitats runs.
+<P>Example Command for executing:
+<P><CODE><PRE>%BINDIR%java ec.e.start.EBoot ec.cosm.tools.curator rep=catFoo in=catFoo.cur verb=5 ECHome=ECHome &gt;catFoo.out</PRE></CODE>
+
+<H3>CuratorScript.exe (Files2Curator)</H3>
+<P>This is a perl script which is run at the command line via a DOS shell. This utility is run in the directory that needs a curator script produced listing files in that directory. It goes through and collects the files in the directory, omitting unnecessary and duplicate files, organizes the list into a particular heirarcy, (depandant files are listed later) and produces an output file. The output file is the curator script required by the Curator utility listed above.
+
+<A NAME="Other Tools"><H3>Art Development Tools</H3></A>
+<P>Other third party tools are used for creating content include:
+
+<UL>
+<B><LI>Studio Max</B> - This software is used for the 3D modeling of objects and avatars. We use it for converting to VRML 2.0 files. </LI>
+<B><LI>PhotoShop</B> - This program is used for creating and modifying bitmaps. It is also used for doing the mask creation and intensity map file processing. </LI>
+<B><LI>Paint Shop Pro</B> - This program is used for processing thumbnails, batch processing file conversions and checking the state of transparencies. </LI>
+<B><LI>Debabilizer</B> - This program does batch conversion of graphics files.</LI></UL>
+
+
+<P><A NAME="ProcessingObjects"><H2>Processing Objects</H2></A>
+<P>In general, all objects will require the following elements to work in EC Habitats:
+<P><B>Thumbnail</B> - to display in a catalog list. The thumbnail is not required for items such as regions and realms, but for all objects accessed through catalogs.
+<P>Summary Sizing Information
+<TABLE CELLSPACING=0 BORDER=0 CELLPADDING=7 WIDTH=427>
+<TR><TD WIDTH="21%" VALIGN="TOP">
+<B><FONT SIZE=2><P>type</B></FONT></TD>
+<TD WIDTH="21%" VALIGN="TOP">
+<B><FONT SIZE=2><P>size</B></FONT></TD>
+<TD WIDTH="57%" VALIGN="TOP">
+<B><FONT SIZE=2><P>Note</B></FONT></TD>
+</TR>
+<TR><TD WIDTH="21%" VALIGN="TOP">
+<FONT SIZE=2><P>Avatar</FONT></TD>
+<TD WIDTH="21%" VALIGN="TOP">
+<FONT SIZE=2><P>48x72</FONT></TD>
+<TD WIDTH="57%" VALIGN="TOP">    </TD>
+</TR>
+<TR><TD WIDTH="21%" VALIGN="TOP">
+<FONT SIZE=2><P>Turf</FONT></TD>
+<TD WIDTH="21%" VALIGN="TOP">
+<FONT SIZE=2><P>144x96</FONT></TD>
+<TD WIDTH="57%" VALIGN="TOP">
+<FONT SIZE=2><P>Should show first region in turf.</FONT></TD>
+</TR>
+<TR><TD WIDTH="21%" VALIGN="TOP">
+<FONT SIZE=2><P>Object</FONT></TD>
+<TD WIDTH="21%" VALIGN="TOP">
+<FONT SIZE=2><P>48x48</FONT></TD>
+<TD WIDTH="57%" VALIGN="TOP">    </TD>
+</TR>
+<TR><TD WIDTH="21%" VALIGN="TOP">
+<FONT SIZE=2><P>Swatch</FONT></TD>
+<TD WIDTH="21%" VALIGN="TOP">
+<FONT SIZE=2><P>48x48</FONT></TD>
+<TD WIDTH="57%" VALIGN="TOP">
+<FONT SIZE=2><P>Can use swatch as thumbnail.</FONT></TD>
+</TR>
+<TR><TD WIDTH="21%" VALIGN="TOP">
+<FONT SIZE=2><P>Mask</FONT></TD>
+<TD WIDTH="21%" VALIGN="TOP">
+<FONT SIZE=2><P>48x48</FONT></TD>
+<TD WIDTH="57%" VALIGN="TOP">    </TD>
+</TR>
+</TABLE>
+
+<P>EC compatible <B>VRML</B> geometry - if the object is 3D.
+<P>The formats of these VRML files are modified from the 2.0 versions that are originally created. These modified versions are created by the Import3D utility, or some processing to remove animation is done in the FigAnim utility.
+<P><B>Bitmap</B> files - These files are for 2D images and 3D textures. Must be color reduced to 8-bit.
+<P><B>Appearance file</B> - this is a special file used by Habitats to display in world. The appearance file is created by the SceneEater (for 2D objects) or Import 3D tool. These tools only create the minimum specifications for displaying an object. For any special deviation for the basic configuration, post production work is required to go in and modify these files. As a separate step, these files must be edited to change the behavior for swatching, registration point placement, and animation.
+<P><B>Unum</B> specification - This is a description of the basic in-world behavior, as described in the list above. The unum specification goes into a script such such as a catalog or realm script. The SceneEater (for 2D objects) or Import 3D (for 3D objects and regions) generates this basic specification. In <U>all</U> cases the basic unum specification must be hand edited to change the defaults. In cases where swatching, registration point placement, and animation are desired, the appearance file must be modified. This is discussed in a separate step.
+
+<P><A NAME="Catalogs"><H4>Procedures for Processing Object Catalogs</H4></A>
+<P>Step 1: Set Up Files
+<P>Creation of 2D and 3D art files are done in production and then handed off to post production. The creation of these files are done in Photoshop, and Studio Max. The direction of this production work is not discussed here.
+<P>The production artists are asked to hand off the artwork with the following requirements:
+<P>When creating 2D files, each object must be created on one layer each. Each layer is named with the object contained therein. These layers become individual images after post production.
+<P>The bitmap files must be color reduced to 8-bit, richer 24-bit versions are handed off for archival.
+<P>Intensity maps are generated from the original color bitmaps, showing only grayscale.
+<P>When finalizing the 3D art files, the artist is asked to go through the objects and group similar or related objects into one group. For example, the blue plane of the sky and all individual cloud objects are grouped into one object called sky. (Note: see the document: Naming and Grouping Objects and Files)
+<P>3D artists add special pivot boxes to locations where registration points will be located.
+<P>The 3D objects are saved off in VRML 2.0 files.
+<P><B>Server location</B>
+<P>Originals files were created by Future Primitive (FP) and the originals are placed in:
+
+<P><CODE><PRE>//alexandria/home/art/FP</PRE></CODE>
+<P>FP created: 1.) Intensity maps, 2.) Bitmaps (8bit and 24 bit) 3.) thumbnails (in bitmap formap) and 4.) VRML 2.0 geometry.
+<P>A special location has been created for handoff of files for post production:
+<P><CODE><PRE>//alexandria/home/art/catalogName</PRE></CODE> - for all catalog objets
+<P>Once the files have been processed, put the processed files in this location.
+<P>To set up files on your system:
+<P>Create local working directory. Copy uncooked source VRML 2.0 into this directory. Create another subdirectory of same name in this directory. This directory should match the eventual name of the fork in the repository where these files will be curated. Copy BMP texture files to this location.
+<P>Notes:
+<P>Textures as delivered by FP are often preceded by prefix "128-" - this must be stripped in order for the VRML to find the textures.
+<P>Many VRML nodes are not supported by the VRML conversion tool. In particular, primitive Shape nodes such as Sphere are not supported.
+<P>Create subdirectory and name it "thumbsrc" or something similar as a temp directory. Copy BMP sources for thumbnails to this location.
+<P>Notes:
+<P>Thumb sources as delivered by FP are in BMP format. In some cases, there may not be thumbnails. General specifications are that thumbnail files be in GIF89a 256 colors, using (0, 255, 0) Green as a transparency. Another way to get thumbnails is to take screenshots of the objects either inworld, in the modeling tool, or during VRML-only testing (see Testing section).
+<P>Convert to 48 x 48 thumbnail size if not already in that size.
+<P>Batch convert all thumbnail source files into the GIF89a format.
+<P>Create a text file named catalog.catName.txt, where catName becomes the name of the catalog when it appears in the catalog listing inside Habitats. You can either copy an existing catalog template and change the information or type in the following minimum information as a template for the surrounding realm and region information required by a catalog:
+
+<CODE><PRE>
+// Realm.txt
+//
+RealmVersion "RealmText Version 0.3, 10 March 1997"
+Create Realm
+    Name "Your Catalog Name"
+    RealmRootDirectory "images"
+    ScreenWidth 640
+    ScreenHeight 480
+    Create Region
+        Name "Your Catalog Name"
+        Orientation "Northwest"
+        Horizon 234
+        Description "A catalogName design catalog."
+
+        // Individual una created here: Example follows
+        Create Unum SimpleProp3D
+            Name "An object"
+            Description "This object is a fine specimen."
+            ImageFile "catalogName/objectName.appearance3D"
+            Thumbnail " catalogName/objectName.gif"
+            Position 0 0 0
+        End Unum
+    End Region
+End Realm
+</PRE></CODE>
+
+<P><H4>Step 2: Process VRML files</H4>
+<P>Run Import3D tool. On <I>File </I> menu, click <I>Open Single VRML Object </I>. 
+<P>From the standard file menu, open one of the VRML files in your working directory. 
+<P>In the <I>Region Name </I>field, type the name of the subdiectory you created (same name as intended fork in repository). This allows pathing in the generated Appearance3d file to fill out correctly.
+<P>Notes: Other settings you might want to try at this point include the <I>Scale </I> field if the object comes in world too big. Leave <B>Round Verts </B>checked - this creates bulkier VRML but will end up looking better in most cases.
+<P>Don't bother with correcting the <I>Name </I> and <I>Desc </I> fields here, it's just as easy to do in the text editor eventually.
+<P>On <I>File </I> menu, click <I>Save </I>. This creates several files in the subdirectory: an Appearance3D file, a cooked VRML file, a bogus .cur file, and a semi-bogus Region.txt file. 
+<P>Exit Import3D tool. This helps clear environment variables and assures that secondary loaded files don't freak out.
+<P>Open the Realm.txt file. Copy the complete unum description into the clipboard, then paste that unum into the catalog.catName.txt file.
+<P>Add the repository fork path to the head of the ImageFile (Appearance3d) and Thumbnail entries in the unum description.
+<P>Repeat these steps for each raw VRML source file. Note that each run of the Import3D tool blows away the old Realm.txt file; this is why it's best to capture the output and paste across while performing the conversions.
+<P>Make a pass through the catalog.catName.txt file to clean up descriptions and names of objects.
+<P>Copy everything in your working subdirectory to new intended build directory. At EC this corresponds to the CVS /media tree.
+<P>Use:    media/images/catName/
+
+<P><H4>Step 3: Modify Appearance files</H4>
+<P>Hand modify the appearance files to add:
+<P>animation 
+<P>registrtion points 
+<P>swatchable regions
+
+<P><H4>Step 4: Create a Test repository</H4>
+<P>Run the curateScript.perl script in the catName directory. This will create a .cur file. The CUR file is used by the repository make process to gather sources. 
+<P>Create a batch file to run curator. Copy both the BAT file and the CUR file to /media. Curator must run from the /MEDIA level rather than from the /media/images/catName level since it expects to see the files below the images level. 
+<P>Run the BAT to curate the files. 
+<P>Check the resulting OUT file for any errors and correct. 
+<P>Common errors include: 
+<P>Missing bitmaps - locate and copy them. 
+<P>VRML files are not accepted: there may be animation in the original file, or other unacceptable nodes. - look at the file and attempt to correct the problem. In some cases this will require sending the file back to the artist. 
+<P>Names are wrong. Bitmaps named in the original VRML files are different from the actual bitmaps. - Check with artist to get the correct bitmap. 
+<P>References are made in the .cur files to missing files. - either remove references or locate files.
+<P>Move the temp repository file to build\release\ECHOME\EXTRAS folder. 
+<P>Copy the catalog.catName.txt file to your build\release\catalog folder.
+
+<P><H4>Step 5: Testing</H4>
+<P>Run Habitats and look at each catalog object. Check: 
+<P>Is every object there? 
+<P>Are all thumbnails correctly showing up? 
+<P>Check spelling or inappropriate name. 
+<P>Check transparencies for dither and bleed.
+<P>Create each object and 
+<P>Rotate the object and make sure all textures are there.
+
+<P><H4>Step 6: Check-in</H4>
+<P>Once all of the files have been correctly created and tested, add them to the official CVS media tree:
+<P>Create the directory:
+<P>CVS add catalogNameDirectory
+<P>CVS commit
+<P>It is also necessary to change the media level GNUMakefile. Add the catalog file name to the list of catalog files. These are not automatically added to the media tree. They must be explicitly added here.
+<P>    Check in the GNUMakefile.
+<P>CVS up -d GNUMakefile
+<P>        CVS commit
+<P>Send and email to ec_checkin specifying what has been added, how it works, and a list of all files that were modified.
+
+<P><A NAME="Turfs"><H3>Procedures for Processing Turf and Regions</H3></A>
+
+<P><H4>Step1 - Set up Files:</H4>
+<P>A special location exists for handoff of Turf and Region files for post production:
+<P>for Turfs:
+<P><CODE><PRE>//alexandria/home/art/turf/turfName/</PRE></CODE> - there is one folder for each turf.
+<P>For Regions:
+<P><CODE><PRE>//alexandria/home/art/region/regionName/</PRE></CODE> - there is one folder for each Region.
+<P>Located in this folder will be:
+<P>The original VRML file or in the event that there is more than one region in the turf, there will be one VRML file for each region.
+<P>A Folder containing the 8-bit bitmaps.
+<P>Note: Some artists put bitmaps and original files in the same location. The files are sometimes zipped.
+<P>After post processing the regions, put the processed files back in this location in the event that another integrator may need to process them further. Move any original files into a backup folder in the same location camed original. Place all processed files into the 
+<P><CODE><PRE>//alexandria/home/art/turf/turfName</PRE></CODE> directory or
+<P><CODE><PRE>//alexandria/home/art/regionName/regionName</PRE></CODE> directory.
+<P>Put the original files in a sub directory named originals within that folder.
+<P>Create Local Working Copies
+<P>Create local working directory for processing. Suggestion: media/images/turfName (or RegionName). 
+<P>Copy original files into this directory. This directory should match the eventual name of the directory that will be used as the CVS check in location. This is the directory that the repository points to. Copy the bitmaps. Copy thumbnail, bitmaps and original VRML or Photoshop files into this directory. 
+<P>The thumbnails should be handed off by the artists in GIF89a 256 colors, using (0, 255, 0) Green as a transparency format. Test thumbnails for transparencies, correct size: (144x94), and proper format. If the artist gave you a thumbnail for more than one region, use the thumbnail for the first region specified in the realm text file. 
+<P>Bitmaps should be in 8-bit format.
+
+<P><H4>Step 2: Process VRML or PhotoShop File</H4>
+<P>Original Regions and Turfs are created in either 2D or 3D format. As described earlier, there are two separate tools to use for each format.
+<P>If region is a 3D VRML 2.0 file:
+<P>Run Import3D tool. On <I>File </I> menu, click <I>Open VRML Region </I>. 
+<P>From the standard file menu, open one of the VRML files in your working directory. 
+<P>In the <I>Region Name </I>field, type the name of the subdiectory you created (same name as intended fork in repository). This allows path name generation in the Appearance3d files.
+<P>Notes: Other settings you might want to try at this point include the <I>Scale </I> field if the object comes in world too big. Leave <I>Round Verts </I>checked - this creates bulkier VRML but will end up looking better in most cases.
+<P>Don't bother with correcting the <I>Name </I> and <I>Desc </I> fields here, it's just as easy to do in the text editor eventually.
+<P>Don't use spaces in the directory names.
+<P>On the <I>File </I> menu, select <I>Save </I>. This creates several files in the subdirectory: 
+<P>Appearance3D files for each VRML Node specified in the original VRML region, 
+<P>Processed VRML files for each VRML nodes, 
+<P>A bogus .cur file, (you can delete this)
+<P>A template Region.txt file with unum specified for each VRML node.
+<P>Exit Import3D tool. This helps clear environment variables.
+
+<P><H5>If the file is a 2D Photoshop PSD file:</H5>
+<P>Run SceneEater tool. On <I>File </I> menu, select <I>Open </I> 
+<P>From the standard file menu, open one of the PSD files in your working directory 
+<P>From the <I>File </I> menu, select <I>Save. </I> 
+<P>SceneEater will save off several files in the subdirectory named after the file you saved. It creates: 
+<P>A separate PPM file for each layer in the original PhotoShop file, 
+<P>Appearance2D files named for each layer, 
+<P>A realm text file with unum specifications for each layer, 
+<P>A curator script, and 
+<P>a curator batch file. 
+<P>Each separate PPM file needs to be converted into 8-bit Bitmap format files. This can be done in PaintShop Pro, or deBabalizer as a batch conversion.
+
+<P><H4>Step 3: Realm text files and Catalog files:</H4>
+<P>Open the Realm text file. Go through each unum specification and change the defaults to appropriate ones. The default names are derived from the objects in the original files. Default descriptions are generated from the original files as well. Change the object name and descriptions to a fitting ones. For example, a group of background plants may have been saved off as BackAztecPlantGroup. Rename it to "Aztec Plants". Similarly, descriptions are place holder ones: "Object name is a lovely prop." Change the description to a complete sentence which uses descriptive colorful adjectives that are fun to read.
+<P>Check the name of each object. Rename to an appropriate one. Most of the objects will come through with names that have underscores or compound words needing 
+<P>Go through each description and fill in an appropriate description of that object.
+
+<P><H4>Step 4: Modify Appearance files</H4>
+<P>Hand modify the appearance files to add:
+<P>Modify the appearance files to add the directory name (for the repository fork) to the head of the ImageFile (Appearance3d). Note that when processing the 2D objects the directory name is not added to the objects, so this must be done manually. 
+<P>If there are any areas where animation occurs in the region, add the animation information. 
+<P>key-frame animation 
+<P>texture swapping 
+<P>geometry swapping
+<P>Make areas swatchable regions where desired. For example, most turfs will be modifiable.
+
+<P><H4>Step 5: Create a Test repository</H4>
+<P>Once all the files have been processed, make sure they are all in the working directory that you plan to use for the final repository build.
+<P>Run the curateScript.exe utility in the directory that you wish to make a test repository for. 
+<P>This will create a .cur file. The CUR file is used by the repository make process to gather sources. 
+<P>It will also create a batch file to run curator. Copy both the BAT file and the CUR file to /media. Curator must run from the /MEDIA level rather than from the /media/images/regionName level since it expects to see the files below the images level. 
+<P>Run the BAT to curate the files. It must be run in a 4dos build window so that the path is set up to the curator. 
+<P>Check the resulting OUT file for any errors and correct. 
+<P>Common errors include: 
+<P>Missing bitmaps - locate and copy them into the directory. You will need to add the file to the curation script, or rerun curateScript.exe 
+<P>VRML files are not accepted: there may be animation in the original file, or other unacceptable nodes. - look at the file and attempt to correct the problem. In some cases this will require sending the file back to the artist. 
+<P>Names are wrong. Bitmaps named in the original VRML files are different from the actual bitmaps. - Check with artist to get the correct bitmap. 
+<P>References are made in the .cur files to missing files. - either remove references or locate files. Sometimes an obsolete reference is made to a file that the artist no longer uses.
+<P>Move the temp repository file to build\release\ECHOME\EXTRAS folder. 
+<P>Copy the realm.regionName.txt file to your build\release\realm folder.
+
+<P><H4>Step 6: Testing</H4>
+<P>Open the region in Habitats by typing:
+<P>run rlm = regionName
+<P>The realm text file must be located in: release\build\realm for this to work correctly. Check that the avatar walks around correctly within the region, that portals work and the tiling is correctly done. If there are objects referenced in any of the appearance files or VRML files there will be spam in the 4DOS window indicating what file is missing.
+
+<P><H4>Step 7: Check-in</H4>
+<P>Once all of the files have been correctly created and tested, add them to the official CVS media tree:
+<P>Create the directory:
+<P>CVS add regionNameDirectory
+<P>CVS commit
+<P>The realm text file is checked in: media\realm\. It is also necessary to change the media level GNUMakefile. Add the realm or turf file name to the list of realm files. This will copy the realm text file to the correct build\release\realm directory for users when building the large repository. These are not automatically added to the media tree. They must be explicitly added here. Make sure to check out the most recent copy of this file before editing it.
+<P>    Check in the GNUMakefile.
+<P>CVS up -d GNUMakefile
+<P>        CVS commit
+<P>Send an email to ec_checkin specifying what has been added, how it works, and a list of all files that were modified.
+
+
+<P><A NAME="Avatars"><H3>Procedures for Processing Avatars</H3></A>
+
+<P><H4>Step1: Set up working files:</H4>
+<P>A special location exists for handoff of Avatar files:
+<P><CODE><PRE>//alexandria/home/art/avatars/avatarName/</PRE></CODE> - there is one folder for each avatar.
+<P>Located in this folder will be 
+<P>The original Max file.
+<P>The initial bitmaps for each body part.
+<P>Within the media tree, the avatar files are kept in different locations that with other files. 
+<P>Appearance files for avatars are kept in: media/images/animations/
+<P>The bitmaps, masks and vrml files are kept in: media/images/animations/3D/avatarName/ 
+<P>This is the CVS checkin location for these files.
+<P>Set up Local Working Copies
+<P>Create local working directory for processing: media/images/animations/3D/avatarName. Since thisis also the media checkin location, but make sure that your working files don’t get overwritten by any updates to the media tree. Always check in 
+<P>Copy original files into this directory. The avatar name should match the eventual name of the directory that will be used in the Habitats program. This is also the directory that the repository points to. Copy BMP texture files to this location. Create and save in-progress files here. 
+<P>Thumbnails for avatars should be handed off by the artists in GIF89a 256 colors, using (0, 255, 0) Green as a transparency format. If the thumbnails were not give, you will need to create them from screen shots Test thumbnails for transparencies, correct size: (144x94), and proper format. If the artist gave you a thumbnail for more than one region, use the thumbnail for the first region specified in the realm text file. 
+<P>Bitmaps may be archived to the hand off location in 24-bit. They will need to be color reduced to 8-bit format before processing.
+
+<P><H4>Step 2: Create Swatchable Masks</B></H4>
+<P>Create a duplicate set of bitmaps for each set of color bitmap. Call those bitmaps bitmapNameMask.bmp. These files will become the mask for setting up swatchable regions on the avatar. The current set of avatars are encoded bgs (body type, gender, season). The basic set of files you should create are: 
+<P>bgsfaceMask.bmp - this is the head, all bsgfaceA, C, H, S are for expressions Angry, Special (C), Happy, Sad) 
+<P>bsgFrontMask.bmp - front of torso with arms and hands 
+<P>bsgBackMask.bmp - back of torso with arm and hand backs. 
+<P>bsgmidMask.bmp - lower torso/pelvic region front 
+<P>bsgmidbMask.bmp - lower rear pelvic region 
+<P>bsgLegMask.bmp - front legs and feet 
+<P>bsgBLegMask - back of legs and heals.
+<P>This will be the basic set of masks. Other avatars will be created with differing sets of costumes, these should be saved off to these basic set of files.
+<P>Open each bitmapMask in PhotoShop and process each one as follows: 
+<P>create one channel for each region you plan to have. For example the face will have the following 
+<P>hair channel 
+<P>eyes channel 
+<P>skin channel
+<P>For each channel, create the mask and color the region to be selected, vs. Unselected. This can be done in various ways in PhotoShop, but remember that channels must be aliased. There should be no anti-aliasing. 
+<P>Save off the PhotoShop file with the channels and selections made so far. This file will be used later to create the greyscale Intensity maps. 
+<P>Load the mask palette: a copy of this can be found at: alexandria/home/art/misc/Maskpalette.ACT. 
+<P>Fill each region with the corresponding color to use for that mask region. Which index is being used for which part of the mask must be specified later in the appearance file. 
+<P>Save the flat colored mask region with the color table (Palette MaskPalette.ACT). 
+<P>Repeat with the next bitmap.
+<P>It is important to note which color in the palette is being used for which region of the avatar bitmap. This index must be called out in the appearance file at a later step.
+<P>The first two indices in the palette are reserved for transparency and pick-able transparency.
+
+<P><H4>Step 3: Create Intensity Maps</H4>
+</B><P>In some cases the original color bitmaps will be used as the intensity map. During run time, the intensity map is created from the color bitmap using an algorithm that takes the largest RGB value and translates this into the gray scale. This isn’t always the best, however because the intensity map that is generated from this algorithm creates a very dark gray scale intensity map. In some cases we will want to redo the intensity map with the following process:
+<B><P>    </B>Load the saved off region selection color bitmap from step 2 above.
+<P>    Map entire image to gray scale
+<P>    Map gray scale one channel at a time:
+<P>    Select channel.
+<P>        Choose the most neutral gray in the region.
+<P>        Adjust the exposure using curves or levels to make this color = 128 in the 256 gray scale..
+<P>    Save off the file appending Imap (for intensity map) onto filename.
+<P>Notes: The general idea is to get the light and dark balanced, with the most neutral color set at true gray. 
+
+<P><H4>Step 4: Process VRML</H4>
+<P>The original files are handed off in 300 poly Studio Max files. 
+<P>Some of the files being handed off to EC from Vector Graphics had test animation that were added with BioVision. When opening these Max files it is necessary to open them in Max with a BioVision plug in installed in the Max software.) 
+<P>Open the files in 
+<P>Export to VRML 2.0
+
+<P><H4>Step 5: Process Animation</H4>
+<P>The 3D avatars that we use come in two varieties, (as of the writing of this document).
+<P>Avatars with associated pivot boxes - may use generalized animation.
+<P>Avatars with no pivot boxes - must use unique animation within that avatar’s file.
+<P>The 3D files for avatars are created with special pivot boxes. Pivot boxes are: 3D rectangular boxes broken into triangles. One side of the pivot box is filled in as shown:
+<P>            origin         direction of joint/reg. point
+<P>The right angle of the colored triangle, is the origin of the pivot location. This location relative to the avatar is interpreted as the position of the joint or registration point that is being called out. 
+<P>In the case of 3D objects, these pivot boxes may also be used to call out the location relative to the 3D object for tabs and slots in containers.
+<P>Animation that is created for avatars that have the pivot boxes associated with them will have animation data mapped to the pivot box. When this animation is saved off, information relative to the avatar joints (i.e. specific pivot box origin) is utilized. This animation file becomes generalized for any avatar that is created using this method of specifying the joint for motion.
+<P>To process the animation:
+<P>Open Import3D application. Tools for post production processing are located in
+<P>//alexandria/home/art/tools
+<P>Some Avatar files have animation data. It is necessary to strip out the VRML nodes that specify the motion for avatars. In some cases the Avatar VRML file is handed off with a test set of animation associated with the geometry. This is intended to just put the 3D model through its paces. In this case: 
+<P>Load the VRML file into Import3D (SceneEater3D)n 
+<P>Select file save animation.
+
+<P>This step saves off the animation as a separate VRML file. This will be the file that is later named in the appearance file to specify which animation is associated with the avatar. 
+
+<P><H4>Step 6: Modify Appearance files</H4>
+<P>Hand modify the appearance files to add information relative to each section. See the section below on making Appearance file modifications.
+<P>It will be necessary to:
+<P>Modify swatchable regions, adding masks and Intensity maps. 
+<P>Add moods that have been created 
+<P>Add list of textures 
+<P>Add slots and registration points. 
+<P>Specify which animations are available for the avatar.
+<P>Save the appearance file in the correct location for avatars. Currently this is located in the media tree at:
+<CODE><PRE>Media/images/animations/</PRE></CODE>
+<P>All supporting files are located at:
+<P>    <CODE><PRE>Media/images/animations/3D/avatarName/</PRE></CODE>
+<P><H4>Step 7: Create a Test repository</H4>
+<P>Run the curateScript.exe utility in the avatarName directory. This will create a .cur file and a bat file for curation. The CUR file is used by the repository make process to gather sources. Make sure that the appearance file is added to the curation script. Since it is in a different directory, it won’t appear in the sript. Add the lineto the end of the file:
+<P><CODE><PRE>crapp3D "C:/media/images/animations/avName.appearance3D" "animations/avName.appearance3D"</PRE></CODE>
+<P>Copy the .cur and .bat file to the c:\media level. 
+<P>Run the BAT in a 4DOS(build) window to curate the files. 
+<P>Check the resulting OUT file for any errors and correct. 
+<P>Common errors include: 
+<P>Missing bitmaps - locate and copy them. 
+<P>VRML files are not accepted: there may be animation in the original file, or other unacceptable nodes. - look at the file and attempt to correct the problem. In some cases this will require sending the file back to the artist. 
+<P>Names are wrong. Bitmaps named in the original VRML files are different from the actual bitmaps. - Check with artist to get the correct bitmap. 
+<P>References are made in the .cur files to missing files. - either remove references or locate files.
+<P>Move the temp repository file to build\release\ECHOME\EXTRAS folder. 
+<P>Copy the avatar information into the catalog.avatar.txt file folder.
+
+<P><H4>Step 8: Testing</H4>
+<P>Open any region in Habitats by typing:
+<P>run rlm = regionName
+<P>Open the Avatar catalog 
+<P>Create the avatar and test 
+<P>That all regions that you specified with swatches 
+<P>Test each animation. Check for glitches or jumps. 
+<P>Check moods and expressions are all mapped correctly.
+
+<P><H4>Step 9: Check-in</H4>
+<P>Once all of the files have been correctly created and tested, add them to the official CVS media tree.  Doing a check in involves having a copy of CVS loaded on your machine, having an account and having a DOS shell that you could load to run cvs.  A Sys. Admin can handle getting these things loaded on your machine.  Open the DOS shell, then type the following things in below to do the check-in.
+<P>First, create the directory:
+<BLOCKQUOTE><PRE><CODE>
+		CVS add avNameDirectory
+		CVS commit
+</PRE></CODE></BLOCKQUOTE>
+<P>Second we change to the directory and add each of the files:
+
+<P>Finally, send an email to ec_checkin specifying what has been added, how it works.  This lets other people working on files know that they need to check-out a fresh copy before doing any work on any of those files.
+<BLOCKQUOTE><PRE><CODE>
+		cd avNameDirectory
+		bash
+		CVS add *.* 
+</PRE></CODE></BLOCKQUOTE>
+<P> This second step will add each of the files into the CVS sub directory that you just created.  Note that you are adding all of the files with the command "add *.*" so make sure that there are not any files in the directory that you don't want to add, such as back-up files or prior versions of files that were being worked on.
+
+<P><H3>Modifying Appearance Files</H3>
+<P>The appearance file can be thought of as a kind of recipe. It tells the Habitats program how to build the particular object, what kind of special attributes it has and defines moods, and gestures and allows swatchability to be set. The Import3D utility creates the appearance3D file and sets it with several defaults values. In general, most of these values are set to 0 or null. To correctly create an in world object with animations, moods, and swatching, it is necessary to go into the Appearance file and add this information. 
+<P>For 2D files, the SceneEater, is the utility that takes in a Photoshop files and creates a set of 2D appearance files. Again, the object can be specified to have various animations, moods, and slots.
+
+<P><H4>Appearance 3D Files:</H4>
+<P><H5>Header Section</H5>
+<P>
+<BLOCKQUOTE><CODE><PRE>
+"Appearance3D - Version 0.6, December 2nd, 1997"
+The VRML 2.0 file is "theKing/theKingAvatarGeometry.wrl"
+It uses "3D style"
+It is "not using pivot points"
+It is "not flipping y-z axes"
+It uses "affine" mapping
+It is "using tiling"
+The default gesture is "null"
+The default movement is "Walk"
+The default slot is "Hand"
+</PRE></CODE></BLOCKQUOTE>
+<P>This section specifies type of file, the VRML file associated with the three dimensional object, if it is using pivot points, is mirrored, using tiling, type of mapping and sets the defaults for gesture, movement and slot. If a movement is defined, the default movement name is supplied, or the word "null", similarly with slots. All avatars should have a default slot. 
+<P>The defaults that are supplied by the Import3D, apply in 80 percent of the cases. However, it is necessary to know when there is tiling. The option for mapping is either "affine" or "perspective correct". Tiling is an important part of the image quality in regions and turfs. For avatars, tiling should not be used and the setting should say that is "not using tiling". Tiling is fairly expensive computationally, and since avatars are redrawn several times when any movement is invoked, tiling should be avoided.
+
+<P><H5>Swatch Regions</H5>
+<P>The next section in an appearance3D file is the swatch region area. This allows an object to be defined as being customizable. One can make areas swatch able regions as desired by editing the section as described here. There will be a tool for modifying these files within the near future. But for the now, we will need to go into the files directly and modify the sections relating the swatch regions. This section in the appearance file contains the following default:
+
+<BLOCKQUOTE><CODE><PRE>
+It has 0 Swatchables</PRE></CODE></BLOCKQUOTE>
+<P>In order to make the object swatchable, it is necessary to have masks and an intensity map. The intensity map is a gray scale image showing the light and shadow information for the image. The creation of these intensity maps and masks are described in the section below. 
+<P>The modified swatch region definition will look like the example below. It is necessary to specify the intensity map, the Region mask and define the separate regions in the mask.
+<BLOCKQUOTE><PRE><CODE>
+It has 1 Swatchables
+1. IntensityMap "animations/3D/TheKing/FaceImap.bmp"
+     SwatchRegionMask "animations/3D/TheKing/FaceMask.bmp"
+     It has 3 Swatchable regions
+        1. ColourIndex 2 is "Hair"
+        2. ColourIndex 3 is "Skin"
+        3. ColourIndex 4 is "Lips"
+</PRE></CODE></BLOCKQUOTE>
+
+<P>Each bitmap is divided up into the masks region. This allows the user to define which color is which region. In the above example, the FrontLeg is broken up into shoes, pants, belt, and belt buckle as individual regions. When clicking on the front leg region of the avatar, the option to texturize will come up with a separate menu option asking which regions to color: shoes, pants, belt, or belt buckle. The user has a wider variety of options to customize their avatars, clothes, skin etc. This feature can be applied to any object that is created as texturizable. An example of a mask is shown below with the numbers of the palette index shown superimposed on the image.
+<P><Center><IMG SRC="Image1.gif" WIDTH=201 HEIGHT=141></Center>
+<P>One important thing to note is that you must go in a sequential order when listing the ColourIndex list. For example you may not list:
+<BLOCKQUOTE><CODE><PRE>
+It has 3 Swatchable regions
+      1. ColourIndex 2 is "Hair"
+        2. ColourIndex 4 is "Lips"
+        3. ColourIndex 3 is "Skin" 
+</PRE></CODE></BLOCKQUOTE>
+
+<P>The indices must go in order. 
+
+<P><H5>Available Swatch Regions</H5>
+<P>The swatch regions show up in a pie menu when activated. This occurs when the avatar is holding a swatch, and then clicks on a swatchable region. This pie menu is linked into the Habitats software through the Menu.uifile file. If new swatch areas are required, then it is necessary to modify this file and add the region.
+<P>Menu.uifile is currently located in: <CODE><PRE>/media/images/Menus.uifile</PRE></CODE>
+<P>For Avatars the set that have been designed is:
+<BLOCKQUOTE><BLOCKQUOTE>
+"Top" 
+"Bottom" 
+"Shoes" 
+"Skin" 
+"Hair" 
+"Eyes" 
+"Outerwear" 
+"Accessory"
+</BLOCKQUOTE></BLOCKQUOTE>
+<P>It is also necessary to note that there are only eight (8) positions in a pie menu, so defining more than eight swatchable regions in a given Mask will not be used beyond the first eight.
+
+<P><H5>Intensity Maps</H5>
+<P>The artists create the intensity map file in a special way. It contains only the lighting information for the image. It is a gray scale image of the light and dark in the image. This intensity map will be created from the color bitmap is that is supplied as the intensity map. However, the algorithm for creating this gray scale image created a darker than desired image. So, it is better to supply your own, if one has the time and resources to create these files. See "Procedures for Processing Avatars" for more exciting details on creating these.
+<P><Center><IMG SRC="Image2.gif" WIDTH=239 HEIGHT=152> </Center>
+<P>Below is an example of the intensity map for the region mask shown above:
+
+<P><H5>Swatch Region Mask</H5>
+<P>The SwatchRegionMask is a specially built file in which each of the elements to be texturized are called out separately. Each mask is colored a different color. The palette index for the color indicates a different mask. Index[0] and index[1] in the palette are used for transparencies, so counting for the mask begins at 2. In the example above, the SwatchRegionMask shows the shoes area colored purple (pallette color 2), pants area colored red (index color 3), etc. . See "Procedures for Processing Avatars" for more exciting details on creating these.
+
+<P><H5>Swatch Groups</H5>
+<P>The next section in the appearance file defines swatch groups. It has two parts, first a list of the number of swatchable, and second a list of the default textures to apply to those swatchable.
+<P>The example here shows swatch groups that would have a list of 5 swatchables. This grouping section simply lists the swatch regions above.
+
+<BLOCKQUOTE><CODE><PRE>
+	It has 1 SwatchGroups [This refers to the swatchables above]
+	It has 5 Swatchables: 1 2 3 4 5 
+</PRE></CODE></BLOCKQUOTE>
+
+<P>This next section defines which bitmap to put on the region that has been defined. For example, the shoes mask region will be applied with a purple texture.
+
+<BLOCKQUOTE><CODE><PRE>
+    "Shoes" has default bitmap "Textures/Purple.bmp"
+    "Pants" has default bitmap "Textures/Red.bmp"
+    "Belt" has default bitmap "Textures/Green.bmp"
+    "Skin" has default bitmap "Textures/Flesh.bmp"
+    "Outerwear" has default bitmap "Textures/Brown.bmp"
+    "Shirt" has default bitmap "Textures/White.bmp"
+    "Hair" has default bitmap "Textures/Brown.bmp"
+   "Eyes" has default bitmap "Textures/Blue.bmp"
+</PRE></CODE></BLOCKQUOTE>
+
+<P><H5>Moods and Textures</H5>
+<P>This section lists all of the swatch areas in one list. It is a superset of areas described above. It also initializes each area with the default bitmap to use. This is part of the mood definition that is described below.
+
+<BLOCKQUOTE><CODE><PRE>
+It has 5 Textures
+    1. Texture label "LmCLeg.bmp" has art in swatchable 1
+    2. Texture label "LmCBLeg.bmp" has art in swatchable 2
+    3. Texture label "LmCFront.bmp" has art in swatchable 3
+    4. Texture label "LmCBack.bmp" has art in swatchable 4
+    5. Texture label "LmCFace.bmp" has art in swatchable 5
+</PRE></CODE></BLOCKQUOTE>
+
+<P>This list is necessary because it resolves the texture labels that are in the VRML files which we may not want to use. For example, the VRML file specifies that the leg geometry should be wrapped with the LMCLeg.bmp texture. But we want to use the newly created masks and intensity maps instead of the file that the VRML points to. This list tells Habitats that we don’t want to use the bitmap, instead use the swatchable described above in the numbered list.
+<P>The texture definition is a little more complicated than this: each mood has a set of textures associated with it.
+
+<CODE><PRE>
+It has 2 Moods
+1. Mood "Default" has 5 Textures
+        1. Texture label "LmCL.bmp" has art in swatchable 1
+        2. Texture label "LmCBL.bmp" has art in swatchable 2
+        3. Texture label "LmCFr.bmp" has art in swatchable 3
+        4. Texture label "LmCB.bmp" has art in swatchable 4
+        5. Texture label "LmCF.bmp" has art in swatchable 5
+2. Mood "Happy" has 1 Textures
+       1. Texture label "Smile.bmp" has art in swatchable 6
+</PRE></CODE>
+
+<P> There is a special case: Swatching for objects that have transparency as part of the bitmap to be swatched
+
+<P>Objects that have transparency as part of their original bitmaps need to be handled a little differently when swatching is added to the object. If you let the user apply the swatch to the entire object using a combomap (blanket application) then the intended transparency will get swatched with the opaque material too. You should be able create a mask that specifies only the intended swatchable area as an index, but leaves the transparency out as an unused index color in the mask. Unfortunately there is a bug that will make the transparency show up as 128-grey in this case, rather than properly reverting to transparency. In order to re-apply the transparency, you need to create a second swatchable region on the mask, and then modify the Appearance file to place the transparency swatchable region into a "hidden" slot on the menu.
+
+<P>1. Open the object's Mask in an image editor. The intended swatchable area should already be Index 2. Make the intended transparent area Index 3 and save the file. If no Mask file previously existed, create a Mask that meets these specifications. If more than one region of the object was originally intended to be swatchable, just make the intended transparency the next Index after the last used index.
+
+<P>2. Add a second identical swatchable region in the Appearance file. For instance, if the file previously read:
+
+<BLOCKQUOTE><PRE><CODE>
+	It has 1 Swatchables
+		1. IntensityMap "catAquarium/couch6.bmp"
+			SwatchRegionMask "catAquarium/couch6mask.bmp"
+			It has 1 Swatchable regions
+				1. ColourIndex 2 is "default"
+	It has 1 SwatchGroups
+		1. It has 1 Swatchables: 1
+    		"default" has default bitmap "catAquarium/couch6.bmp"
+</PRE></CODE></BLOCKQUOTE>
+<P>
+<P>Change it to:
+<P>
+<BLOCKQUOTE><PRE><CODE>	
+It has 1 Swatchables
+	1. IntensityMap "catAquarium/couch6.bmp"
+			SwatchRegionMask "catAquarium/couch6mask.bmp"
+			It has 2 Swatchable regions
+				1. ColourIndex 2 is "Fabric"
+				2. ColourIndex 3 is "Seat"
+	It has 1 SwatchGroups
+		1. It has 1 Swatchables: 1
+    		"Fabric" has default bitmap "catAquarium/couch6.bmp"
+    		"Seat" has default bitmap "catAquarium/couch6.bmp"
+</PRE></CODE></BLOCKQUOTE>
+
+<P>3. Change one of the two labels such that the labels "double up" on a numbered slot in the menus.uifile listing. For instance, in this example, both "Fabric" and "Seat" want to use Slot #0. Only one of these two will be able to display. Exactly which of the two displays is (I think) qausi-random, so it may take some experimentation to get the right swatch region to occupy the single menu slot (for instance, you may have the wrong one display first and hide the right one - choose a different label for either of the two regions and try again).
+<P>
+<P>Variation: it's also possible to apply the TransNoPickOnePixel texture as a color chip at 100% intensity to the intended transparent portion of the mask in order to make it transparent. Then, the IntensityMap needs to be modified so that TransNoPick applies to the intended transparency at 100% intensity. You must still hide this swatchable region by doubling up a slot as described above. This variant method is more reliable; for the example given it's actually a bit of a mystery why reapplying transparency to itself will make the object transparent, given that the transparency is supposedly modulating its own intensity (which in this case is not 100%). I'm pretty sure that if the renderer can find a palette color in the original bitmap that more closely matches a less-than-100% green, then that color will be substituted and the transparency will appear inworld as pale green.
+<P>
+
+<P><H5>Slots</H5>
+<P>The definition of slots is a straightforward mapping between a slot name and a registration point name on a 3D object. For example, any accessory, such as a cup, with a tab labeled "Hand" will go to the location or registration point called "Right Hand". The actual location of these registration points, specified as coordinates relative to the slotted object, (i.e. avatar) is defined in the next section on registration points. 
+
+<CODE><PRE>
+It has 3 slots 
+    Slot "Mask" maps to Registration Point "Neck" 
+    Slot "Left Hand" maps to Registration Point "Left Hand" 
+    Slot "Hand" maps to Registration Point "Right Hand"
+</PRE></CODE>
+
+<P>The example above is taken from an avatar appearance3D file. You can see that there are three registration points available to assign. The longer list of registration points for avatars include:
+<BLOCKQUOTE><BLOCKQUOTE><Pre><CODE>
+Left_chest 
+Right_chest 
+Stomach 
+Back_top 
+Belly_button 
+Waist 
+Tailbone 
+Center_back 
+Knee 
+Feet 
+Left_hand 
+Right_hand 
+Wrist 
+Mask 
+Eyes 
+Ears 
+Mouth 
+Nose</Pre></CODE></BLOCKQUOTE></BLOCKQUOTE>
+<P>It is also possible to have a slotted object, such as a table, which holds things such as cups, lamps, or plates. These slots will be numbered, and used in a generic fashion. Slot0X.
+
+<P><H5>Registration Points</H5>
+<P>The definition of registration points within the appearance3D file defines the actual location to put an accessory on the slotted object. These are the actual locations that are mapped to above named slot names in the slotted section. 
+
+<CODE><PRE>
+It has 3 registration points 
+    1. Registration Point "Neck" is relative to "skullbase" 
+    It has a position of 0.0 -15.0 0.0 
+    It has an orientation of 0.0 0.0 0.0
+2. Registration Point "Right Hand" is relative to "r_wrist"
+    It has a position of 10.0 -10.0 0.0
+    It has an orientation of 0.0 0.0 0.0
+3. Registration Point "Left Hand" is relative to "l_wrist"
+    It has a position of 0.0 0.0 0.0
+    It has an orientation of 0.0 0.0 0.0
+</PRE></CODE>
+
+<P>These coordinates are derived from the location of the pivot box that is placed in the geometry of the VRML file. The 3D files for avatars are created with special pivot boxes. Pivot boxes are: 3D rectangular boxes broken into triangles. One side of the pivot box is filled in as shown:
+<P>            Origin         direction of registration point 
+<P>The right angle of the colored triangle, is the origin of the pivot location. This location relative to the slotted object is interpreted as the position of the registration point. This is also discussed above in the section on processing animations for avatars. Pivot boxes are also used to define the location of joints for animations. Once these locations have been abstracted from the VRML file, they are discarded from the geometry.
+
+<P><H5>Gestures</H5>
+<P>The definition of gestures in the appearance3D file specified the total number of gestures in the first line, followed by a specification of the animation to play for each gesture. There are three current types of gestures: VRML, texture animation and HideShow. Some of the syntax is identical between VRML and Texture Animation gestures, whereas HideShow is a special case and will be described last. The first part of this line-by-line runthrough of a gesture will deal specifically with the VRML gesture type, followed by a section that explains the differences in Texture Animation syntax.
+<P><I><LI>VRML animation:</LI> </I>
+<CODE><PRE><P>1. Gesture "Walk" is a "VRML gesture"</PRE></CODE>
+<P>The first line of this example gesture specification states the name that it is a VRML gesture, and lists each of its attributes. The following information is contained in the gesture definition:
+<CODE><PRE><P>It uses vrml file "animations/3D/JFever/JFWalk.wrl"</PRE></CODE>
+
+<P>As stated above, there are two subtypes of VRML animations. One kind of animation is specific to the avatar (as opposed to generalized for all avatars) and does not have the pivot boxes linked in. These files are stated as VRML files. The second type of animation is a generalized animation file that can be reused for all avatars that have pivot boxes inside their geometry. 
+<P>
+<I><LI>Cycle Interval: </I>
+
+<CODE><PRE><P>It has a cycle interval of 1.267 seconds</PRE></CODE>
+<P>The cycle interval specifies how long to play a given animation. This number can be tweaked, by playing the animation and seeing how natural it looks, then changing this number.
+<P>
+<I><LI>Movement Interval:</I>
+
+<CODE><PRE>It moves 1.1 meters per second</PRE></CODE>
+<P>The movement per meter line, says how much to move for a given period of time. 
+<P>
+<I><LI>Looping Information: </I>
+
+<CODE><PRE>It does 1 loops</PRE></CODE>
+<P>The looping information specifies how many times to play the animation. If the animation is to be played constantly, then It does "indefinite" loops should be specified.
+<P>
+<I><LI>Idle Gesture Information: </I>
+
+<CODE><PRE><P>It "is not an idle gesture"</PRE></CODE>
+<P>This is a flag to set if this gesture should be played during a time when the avatar is idle.
+<P><I><LI>3D texture Animation:</I>
+<P>Texture swapping on a VRML geometry works a little different than simply specifying the VRML animation file. It this case the following gesture specification is used:
+
+<CODE><PRE>
+1. Gesture "Bow" is a "texture animation gesture"
+        It has 2 tracks of 3 textures
+            1. It uses texture label "LmCFront.bmp"
+                1. It has art in swatchable 5
+                2. It has art in file "textures/mayan.bmp"
+                3. It has art in file "misc/projector.bmp"
+            2. It uses texture label "LmCBack.bmp"     
+                1. It has art in file "textures/mayan.bmp"
+                2. It has art in file "textures/redsea.bmp"
+                3. it has art in swatchable 1
+        It does    5 loops from frame 1 to frame 3
+        It plays 2 frames per second        
+</PRE></CODE>
+
+<P>The texture label refers to the VRML texture label that you wish to operate on. Within the VRML, these labels are defined by the URL field of the Texture node. Again, note that these texture labels must match exactly between VRML files and Appearance files, including extensions and case. The textures are either filenames or swatchable references. The tracks allow for synchronization of multiple texture label animations to the same timing. Each track must have the same number of textures listed  in it. An animated file still needs a valid default mood, even though the default mood might only appear briefly before an indefinitely looping animation kicks in. By repeating references in the texture list, you can simulate quasirandom animations for fires and fountains, or simulate a spline-style animation by making it appear as if there were a rate acceleration in the center. 
+<P>
+Note two differences in the syntax. The Movement Interval and Idle gesture lines are not used. The looping information must contain the names of the first and last frames to run in the animation (typically these are just the first and last frames in the frame list).
+<P>
+<I><LI>Sound Information: </I>
+
+<CODE><PRE>It plays sound "null" with looping true</PRE></CODE>
+<P>If there is a sound associated with a given animations, then it would be specified here. For example an animation such as clapping hand would have an associated clapping sound. Sounds specified as looping will continue to loop even if the gesture that calls them only runs once. However, the loop will be interrupted once another gesture inside the same object is called. Therefore, it's usually a good idea to have an "On" gesture and an "Off" gesture for any object that loops sound, with the Off gesture calling sound "Null". Most current avatar gestures play the sound only once. 
+
+<CODE><PRE>
+It has 2 gestures
+   1. Gesture "Walk" is a "VRML gesture"
+       It uses vrml file "animations/3D/JFever/JFWalk.wrl"
+       It has a cycle interval of 1.267 seconds
+       It moves 1.1 meters per second
+       It does "indefinite" loops
+       It "is not an idle gesture"
+       It plays sound "null" with looping true
+   2. Gesture "Clap" is a "VRML gesture"
+       It uses vrml file "animations/3D/JFever/JFWave.wrl"
+       It has a cycle interval of 2.0 seconds It moves 2 meters per second It does 1 loops
+       It "is not an idle gesture"
+       It plays sound "sounds/onehandclapping.wav" with looping false
+</PRE></CODE>
+<P><LI><I>HideShow Gesture</I>
+<P>The HideShow gesture is a special gesture designed to hide certain nodes of the avatar such that the geometry can be replaced with a local object, for instance so that the head can disappear and be replaced by a 2D sprited mask (in this case the gesture is called from code, but the gesture needs to exist in the avatar in order for the swapping to work). The syntax is relatively straight forward. Any gesture can either hide or show a named node in the VRML. This node must fall below the humanoid root node. In current implementation, HideShow gestures do not play sounds, and the rest of the timing information such as meters per frame is also irrelevant. Sample syntax as follows:<PRE><CODE>
+  11.  Gesture "HideHead" is a "HideShow gesture"
+        It hides "skullbase"
+
+  12.  Gesture "ShowHead" is a "HideShow gesture"
+        It shows "skullbase"</CODE></PRE>
+<P>The appearance 3D file is complete once all of the above information has been specified. Of course, all of the files must be in the locations specified, and these files must be built into a repository before they can be tested in the Habitats program. When curating, Appearance files are parsed linearly and with luck the debug messages from the curator will have specific line numbers or syntax where the parser expected certain information but found something else.
+
+<P>The appearance 3D file is complete once all of the above information has been specified. Of course, all of the files must be in the locations specified, and these files must be built into a repository before they can be tested in the Habitats program.
+
+<P><H4>Appearance 2D Files:</H4>
+
+<P>2D Appearance File Formats
+<P>Below is a sample appearance 2D file with notes inside describing each section. None of the information in this file is optional. All features must be specified, even if the specification is none, or 0. Although there are some items that are obsolete, such as the line "Thumbnail Icon Is" it is still necessary to include them, until the file format has been changed. 
+
+<CODE><PRE>
+"Appearance2D - Version 0.5, September 9th, 1997"
+The art is at 74 pixels per meter    &lt;- describes real world dimension in pixels
+The default "Position" is 1        &lt;- sets first position or first gesture if any
+The idle "Position" is 1        &lt;- sets idle position, what anim does when waiting.
+The idle time is 10000 milliseconds     &lt;- time to set off idle anim
+The default movement is "null"    &lt;- gets set if background anim for motion
+The default slot is "null"        &lt;- specifies what slot to put things in first, if any
+It has 1 Slots                
+    Slot "Hand" maps to Registration Point "Left Hand"
+</PRE></CODE>
+
+<P>Slots are the areas on an object where accessories can be put. Slots give a name to a point relative to the object. The slot name is referenced to the registration point defined on the object. For example, the slot named "Hand" is set up as being mapped to "Left Hand" on this avatar. In application, if the avatar picks up an object in world like a cup – it would have a tab name "Hand" which would put the cup into the avatars "Hand" slot. This s exactly the same as the slots in the Appearance3D files but the registration location is called out relative to the Frame.
+<P>Note: Every Avatar must have a "Hand", "Mask", and "Badge" slot.
+
+<CODE><PRE>
+It has 1 Cels                
+1. Cel has art in file "animations/dax-e1.bmp"
+            It has size 64 256
+            It has an offset of 0 0
+            It is rotated 0 degrees, x flip false, y flip false
+</PRE></CODE>
+
+<P>This lists each cel or bitmap in the image. It sets up a cel numbering which is later referenced in the frame specification. This allows for flexibility in reusing cells within frames. For example, we could define cell 2 that is a rotated cell 1. What is specified here is the bitmap size – generated from the bitmap, the offset to use when placing the cel in a frame, its rotation and flipping on x and y.
+
+<CODE><PRE>
+It has 4 Frames            
+    1. Frame has 3 Registration Points
+        Registration Point "Default" has an offset of 32 235 0
+        Registration Point "Hand" has an offset of 16 139 -10
+        Registration Point "Left Hand" has an offset of 34 135 10
+        It uses 4 Cels: 1 5 3 7
+</PRE></CODE>
+
+<P>Frames collect together a set of cells to create a larger image. The registration points are places in a frame, which are referenced in other ways, for example with slots. The registration point is relative to the frame image, not relative to any one cell – a bitmap image. Cells are added together to create a frame. The last line of the frame definition specifies an order the collection of cells is built. This is specified back to front. In this example, putting 4 cells together creates the frame.
+
+<CODE><PRE>
+It has 2 Positions
+        1. Position has 2 Orientations
+            1. Orientation of 90 degrees has 1 Mood
+                Mood "Default" uses Frame 1
+            2. Orientation of 180 degrees has 1 Mood
+                Mood "Default" uses Frame 3
+            
+        2. Position has 2 Orientations
+               1. Orientation of 90 degrees has 3 Mood
+           	Mood "Default" uses Frame 2
+                	Mood "Neutral" uses Frame 2
+                	Mood "Happy" uses Frame 3
+               2. Orientation of 180 degrees has 3 Mood
+                	Mood "Default" uses Frame 7
+               	Mood "Neutral" uses Frame 7
+                	Mood "Happy" uses Frame 4
+</PRE></CODE>
+
+<P>This position specification shows which frame to display when looking at it from a certain orientation. It is also shows, which frame to display relative to the mood. For example, when the object is looked at from an angle of 90 degrees, and the mood is happy, it uses frame 3. If you walk to another position, that is 180 degrees around the object and the mood is Neutral, then frame 7 is displayed. 
+<P>There are five moods: Neutral, Happy, Sad, Angry, and Special. The minimum that must be specified for one position: Orientation of 0 degrees, and Mood "Default".
+
+<CODE><PRE>
+It has 1 Gestures
+1. Gesture "Walk" has Image Text "foo"      
+    It has 2 Positions: 1 2
+    It has rotations: 0 0 
+    It does "indefinite" loops from frame 1 to frame 2 inclusive
+    It plays 8 frames per second and moves 0.27 Virtual Metres per frame
+    It plays sound "zoom.wav" at 100 percent volume with looping false
+</PRE></CODE>
+
+<P>This definition of the gesture describes how each of the positions defined above are played to show the gesture. This is a walk gesture that flips through the two positions described above. Users can also associate a sound with a gesture. You have control over the percent volume to play and can set looping on or off. 
+
+<P><H3>Special Info for Artists</H3>
+
+<P><H4>Tips for Finalizing Original Art:</H4>
+<P>Vertices need to be relatively sewn up, so as not to show seams (there is the floating point problem with Max, so there is no need to make it absolutely closed, but within .1 of a unit).
+<P>Scale is 1 Max unit= 1 foot. Avatars are around 6'. Doors, windows, and general scale should be relative.
+<P>Ground is at zero. Turfs should be positioned in relation to 0,0,0. 
+<P>Overdraw/interpenetration of polygons and vertices should be as minimal as possible.
+<P>Objects/Regions should only have as many polygons as is necessary. Faces which are hidden from the camera view should be deleted.
+<P>Make sure to collapse the stack for the objects in a Max file before saving to VRML.
+<P>Texture budget should never exceed 1MB(24bit images), per region. Preferable range is 500k or less, grudgingly acceptable is 750k.
+<P>Textures should be reduced to 8bit upon delivery. 24bit versions should be delivered for archival purposes. 
+<P>Texture sizes(in pixels) should be determined relative to the amount of screen space they occupy in the average of all camera views, or view. 
+<P>Transparency in textures should be fully aliased.
+<P>A VRML version of the file should be delivered as well as a Max(for archive). 
+<P>Omni Lights should not be in finished files. 
+<P>Objects in regions should be named descriptively and grouped according to their function in the region. 
+<P>End user functionality should be carefully considered when designing regions.
+
+<P><H4>VRML 2.0 Nodes accepted</H4>
+<P>Habitats conversion tools do not accept all VRML node types. The following is a list of nodes that are supported:
+<PRE><CODE>    Grouping Nodes:
+        Group
+        Transform
+    Common Nodes
+        Shape
+    Geometry
+        IndexedFaceSet
+    Geometric Properties:
+        Color
+        Coordinate
+        TextureCoordinate
+    Appearance
+        Appearance
+        ImageTexture    (must use Bitmap format)
+        Material
+    Interpolators
+        OrientationInterpolator
+        PositionInterpolator
+    Bindable Nodes
+        ViewPoints
+</PRE></Code>
+The Following nodes are NOT supported:
+<PRE><Code>    Grouping Nodes:
+        Anchor
+        BillBoard
+        Collision
+    Special Groups:
+        Inline
+        LOD
+        Switch
+    Common Nodes
+        AudioClip
+        DirectionalLight
+        PointLight
+        Script
+        Sound
+        SpotLight
+        WorldInfo
+    Sensors
+        CylinderSensor
+        PlaneSensor
+        ProximitySensor
+        SphereSensor
+        TimeSensor
+        TouchSensor
+        VisibilitySensor
+    Geometry
+        Box
+        Cone
+        Cylinder
+        EvaluationGrid
+        Extrusion
+        IndexedLineSet
+        PointSet
+        Sphere
+        Text
+Geometric Properties:
+        Normal
+Appearance
+        FontStyle
+        MovieTexture
+        PixelTexture
+        TextureTransform
+    Interpolators
+        ColorInterpolator
+        CoordinateInterpolator
+        NormalInterpolator
+        ScalarInterpolator
+    Bindable Nodes
+        Background
+        Fog
+        NavigationInfo
+</PRE></Code>
+<P>Other limitations:
+<P>The parser in the tool will not recognize any form or ScriptNode. All ROUTES and PROTOS are not suported. When specifying Appearance information, textures must be specified in bitmap format.
+
+<P><H4>grouping and Naming Files and Objects</H4>
+<P>Taking artwork from VRML files format into Habitats format requires feeding the art files through the pipeline tools. These tools currently work by taking the name from the file itself and use it for various purposes. In some cases, the name is used to display as a descriptor when the mouse is over that object in Habitats. The tool also takes object or group names within VRML files for the same purpose. The file and object names are also used in the catalog, as a description under the image. For these reasons, a naming convention is proposed to make the transition from external art file to Habitats file format smoother. If the names are too terse, the person working on the pipeline must manually rename the file or object. Although some of this renaming will take place in postproduction, the goal is to make it as automatic as possible.
+<P>Types of Art Objects Imported:
+<P>There are a few types of objects in the Habitats environment that this document looks at:
+<P>Regions - with sub objects, specifying an environment to move around in.
+<P>    Floors - named in VRML file
+<P>    Portals - named in VRML file
+<P>    Props - named in VRML file
+<P>Movable objects – These are objects that load from catalogs.
+<P>    2D Objects - file name used
+<P>    3D Objects - file name used
+<P>    
+<P>Textures     
+<P>    Generalized texture files
+<P>    Object specific texture files
+<P>    Note: these are specified as bitmaps in the VRML file.
+<P>The following process is proposed:
+<P><H5>Rules for Naming:</H5>
+<P>Describe all files or VRML objects as completely as possible with descriptive words. Using numbers is counterproductive for the task at hand. For example RedBed.wrl is greatly preferred over bed01.wrl 
+<P>Use uppercase letters to start all words in a file or object name, use lower case for all other letters in the words. For example BlueDog.wrl 
+<P>Do not put spaces or hyphens in file or object names. 
+<P>Place the word Floor in floor objects, for example VillaPatioFloor.wrl 
+<P>Place the word Portal in portal objects, for example AztecPortal.wrl
+<P>Note: Props are generic objects with no special behavior and need no special identifier. At a later time, any prop may be reassigned to a different type of Habitats behavior within the tool, and renaming will be handled at that time.
+<P><H5>Rules for Grouping:</H5>
+<P>Group objects in VRML files that have the same type of behavior in world. For example group all plants into an object grouping rather than have separate flowers, bushes, and vines. 
+<P>Use names that are general enough to describe all objects in the group.
+<P>Note: When naming groups, remember that groups of objects have the same Habitats behavior and have the same chosen group name displayed over the object when a mouse is over. When right mouse clicked, this group object will have the same menu pop up. 
+<P><H5>Rules for Textures:</H5>
+<P>Use object type names for textures that are object specific. For example, if it is a texture showing a bathtub leg, name the file BathTubLeg,bmp 
+<P>Use generalized names for textures that are not object specific. For example, if it is a texture of a marble shower showing a creamy green swirl texture, rather than name it ShowerMarble.bmp, call it GreenMarble.bmp
+<P>As a general note, it might be easy to process the art as usual, then as a final pass, go back and do a higher level object grouping of all similar objects naming that group as appropriate. Do a final file check and where appropriate rename file adding special words.</FONT>
+</BODY>
+</HTML>

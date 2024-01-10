@@ -1,0 +1,321 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>Comm Connection Startup Protocol</TITLE>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+   <META NAME="Generator" CONTENT="Microsoft Word 97">
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; U) [Netscape]">
+</HEAD>
+<BODY>
+
+<H1>Comm Connection Startup Protocol</H1>
+
+<P>Written by <A HREF="mailto:bill@communities.com">Bill</A>. Current as
+of April 23, 1998. Includes the fixes for resolving crossed connection
+conflicts.</P>
+
+<P>
+<HR WIDTH="100%"></P>
+
+<P><B><FONT SIZE=+1>Basic Message Formats</FONT></B></P>
+
+<P>The Connection Startup Protocol uses messages formatted with java.io.ByteArrayOutputStream.
+The first byte of the message is one of the types defined in ec.e.net.Msg.
+PROTOCOL_VERSION, PROTOCOL_ACCEPTED, and STARTUP are used in the startup
+protocol.</P>
+
+<P>The PROTOCOL_VERSION message: (byte type=PROTOCOL_VERSION=16, int obsolete,
+String 1stProtocolID, String 2ndProtocolID, ...). Where obsolete is set
+to 4 to ensure incompatibility with version 2 of the E protocol.</P>
+
+<P>The PROTOCOL_ACCEPTED message: (byte type=PROTOCOL_ACCEPTED=22, int
+0, String protocolID).</P>
+
+<P>The STARTUP message is used for all the rest of the messages: (byte
+type=STARTUP=17, int token, String arg1, String arg2, String arg3). Where
+arg1, arg2, and arg3 are defined in the protocol description below, and
+token is defined in ec.e.net.MsgConnection and is one of:</P>
+
+<PRE>    final private static int TOK_BYE                =  1;
+    final private static int TOK_DUP                =  2;
+    final private static int TOK_GIVEINFO           =  3;
+    final private static int TOK_GO                 =  4;
+    final private static int TOK_GOTOO              =  5;
+    final private static int TOK_IAM                =  6;
+    final public  static int TOK_IWANT              =  7; // used by LSConnection
+    final public  static int TOK_NOT_ME             =  8; // used by LSConnection
+    final private static int TOK_QUIT               =  9;
+    final private static int TOK_REPLYINFO          = 10;
+    final public  static int TOK_TRY                = 11; // used by LSConnection
+    final private static int TOK_RESUME             = 12;
+    final private static int TOK_YOUCHOSE           = 13;
+    final public  static int TOK_ERR_PROTOCOL       = -2; // used by LSConnection
+    final private static int TOK_ERR_WRONG_ID       = -3;
+    final private static int TOK_ERR_INTERNAL       = -4;</PRE>
+
+<PRE>
+<HR WIDTH="100%"></PRE>
+
+<P><B><FONT SIZE=+1>Connection Establishment</FONT></B></P>
+
+<P>There are three layers of code responsible for connections in the comm
+system. The top level is ConnectionsManager. It is responsible for all
+the connections between a Habi* vat and other vats. It includes methods
+such as &quot;EConnection connection(remoteRegistrarID, searchPath)&quot;
+which either creates a connection and returns it, or returns an existing
+connection.</P>
+
+<P>The connection to a specific other vat is handled by the EConnection.
+It is responsible for building new connections and resuming suspended connections.</P>
+
+<P>The connection to a specific machine is handled by the MsgConnection.
+It, along with its steward and crew manage one TCP connection.</P>
+
+<P>The normal connection build process starts with the connection call
+to the ConnectionsManager described above. The remoteRegisterID parameter
+specifies which specific vat is wanted, and the searchPath parameter specifies
+places to look for it. The search path is normally a set of Process Location
+Servers to query.</P>
+
+<P>The search for a vat starts by building a MsgConnection to a PLS. If
+that PLS knows where the vat is, it returns the IP address and port number
+which is inserted into the search path. The currently active instance of
+MsgConnection has then completed it's job, so it closes the TCP connection,
+and notifies the EConnection that it has shutdown. The EConnection then
+builds a new MsgConnection to try the next address in the search path.</P>
+
+<P>The connection startup protocol (Alice is connecting to Bob) used by
+the MsgConnection is as follows. Note that there are two interleaved protocol
+negotiations involved. The version of the E protocol to use, and the low
+level encryption/compression protocol. The E protocol negotiation is over
+quickly, while the encryption protocol negotiation involves the exchange
+of keys and the verification of identities.</P>
+
+<P>In the description below, &lt;PROBLEM&gt; is one of ERR_PROTOCOL, if
+a wrong protocol message type was received or the remote end is using an
+unsupported version of the protocol, or ERR_WRONG_ID if the far end responds
+IAM for the wrong registrarID or the remote public key does not hash to
+the registrarID. TOK_ERR_INTERNAL is used to notify the other end that
+an internal error has caused the connection attempt to fail.</P>
+
+<P>The protocol is described using the notation, &quot;Sender: message
+paremeters (comments)&quot;</P>
+
+<PRE>-------------------Outgoing Startup State------------------------ 
+ Alice: PROTOCOL_VERSION &lt;list of E protocol versions supported&gt;.
+
+ Alice: IWANT &lt;bobRegistrarID&gt;
+
+
+-----------------Incoming New Connection State-------------------
+   Bob: PROTOCOL_ACCEPTED version of E protocol to use,
+    or  &lt;PROBLEM&gt; and throw exception.
+
+------------------Incoming Expect IWANT State--------------------
+   Bob: IAM &lt;bobRegisterID&gt;&lt;bobPublicKey&gt;  (continue with protocol)
+    or  IAM &lt;bobRegisterID&gt;           (continue, no authentication)
+    or  NOTME                         (try next site in search path)
+    or  TRY &lt;possibleAlternatePath&gt;   (add to search path, try next site)
+    or  DUP                           (crossed connections, quietly stop)
+    or  &lt;PROBLEM&gt;                                    (stop)
+</PRE>
+
+<PRE>-------------------Outgoing Expect IAM State---------------------</PRE>
+
+<P>If Alice receives TRY, as she would from the PLS, she adds the &lt;possibleAlternatePath&gt;
+to her search path and shuts down the MsgConnection. If she receives NOTME
+(NotMe) she just shuts down the MsgConnection without adding to the path.
+The EConnection will build a new MsgConnection to try the next entry in
+the path (if any).</P>
+
+<P>If Alice receives Bob's IAM:</P>
+
+<PRE> Alice: GIVEINFO &lt;aliceRegistrarID&gt; &lt;alicesPathToAlice&gt; &lt;alicePublicKey&gt;
+    or  GIVEINFO &lt;aliceRegistrarID&gt; &lt;alicesPathToAlice&gt;    (no authentication)
+    or  &lt;PROBLEM&gt;                                    (stop)
+</PRE>
+
+<PRE>-----------------Incoming Expect GIVEINFO State------------------</PRE>
+
+<P>If Bob receives an invalid message type:</P>
+
+<PRE>   Bob: &lt;PROBLEM&gt;                                    (stop)</PRE>
+
+<P>If Bob receives Alice's GIVEINFO and Bob only knows of one connection:</P>
+
+<PRE>   Bob: REPLYINFO &lt;bobsPathToBob&gt;&lt;cryptoProtocols&gt;   (continue)
+    or  REPLYINFO &lt;bobsPathToBob&gt;                    (continue, no crypto)</PRE>
+
+<P>If Bob receives Alice's GIVEINFO and Bob knows of crossed connections
+and Bob is the catbird:</P>
+
+<PRE>   Bob: REPLYINFO &lt;bobsPathToBob&gt;&lt;cryptoProtocols&gt;   (continue)
+    or  REPLYINFO &lt;bobsPathToBob&gt;                    (continue, no crypto)
+    or  DUP                                          (stop, crossed connections)</PRE>
+
+<P>If Bob receives Alice's GIVEINFO and Bob knows of crossed connections
+and Alice is the catbird:</P>
+
+<PRE>   Bob: REPLYINFO &lt;bobsPathToBob&gt;&lt;cryptoProtocols&gt;   (continue)
+    or  REPLYINFO &lt;bobsPathToBob&gt;                    (continue, no crypto)
+    or  YOUCHOSE  &lt;bobsPathToBob&gt;&lt;cryptoProtocols&gt;   (continue)
+    or  YOUCHOSE  &lt;bobsPathToBob&gt;                    (continue, no crypto)</PRE>
+
+<P>Where &lt;cryptoProtocols&gt; is a comma separated list of crypto protocol
+versions that Bob knows (see &lt;version&gt; below), in order from most
+favored to least favored.<BR>
+
+<HR WIDTH="100%"><BR>
+<B><FONT SIZE=+1>Crossed connection notes<BR>
+<BR>
+</FONT></B>A crossed connection exists when Alice tries to build a connection
+to Bob at the same time Bob is trying to build a connection to Alice. 
+If Bob's RegistrarID is greater than Alice's, then Bob is the catbird and
+must decide which of the two connections to use.  Otherwise Alice is the
+catbird and she must be notified that she is to decide.</P>
+
+<P>Since the GIVEINFO state is on an incoming connection, Bob is in a position
+to notice that he is also in the process of building a connection to Alice,
+and the potential for crossed connections exists.  If he is not the catbird
+he notifies Alice that she must decide by sending the YOUCHOSE message.<BR>
+<BR>
+If he is the catbird, he looks at the state of the outgoing connection.
+ He decides to keep the incoming or the outgoing connection based on that
+state:</P>
+
+<PRE>    ST_UNSTARTED                      Keep incoming
+    ST_OUTGOING_EXPECT_IAM            Keep incoming
+    ST_OUTGOING_EXPECT_REPLYINFO      Keep incoming
+    ST_OUTGOING_EXPECT_GOTOO          Keep outgoing
+    ST_EXPECT_MESSAGE                 Keep outgoing</PRE>
+
+<P>If Alice receives the YOUCHOSE message on her outgoing connection attempt,
+she looks at the state of any incoming connection for Bob's registrarID
+she my know about.  She decides to keep the incoming or the outgoing connection
+based on that state:</P>
+
+<PRE>    No connection known               Keep outgoing
+    ST_INCOMING_EXPECT_IWANT          Keep outgoing
+    ST_INCOMING_EXPECT_GIVEINFO       Keep outgoing
+    ST_INCOMING_EXPECT_GO             Keep incoming
+    ST_EXPECT_MESSAGE                 Keep incoming</PRE>
+
+<P>When Bob eliminates the outgoing connection or Alice eliminates the
+incoming connection, they &quot;disown&quot; the connection they are terminating.
+This action causes it to close the TCP connection and terminate the MsgConnection.<BR>
+
+<HR WIDTH="100%"></P>
+
+<PRE>----------------Outgoing Expect REPLYINFO State------------------
+</PRE>
+
+<P>If Alice received an invalid message type:</P>
+
+<PRE> Alice: &lt;PROBLEM&gt;                                    (stop)</PRE>
+
+<P>If Alice receives a DUP she stops attempting to connect on the MsgConnection.
+ If she receives one of the &lt;PROBLEM&gt; responses, she generates an
+error log and stops attempting to connect on the MsgConnection.</P>
+
+<P>If Alice receives a YOUCHOSE, she choses which connection to eliminate.</P>
+
+<PRE> Alice: QUIT                          (If she keeps the incoming)</PRE>
+
+<P>Otherwise she processes the YOUCHOSE the same as a REPLYINFO.</P>
+
+<P>If Alice receives Bob's REPLYINFO and there is an outgoing suspendID:</P>
+
+<PRE> Alice: RESUME &lt;suspendID&gt;            (resume suspended connection)</PRE>
+
+<P>If Alice receives Bob's REPLYINFO and it includes a crypto protocol
+Alice supports:</P>
+
+<PRE> Alice: GO &lt;crypto parameters&gt;        (continue)</PRE>
+
+<P>Otherwise when Alice receives Bob's REPLYINFO:</P>
+
+<PRE> Alice: GO                            (continue, no crypto)
+
+
+--------------------Incoming Expect GO State---------------------
+</PRE>
+
+<P>If Bob received an invalid message type:</P>
+
+<PRE>   Bob: &lt;PROBLEM&gt;                                    (stop)</PRE>
+
+<P>If Bob receives a RESUME from Alice and the suspendID matches his suspendID:</P>
+
+<PRE>   Bob: GOTOO                         (resume connection)</PRE>
+
+<P>If Bob receives a RESUME and the suspendIDs do not match:</P>
+
+<PRE>   Bob: BYE                           (Wrong suspendID)</PRE>
+
+<P>If Bob receives a QUIT he stops attempting to connect on the MsgConnection.</P>
+
+<P>If Bob receives a GO and detects a crossed connection and decides that
+this MsgConnection should be abandoned:</P>
+
+<PRE>   Bob: BYE                           (crossed connections)</PRE>
+
+<P>If Bob receives a GO and expects a RESUME:</P>
+
+<PRE>   Bob: BYE                           (discarded resumable connection)</PRE>
+
+<P>If Bob receives a GO and it includes a supported crypto &lt;version&gt;:</P>
+
+<PRE>   Bob: GOTOO &lt;crypto parameters&gt;     (Bob starts encrypted session)</PRE>
+
+<P>Otherwise if the GO does not include a supported crypto &lt;version&gt;:</P>
+
+<PRE>   Bob: GOTOO                         (Bob starts unencrypted session)
+
+
+-------------------Outgoing Expect GOTOO State-------------------</PRE>
+
+<P>If Alice received an invalid message type:</P>
+
+<PRE> Alice: &lt;PROBLEM&gt;                                    (stop)</PRE>
+
+<P>If Alice receives a BYE, she stops attempting to connect on the MsgConnection.</P>
+
+<P>If Alice receives Bob's GOTOO, she starts an encrypted session or unencrypted
+session depending on whether Bob has sent &lt;crypto parameters&gt;. Thence
+both can send each other E messages according to the message protocol.<BR>
+
+<HR WIDTH="100%"></P>
+
+<P><B><FONT SIZE=+1>Definition of message components</FONT></B></P>
+
+<PRE> &lt;crypto parameters&gt; are:
+      &lt;version&gt; &lt;version specific parameters&gt;
+
+ The value of &lt;version&gt; is selected from the currently supported list:
+      &quot;None&quot;      - No crypto used. No version specific parameters.
+      &quot;3DES_SDH&quot;  - Triple DES with DH key agreement.  &lt;DHparameters&gt; are
+                    the version specific parameters.
+      &quot;3DES_SDH_ZIP&quot; - Triple DES with DH key agreement.  &lt;DHparameters&gt;
+                    are the version specific parameters.
+                    The messages will use ZipStream compression.
+      &quot;3DES_SDH_MZIP&quot; - Triple DES with DH key agreement.  &lt;DHparameters&gt;
+                    are the version specific parameters.
+                    The messages will use ZipStream compression.  More
+                    than one E message may be included a an encrypted
+                    packet.
+      &quot;3DES_SDH_M&quot; - Triple DES with DH key agreement.  &lt;DHparameters&gt;
+                    are the version specific parameters.
+                    More than one E message may be included a an
+                    encrypted packet.</PRE>
+
+<P>The &lt;DHparameters&gt; are shipped as a comma separated list of decimal
+values.  They are:</P>
+
+<PRE>  &lt;g**x mod m&gt;,&lt;DSA signature on g**x mod m&gt;</PRE>
+
+<P>&lt;g**x mod m&gt; is sent as a decimal character string. (!) &lt;DSA
+signature on g**x mod m&gt; is sent as a base 36 character string.<BR>
+</P>
+
+</BODY>
+</HTML>

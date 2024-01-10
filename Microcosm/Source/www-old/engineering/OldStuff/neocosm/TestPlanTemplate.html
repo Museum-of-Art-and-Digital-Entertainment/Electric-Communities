@@ -1,0 +1,112 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>TestTemplate</TITLE>
+<META NAME="Template" CONTENT="E:\Program Files\Microsoft Office\Office\html.dot">
+</HEAD>
+<BODY LINK="#0000ff" VLINK="#800080">
+
+<I><P>What this document is for:  it is a <U>tool</U> that documents <U>what</U> to test (with much less emphasis on how to test).  The tester who executes the plan should expect to expand on the "What Is to Be Tested" section with detailed tests, though many or all of those tests may not be added to this plan.  (If they are to be repeated, though, they should be either added to this plan or a pointer to their real location should be.)  </P>
+<P>The detail here should include whatever will make the test team more effective or efficient at finding bugs, help delegate work, and help track status.  That is:</P>
+
+<UL>
+<LI>This plan is a defect finder, not a process model or product model.  </LI>
+<LI>It is primarily about bug detection, not bug prevention.  </LI>
+<LI>The primary audience is the person doing the testing, secondarily the subsystem author, who will sanity check it.  </LI>
+<LI>While traceability from test to test plan and from test to subsystem design/code would be nice, I don't believe it's affordable.</LI></UL>
+
+<P>Some useful references: </P>
+<U><P>Testing Computer Software</U>, by Kaner, Falk, and Nguyen.  See also Kaner's course notes for his 3-day course.  (Marick has a copy.)</P>
+<P>"</I><A HREF="http://www.kaner.com/negotiate.htm">Negotiating Testing Resources: a Collaborative Approach</A><I>", by Cem Kaner.</P>
+<H1>Name-of-Subsystem Test Plan</H1>
+</I><B><P>Last updated:</B><I> [98/06/22 marick]</I> </P>
+<I><P>Author(s) List email addresses of authors. Use the HTML email tag, e.g. </I><A HREF="mailto:somebody@communities.com"><I>Somebody</I></A><I>. Also include a reference to the subsystem developer.</I> </P>
+<H4>Related Documents</H4>
+<I><P>List any related documents.  Include a link to the design document.</I> </P>
+<H2>Level of Effort</H2>
+<I><P>Use this to get a rough idea of how much effort should be devoted to this subsystem.  "Assessment" is your assessment of the risk.  Assessments should be "low", "moderate", or "high" unless you <U>really</U> think a finer gradation is important.  You might call out some parts of the subsystem as being of higher or lower risk, but don't get carried away.  You might also call out particular types of bugs as having higher risks than others.  For example, a subsystem might not cause many problems <U>unless</U> it has deadlocks.  Therefore a concerted hunt for timing problems is warranted.</P></I>
+<TABLE CELLSPACING=0 BORDER=0 CELLPADDING=7 WIDTH=823>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P ALIGN="CENTER"><B>Aspect</B></TD>
+<TD WIDTH="26%" VALIGN="TOP">
+<B><P ALIGN="CENTER">Assessment</B></TD>
+<TD WIDTH="48%" VALIGN="TOP">
+<B><P ALIGN="CENTER">Justification</B></TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>Suspected bugginess</TD>
+<TD WIDTH="26%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="48%" VALIGN="TOP">
+<I><P>new code is buggier than old code, all things being equal.  Modifications can be dangerous or safe, depending on type.  Consider the history of this code:  a subsystem that was hard to get right before isn't likely to suddenly get easy.  Some programmers make more bugs than others.</I></TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>Likely visibility of bugs</TD>
+<TD WIDTH="26%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="48%" VALIGN="TOP">
+<I><P>How evident will bugs be to users?  How many users will see them?  All of them?  Or just a few?  </I></TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>Likely severity of bugs</TD>
+<TD WIDTH="26%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="48%" VALIGN="TOP">
+<I><P>What will be the effect on users?  Crashes?  Data corruption?  Minor glitches in display?</I></TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>Difficulty of exercising through normal use or whole-product testing</TD>
+<TD WIDTH="26%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="48%" VALIGN="TOP">
+<I><P>Could this be tested adequately and easily through the user interface?  If so, maybe you should do that instead of subsystem testing.  (Or maybe not - finding bugs earlier is usually better than finding them later.  Take scheduling and sequencing of deliverables into account.)</I></TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>Difficulty of debugging problems when they're found in normal use or whole-product testing</TD>
+<TD WIDTH="26%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="48%" VALIGN="TOP">
+<I><P>Finding a bug through the user interface is not so useful if it's really hard to isolate the bug down to the incorrect lines of code.  (In Microcosm, "pick errors" were often like that.)  If so, that argues for subsystem testing.</I></TD>
+</TR>
+</TABLE>
+
+<I><P>&nbsp;Summing it all up, what's your assessment?</P>
+</I><H2>Who Does What and When?</H2>
+<I><P>The main thing to decide is how much testing the programmer does and how much you do.  Consider having the programmer implement tests you design.  When will testing start?  This section should be short:  one or two sentences.</P>
+</I><H2>Total Effort</H2>
+<I><P>How much time do each of the people identified above spend?  Make clear whether you're talking clock time (the time spent specifically devoted to this task) or calendar time (number of days to completion, taking into account everything else that that person is doing at the same time).  If the programmer has already included enough test time in his or her schedule, be sure to note that.</P>
+<P>This section should also be one or two sentences.</P>
+</I><H2>Repeatability and Automation </H2>
+<I><P>Another short overview section.  You need some automation strategy.  This defines it.  How much effort will you devote to making tests repeatable.  Take care not to spend too much.  Remember that every test you automate may represent several one-shot tests that you don't have time to try at all.  (For more, see my paper "When Should a Test Be Automated?", available on request.)</P>
+<P>Say what proportion (roughly) of the tests will be automated.</P>
+</I><H2>What Is To Be Tested (Overview)</H2>
+<I><P>Here's where you break testing out into categories.  These categories can be delegated and tracked.</P>
+<P>Here are some ideas for categories:</P>
+
+<UL>
+<LI>The API that the product presents may be one category, or you may choose to break it down into subcategories of differing priorities.</LI>
+<LI>Scenario ("use case") tests string together API calls in ways that mimic what the real client code or customer will do.</LI>
+<LI>Consider the structure of the subsystem.  Are there any particular components not obvious from the API that need exercising?</LI>
+<LI>Calling out error handling tests specifically may be useful.</LI>
+<LI>Load and stress testing generally seeks to discover timing bugs by exercising multiple threads of control through the subsystem.</LI>
+<LI>Configuration tests may be relevant for some subsystems (such as the GUI).</LI>
+<LI>Are there any classes of failure that have historically plagued this subsystem?  What's your testing strategy to find them?</LI>
+<LI>Keep in mind that you have two tasks: finding nonconformance of code to spec, and finding nonconformance of spec to customer expectations.  (Scenario tests are a good way to find the latter.)</LI></UL>
+
+<P>Mark the highest priority areas in red.</P>
+<P>In each area, a simple sentence answering the question "why are you devoting that amount of effort to this?" will be useful. </P>
+</I><H2>Performance</H2>
+<I><P>We'd like some sort of performance measure (speed and space) for each subsystem.  Describe that here.  </P>
+<P>One useful idea would be to take some sort of representative "normal use" scenario test and simply measure it.</P>
+</I><H2>Test Support Needed </H2>
+<I><P>Choose between testing the subsystem entirely in isolation (using a driver that both calls it and "stubs out" its calls to lower-level subsystems), testing it with "live" calls to lower-level APIs, testing it through some command-line interface (E?), etc.  (Note that the way you choose to test has implications for how easy it will be to know whether the subsystem is exceeding its "class bloat budget".</P>
+<P>Describe the needed test support here.  Who's going to build it?  (Also identify that person in "Who Does What".)</P>
+</I><H2>Issues</H2>
+<I><P>Include here notable issues (especially including what <U>won't</U> be tested).</P>
+</I><H4>Resolved Issues</H4>
+<I><P>History of issues raised and resolved during initial design, or during design inspections. Can also include alternatives, with the reasons why they were rejected</I> </P>
+<H4>Open Issues</H4>
+<I><P>This section of the document is used to store any incomplete information - issues identified but not yet resolved (the task list), notes that aren't ready to be put into the main text, etc.</I> <BR>
+&nbsp; </P></BODY>
+</HTML>

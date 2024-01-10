@@ -1,0 +1,449 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="Author" CONTENT="Arturo Bejar">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.03 [en] (Win95; U) [Netscape]">
+   <TITLE>Deconstructing E</TITLE>
+</HEAD>
+<BODY>
+
+<H1>
+Deconstructing E</H1>
+&nbsp;This page was originally written by <A HREF="mailto:arturo@communities.com">Arturo</A>,
+it is a very initial draft.
+
+<P>Last updated: [98/05/18 Arturo - First checked in]
+<H2>
+1. Introduction</H2>
+We've spent a fair amount of time discussing E and its benefits:
+<UL>
+<LI>
+Asynchronous messaging and deadlock avoidance.</LI>
+
+<LI>
+Optimistic object references.</LI>
+
+<LI>
+Capability security.</LI>
+
+<LI>
+Network object messaging.</LI>
+</UL>
+This document is an attempt at separating all of the different components
+of E and examining their cost/benefit tradeoffs.
+<H3>
+Related Documents</H3>
+
+<UL>
+<LI>
+E Language Specification</LI>
+
+<LI>
+ELib JavaDoc</LI>
+
+<LI>
+Dan's 'New E' Specification</LI>
+</UL>
+
+<H2>
+2. Deconstructing E</H2>
+
+<H3>
+2.1. Within process asynchronous messaging</H3>
+This is basically an event queue with capability security in the send/delivery
+mechanisms..
+<UL>
+<H4>
+2.1.1. Assumptions</H4>
+Threads are difficult to program in, there are synchronization issues that
+depending on a number of circumstances can lead to deadlock.
+<H4>
+2.1.2. Benefits</H4>
+
+<UL>
+<LI>
+The single Run Queue has many synchronization and consistency benefits.
+Basically objects that are strictly invoked from the RunQ (or indirectly
+so) don't need to worry about synchronizing over methods or data.</LI>
+
+<LI>
+Asynchronous programming is less prone to deadlocks. (i.e. you need to
+deadlock by design, rather than by consequence of a number of factors).</LI>
+
+<LI>
+When used for network messages it compensates for latency, avoiding the
+need to wait for a result or acknowledgment from the other side.</LI>
+
+<LI>
+Ideal for multicasting where the notions of result don't scale.</LI>
+</UL>
+
+<H4>
+2.1.3. Costs</H4>
+
+<UL>
+<LI>
+It is a significant change from the well understood synchronous invocation
+programming and design requires very thorough understanding of cause and
+effect of events (what we like to call causality programming).</LI>
+
+<LI>
+Operations that need to return information require a separate return message
+(unless you have object futures, which have their own tradeoffs).</LI>
+
+<LI>
+You need to be careful about keeping said part of the application away
+from side-affecting threads.</LI>
+
+<LI>
+Error handling and value returning becomes much more difficult since the
+error happens at a later point in time when the state of the invocating
+object could have changed.</LI>
+</UL>
+
+<H4>
+2.1.4. Notes on asynchronous error handling</H4>
+There are three kinds of errors that can occur on an async invocation:
+<UL>
+<LI>
+Unexpected invocation error usually reflected by RuntimeExceptions.</LI>
+
+<LI>
+Expected invocation error, noted by a 'throws' statement on the method.</LI>
+
+<LI>
+Errors that happen as a result of this object asynchronously invoking on
+other objects.</LI>
+</UL>
+
+<H4>
+2.1.5. Required components</H4>
+
+<UL>
+<LI>
+Run Queue</LI>
+
+<LI>
+CRAPI based invocation mechanism</LI>
+</UL>
+</UL>
+
+<H3>
+2.2. Generic invocation interface (call, send)</H3>
+
+<UL>The first versions of E (please correct me here if I'm wrong) generated
+classes for all the different kinds of stubs, since at that time we did
+not have CRAPI there was no way to do a generic invocation interface. Now
+we have an interface is used to describe every single kind of invocation:
+
+<P><TT>void sendOnly(target, "methodName", args[]);</TT>
+
+<P>This allows us to write intermediaries that extend object invocation
+behavior.
+<H4>
+2.2.1.&nbsp; Benefits</H4>
+Intermediary objects that extend behavior with minimal class bloat. Examples
+are:
+<UL>
+<LI>
+Channels.</LI>
+
+<LI>
+Proxies.</LI>
+
+<LI>
+Revocable forwarders.</LI>
+</UL>
+
+<H4>
+2.2.2. Costs</H4>
+In applying this you loose all the typing information, this makes programming,
+debugging and maintenance more difficult. The only way to get the type
+information back is by having some form of stubs that</UL>
+
+<H3>
+2.3. Stubs or lack of thereof</H3>
+One of the issues with a generic invocation interface is the difficulty
+with typing issues, stubs allow you to have strong typing, but they always
+come at a cost. In the first generations of E we had a compiler generate
+a number of stub classes where each class would have a different internal
+invocation for every method, thanks to CRAPI and Danfuzz this evolved into
+Stubs that turn a strongly typed call into a generic asyncrhonous invocation.
+See <A HREF="e/ProxyTyping.html">Robj's digression on proxy typing</A>.
+
+<P>Stubs can serve two different purposes:
+<UL>
+<LI>
+Provide objects of the right type that you invoke synchronously that generate
+the generic invocation.</LI>
+
+<LI>
+Strongly typed variables that are only used as references in invocations
+(El Cheapo).</LI>
+
+<H4>
+2.3.1. No Stubs</H4>
+This is when you decide to use the generic invocation interface for every
+async message send.
+<UL>
+<LI>
+Benefit: No bloat of any kind whatsoever.</LI>
+
+<LI>
+Cost: Lose all of the typing information, and hence lose the compiler support
+and code clarity that comes with it.</LI>
+</UL>
+
+<H4>
+2.3.2. Compiler generated stubs.</H4>
+
+<UL>
+<LI>
+Benefit: Strongly typed stubs that can be used to invoke through and even
+have exception handling information.</LI>
+
+<LI>
+Cost: Class bloat.</LI>
+</UL>
+
+<H4>
+2.3.3. Runtime generated stubs.</H4>
+
+<H4>
+2.3.4. El Cheapo</H4>
+</UL>
+
+<H3>
+2.4. Object futures</H3>
+Otherwise known as optimistic object references, channels, promises, unresolved
+object references, etc. Well, not quite since all of these are not the
+same, although they are based on the same principal.
+<UL>
+<H4>
+2.4.1. As object message queues.</H4>
+
+<H4>
+2.4.2. As object value futures.</H4>
+
+<H4>
+2.4.3. The network, security and optimistic object references.</H4>
+</UL>
+
+<H3>
+2.5. Promises as return values of 'send'</H3>
+
+<UL>
+<H4>
+2.5.1. Benefits</H4>
+
+<H4>
+2.5.2. Costs</H4>
+Object instances per asynchronous invocation.</UL>
+
+<H3>
+2.6. Picking the right tool for the right job:</H3>
+
+<H2>
+
+<HR WIDTH="100%">3. Comm system</H2>
+
+<H3>
+3.1. Introduction</H3>
+The comm system is the part of our system responsible for:
+<UL>
+<LI>
+Setup, tear down and maintenance of connections.</LI>
+
+<LI>
+Object pass by copy transport/serialization.</LI>
+
+<LI>
+Support for (fragile) objects that get exported by proxy.</LI>
+
+<LI>
+Support for (sturdy) unique network object references, these references
+are used to get a fragile object proxy.</LI>
+
+<LI>
+Provides the core support for multipoint messaging and multicast group
+management.</LI>
+
+<H4>
+3.1.1. Requirements</H4>
+
+<UL>
+<LI>
+Proper layering of system all the way down.</LI>
+
+<LI>
+Firewall support.</LI>
+
+<LI>
+Background loading of large objects.</LI>
+
+<LI>
+Versioning identification a part of the connection handshake.</LI>
+
+<LI>
+Tools for allowing the programmer to define which things are exportable,
+serializable.</LI>
+</UL>
+
+<H4>
+3.1.2. Preferences</H4>
+
+<UL>
+<LI>
+Figure out best implementation path for the different features.</LI>
+
+<LI>
+Proper multipoint support at every level.</LI>
+
+<LI>
+Minimize what gets sent over the wire.</LI>
+</UL>
+
+<H4>
+3.1.3. Issues</H4>
+
+<UL>
+<LI>
+How much of the existing code to leverage?</LI>
+</UL>
+</UL>
+Exception handling, alternatives and multicast group management are issues
+that need to be evaluated and understood at every level of the system.
+
+<P>This is a description of a possible layering of the comm system:
+<H3>
+3.2. Data Comm System (Socket+)</H3>
+This layer is responsible for connection set up, tear down, bit transport,
+authentication, encryption, compression.
+<UL>
+<H4>
+3.2.1. Connection management</H4>
+
+<H4>
+3.2.2. Wire protocol</H4>
+
+<H4>
+3.2.3. Encryption</H4>
+
+<H4>
+3.2.4. Reliability and ordering</H4>
+
+<H4>
+3.2.5. Exception handling</H4>
+
+<H4>
+3.2.6. Multicast support</H4>
+</UL>
+
+<H3>
+3.3. Object&nbsp; transport System (Java Serialization + Data Comm integration)</H3>
+This layer is responsable for the per message encoding and decoding of
+an object graph.
+<UL>
+<H4>
+3.3.1. Pass by copy</H4>
+Object to byte array serialization support.
+<H4>
+3.3.2. Pass by special copy, special encoding behaviours (writeObject /
+readObject)</H4>
+
+<H4>
+3.3.3. Other encoding behaviours</H4>
+
+<H4>
+3.3.4. Per message/object graph encoding/decoding</H4>
+
+<H4>
+3.3.5. Wire protocol</H4>
+
+<H4>
+3.3.6. Usage of Data Comm level excepions.</H4>
+</UL>
+
+<H3>
+3.4. Exportable object references (Proxies + Messages)</H3>
+With this we provide an abstraction for object to object inter-process
+messaging.
+<UL>
+<H4>
+3.4.1. Objects passed by proxy i.e. Exportable</H4>
+There is a certain number of classes/interfaces defined to be Exportable.
+(Actually based on El Cheapo they would extend BaseExportable)
+<H4>
+3.4.2. Object Swiss Numbers</H4>
+
+<H4>
+3.4.3. Import/Export tables</H4>
+They need weak pointers to enable acyclic network garbage collection.
+<H4>
+3.4.4. Process Identity</H4>
+
+<H4>
+3.4.5. Registrar</H4>
+Center for managing multiple connections.
+<BR>Which holds the private public key pair used to
+<H4>
+3.4.6. SturdyRefs</H4>
+A SturdyRef is the combination of:
+<BR>[Information to contact the machine + Object's Swiss number]
+<BR>There are issues relating to the lifetime of SturdyRefs and dealing
+with live references upon revocation.
+<H4>
+3.4.7. Object to object reliability and ordering</H4>
+
+<H4>
+3.4.8. Async object garbage collection for proxies (wire protocol)</H4>
+Needs a clean up protocol to deal with race conditions by using a wire
+counting protocol. The race condition is that the proxy might get garbage
+collected</UL>
+
+<H3>
+3.5. Alternatives to be evaluated</H3>
+
+<UL>
+<H4>
+3.5.1. Corba</H4>
+
+<H4>
+3.5.2. T.120 Stack</H4>
+</UL>
+
+<H2>
+To do list:</H2>
+
+<UL>
+<LI>
+Bill research SSLava</LI>
+
+<LI>
+Design data comm API s. t.. SSL could go underneath.</LI>
+
+<LI>
+Decide whether to use off the shelf SSL today, otherwise user our own.</LI>
+
+<LI>
+Firewall story.</LI>
+
+<LI>
+Arturo writes up E page and supports Bob.</LI>
+
+<LI>
+Bob does toy object comm system guts.</LI>
+
+<LI>
+Robj writes up issues page and object comm API with MarkM's help.</LI>
+
+<LI>
+Scott helps define multipoint abstraction and its application to the different
+layers.</LI>
+
+<LI>
+Research object comm alternatives.</LI>
+</UL>
+
+</BODY>
+</HTML>

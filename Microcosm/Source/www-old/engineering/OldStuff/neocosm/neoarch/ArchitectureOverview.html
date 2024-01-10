@@ -1,0 +1,78 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.03 [en] (Win95; U) [Netscape]">
+   <META NAME="Author" CONTENT="Mark S. Miller">
+   <TITLE>Neocosm Architecture Overview</TITLE>
+<!--last modified on Friday, July 10, 1998 11:05 AM -->
+</HEAD>
+<BODY>
+
+<H1>
+Neocosm Architecture Overview</H1>
+<B>Last Updated</B>:&nbsp; 06/01/98
+
+<P><B>Author</B>:&nbsp; Everyone.&nbsp; Started by <A HREF="mailto:slewis@communities.com">slewis@communities.com</A>
+<H2>
+Introduction</H2>
+This document is a high-level architecture overview for the Neocosm system.&nbsp;
+The intention is to provide a clear overall view of the Neocosm system
+architecture, and provide links for more detailed subsystem requirements,
+architecture and design documents, API definitions, and subsystem source
+code.&nbsp;&nbsp; This document, where possible, will reference these external
+documents as they become available.&nbsp; These documents will a) give
+details on all of the subsystems; b) identify owners for each subsystem;
+c) can be used to track requirements, architecture and design, and implementation
+progress.
+
+<P>Here is a graphical depiction of the Neocosm subsystems (adapted and
+enhanced from <A HREF="../ArchitectureDiagram.gif">YesterCosm architecture
+diagram</A> provided by <A HREF="mailto:robj@communities.com">Robj</A>):
+
+<P><IMG SRC="NeoCosmArchitectureDiagram.jpg" BORDER=0 HEIGHT=577 WIDTH=742 ALIGN=BOTTOM>
+<BR>&nbsp;
+
+<P>The above is a clickable image, and clicking on relevant subsystem boxes
+will take you to a page assigned to that subsystem (eventually...I need
+to get the mechanics of this in place).
+
+<P>Here are the subsystems from this diagram, with links to the relevant
+other documents:
+
+<P>Distributed World Objects
+<UL><A HREF="../wo/WorldObjectSpec.html">World Objects Support</A>
+<BR><A HREF="../DObjects.html">Unum/DObjects Model (placeholder document)</A>
+<BR>Proxy Model</UL>
+<A HREF="../Identity.html">Secure Identity</A>
+
+<P><A HREF="../NewECommSystem.html">Comm System</A>
+<UL>Point-to-Point Messaging
+<BR><A HREF="../MultipointCommSystem.html">Reliable Multipoint Messaging
+(placeholder document)</A> and <A HREF="../ObjectMulticast.html">Object
+Multicast</A>
+<BR>PLS
+<BR><A HREF="../ObjectTransport.html">Object Transport</A>
+<BR><A HREF="../NewECommSystem.html">Data Comm</A></UL>
+Asynchronous Within-Process Messaging Support (<A HREF="../e/semantics.html">ELib</A>)
+
+<P><A HREF="../StateSerialization.html">State Bundles Serialization</A>
+
+<P><A HREF="http://java.sun.com:80/products/jdk/1.1/docs/index.html">Java
+APIs</A>
+<UL><A HREF="http://java.sun.com:80/products/jdk/1.1/docs/guide/serialization/spec/serialTOC.doc.html">Java
+Serialization</A>
+<BR><A HREF="http://java.sun.com:80/products/jdk/1.1/docs/guide/reflection/spec/java-reflectionTOC.doc.html">Java
+Reflection</A>
+<BR><A HREF="http://java.sun.com:80/products/jdk/1.1/docs/api/Package-java.net.html">Java
+Networking</A>
+<BR>&nbsp;</UL>
+<A HREF="GUIArchitectureOverview.html">Renderer and GUI subsystem diagram</A>
+
+<P>More to come...
+<BR>&nbsp;
+<BR>&nbsp;
+<BR>&nbsp;
+<BR>&nbsp;
+<BR>&nbsp;
+</BODY>
+</HTML>

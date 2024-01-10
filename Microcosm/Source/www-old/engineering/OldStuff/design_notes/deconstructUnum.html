@@ -1,0 +1,1157 @@
+<html>
+<head>
+<title>Deconstructing The Unum</title>
+</head>
+
+<body bgcolor="FFFF99">
+
+<h1>Deconstructing The Unum</h1>
+
+<h2>Unum kind</h2>
+
+<p>
+An unum kind describes the interface that an unum presents to the outside world
+(i.e., to other una).
+
+<p>
+For unum <i>Uname</i>, our unum kinds are named "usk<i>Uname</i>" and are synthesized by
+PLITE as part of the generation of the unum structure in unit "<i>Uname</i>_struct"
+in the file "<i>Uname</i>_h_struct.plu". It is composed by collecting the
+exported-to-unum-level interface kinds implemented by the ingredients out of
+which the unum is made. Such ingredient kinds have names of the form
+"uk<i>Iname</i>" and are found in the respective units "<i>Iname</i>_kind" in the files
+"<i>Iname</i>_kind.plu". These ingredient units are imported into the
+"<i>Uname</i>_struct" unit by the statements PLITE generates. In addition, the unum
+kind also incorporates the interface "Unum" which all una are expected to
+implement.
+
+<p>
+The pattern is:
+
+<pre>
+    kind usk<i>Uname</i> {
+        implements Unum;
+        kind uk<i>Iname</i>; *
+    }
+</pre>
+
+<p>
+which yields
+
+<pre>
+    public einterface usk<i>Uname</i>$kind
+        extends uk<i>Iname</i>$kind,*
+                Unum { }
+</pre>
+
+<p>
+Thus for Swatch, PLITE generates:
+
+<pre>
+    kind uskSwatch {
+        implements Unum;
+        kind ukDescriber;
+        kind ukContainable;
+        kind ukContainer;
+        kind ukCompositable;
+        kind ukProperty;
+        kind ukTexturizer;
+    }
+</pre>
+
+<p>
+from which Pluribus generates the E code:
+
+<pre>
+    public einterface uskSwatch$kind
+        extends ukDescriber$kind,
+                ukContainable$kind,
+                ukContainer$kind,
+                ukCompositable$kind,
+                ukProperty$kind,
+                ukTexturizer$kind,
+                Unum { }
+</pre>
+
+
+<h2>Unum structure</h2>
+
+<p>
+An unum structure describes an abstract unum in terms of the kinds of presences
+it is made out of. The unum structure declares itself to be of a particular
+unum kind and then declares a series of presences, each of which is
+characterized by its role in the unum and the presence kind which it
+implements. Each presence role also indicates what other presence role should
+be generated from it if it spawns a new presence. Finally, one particular
+presence role is distinguished as being the prime presence; that is, the
+presence which is created initially when an unum of this structure is
+instantiated.
+
+<p>
+For unum <i>Uname</i>, our unum structures are named "us<i>Uname</i>" and are synthesized
+by PLITE in the unit "<i>Uname</i>_struct" in the file "<i>Uname</i>_h_struct.plu". All
+our current una have the same generic structure: there are two presence roles,
+"host" and "client", which always have the presence kinds "psk<i>Uname</i>Host" and
+"psk<i>Uname</i>Client" respectively. The host is always the prime presence and all
+presences always spawn a client.
+
+<p>
+The pattern is:
+
+<pre>
+    unum structure us<i>Uname</i> {
+        kind usk<i>Uname</i>;
+        presence host kind psk<i>Uname</i>Host makes client;
+        presence client kind psk<i>Uname</i>Client makes client;
+        prime host;
+    }
+</pre>
+
+<p>
+No E code is generated for the unum structure per se.
+
+<p>
+Thus for Swatch, PLITE generates:
+
+<pre>
+    unum structure usSwatch {
+        kind uskSwatch;
+        presence host kind pskSwatchHost makes client;
+        presence client kind pskSwatchClient makes client;
+        prime host;
+    }
+</pre>
+
+
+<h2>Unum impl</h2>
+
+<p>
+An unum impl "fills in" an unum structure in terms of specific implementations
+for its presences. The unum impl selects a particular unum structure to be
+filled in and then indicates presence impls for each of the presence roles
+within the selected unum structure.
+
+<p>
+Many of our una have impl variations which are composed from a common unum
+structure but varying presence impls. For unum <i>Uname</i> and variation <i>Vimpl</i>,
+the unum impl is named "uim<i>Uname</i><i>Vimpl</i>" and is synthesized by PLITE in the
+unit "<i>Uname</i><i>Vimpl</i>_unum" in the file "<i>Uname</i><i>Vimpl</i>_h_unum.plu". Note that
+not all una have variants; in such cases there is often a single variant named
+"Generic", but in some cases there is no <i>Vimpl</i> name at all.  Since our una
+all have the same general structure, the unum impls also follow a common
+pattern. The two presence roles are filled by presence impls named
+"pi<i>Uname</i><i>Vimpl</i>Host" and "pi<i>Uname</i><i>Vimpl</i>Client".
+
+<p>
+The pattern is:
+
+<pre>
+    unum impl uim<i>Uname</i><i>Vimpl</i> {
+        structure us<i>Uname</i>;
+        presence host impl pi<i>Uname</i><i>Vimpl</i>Host;
+        presence client impl pi<i>Uname</i><i>Vimpl</i>Client;
+    }
+</pre>
+
+<p>
+Swatch only has a single, generic variant, so PLITE generates:
+
+<pre>
+    unum impl uimSwatchGeneric {
+        structure usSwatch;
+        presence host impl piSwatchGenericHost;
+        presence client impl piSwatchGenericClient;
+    }
+</pre>
+
+<p>
+On the other hand, the prop unum has three variations: PropBackground,
+PropTelekinetic, and PropGeneric.
+
+<p>
+The E code generated for the unum impl is rather extensive. The unum impl
+itself turns into a single, largish Java class. However, the class is entirely
+static and serves merely as a place to put various kinds of initialization
+code. There are three flavors of initialization code in this class:
+
+<ol>
+<li>an internal (private) method for each presence role to generate the
+presence state corresponding to that role,
+<li>a public method to initialize the presence router, and
+<li>a public method to create a new unum.
+</ol>
+
+<p>
+The pattern is:
+
+<pre>
+    public class uim<i>Uname</i><i>Vimpl</i>$ui extends pl$_unumImpl {
+        static private UnumPresenceState makepi<i>Uname</i><i>VImpl</i><i>Role</i>State(
+                PresenceEnvironment env, boolean isHost) {
+            ...
+        }*
+        static public void initPresenceRouter(String roleName,
+                                              PresenceRouter router,
+                                              Object unumKey,
+                                              PresenceEnvironment env) {
+           ...
+        }
+        static public usk<i>Uname</i>$kind createUnum(
+                Object unumKey, SoulState soulState) {
+           ...
+        }
+    }
+</pre>
+
+<p>
+Thus for Swatch we get:
+
+<pre>
+    public class uimSwatchGeneric$ui extends pl$_unumImpl {
+        static private UnumPresenceState makepiSwatchGenericHostState(
+                PresenceEnvironment env, boolean isHost) {
+            ...
+        }
+        static private UnumPresenceState makepiSwatchGenericClientState(
+                PresenceEnvironment env, boolean isHost) {
+            ...
+        }
+        static public void initPresenceRouter(String roleName,
+                                              PresenceRouter router,
+                                              Object unumKey,
+                                              PresenceEnvironment env) {
+           ...
+        }
+        static public uskSwatch$kind createUnum(
+                Object unumKey, SoulState soulState) {
+           ...
+        }
+    }
+</pre>
+
+<p>
+The presence state generation methods (one for each presence role) each return
+a new UnumPresenceState object, which in turn holds onto an UnumState object
+and a PresenceState object. All three of these objects function like structs
+(i.e., each consists of just a constructor and some public fields). The
+presence state generator methods simply initialize all these structs and
+return. All have the same general structure:
+
+<pre>
+    static private UnumPresenceState makepi<i>Uname</i><i>Vimpl</i><i>Role</i>State(
+            PresenceEnvironment env, boolean isHost) {
+        UnumPresenceState state = new UnumPresenceState();
+        PresenceState pState = new PresenceState(<i>ingrCount</i>,
+                                                 <i>clientIngrCount</i>,
+                                                 <i>targetCount</i>,
+                                                 <i>sealerCount</i>);
+        UnumState uState = new UnumState(<i>targetCount</i>, <i>sealerCount</i>);
+        state.presence = pState;
+        pState.kindName = "<i>package</i>.psk<i>Uname</i><i>Role</i>$kind";
+        pState.presenceToMakeName = "client";
+        pState.unumImplClassName = "<i>package</i>.uim<i>Uname</i><i>Vimpl</i>$ui";
+        pState.isHost = isHost;
+        state.unum = uState;
+        uState.kindName = "<i>package</i>.usk<i>Uname</i>$kind";
+
+        ii<i>Iname</i><i>Ivimpl</i>$iicode pin<i>Iname</i> = new ii<i>Iname</i><i>Ivmpl</i>$iicode(env);
+        pState.ingredients[<i>n</i>] = pin<i>Iname</i>;*
+        pState.clientIngredients[<i>n</i>] = pin<i>Iname</i>;*
+        ((ii<i>Iname</i><i>Ivmpl</i>$iijif)pin<i>Iname</i>).setNeighbors((ik<i>Neighbor</i>$kind)pin<i>Neighbor</i>,*);*
+        pState.sealers[<i>n</i>] =  sealer (pk<i>Iname</i>$kind &#139;- p<i>InameOp</i>(<i>args</i>));*
+        pState.targets[<i>n</i>] =  (RtTether)pin<i>Iname</i>;*
+        uState.sealers[<i>n</i>] =  sealer (uk<i>Iname</i>$kind &#139;- u<i>InameOp</i>(<i>args</i>));*
+        uState.targets[<i>n</i>] =  (RtTether)pin<i>Iname</i>;*
+
+        return state;
+    }
+</pre>
+
+<p>
+Thus for our example swatch host, the Pluribus compiler generates:
+
+<pre>
+    static private UnumPresenceState makepiSwatchGenericHostState(PresenceEnvironment env, boolean isHost) {
+        UnumPresenceState state = new UnumPresenceState();
+        PresenceState pState = new PresenceState(12,12,10,10);
+        UnumState uState = new UnumState(14,14);
+        state.presence = pState;
+        pState.kindName = "ec.cosm.objects.pskSwatchHost$kind";
+        pState.presenceToMakeName = "client";
+        pState.unumImplClassName = "ec.cosm.objects.uimSwatchGeneric$ui";
+        pState.isHost = isHost;
+        state.unum = uState;
+        uState.kindName = "ec.cosm.objects.uskSwatch$kind";
+
+        iiDescribeWithLink$iicode pinDescriber = new iiDescribeWithLink$iicode(env);
+        pState.ingredients[0] = pinDescriber;
+        iiWalkToThis$iicode pinDestination = new iiWalkToThis$iicode(env);
+        pState.ingredients[1] = pinDestination;
+        ...
+        iiTexturizer$iicode pinTexturizer = new iiTexturizer$iicode(env);
+        pState.ingredients[11] = pinTexturizer;
+
+        pState.clientIngredients[0] = pinDescriber;
+        pState.clientIngredients[1] = pinDestination;
+        ...
+        pState.clientIngredients[11] = pinTexturizer;
+
+        ((iiDescribeWithLink$iijif)pinDescriber).setNeighbors((ikVerbManager$kind)pinVerbManager, (ikProperty$kind)pinProperty);
+        ((iiWalkToThis$iijif)pinDestination).setNeighbors((iskCompositable$kind)pinCompositable, (ikVerbManager$kind)pinVerbManager);
+        ...
+        ((iiTexturizer$iijif)pinTexturizer).setNeighbors((ikVerbManager$kind)pinVerbManager);
+
+        pState.sealers[0] = sealer(pkContainableHost$kind &#139;- pHostSendToContainer(RtEnvelope));
+        pState.targets[0] = (RtTether)pinContainership;
+        pState.sealers[1] = sealer(pkContainableHost$kind &#139;- pHostSendToContainerUnum(RtEnvelope));
+        pState.targets[1] = (RtTether)pinContainership;
+        ...
+        pState.sealers[9] = sealer(pkContainerHost$kind &#139;- pHostClose());
+        pState.targets[9] = (RtTether)pinContainership;
+
+        uState.sealers[0] = sealer(ukDescriber$kind &#139;- uShortDescribe(EResult, EResult));
+        uState.targets[0] = (RtTether)pinDescriber;
+        uState.sealers[1] = sealer(ukRequestTransfer$kind &#139;- uRequestTransfer(jUnumBundle, ukAddUnum$kind, Object, EResult, ukNotifyFail$kind, UnumReceiver));
+        uState.targets[1] = (RtTether)pinContainership;
+        ...
+        uState.sealers[13] = sealer(ukTexturizer$kind &#139;- uTexturize(ukTexturizable$kind, String, Object));
+        uState.targets[13] = (RtTether)pinTexturizer;
+
+        return state;
+    }
+</pre>
+
+<p>
+Some observations:
+
+<ul>
+<li>At this level, the Pluribus compiler is already partially assuming a
+host/client presence model. Although we are not limited to this, the API has
+features (such as the 'isHost' parameter) designed only to support this.
+
+<li>Although this is the unum impl, much of the information used here is
+actually extracted from the presence and ingredient impls.
+
+<li>I noticed a minor inefficiency -- the constructor for the class UnumPresence
+state initializes the 'unum' and 'presence' fields with new instances of
+UnumState and PresenceState, which are immediately overwritten by new instances
+which are explicitly allocated in this method. This generates two garbage
+objects with no benefit. The UnumPresenceState constructor should just
+initialize these fields to null.
+
+<li>There is a lot of information here that is encoded in the form of executable
+assignment statements rather than data objects. The swatch unum's
+makepiSwatchGenericHostState method expands to something like 115 lines of Java
+code. This information is only used at unum instantiation time.
+</ul>
+
+<p>
+The presence router initialization method invokes the appropriate presence
+state generation method depending on what sort of presence it is told to
+initialize and passes it to a router that is provided for it. The general form
+is:
+
+<pre>
+    static public void initPresenceRouter(String roleName,
+                                          PresenceRouter router,
+                                          Object unumKey,
+                                          PresenceEnvironment env) {
+        if (roleName.equals("<i>role</i>")) {
+            router.initialize(unumKey,
+                              makepi<i>Uname</i><i>Vimpl</i><i>Role</i>State(env, true),
+                              env);
+        } [else if ...] {
+            ...
+        } else {
+            throw new RtRuntimeException("Trying to make invalid presence role");
+        }
+    }
+</pre>
+
+<p>
+For example, in the swatch this is:
+
+<pre>
+    static public void initPresenceRouter(String roleName,
+                                          PresenceRouter router,
+                                          Object unumKey,
+                                          PresenceEnvironment env) {
+        if (roleName.equals("host")) {
+            router.initialize(unumKey,
+                              makepiSwatchGenericHostState(env, true),
+                              env);
+        } else if (roleName.equals("client")) {
+            router.initialize(unumKey,
+                              makepiSwatchGenericClientState(env, false),
+                              env);
+        } else {
+            throw new RtRuntimeException("Trying to make invalid presence role");
+        }
+    }
+</pre>
+
+<p>
+The initPresenceRouter method is called by the Pluribus runtime and by the unum
+creation method as part of the process of creating a new presence.
+
+
+<p>
+Finally, the new unum creation method has the general form:
+
+<pre>
+    static public usk<i>Uname</i>$kind createUnum(Object unumKey, SoulState soulState) {
+        PresenceEnvironment myEnvironment = new PresenceEnvironment();
+        Object[] myStateBundles = new Object[<i>ingrCount</i>];
+        PresenceRouter pRouter = new PresenceRouter();
+        UnumRouter uRouter = new UnumRouter();
+        initPresenceRouter("host", pRouter, unumKey, myEnvironment);
+        pRouter.initUnumRouter(uRouter, unumKey);
+        myStateBundles = {
+            (ist<i>Iname</i>)(soulState.get("<i>package</i>.ist<i>Iname</i>")), *
+        };
+        pRouter.finish(uRouter, myStateBundles);
+        return((usk<i>Uname</i>$kind)(uRouter.getDeflector()));
+    }
+}
+</pre>
+
+
+<h2>Presence kind</h2>
+
+<p>
+A presence kind describes the interface that a presence presents to the other
+presences of its unum.
+
+<p>
+Each presence kind is designed to fit within a particular type of unum, and so
+is distinguished by (1) the type of unum it fits into and (2) the role it is to
+play as a presence in the unum. As observed above, although the mechanism is
+general, the only presence roles that we are currently supporting are host and
+client. For unum <i>Uname</i> and role <i>Role</i>, our presence kinds are named
+"psk<i>Uname</i><i>Role</i>" and are synthesized by PLITE in the unit "<i>Uname</i>_struct" in
+the file "<i>Uname</i>_h_struct.plu". It is composed by collecting the
+exported-to-presence-level interface kinds implemented by the ingredients out
+of which the unum is made. Such ingredient kinds have names of the form
+"pk<i>Iname</i><i>Role</i>" and are found in the respective units "<i>Iname</i>_kind" in the
+files "<i>Iname</i>_kind.plu". These ingredient units are imported into the
+"<i>Uname</i>_struct" unit by the statements PLITE generates. In addition, the
+presence kind also incorporates the interface "Presence" which all presences
+are expected to implement. Additionally, if the presence is a host it
+incorporates the interface "PresenceHost" and if it is a client it incorporates
+all the host ingredient presence interfaces in addition to the client
+ingredient presence interfaces.
+
+<p>
+The two effective patterns are thus:
+
+<pre>
+    kind psk<i>Uname</i>Host {
+        implements Presence;
+        implements PresenceHost;
+        kind pk<i>Iname</i>Host;*
+    }
+
+    kind psk<i>Uname</i>Client {
+        implements Presence;
+        kind pk<i>Iname</i>Host;*
+        kind pk<i>Iname</i>Client;*
+    }
+</pre>
+
+<p>
+which yields
+
+<pre>
+    public einterface psk<i>Uname</i>Host$kind
+        extends pk<i>Iname</i>Host$kind,*
+                pk<i>Iname</i>Host$kind,
+                Presence,
+                PresenceHost { }
+
+    public einterface psk<i>Uname</i>Client$kind
+        extends pk<i>Iname</i>Host$kind,*
+                pk<i>Iname</i>Client$kind,*
+                Presence { }
+</pre>
+
+<p>
+thus for Swatch, PLITE generates:
+
+<pre>
+    kind pskSwatchHost {
+        implements Presence;
+        implements PresenceHost;
+        kind pkContainableHost;
+        kind pkContainerHost;
+        kind pkCompositableHost;
+        kind pkTexturizerHost;
+    }
+
+    kind pskSwatchClient {
+        implements Presence;
+        kind pkContainableHost;
+        kind pkContainerHost;
+        kind pkCompositableHost;
+        kind pkCompositableClient;
+        kind pkTexturizerHost;
+        kind pkTexturizerClient;
+    }
+</pre>
+
+<p>
+from which Pluribus generates the E code:
+
+<pre>
+    public einterface pskSwatchHost$kind
+        extends pkContainableHost$kind,
+                pkContainerHost$kind,
+                pkCompositableHost$kind,
+                pkTexturizerHost$kind,
+                Presence,
+                PresenceHost { }
+
+    public einterface pskSwatchClient$kind
+        extends pkContainableHost$kind,
+                pkContainerHost$kind,
+                pkCompositableHost$kind,
+                pkCompositableClient$kind,
+                pkTexturizerHost$kind,
+                pkTexturizerClient$kind,
+                Presence { }
+</pre>
+
+<p>
+Note the parallels to how unum kinds are generated.
+
+
+<h2>Presence structure</h2>
+
+<p>
+A presence structure describes an abstract presence in terms of the kinds of
+ingredients it is made out of. The presence structure declares itself to be of
+a particular presence kind and then declares a series of ingredients, each of
+which is characterized by its role in the presence and the ingredient kind
+which it implements. The ingredient declarations may also contain 'deliver'
+attributes which map chunks of the unum or presence interface to the those
+particular ingredients. Each presence structure is itself designed to fill a
+particular role with respect to the overall unum.
+
+<p>
+For unum <i>Uname</i> and presence role <i>Role</i>, our presence structures are named
+"ps<i>Uname</i><i>Role</i>" and are synthesized by PLITE in the unit "<i>Uname</i>_struct" in
+the file "<i>Uname</i>_h_struct.plu". The presence structure is composed by PLITE by
+collecting the exported-to-presence-level ingredient kinds implemented by the
+ingredients from which the unum is made. Such ingredient kinds have names of
+the form "ok<i>Iname</i>" and are found in the respective units "<i>Iname</i>_kind" the
+the files "<i>Iname</i>_kind.plu". These ingredient units are imported into the
+"<i>Uname</i>_struct" unit by the statements which PLITE generates.
+
+<p>
+The pattern is:
+
+<pre>
+    presence structure ps<i>Uname</i><i>Role</i> {
+        kind psk<i>Uname</i><i>Role</i>;
+        ingredient pin<i>Iname</i> {
+            kind ik<i>Iname</i>;
+            deliver unum uk<i>Iname</i>;*
+            deliver presence pk<i>Iname</i><i>Role</i>;*
+        }*
+    }
+</pre>
+
+<p>
+No E code is generated for the presence structure per se.
+
+<p>
+Thus for Swatch, PLITE generates for, e.g., the host presence:
+
+<pre>
+    export presence structure psSwatchHost {
+        kind pskSwatchHost;
+
+        ingredient pinDescriber {
+            kind ikDescriber;
+            deliver unum ukDescriber;
+        }
+        ingredient pinDestination {
+            kind ikDestination;
+        }
+        ingredient pinCompositable {
+            kind ikCompositable;
+            deliver unum ukCompositable;
+            deliver presence pkCompositableHost;
+        }
+        ...
+    }
+</pre>
+
+
+<h2>Presence impl</h2>
+
+<p>
+A presence impl "fills in" a presence structure in terms of specific
+implementations for its ingredients. The presence impl selects a particular
+presence structure to be filled in and then indicates ingredient impls for each
+of the ingredient roles within the selected presence structure. It also
+provides an initialization method for the presence as a whole and a list of the
+initialization parameters to be sent for spawning other presences from it.
+
+<p>
+Although the theoretical structure of a presence impl is very general, our use
+of it is highly stylized. For unum <i>Uname</i>, variation <i>Vimpl</i> and presence role
+<i>Role</i>, the presence impl is named "pi<i>Uname</i><i>Vimpl</i><i>Role</i>" and is synthesized
+by PLITE in the unit "<i>Uname</i><i>Vimpl</i>_unum" in the file
+<i>Uname</i><i>Vimpl</i>_h_unum.plu". As with the unum impl, if there are no variants,
+<i>Vimpl</i> may be the empty string (though often it will be "Generic").
+
+<p>
+The pattern is:
+
+<pre>
+    presence impl pi<i>Uname</i><i>Vimpl</i><i>Role</i> {
+        structure ps<i>Uname</i><i>Role</i>;
+
+        [ prime ] init(ist<i>Iname</i> state<i>Iname</i>,*) {
+            (ingredient pin<i>Iname</i>).init(state<i>Iname</i>);*
+        }
+
+        ingredient pin<i>Iname</i> template {
+            impl ii<i>Iname</i><i>Ivimpl</i>;
+            map neighbor iin<i>Neighbor</i> to pin<i>Neighbor</i>;*
+        }*
+
+        make client
+            pin<i>Iname</i>.ist<i>Iname</i>Client(),*  ;
+    }
+</pre>
+
+<p>
+Each ingredient template associates the ingredient role name "pin<i>Iname</i>" with
+the ingredient impl "ii<i>Iname</i><i>Ivimpl</i>", where <i>Ivimpl</i> designates the
+ingredient implementation variant for this particular ingredient (often the
+empty string). The set of 'map' attributes in the template is generated from
+the set of neighbors demanded by that particular ingredient impl. Note that
+although the 'map' attribute is completely general, once again this generality
+is not exploited. The ingredient roles (as declared by the universe of presence
+structures) and the neighbor names (as declared by the universe of ingredient
+impls) share a common name space except for the prefix. Thus an ingredient's
+neighbor "iin<i>Neighbor</i>" always maps to the presence's ingredient role
+"pin<i>Neighbor</i>".
+
+<p>
+The 'init' method (or 'prime init' method, if it is a host presence) takes as
+parameters a sequence of state bundles, one for each ingredient, which are in
+turn each passed to the respective ingredient impl's init() method.
+
+<p>
+The 'make' attribute indicates that this presence should spawn a new presence
+(always a client presence) by asking each of the ingredients for a (client)
+state bundle.
+
+<p>
+Thus, for the swatch host presence, PLITE generates:
+
+<pre>
+    presence impl piSwatchGenericHost {
+        structure psSwatchHost;
+
+        prime init(istDescriber stateDescriber,
+                   istDestination stateDestination,
+                   ...
+                   istTexturizer stateTexturizer) {
+            (ingredient pinDescriber).init(stateDescriber);
+            (ingredient pinDestination).init(stateDestination);
+            ...
+            (ingredient pinTexturizer).init(stateTexturizer);
+        }
+
+        ingredient pinDescriber template {
+            impl iiDescribeWithLink;
+            map neighbor iinVerbManager to pinVerbManager;
+        }
+        ingredient pinDestination template {
+            impl iiWalkToThis;
+            map neighbor iinVerbManager to pinVerbManager;
+            map neighbor iinCompositable to pinCompositable;
+        }
+        ...
+        ingredient pinTexturizer template {
+            impl iiTexturizer;
+            map neighbor iinVerbManager to pinVerbManager;
+        }
+
+        make client
+	    pinDescriber.istDescriberClient(),
+            pinDestination.istDestinationClient(),
+            ...
+            pinTexturizer.istTexturizerClient();
+    }
+</pre>
+
+<p>
+Note, however, that in spite of what the above description may imply, the
+presence impl does not actually generate any E code!  The 'init' method and
+'make' attribute are currently just swallowed by the Pluribus compiler. Only
+the template information is used.
+
+
+<h2>Ingredient kind</h2>
+
+<p>
+An ingredient kind describes the interface that an ingredient presents to the
+other ingredients in its presence. It can also describe the interface which it
+exports to the presence or unum level.
+
+<p>
+The kind abstraction was originally intended to capture other elements of an
+objects particularity, such as version data, standards compliance, behavioral
+description, and so on. However, none of this other stuff is supported in any
+useful way by the current Pluribus compiler and runtime, so in effect kinds are
+just interfaces.
+
+<p>
+For a presence <i>Iname</i>, we typically define a collection of kinds: one for the
+unum interface, one for the client presence interface, one for the host
+presence interface, one for the ingredient interface, and a composite interface
+for the actual implementation to implement. These are named "uk<i>Iname</i>",
+"pk<i>Iname</i>Host", "pk<i>Iname</i>Client", "ik<i>Iname</i>", and "isk<i>Iname</i>"
+respectively. However, the "isk<i>Iname</i>" usage is now somewhat deprecated and is
+being phased out in favor of simply loading all the interface into the
+"ik<i>Iname</i>" kind.
+
+<p>
+By convention, the messages on the unum interface have names of the form
+"u<i>Opname</i>", the messages on the presence interface have names of the form
+"p<i>Opname</i>", and the messages on the ingredient interface have names of the
+form "i<i>Opname</i>".
+
+<p>
+Ingredient kinds are not synthesized by PLITE, as they are the primitive
+building block kinds from which other (presence and unum) kinds are
+composed. For an ingredient <i>Iname</i>, the kinds are defined in the unit
+"<i>Iname</i>_kind" in the file "<i>Iname</i>_kind.plu".
+
+<p>
+For example, the describer ingredient (which is used in the swatch) declares
+these kinds:
+
+<pre>
+    kind ukDescriber {
+        uShortDescribe(EResult name, EResult thumbnail);
+    }
+  
+    kind pkDescriberHost {    
+        // no messages from client to host.
+    }
+  
+    kind pkDescriberClient {
+        pUpdateClientState(Object bundle);
+    }
+
+    kind ikDescriber  {
+        iDescribe(Hashtable aoBehaviorFacets);
+    }
+  
+    kind iskDescriber {
+        kind ukDescriber;
+        kind pkDescriberHost;
+        kind pkDescriberClient;
+        kind ikDescriber;
+    }
+</pre>
+
+<p>
+The Pluribus compiler turns these into:
+
+<pre>
+    public einterface ukDescriber$kind {
+        uShortDescribe(EResult name, EResult thumbnail);
+    }
+
+    public einterface pkDescriberHost$kind {
+    }
+
+    public einterface pkDescriberClient$kind {
+        pUpdateClientState(Object bundle);
+    }
+
+    public einterface ikDescriber$kind {
+        iDescribe(Hashtable aoBehaviorFacets);
+    }
+
+    public einterface iskDescriber$kind
+        extends ukDescriber$kind,
+                pkDescriberHost$kind,
+                pkDescriberClient$kind,
+                ikDescriber$kind {
+    }
+</pre>
+
+
+<h2>Ingredient state</h2>
+
+<p>
+From the Pluribus perspective ingredients are indivisible, so there is no
+concept of an "ingredient structure". There is, however, an ingredient state
+bundle class which we create by convention. This is an ordinary Java class with
+a name of the form "ist<i>Iname</i>". It is a struct-like class, consisting of
+public instance variables and constructors. There are typically two
+constructors, one which takes no parameters and expects an external entity to
+fill in the fields, and another which accepts an UnumCreationContext object and
+extracts the information it needs from that.
+
+<p>
+All state bundle structures extend the base class "istBase" which is found in
+the Pluribus runtime. Although it is a Java class, not a Pluribus construct, it
+is still fed through the Pluribus pipeline. It is declared in the unit
+"<i>Iname</i>_state" in the file "<i>Iname</i>_state.plu".
+
+
+<h2>Ingredient impl</h2>
+
+<p>
+An ingredient impl actually defines the code which implements a particular
+flavor of a particular ingredient kind.
+
+<p>
+For an ingredient <i>Iname</i> with implementation variant <i>Ivimpl</i>, our ingredient
+impl is named "ii<i>Iname</i><i>Ivimpl</i>". It is declared in unit
+"<i>Iname</i><i>Ivimpl</i>_ingr" found in file "<i>Iname</i><i>Ivimpl</i>_ingr.plu". These
+ingredient impls are not synthesized by PLITE but are coded directly.
+
+<p>
+The ingredient impl thus has the form:
+
+<pre>
+    ingredient impl ii<i>Iname</i><i>Ivimpl</i> {
+        ....
+    }
+</pre>
+
+<p>
+There are a number of things which may appear inside the ingredient impl
+declaration. Some of these are mandatory by our conventions. The things which
+may appear are:
+
+<ol>
+<li>A kind declaration, indicating the ingredient kind that this ingredient
+impl implements. This is required by Pluribus. For an ingredient <i>Iname</i> this
+kind will be either "ik<i>Iname</i>" or "isk<i>Iname</i>" (see above).
+
+<li>A state bundle declaration of the form:
+
+<pre>        state ist<i>Iname</i> myState;</pre>
+
+<p>
+This is not required by Pluribus itself but is required by our conventions
+(and, given the code which Pluribus generates, the resulting E code will not
+compile successfully if this is omitted).
+
+<li>Any number of neighbor declarations of the form:
+
+<pre>        neighbor ingredient iin<i>Neighbor</i> kind ik<i>Neighbor</i>;</pre>
+
+<p>
+No neighbors need be declared but, for things to work, any that are present
+must follow this pattern.
+
+<li>Any number of instance variables for the ingredient impl class
+itself. These look like ordinary Java instance variable declarations and are
+entirely up to the ingredient programmer.
+
+<li>Any number of additional interface implementation declarations of the
+form:
+
+<pre>        implements <i>interfacename</i>;</pre>
+
+<p>
+These are also entirely up to the ingredient programmer.
+
+<li>Initialization methods of the form:
+
+<pre>
+        init (<i>args</i>) {
+            ...
+        }
+</pre>
+
+<p>
+By our conventions, two such initialization methods are required, one which
+takes an "ist<i>Iname</i>" state bundle as a parameter, and one which takes no
+parameters.
+
+<li>Function declarations of the form:
+
+<pre>        function <i>javamethoddeclaration</i></pre>
+
+<p>
+These are entirely up to the ingredient programmer.
+
+<li>Method declarations of the form:
+
+<pre>
+        method <i>methodname</i> (<i>args</i>) {
+            ...
+        }
+</pre>
+</ol>
+
+<p>
+The content of these methods is up to the ingredient programmer, but they must
+implement the interface described by the ingredient kind.
+
+<p>
+From this the Pluribus compiler generates a Java interface and an E class.  The
+E class is the actual ingredient implementation itself. The Java interface
+describes the initialization functions and other programmer-defined synchronous
+methods; it exists so that the E class can be cast to a Java class and called
+synchronously, both for initialization and for any other direct-call-oriented
+methods the programmer may desire to have it support. The generated code is
+thus:
+
+<pre>
+    public interface ii<i>Iname</i><i>Ivimpl</i>$iijif {
+        void init(ist<i>Iname</i> externalState);
+        void init();
+        void setNeighbors(ik<i>Neighbor</i>$kind in_iin<i>Neighbor</i>, *);
+        <i>programmer-declared-functions</i>*
+    }
+
+    public eclass ii<i>Iname</i><i>Ivimpl</i>$iicode
+    extends Ingredient
+    implements IngredientJif, isk<i>Iname</i>$kind, ii<i>Iname</i><i>Ivimpl</i>$iijif, <i>programmer-declared-e-interfaces</i>*
+    {
+        <i>programmer-declared-instance-variables</i>*;
+
+        private <i>package</i>.ist<i>Iname</i> myState;
+
+        ik<i>Neighbor</i>$kind iin<i>Neighbor</i>;*
+
+        public ii<i>Iname</i><i>Ivimpl</i>$iicode(PresenceEnvironment environment) {
+            super(environment);
+        }
+
+        public void initGeneric(Object state) {
+            this.init((ist<i>Iname</i>) state);
+        }
+
+        local void setNeighbors(ik<i>Neighbor</i>$kind in_iin<i>Neighbor</i>,* ) {
+            iin<i>Neighbor</i> = in_iin<i>Neighbor</i>;*
+        }
+
+        <i>programmer-declared-functions</i>*
+
+        local void init(ist<i>Iname</i> externalState) {
+            ...
+        }
+
+        local void init() {
+            ...
+        }
+
+        emethod <i>methodname</i> (<i>args</i>) {
+            ...
+        }*
+    }
+</pre>
+
+<p>
+The ingredient kind attribute results in the interfaces which the E class
+implements. The E class also implements the generated Java interface so that it
+can be succesfully cast to it. The state bundle attribute results in the
+private 'myState' instance variable. The 'neighbor' attributes result in the
+"iin<i>Neighbor</i>" instance variables and the arguments and body of the
+"setNeighbors" method. Instance variables become ordinary instance variables
+and functions become ordinary Java methods. Methods become emethods. Any
+'implements' attributes add to the list of interfaces implemented by the E
+class. The 'init' methods become identically named and parameterized void Java
+methods.
+
+<p>
+For example, the simple implementation of the describer ingredient takes the
+(abbreviated for presentation) form:
+
+<pre>
+    ingredient impl iiSimpleDescriber {
+        kind iskDescriber; 
+        implements simpleDescribeAlertHandler;
+        
+        neighbor ingredient iinVerbManager kind ikVerbManager;
+        implements jiVerbPeer;
+        
+        neighbor ingredient iinProperty kind ikProperty;
+        
+        state istDescriber myState;
+        AlertPresenter myAlertPresenter;
+        boolean myIsHost;
+        
+        init(istDescriber externalState) {
+            ...
+        }
+        init()  {
+            ...
+        }
+        method iDescribe(Hashtable aoBehaviorFacets)  {
+            ...
+        }
+        
+        ...
+        
+        function public void getProperties(EResult result) {
+            ...
+        }
+        
+        ...
+    }
+</pre>
+
+<p>
+which the Pluribus compiler turns into:
+
+<pre>
+    public interface iiSimpleDescriber$iijif
+    {
+        void init(istDescriber externalState);
+        void init();
+        void setNeighbors(ikVerbManager$kind in_iinVerbManager, ikProperty$kind in_iinProperty);
+        void getProperties(EResult result);
+    }
+
+    public eclass iiSimpleDescriber$iicode
+    extends Ingredient
+    implements IngredientJif, iskDescriber$kind, iiSimpleDescriber$iijif, simpleDescribeAlertHandler, jiVerbPeer
+    {
+        AlertPresenter myAlertPresenter;
+        boolean myIsHost;
+        
+        private ec.cosm.objects.istDescriber myState;
+    
+        ikVerbManager$kind iinVerbManager;
+        ikProperty$kind iinProperty;
+        
+        public iiSimpleDescriber$iicode(PresenceEnvironment environment) {
+            super(environment);
+        }
+        
+        public void initGeneric(Object state) {
+            this.init((istDescriber)state);
+        }
+        
+        local void setNeighbors(ikVerbManager$kind in_iinVerbManager, ikProperty$kind in_iinProperty) {
+            iinVerbManager = in_iinVerbManager;
+            iinProperty = in_iinProperty;
+        }
+        
+        public void getProperties(EResult result) {
+            ...
+        }
+        ...
+
+        local void init(istDescriber externalState) {
+            ...
+        }
+        local void init() {
+            ...
+        }
+
+        emethod iDescribe(Hashtable aoBehaviorFacets) {
+            ...
+        }
+        ...
+    }
+</pre>
+
+
+<h2>Summary</h2>
+
+<p>
+Each unum thus results in the generation of the following E and Java stuff:
+
+<ul>
+<li>For the unum as a whole:
+
+	<ul>
+	<li>unum kind einterface (1)
+	<li>unum impl class full of static initialization code (1)
+	<li>presence kind einterface per presence role in the unum structure (2)
+	</ul>
+
+<li>For each ingredient:
+	<ul>
+	<li>ingredient kind einterface for unum, presence(s), ingredient, and
+            composite interfaces to each ingredient (5)
+	<li>ingredient state bundle class (1)
+	<li>ingredient impl Java interface (1)
+	<li>ingredient impl eclass (1)
+	</ul>
+</ul>
+
+<p>
+If each einterface or eclass turns into 4 Java classes (and each Java interface
+is, of course, actually a Java class), this means that an unum results in
+
+<pre>    (1+2)*4 + 1 + ((5+1)*4 + 2)*<i>ingrcount</i></pre>
+
+<p>
+Java classes. If a typical unum incorporates 10 ingredients, this is 273
+classes to represent the unum, not counting the shared-in-common base classes
+(like Unum) and structural classes (like UnumPresenceState). Of course, if one
+has 10 different types of una, the overall total isn't quite as bad as 2730
+classes since the ingredient classes are also shared among una to a large
+degree. However, it is still pretty nasty.
+
+<p>
+If we follow the same code generation pattern but use the new pure Java (non-E)
+code patterns, getting rid of the factor of 4 ecomp expansion reduces the
+number to
+
+<pre>    (1+2) + 1 + ((5+1) + 2)*<i>ingrcount</i></pre>
+
+<p>
+which is 84 classes in our example case of an unum with 10 ingredients.
+However, the non-E message paradigm is dynamically typed, which means the
+einterfaces go away. Also, the special Java-interface used only for casting for
+synchronous calls is no longer needed. This means what we have is really:
+
+<ul>
+<li>For the unum as a whole:
+	<ul>
+	<li>unum impl class full of static initialization code (1)
+	</ul>
+
+<li>For each ingredient:
+	<ul>
+	<li>ingredient state bundle class (1)
+	<li>ingredient impl class (1)
+	</ul>
+</ul>
+
+<p>
+which means the number becomes
+
+<pre>    1 + 2*<i>ingrcount</i></pre>
+
+<p>
+which is 21 classes, most of which are shared with other types of una. This is
+a lot more reasonable.
+
+<p>
+An even more radical approach would be to merge the state bundle class with the
+ingredient impl class, based on the observation that the state bundle has state
+but no behavior, while the ingredient impl has behavior but no state, but the
+state bundle class and the ingredient impl class are irrevocably bound up with
+each other in a 1:1 relationship. Actually, the ingredient impl can have
+instance variables of its own, but these should not be persistified or
+communicated, so they should be private and thus not visible to the
+serialization mechanism.
+
+<p>
+We can also get rid of the unum impl class if we have a reasonable way of
+representing the initialization information in some kind of table object. Thus
+we are left with a single class for each ingredient impl, with all other
+constructs being based on generic, data-driven classes that are common across
+all unum and presence instances.
+
+</body>
+</html>

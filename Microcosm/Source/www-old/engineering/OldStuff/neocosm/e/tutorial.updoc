@@ -1,0 +1,352 @@
+E Tutorial
+
+Adapted by MarkM from a document by Amy Mar. 
+
+Starting E
+
+The shell command "e" can be used to start an interactive E command-line session, or to execute E programs stored in files. To run "e", you currently
+need our standard build environment, and to have built in ec4 at least the following directories:
+
+     src/ec4/javasrc/ec/util
+     src/ec4/javasrc/ec/util/assertion
+     src/ec4/javasrc/ec/trace
+     src/ec4/javasrc/ec/tables
+     src/ec4/javasrc/ec/elib/quasi
+     src/ec4/javasrc/ec/elib/base
+     src/ec4/javasrc/ec/elib/prim
+     src/ec4/javasrc/ec/e/scope
+     src/ec4/javasrc/ec/e/evm
+     src/ec4/javasrc/ec/e/syntax
+
+Given our standard build environment, a 
+
+     $ cd /src
+     $ make everything
+
+Should accomplish this. Alternatively, E can be built in Semantic Cafe (here's how), but someone (Bob? Karl?) would have to figure out how to make the
+result callable from the command line.
+
+To start E, merely type "e" at the shell prompt:
+
+     $ e
+     ?
+
+Note, in bash under Windows95, you may see two question marks instead of one. Don't worry about it.
+
+The question mark is E's prompt. If you type in an E expression, it'll get evaluated, and the resulting value printed out:
+
+     ? 2 + 3
+     # value: 5
+
+Alternatively, if you invoke "e" with a command line argument, it will assume this is the name of a file containing an E program. For example, if we put
+
+     println(2 + 3)
+
+into a file named "add-test.e", then, going back to our command shell, we can run this program:
+
+     $ e add-test.e
+     5
+
+You need to surround the "2 + 3" with the "println" in this case since E does not print results by default when interpreting a file.
+
+Note: You may also be getting a bunch of tracing spam when E starts up. To suppress this, use "TraceLog_name=foo.log" as an additional argument.
+This will put the tracing spam into the foo.log file.
+
+Example program: finding text
+
+The examples are presented assuming they are all entered interactively, but they should all work when run from a file, as above.
+
+In this tutorial, you are going to write an E program that finds occurrences of a specific text string in a file. You will need an example file to work with.
+Use a text editor to create a text file containing the following stanzas of the poem "Jabberwocky": 
+
+     'Twas brillig and the slithy toves
+     Did gyre and gimble in the wabe:
+     All mimsy were the borogoves,
+     And the mome raths outgrabe. 
+
+     "Beware the Jabberwock, my son!
+     The jaws that bite, the claws that catch!
+     Beware the Jubjub bird and shun
+     The frumious Bandersnatch." 
+
+Save the text in a file called jabberwocky.txt in the top level of your file system. 
+
+Loops: the for statement
+
+A loop is one or more statements to be executed multiple times. You use a for statement to create a loop.
+Type the following for statement in the Program window:
+
+     ? for line in file:/jabberwocky.txt {
+     >     print(line)
+     > }
+     # problem: java.lang.ClassCastException
+     
+     ? for i in 1..4 {print(i)}
+     # problem: java.lang.ClassCastException
+     
+     ? 
+
+After the first or second line, E knows it doesn't yet have a complete expression so it keeps prompting for more. After typing the third line, you should
+see the contents of the file jabberwocky.txt: 
+
+     'Twas brillig and the slithy toves
+     Did gyre and gimble in the wabe:
+     All mimsy were the borogoves,
+     And the mome raths outgrabe. 
+
+     "Beware the Jabberwock, my son!
+     The jaws that bite, the claws that catch!
+     Beware the Jubjub bird and shun
+     The frumious Bandersnatch." 
+
+For every line found in the file jabberwocky.txt, the for statement prints the line to the display. It repeats this operation until it has read all the lines in
+the file. 
+
+Functions
+
+The for statement you have written is good for printing the file jabberwocky.txt, but suppose you want to print a different file? You would like to have
+the same code perform the same operation for any input you provide. A function does just that.
+
+Add lines before and after the for statement and change the for statement so it looks like this: 
+
+        ? define show := function(file) {
+        ?       for line in file {
+        ?               print(line)
+        ?       }
+        ? }
+        ? show(file:/jabberwocky.txt)
+
+As in the previous example, the contents of the file jabberwocky.txt
+are output in the Program window. 
+
+Function definition
+
+The define statement, which begins at the word define and ends at the last curly brace, }, defines a function called show. Executing the define
+statement performs no action; it creates entities to be used later. 
+
+Parameters
+
+The show function contains the for statement operating on the variable file. The variable file is called the function's parameter. An parameter is a
+placeholder for data provided when the function is executed. Wherever file appears in the function definition, the actual data provided will be used. 
+
+Function call
+
+The last line is not part of the function definition. It is a function call: it executes the show function. The name file:/jabberwocky.txt is given as the
+argument to the show function. You could execute the same function for a different file by providing a different file name. 
+
+Conditions: the if statement
+
+Suppose you want to print only certain lines of a file, not all of them. Suppose you want to print only those lines containing a text string you specify.
+Use the if statement to execute code only if a condition tests true.
+
+Add lines before and after the print function call, change the name of the function to find, and add a second argument to it, so that the function
+definition looks like this: 
+
+        ? define find := function(file, substring) {
+        ?       for line in file {
+        ?               if (line includes(substring)) {
+        ?                       print(line)
+        ?               }
+        ?       }
+        ? }
+
+Add a second argument value to the function call: 
+
+        ? find(file:/jabberwocky.txt, "and")
+
+Now only the lines in the file jabberwocky.txt that contain the string "and" are printed in the Program window.
+
+     'Twas brillig and the slithy toves
+     Did gyre and gimble in the wabe:
+     Beware the Jubjub bird and shun
+     The frumious Bandersnatch." 
+
+The line that contains "Bandersnatch" is included because of the "and" in "Bandersnatch". The line that contains "And" is not included because the
+comparison is case-sensitive.
+
+Try the function call again specifying a different text string. 
+
+Built-in functions and methods
+
+You have been using the print function to display text. The print function is a predefined function built into E.
+
+A built-in method you use in this example is includes. This method is called on a string and takes another string as an argument. It returns true if the
+argument string can be found within the string the method is called on. In the method call: 
+
+        line includes(substring)
+
+line is the string that includes is called on, and substring is the
+argument to includes. 
+
+Mappings: the => operator
+
+E supports several features that facilitate working with files. You have already used one of these features in the function call: 
+
+        find(file:/jabberwocky.txt, "and")
+
+The prefix file: tells E to open the designated file and read its contents. In E, all collections are mappings from keys of some sort to values of some
+sort. A for loop can be used on any collection. When used on a file, the file is assumed to be a text file, and considered a collection mapping from line
+numbers (starting at 1, since this is the text file convention) to corresponding lines of the file. Each time around the for loop, the key is the next line
+number and the value is a string with the contents of that line (including a terminating newline). So for your example file, the mapping is: 
+
+     1 'Twas brillig and the slithy toves
+     2 Did gyre and gimble in the wabe 
+     3 All mimsy were the borogoves,
+     4 And the mome raths outgrabe.
+     5 
+     6 "Beware the Jabberwock, my son!
+     7 The jaws that bite, the claws that catch!
+     8 Beware the Jubjub bird and shun
+     9 The frumious Bandersnatch." 
+
+You can access the keys of a mapping using the => operator. This operator is read maps to, as in "k => v" reading "k maps to v".
+
+Add to the for statement and the print function call so your program looks like this: 
+
+        ? define find := function(file, substring) {
+        ?       for num => line in file {
+        ?               if (line includes(substring)) {
+        ?                       print("" + num + ":" + line)
+        ?               }
+        ?       }
+        ? }
+        ? find(file:/jabberwocky.txt, "and")
+
+You get the same lines that printed before, and now the lines are numbered. 
+
+     1:'Twas brillig and the slithy toves
+     2:Did gyre and gimble in the wabe:
+     8:Beware the Jubjub bird and shun
+     9:The frumious Bandersnatch." 
+
+String concatenation
+
+The + operator performs addition if its operands are numeric. When its left operand is a string, it performs concatenation; it appends the second
+argument -- converted to a string -- to the end of the first and returns the result. In the statement: 
+
+        print("" + num + ":" + line)
+
+the argument to the print function is a concatenation of four strings.
+
+Why the empty string? The variable num actually contains a numeric value, not a string. The concatenation succeeds because E automatically converts
+the numeric value in num to the equivalent string as a result of trying to concatenate num with the empty string. If the expression began with num
+
+print(num + ":" + line)
+
+E would expect a numeric value to add to num and would generate an exception when it encountered the string ":" instead.
+
+Calling Java methods
+
+The E interpreter, which runs on Java, uses the Java class String to implement its strings. E strings are normal Java String objects, instances of the Java
+class java.lang.String. This means that all of String's public methods, the methods that belong to the class String and that can be called from outside
+String, are available to E strings. Refer to javadoc-umentation for information about Java classes.
+
+Change the if statement condition: 
+
+        ? define find := function(file, substring) {
+        ?       for num => line in file {
+        ?               if (line indexOf(substring) != -1) {
+        ?                       print("" + num + ":" + line)
+        ?               }
+        ?       }
+        ? }
+
+You get the same result as before. Since line is a string, you can call the String method indexOf, which returns the index (or position) of a specified
+substring if the substring exists, or -1 if the substring is not found. 
+
+Calling a function from another function
+
+So far you have written a function that reads a specified file and prints out any lines containing a specified string. To make good use of the function
+you have written, you would call it more than once.
+
+Let's write another function that calls your function for all .txt files in a directory. 
+
+        ? define findall := function(dir, substring) {
+        ?       for file in dir {
+        ?               if (file getName endsWith(".txt") {
+        ?                       find(file, substring)
+        ?               }
+        ?       }
+        ? }
+        ? findall(file:/, "and")
+
+You get at least the same result as before. If you have other .txt files in your top-level directory, and if they contain the string "and", you will get
+additional lines. 
+
+The File class
+
+The for statement 
+
+        for file in dir {
+
+executes once for each element of dir. The elements of dir are File objects, instances of the java.io.File class. On each iteration of the loop, the variable
+file contains a different File object.
+
+The if statement 
+
+        if (file getName endsWith(".txt") {
+
+contains two method calls: 
+
+        file getName 
+
+calls the getName method of the File class, which returns as a String the name of the file that the File object represents. 
+
+        endsWith(".txt") 
+
+calls the endsWith method of the String class, which returns true if the String object ends with the specified argument string. 
+
+Recursion: calling a function from itself
+
+Now you have a function that checks all the files in a directory. However, it ignores subdirectories. It would be useful if it could check files in
+subdirectories as well.
+
+Checking subdirectories is tricky, because a directory tree can have any number of branches of any length. You cannot know ahead of time how many
+levels of subdirectories to search. What you need is a way to say "keep going until you get to the end." Recursion provides this functionality. Recursion
+happens when a function calls itself.
+
+To create a simple directory tree to test, create a subdirectory in your top-level directory called test. Make a copy of jabberwocky.txt and put the copy
+in the test subdirectory.
+
+Change the findall function by renaming the dir argument and replacing the for statement with a compound if statement: 
+
+        ? define findall := function(dirfile, substring) {
+        ?       if (dirfile isDirectory) {
+        ?               for file in dirfile {
+        ?                       findall(file, substring)
+        ?               }
+        ?       } else if (dirfile getName endsWith(".txt") {
+        ?               find(dirfile, substring)
+        ?       }
+        ? }
+        ? findall(file:/, "and")
+
+You get (at least): 
+
+     /jabberwocky.txt:1:'Twas brillig and the slithy toves
+     /jabberwocky.txt:2:Did gyre and gimble in the wabe:
+     /jabberwocky.txt:8:Beware the Jubjub bird and shun
+     /jabberwocky.txt:9:The frumious Bandersnatch."
+     /test/jabberwocky.txt:1:'Twas brillig and the slithy toves
+     /test/jabberwocky.txt:2:Did gyre and gimble in the wabe:
+     /test/jabberwocky.txt:8:Beware the Jubjub bird and shun
+     /test/jabberwocky.txt:9:The frumious Bandersnatch." 
+
+plus the lines containing "and" from any other .txt files you have anywhere in your file system. 
+
+Compound if statement
+
+The above if statement has a second clause, the else if block. 
+
+If the condition of the first clause is true, the first clause is executed and the second clause is ignored.
+
+If the condition of the first clause is false, and the condition of the second clause is true, the second clause is executed.
+
+If the condition of the first clause is false, and the condition of the second clause is false, none of the if statement is executed.
+
+In this case, the variable dirfile will contain an object of the File class that represents either a directory or a file. The first clause of the if statement is
+executed if the object in dirfile represents a directory. If it does not, you know that the object represents a file. In that case, the second clause performs
+the string search operation that you have been doing all along.
+
+A danger in recursion is that with each function call, the function calls itself again, creating a never-ending loop. In this example, the findall function
+will stop calling itself when it can find no more directories, which has to happen eventually.

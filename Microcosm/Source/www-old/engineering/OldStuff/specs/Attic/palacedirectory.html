@@ -1,0 +1,612 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>The Palace Directory (</title>
+</head>
+
+<body bgcolor="#FFFFFF">
+
+<h1>The Palace Directory (aka A-Z list) Specification</h1>
+
+<h2>Introduction</h2>
+
+<h4>The Palace Directory</h4>
+
+<blockquote>
+    <p>This document describes the new A-Z List, which (I'm
+    proposing) will be called <strong>&quot;The Palace
+    Directory&quot;</strong> (TPD).</p>
+</blockquote>
+
+<blockquote>
+    <p>TPD is the collection of pages and scripts that display
+    lists of Palace Servers, sort of like our current A-Z list,
+    but better. The main A-Z list replacement page is a compact,
+    ordered-by-population, page which shows the name of the
+    palace server, the number of users currently on the server, a
+    short description of the Palace, and the URL for visiting the
+    Palace. By using a compact presentation, spreading the
+    listings over multiple pages, and limiting the number of
+    entries on each page, we will improve the performance and
+    navigational ability of the old A-Z list.</p>
+</blockquote>
+
+<h4>Yellow Pages Daemon</h4>
+
+<blockquote>
+    <p>The information displayed on TPD pages is gathered by a
+    server process run by EC called the Yellow Pages Daemon
+    (YPD). The technical architecture of the new YPD server is at<a
+    href="http://www-int/engineering/palace/ypd.html">
+    http://www-int/engineering/palace/ypd.html</a>. (The YPD
+    architecture document also briefly describes the existing YPD
+    server and YPD protocol, which will be used by the new
+    server.)</p>
+</blockquote>
+
+<h4>Phased Approach</h4>
+
+<blockquote>
+    <p>This specification breaks features out into &quot;Phase
+    1&quot; and &quot;Phase 2&quot;. Phase 1 features are to be
+    implemented now. Phase 2 will follow after first release.</p>
+</blockquote>
+
+<h2>Background</h2>
+
+<h3>Current high-level architecture</h3>
+
+<blockquote>
+    <p>The current A-Z list can be found at <a
+    href="http://www.thepalace.com/welcome/sites/az.html">http://www.thepalace.com/welcome/sites/az.html</a>.
+    This page is generated as follows:</p>
+</blockquote>
+
+<blockquote>
+    <ol>
+        <li>Every 20 minutes, Palace Servers send their Yellow
+            Pages Directory (YPD) info over a direct TCP or UDP
+            connection to the YPD server running on
+            directory.thepalace.com. The YPD info includes:<ul>
+                <li>palace name</li>
+                <li>sysop</li>
+                <li>server version id including machine type</li>
+                <li>regcode</li>
+                <li>url</li>
+                <li>description</li>
+                <li>announcement</li>
+                <li>&quot;hide my entry&quot; flag</li>
+                <li>&quot;I'm shutting down&quot; flag</li>
+                <li>current number of users</li>
+                <li>current number of rooms</li>
+            </ul>
+            <p>If the number of users on a server changes (ie
+            someone enters or leaves) then the palace server will
+            send the YPD info at 5 minutes after the event
+            occured. (The actual specifics of when updates are
+            sent are a bit unclear. Nonetheless, palace servers
+            send their updates frequently.)</p>
+            <p>If the &quot;hide my entry&quot; flag is sent,
+            then the palace server will not be displayed on the
+            A-Z list web page.</p>
+        </li>
+        <li>This information is parsed by the YPD server and
+            written to a flat file. The flat file contains one
+            record for each palace server. When a palace server
+            reports new information, the record for that palace
+            server is updated. This update is done by matching
+            the palace name and regcode with an entry in the flat
+            file. See the new <a
+            href="http://www-int/engineering/palace/ypd.html">Palace
+            Yellow Pages Daemon (YPD)</a> architecture document
+            for more details.<br>
+            </li>
+        <li>Every 5 minutes a script called
+            /users/scrips/cgi-bin/directory.cgi runs on
+            directory.thepalace.com to build the directory.html
+            file from the YPD flat file. Both the
+            alphabetically-ordered and population-ordered lists
+            are constructed by the directory.cgi script.</li>
+    </ol>
+</blockquote>
+
+<h2>Functional specification</h2>
+
+<blockquote>
+    <p>This section describes the functional requirements of <strong>The
+    Palace Directory</strong>.</p>
+</blockquote>
+
+<h3>Overview</h3>
+
+<blockquote>
+    <p>There will be seven basic pages where TPD information will
+    be displayed:</p>
+    <ul>
+        <li>A <strong>&quot;Top 10&quot; </strong>list will be
+            shown on the <a href="http://www.thepalace/com">http://www.thepalace/com</a>
+            page</li>
+        <li><strong>&quot;Compact ordered-by-population&quot; </strong>-
+            This page is displayed from the current <a
+            href="http://www.thepalace.com/welcome/sites/az.html">http://www.thepalace.com/welcome/sites/az.html</a>
+            URL. This page also displays the total number of
+            palace servers reporting in, and the total number of
+            users on all palace servers.</li>
+        <li>A <strong>&quot;Detailed Palace Server&quot; </strong>page
+            will contain more information about a palace server.
+            This page will be linked from the Palace Server's
+            entry on the <strong>&quot;compact
+            ordered-by-population&quot; </strong>list.</li>
+        <li><strong>&quot;Find a Palace&quot;</strong> search
+            form and results pages.</li>
+        <li><strong>&quot;Edit Palace Server Entry&quot; </strong>will
+            allow palace sysops to edit thier entries. (eg.
+            specify the InstantPalace URL.)</li>
+        <li><strong>&quot;Palace Servers by Category&quot;</strong>
+            list.</li>
+        <li><strong>&quot;Palace Server usage statistics&quot;</strong>
+            - part of the &quot;Detailed Palace Server&quot;
+            page; only available to EC - requires a password.</li>
+    </ul>
+    <p>The phased implementation of the above functionality is as
+    follows:</p>
+</blockquote>
+
+<p><u>Phase 1:</u></p>
+
+<blockquote>
+    <p>The goal of phase 1 is to get a new, slightly better,
+    version of YPD up and running. Phase 1 will provide the
+    following features:</p>
+</blockquote>
+
+<blockquote>
+    <ul>
+        <li><strong>&quot;Top 10&quot; </strong>list shown on the
+            <a href="http://www.thepalace/com">http://www.thepalace/com</a>
+            page.</li>
+        <li><strong>&quot;compact ordered-by-population&quot; </strong>list
+            of palace servers. </li>
+        <li><strong>&quot;Detailed Palace Server&quot;</strong>
+            linked from the Palace Server's entry on the <strong>&quot;compact
+            ordered-by-population&quot; </strong>list.</li>
+    </ul>
+</blockquote>
+
+<p><u>Phase 2:</u></p>
+
+<blockquote>
+    <p>The key feature in Phase 2 is palace server entry editing
+    by server operators. The main purpose for this is to allow
+    server operators to add their InstantPalace URL. The
+    additions for Phase 2 are:</p>
+</blockquote>
+
+<blockquote>
+    <ul>
+        <li><strong>&quot;Compact ordered-by-population&quot;</strong>:
+            InstantPalace URLs will be available, if the entry
+            has InstantPalace support.</li>
+        <li><strong>&quot;Detailed Palace Server&quot; </strong>will
+            show InstantPalace URLs, if any for the entry. There
+            will be a password protected link for EC staff to
+            view <strong>&quot;Palace Server Usage
+            Statistics&quot;</strong> for the palace server.</li>
+        <li>A <strong>&quot;Find a Palace&quot; </strong>search
+            form will be added to the top of all TPD pages.</li>
+        <li><strong>&quot;Edit Palace Server Entry&quot; </strong>will
+            allow palace sysops to edit thier entries. (eg.
+            specify the InstantPalace URL.)</li>
+        <li><strong>&quot;Palace Servers by Category&quot; </strong>pages
+            - Sysops will be able to classify their server in one
+            or more categories.</li>
+        <li><strong>&quot;Palace Server Usage Statistics&quot;</strong>
+            - This is an extension of the <strong>&quot;Detailed
+            Palace Server&quot;</strong> page which shows usage
+            statistics for the Palace Server. Its password
+            protected and only visible to EC.</li>
+    </ul>
+</blockquote>
+
+<h3>Functional descriptions</h3>
+
+<blockquote>
+    <p>The following sections describe each page, list, or
+    feature in detail, and which features are required for each
+    phase:</p>
+</blockquote>
+
+<h4>&quot;Top 10&quot; list functional description</h4>
+
+<p><u>Phase 1:</u></p>
+
+<blockquote>
+    <p>The <strong>&quot;Top 10&quot;</strong> list is on the
+    main <a href="http://www.thepalace.com">http://www.thepalace.com</a>
+    page. This is a very compact display of the top 10 palaces by
+    population. Only two columns are in this list: Palace name
+    and current population (number of users). This list also has
+    a &quot;more...&quot; link that will take the user to the <strong>&quot;Compact
+    Ordered-by-population list&quot;</strong>. Entries where the
+    server operator has <u>not</u> checked the &quot;Show my
+    server in the directory&quot; box, will be suppressed.</p>
+</blockquote>
+
+<p><u>Phase 2:</u></p>
+
+<blockquote>
+    <p>Probably none.</p>
+</blockquote>
+
+<h4>&quot;Compact Ordered-by-population&quot; list functional
+description</h4>
+
+<p><u>Phase 1:</u></p>
+
+<blockquote>
+    <p>This is the main list we want people to use to find
+    palaces. Its optimized to present the largest number of
+    palace servers with the least amount of clutter. The list is
+    presented as a table with the following columns: Name of
+    palace, number of users currently on, number of rooms in the
+    palace, palace:// url, and the description of the palace. <em>(Issue:
+    should we truncate the description? The initial plan called
+    for truncating, however, displaying the complete description
+    seems to work in the prototype.) </em>For each entry in the
+    list, there will be an icon or link which take the user to
+    the <strong>&quot;Detailed Palace Server&quot; </strong>page<strong>
+    </strong>for the Palace server. <em>(This link could be the
+    palace name.) </em>The <strong>&quot;Compact
+    Ordered-by-population&quot;</strong> list will be broken into
+    pages containing 25 entries per page. There will be a link to
+    go to the next 25 and previous 25 entries. In addition, there
+    will be a way to navigate to any page from any other page
+    within the <strong>&quot;Compact ordered-by-population&quot;</strong>
+    set of pages. </p>
+</blockquote>
+
+<blockquote>
+    <p>Entries where the server operator has <u>not</u> checked
+    the &quot;Show my server in the directory&quot; box, will be
+    suppressed.</p>
+</blockquote>
+
+<blockquote>
+    <p>At the top of each list, just above the column headings
+    will be statement: &quot;There are X people chatting in Y
+    Palaces.&quot; X is the number of of total users in all
+    palace servers reporting in. Y is the number of palace
+    servers reporting in.</p>
+</blockquote>
+
+<p><u>Phase 2: </u></p>
+
+<blockquote>
+    <p>In phase 2, the <strong>&quot;Edit Palace Server
+    Entry&quot; </strong>will allow server sysops to add an
+    InstantPalace URL to their listing. If a Palace directory
+    entry has an InstantPalace URL, then a link will be shown for
+    the InstantPalace URL on the Palace's entry in the <strong>&quot;Compact
+    ordered-by-population&quot;</strong> set of pages. </p>
+</blockquote>
+
+<h4>&quot;Detailed Palace Server&quot; page functional
+description</h4>
+
+<p><u>Phase 1:</u></p>
+
+<blockquote>
+    <p>The <strong>&quot;Detailed Palace Server&quot; </strong>provides
+    all the information about the palace that we want to present
+    to the public: Name, URL, number of users on, number of
+    rooms, description, announcement, and last-heard-from-time. </p>
+</blockquote>
+
+<p><u>Phase 2:</u></p>
+
+<blockquote>
+    <p>In phase 2, the <strong>&quot;Edit Palace Server
+    Entry&quot; </strong>will allow server sysops to add an
+    InstantPalace URL to their listing. If a Palace directory
+    entry has an InstantPalace URL, then TPD will show a link for
+    the URL on the Palace's <strong>&quot;Detailed Palace
+    Server&quot;</strong> page.</p>
+</blockquote>
+
+<h4>&quot;Find a Palace&quot; functional description</h4>
+
+<p><u>Phase 1:</u></p>
+
+<blockquote>
+    <p>None.</p>
+</blockquote>
+
+<p><u>Phase 2:</u></p>
+
+<blockquote>
+    <p>On the &quot;<strong>Compact Ordered-by-population</strong>&quot;
+    pages there will be a simple form that allows the user to
+    search for a palace. The search will be performed on any text
+    in the palace server entry: Name, Description, Announcement,
+    and URL. Palace server entries matching the search criteria
+    will be displayed similar to the <strong>&quot;Detailed
+    Palace Server Page&quot;</strong>, however multiple entries
+    will be displayed on each html page. The number of palace
+    servers per page will be limited; the exact number will be
+    chosen through testing.</p>
+</blockquote>
+
+<blockquote>
+    <p>Entries where the server operator has <u>not</u> checked
+    the &quot;Show my server in the directory&quot; box, will be
+    suppressed.</p>
+</blockquote>
+
+<h4>&quot;Edit Palace Server Entry&quot; functional description</h4>
+
+<p><u>Phase 1:</u></p>
+
+<p>None.</p>
+
+<p><u>Phase 2:</u></p>
+
+<blockquote>
+    <p>TBD. On the <strong>&quot;Detailed Palace Server
+    Page&quot;</strong> there will be a &quot;Sysop Edit&quot;
+    link. Selecting &quot;Sysop Edit&quot; will prompt the user
+    for a password. If the correct password is entered for the
+    palace entry, then a form with the editable fields will be
+    presented. <em>(Exactly which fields are editable is TBD.)
+    (Once this functionality is in place, EC will provide
+    notification to the sysops via email, and a process will be
+    in place for sysops to get their password. Authentication
+    will be based on regcode.)</em></p>
+</blockquote>
+
+<p><u>Phase 3:</u><em> (requires changes to palace server code.)</em></p>
+
+<blockquote>
+    <p>The palace server's Palace Directory Form (e.g., under
+    options on the win32 pserver) will be removed. When a sysop
+    installs a server, the server will launch the sysop to the <strong>&quot;Edit
+    Palace Server Entry&quot;</strong> web based form. <em>(Authorization
+    is still TBD; We'll probably require the pserver's regcode
+    for validation.) </em>In this model, a new YPD protocol will
+    be implemented which just sends current user and room counts.</p>
+</blockquote>
+
+<h4>&quot;Palace Category&quot; pages functional description</h4>
+
+<p><u>Phase 1.</u></p>
+
+<blockquote>
+    <p>None.</p>
+</blockquote>
+
+<p><u>Phase 2.</u></p>
+
+<blockquote>
+    <p>TBD. We will maintain a list of categories. EC staff will
+    be able to specify one or more categories for palace servers.
+    Palace server sysops will be able to specify categories for
+    their server using the <strong>&quot;Edit Palace Server
+    Entry&quot; </strong>page. <em>(The categories page format
+    needs to be spec'ed.)</em></p>
+</blockquote>
+
+<h4>&quot;Palace Server Usage Statistics&quot; functional
+description</h4>
+
+<p><u>Phase 1: </u></p>
+
+<blockquote>
+    <p>No presentation requirements. <em>(Note: Ypd should record
+    usage statistics as soon as possible, so historical data is
+    present before the presentation is in place.)</em></p>
+</blockquote>
+
+<p><u>Phase 2:</u></p>
+
+<blockquote>
+    <p>YPD will record the number of peak number of users over
+    time for each palace server. This information will be
+    maintained only for a short amount of time, ideally 24 hours.
+    In addition, daily totals will be maintained for 6 months.
+    With this information we will be able to identify the peak
+    periods of the day or week for each palace. The <strong>&quot;Palace
+    Server Usage Statistics&quot; </strong>will be presented on
+    the <strong>&quot;Detailed Palace Server&quot; </strong>page.
+    This information will only be visible to EC staff; a password
+    will be required. <em>(This is a future feature which
+    requires more spec. We could have another set of pages for EC
+    staff that are password protected, or we could use a
+    hard-to-guess URL, or a URL with a &quot;password&quot;
+    argument. Other suggestions?)</em></p>
+</blockquote>
+
+<h2>Technical Specification Overview</h2>
+
+<blockquote>
+    <p>This section briefly describes how the pages listed above
+    will be generated. <em>(This section actually belongs in a
+    seperate document. Its here for convience.)</em></p>
+</blockquote>
+
+<h3>Overview</h3>
+
+<blockquote>
+    <p>The new Palace Directory architecture utilizes a
+    multithreaded YPD server running on Solaris to receive and
+    process the YPD updates from the palace servers. The YPD
+    server parses the YPD update message, verifies the regcode,
+    and writes the fields to an Oracle RDMS database. Refer to <a
+    href="http://www-int/engineering/palace/ypd.html">Palace
+    Yellow Pages Daemon (YPD)</a> for more information. Scripts
+    are run on the web server machine to generate the html
+    content from data stored in the database. &quot;Mostly&quot;
+    static data (eg the &quot;top 10&quot; list) is generated by
+    a script which is run periodically. Content which is
+    maintained in the database and infrequently required is
+    retrieved by scripts on demand, usually by the user. For
+    example, the display of the &quot;detailed palace server
+    page&quot; is performed by a script on demand when the
+    &quot;detail&quot; URL for that palace server is selected.</p>
+</blockquote>
+
+<h3>Technical details</h3>
+
+<blockquote>
+    <p>The following sections describe the technical details of
+    each feature by phase.</p>
+</blockquote>
+
+<h4>&quot;Top 10 list&quot; technical details</h4>
+
+<p><u>Phase 1:</u></p>
+
+<blockquote>
+    <p>The html for the Top 10 List is generated periodically by
+    a perl script which queries the database. This query will be
+    performed such that entries with the
+    &quot;hide-my-entry&quot; flag will be suppressed. Since this
+    list needs to be in-sync with the Compact
+    ordered-by-population (which is also generated by a script),
+    we will run the two scripts at the same interval. Its
+    possible that we can optmize performance by implementing the
+    functionality for the creation of the two lists within a
+    single script.</p>
+</blockquote>
+
+<p><u>Phase2:</u></p>
+
+<blockquote>
+    <p>TBD.</p>
+</blockquote>
+
+<h4>&quot;Compact Ordered-by-population list&quot; technical
+details</h4>
+
+<p><u>Phase 1:</u></p>
+
+<blockquote>
+    <p>The html for this list is also generated by a script thats
+    run periodically. The current plan is to set the interval at
+    5 minutes. This script will query the database for the
+    columns corresponding to the fields displayed in the table.
+    The results of the query will be written to successive files
+    such that each file is small enough for quick download. Each
+    file will contain HREF links to the preceeding and following
+    files. In addition, HREF links will be included in each page
+    to allow for navigation to any ordered-by-population page.</p>
+</blockquote>
+
+<blockquote>
+    <p>Each entry on the <strong>&quot;Compact
+    Ordered-by-population list&quot; </strong>will have an HREF
+    for that entry's <strong>&quot;Detailed Palace Server
+    Page&quot;</strong>. The URL for this HREF will point to a
+    script which takes as a parameter the unique database id for
+    the entry.</p>
+</blockquote>
+
+<p><u>Phase 2: </u></p>
+
+<blockquote>
+    <p>TBD.</p>
+</blockquote>
+
+<h4>&quot;Detailed Palace Server Page&quot; technical details</h4>
+
+<p><u>Phase 1:</u></p>
+
+<blockquote>
+    <p>This page will be generated by a script. The script takes
+    as a parameter the unique database id for the entry. The
+    script does a database query based on the unique database id
+    and formats the results to HTML.</p>
+</blockquote>
+
+<p><u>Phase 2:</u></p>
+
+<blockquote>
+    <p>The <strong>&quot;Detailed Palace Server Page&quot; </strong>script
+    will create HTML for the additional sysop editable fields
+    such as the InstantPalace URL.</p>
+</blockquote>
+
+<h4>&quot;Find a Palace&quot; technical details</h4>
+
+<p><u>Phase 1:</u></p>
+
+<blockquote>
+    <p>None.</p>
+</blockquote>
+
+<p><u>Phase 2:</u></p>
+
+<blockquote>
+    <p>This is still somewhat TBD, but the current plan is to do
+    a database query to retrieve palace server names,
+    descriptions, and announcement fields. The &quot;where&quot;
+    clause of the query will contain the search text. The query
+    will use a cursor to limit the number of rows returned, with
+    ability to fetch the next N rows, or previous N rows. Each N
+    rows will be displayed. The next (or previous) N rows will be
+    fetched from the cursor when the user navigates forward or
+    backwards in the search result pages. This method will
+    improve end user perception of performance.</p>
+</blockquote>
+
+<h4>&quot;Edit Palace Server Entry&quot; technical details</h4>
+
+<p><u>Phase 1:</u></p>
+
+<blockquote>
+    <p>None.</p>
+</blockquote>
+
+<p><u>Phase 2:</u></p>
+
+<blockquote>
+    <p>TBD.</p>
+</blockquote>
+
+<h4>&quot;Palace Servers By Category&quot;</h4>
+
+<p><u>Phase 1:</u></p>
+
+<blockquote>
+    <p>None.</p>
+</blockquote>
+
+<p><u>Phase 2:</u></p>
+
+<blockquote>
+    <p>TBD. This is probably a set of static pages generated by a
+    script which is run as needed.</p>
+</blockquote>
+
+<h4>&quot;Palace Server usage statistics&quot; technical details</h4>
+
+<p><u>Phase 1.</u></p>
+
+<blockquote>
+    <p>None.</p>
+</blockquote>
+
+<p><u>Phase 2.</u></p>
+
+<blockquote>
+    <p>TBD. YPD will store in the database user counts by hour
+    per palace server. These will be maintained for a short
+    duration, probably 24 hours, though the exact duration needs
+    to be evaluated. Daily, usage stats will be rolled into
+    another table that maintains daily usage peaks. When the
+    usage stats are requested, a script will run to format the
+    daily usage or hourly stats into a graph.</p>
+</blockquote>
+</body>
+</html>

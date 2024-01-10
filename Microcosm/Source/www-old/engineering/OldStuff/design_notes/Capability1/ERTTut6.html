@@ -1,0 +1,65 @@
+<!--NewPage-->
+<!-- Created by Masa Maeda on 05.14.97  -->
+<!-- Copyright 1997 Electric Communitites. -->
+<!-- All rights reserved worldwide.  -->
+<!-- Proprietary and confidential. -->
+<HTML>
+<HEAD>
+<pre><a href="ERTTut5.html">Previous</a>        <a
+href="ERTTutI.html">Index</a>  <a
+href="ERTTut1.html">Home</a></pre>
+<TITLE>Exclusive Rights Transfer Tutorial: Page 6</TITLE>
+</HEAD>
+<P><HR WIDTH="100%" SIZE=2></P>
+<BODY>
+<P>&nbsp;</P>
+<B><P>Step 4: Main Routine</P></B>
+
+<P>The first 5 lines of code in go() ar to create all the objects
+	needed. <FONT FACE="Courier">Receiver</FONT> is created first. A channel of
+	type <FONT FACE="Courier">Truster</FONT> for <FONT
+	FACE="Courier">Sender2</FONT> is then created. The <FONT
+	FACE="Courier">Truster</FONT> for <FONT
+	FACE="Courier">Sender1</FONT> is created next, and then the two
+	<FONT FACE="Courier">sender</FONT> objects are created.</P>
+<P>A couple of messages are sent, one by each <FONT
+	FACE="Courier">sender</FONT>. The capability <FONT
+	FACE="Courier">Sender1</FONT> has over <FONT
+	FACE="Courier">Receiver</FONT> is then transfered to <FONT
+	FACE="Courier">Sender2</FONT>. Last, two more messages are sent, one
+	for each <FONT FACE="Courier">sender</FONT>.</P>
+<P><HR WIDTH="80%" SIZE=2></P>
+<PRE>
+	// ----- Main routine -----
+
+	Public class TransferCap implements ELaunchable {
+	  public void go(EEnvironment env) {
+	    Receiver myReceived = new Receiver();
+	    Truster distYourTruster;
+	    Truster distMyTruster = new Truster(myReceived);
+	    Sender myThirst = new Sender(distMyTruster);
+	    Sender yourThirst = new Sender(distYourTruster);
+	    
+	    myThirst &lt - sendToTruster("got coke?", distMyTruster);
+	    yourThirst &lt - sendToTruster("got milk?", distYourTruster);
+	  	
+	    myThirst &lt - transferTrust(&amp distYourTruster);
+	  	
+  	    myThirst &lt - sendToTruster("got 3 cokes?", distMyTruster);
+  	    yourThirst &lt - sendToTruster("got more milk?", distYourTruster);
+	  }
+	}
+</PRE>
+<P><HR WIDTH="80%" SIZE=2></P>
+<P>You can download the <a href="ERTCode.ZIP">code for Exclusive Rights Transfer</a>  here.</P>
+
+<P><HR WIDTH="100%" SIZE=2></P>
+<pre><a href="ERTTut5.html">Previous</a>        <a
+href="ERTTutI.html">Index</a>  <a
+href="ERTTut1.html">Home</a></pre>
+<P>&nbsp;</P>
+<P>
+For questions and comments, please contact <A HREF="mailto:masa@communities.com">Masa Maeda</A>
+</P>
+</BODY>
+</HTML>

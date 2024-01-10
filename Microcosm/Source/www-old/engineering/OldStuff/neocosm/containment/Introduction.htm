@@ -1,0 +1,938 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.03 [en] (Win95; U) [Netscape]">
+   <TITLE>Introduction to containment</TITLE>
+</HEAD>
+<BODY>
+
+<H1>
+An Introduction To Containment</H1>
+<I>A walkthrough of the different meanings, designs, and requirements of
+containment.</I>
+<BR>By <A HREF="mailto:robj@communities.com">RobJ</A>
+<BR>Last modified: 6 pm, 29 May 98
+<BR>
+<HR WIDTH="100%">
+<BR>Some of the most fundamental technical and design tradeoffs of EC's
+approach to virtual worlds lie in the manifold problems of "containment".&nbsp;
+This document attempts to describe the different implications and ramifications
+of containment step by step, to make it easier to understand what EC currently
+has, how it got there, and what the viable alternatives are--both in terms
+of technical implementation and user experience.
+<H3>
+<I>Table of Contents</I></H3>
+
+<OL>
+<LI>
+<A HREF="#BasicProperties">Basic properties of the object model</A></LI>
+
+<LI>
+<A HREF="#SingleLevelContainment">Single-level containment</A></LI>
+
+<OL>
+<LI>
+<A HREF="#KnownConsistencyProperties">Known consistency properties</A></LI>
+</OL>
+
+<LI>
+<A HREF="#Viewing">Viewing</A></LI>
+
+<OL>
+<LI>
+<A HREF="#TheBasicInsecurityOfTheView">The basic insecurity of the view</A></LI>
+
+<LI>
+<A HREF="#TheBasicInsecurityOfEntry">The basic insecurity of entry</A></LI>
+
+<LI>
+<A HREF="#TheRelationshipBetweenPresencesAndViews">The relationship between
+presences and views</A></LI>
+
+<OL>
+<LI>
+<A HREF="#TheNetVersusTheStar">The net versus the star</A></LI>
+</OL>
+
+<LI>
+<A HREF="#ConsistencyAndViewerPresences">Consistency and viewer presences</A></LI>
+
+<LI>
+<A HREF="#GenericInfrastructure">Generic infrastructure</A></LI>
+</OL>
+
+<LI>
+<A HREF="#DepartureControl">Departure control</A></LI>
+
+<LI>
+<A HREF="#AdmissionControl">Admission control</A></LI>
+
+<OL>
+<LI>
+<A HREF="#TOSCheckingOnEntry">TOS checking on entry</A></LI>
+
+<LI>
+<A HREF="#IdentityVerificationOnEntry">Identity verification on entry</A></LI>
+</OL>
+
+<LI>
+<A HREF="#IdentityVerificationOnEntry">The trouble with transfer</A></LI>
+
+<LI>
+<A HREF="#MultiLevelContainment">Multi-level containment</A></LI>
+
+<OL>
+<LI>
+<A HREF="#MeaningOfTransitiveContainment">The meaning of "transitive containment"</A></LI>
+
+<LI>
+<A HREF="#AddingToASubContainer">Adding to a sub-container</A></LI>
+
+<LI>
+<A HREF="#TransferringContents">Transferring contents</A></LI>
+
+<LI>
+<A HREF="#OpenAndClosedContainers">Open and closed containers</A></LI>
+
+<LI>
+<A HREF="#SingleLevelApproach">The "single-level" approach</A></LI>
+
+<OL>
+<LI>
+<A HREF="#SingleLevelBenefitsLosses">Consistency benefits, security losses</A></LI>
+
+<LI>
+<A HREF="#SingleLevelDisconnectionIssues">Disconnection issues</A></LI>
+</OL>
+
+<LI>
+<A HREF="#FullMultiLevelApproach">The full multi-level approach</A></LI>
+
+<OL>
+<LI>
+<A HREF="#MultiLevelSecurityProperties">Security properties &amp; motivations</A></LI>
+
+<LI>
+<A HREF="#MultiLevelConsistency">Consistency and its dilemmas</A></LI>
+
+<LI>
+<A HREF="#MultiLevelDisconnection">Disconnection (in?)consistencies</A></LI>
+</OL>
+</OL>
+
+<LI>
+<A HREF="#HowWeGotToWhereWeAre">How we got to where we are: some history</A></LI>
+
+<LI>
+<A HREF="#WhereWeAre">Where we are: the subsystem details</A></LI>
+
+<LI>
+<A HREF="#WhatWeNeedToDecide">What we need to decide: some viable sets
+of choices</A></LI>
+</OL>
+
+<H2>
+<A NAME="BasicProperties"></A>Basic properties of the object model</H2>
+Are:
+<OL>
+<LI>
+Particular objects (call them ECObjects, for purposes of this discussion)
+reside on particular machines.</LI>
+
+<LI>
+ECObjects can establish communication with other ECObjects (by looking
+up their identity on the network, or by being passed a reference to another
+ECObject).&nbsp; These network connections are made directly between the
+machines on which the objects are located; if the ECObjects happen to be
+located on the same machine, the messages are sent directly between them.</LI>
+
+<LI>
+ECObjects can send asynchronous one-way messages to other ECObjects with
+which they have a connection.</LI>
+
+<LI>
+ECObjects can detect when particular connections to other ECObjects become
+broken (which happens when the underlying network connection between the
+two ECObjects' machines fails).&nbsp; They cannot detect whether particular
+messages sent to that ECObject made it through or not before the connection
+was broken.&nbsp;&nbsp; They can, however, know that if a given message
+was received successfully, all messages sent before that message (on that
+channel) were also received successfully.&nbsp; If two ECObjects are on
+the same machine, they never become "disconnected" from each other.</LI>
+
+<LI>
+However, the recipient object may never respond; the protocol should deal
+with failure-to-respond-while-still-connected cases.</LI>
+</OL>
+(ECObjects here correspond to old-style EObjects.)
+<BR>These are just the basic qualities of E communication (or of just about
+any capability-oriented TCP-based communications system), at a design level.&nbsp;
+There are some implementation corollaries of our comm system:
+<OL>
+<LI>
+Connections are expensive.&nbsp; (The "friends list crashes" bug is an
+example of this biting us in the alpha.)</LI>
+
+<LI>
+Connections may break in arbitrarily odd ways.&nbsp; You may have a connection
+to machine B and to machine C, and machine B may also be connected to machine
+C, when suddenly your connection to C breaks while B still stays happily
+connected to C.&nbsp; This sort of thing doesn't happen often on the Internet,
+but it certainly happens often enough that we must be robust in the face
+of it.</LI>
+
+<LI>
+You cannot disconnect from B without B disconnecting from you; connections
+between machines break in a way that's visible to both sides.&nbsp; (That
+is, it can't be that A considers itself connected to B while B considers
+itself disconnected from A.)</LI>
+</OL>
+
+<H2>
+<A NAME="SingleLevelContainment"></A>Single-level containment</H2>
+The most basic sort of containment relation is what we've started calling
+"single-level containment".
+<BR>Picture an avatar in a room.&nbsp; (The general name for "room" is
+"region", so let's call it an avatar in a region.)&nbsp; The avatar is
+actually an ECObject A on machine X, and the region is another ECObject
+R on machine Y.&nbsp; Here's an illustration:
+<BLOCKQUOTE><IMG SRC="Drawing2.gif" HEIGHT=211 WIDTH=313></BLOCKQUOTE>
+Now, in order for the region to contain the avatar--which should also mean
+that the avatar is contained by the region--there needs to be some state
+in A that indicates that it is contained in R, and some state in R indicating
+that it contains A.&nbsp; In particular, A needs to have some sort of "this
+thing contains me" reference to R, and R needs to have some sort of "I
+contain this thing" reference to A.&nbsp; Like so:
+<BLOCKQUOTE><IMG SRC="Drawing3.gif" HEIGHT=191 WIDTH=292></BLOCKQUOTE>
+This is the most basic sort of containment.
+<H3>
+<A NAME="KnownConsistencyProperties"></A>Known consistency properties</H3>
+Note that both R's reference to A, and A's reference to R, use the same
+underlying communications channel between machine X and machine Y:
+<BLOCKQUOTE><IMG SRC="Drawing4.gif" HEIGHT=204 WIDTH=306></BLOCKQUOTE>
+So for the purposes of this explanation, we don't need to worry that machine
+X and machine Y might disagree about whether they're connected.
+<BR>Hence we can ensure in the implementation that the A->R reference does
+not die without the R->A reference also dying.
+<BR>And it's good that we can ensure that, since if the A->R reference
+dies it means that as far as A is concerned R is no longer its container;
+and if the R->A reference is still alive, it means that R still considers
+A to be contained within it.&nbsp; That's not a consistent situation, since
+A and R disagree about the state of the container/contained relationship.&nbsp;
+We would no longer have a consistent virtual world.
+<BR>Distributed consistency is in some sense <I>the</I> problem of containment.
+<H2>
+<A NAME="Viewing"></A>Viewing</H2>
+Now we've talked about R containing A.&nbsp; What if there's another avatar
+B also in the region?&nbsp; Moreover, what if B happens to be located on
+machine Z?&nbsp; Then we have a picture like so:
+<BLOCKQUOTE><IMG SRC="Drawing5.gif" HEIGHT=228 WIDTH=270></BLOCKQUOTE>
+Note that R now has information about both A and B, but A and B each only
+know about R.&nbsp; In particular, A and B do <I>not</I> know about <I>each
+other</I> given just the references we've set up so far.
+<BR>Clearly, this isn't very satisfactory.&nbsp; What good is being in
+a region if you can't see the other people in there with you?&nbsp; The
+point is that just being contained in the region does not automatically
+mean you know who else is present; it just means you know that the region
+contains you.&nbsp; In particular, some kinds of objects maybe <I>shouldn't</I>
+receive information about what else is in the region.&nbsp; If you're an
+avatar or a TV camera, it makes sense for you to get information about
+everything you can see.&nbsp; However, if you're just a rock on the floor,
+it may not make sense for you to receive information about all the comings
+and goings of other things in the region.
+<BR>Since in this case both of the objects in the room are avatars, it
+makes sense for R to tell them each about what else is contained in the
+region.&nbsp; In general, if an object should be able to receive information
+about what else is there, we call that object a <I>viewer</I>.&nbsp; (In
+our current system, avatars are the only viewers.&nbsp; Ideally our protocols
+will support contained objects which may or may not be viewers, and viewers
+which may or may not be contained objects.)
+<H3>
+<A NAME="TheBasicInsecurityOfTheView"></A>The basic insecurity of the view</H3>
+When an avatar first enters the region, the only thing the avatar knows
+about is the region itself.&nbsp; Presumably, the avatar got a reference
+to the region by looking up the region from a web link, or something.&nbsp;
+Once the avatar connects to the region, the region sends the avatar information
+about the region's contents and what the region generally looks like (because
+the avatar is a viewer and has a right to know):
+<BLOCKQUOTE><IMG SRC="Drawing6.gif" HEIGHT=182 WIDTH=236></BLOCKQUOTE>
+Now, the key point here is that <I>the region can lie.</I>&nbsp; If Machine
+X is hacked, R may also be hacked to conceal some of its contents.&nbsp;
+For example, it might choose not to tell A that B is also in the region;
+or it might send over bogus information about what B looks like.&nbsp;
+And there is nothing A can do, since A genuinely knows nothing about the
+region except what R, the region itself, tells it.&nbsp; The first example
+looks like this:
+<BLOCKQUOTE><IMG SRC="Drawing7.gif" HEIGHT=182 WIDTH=236></BLOCKQUOTE>
+So what can you do about this?&nbsp; Essentially, nothing!&nbsp; If R doesn't
+tell A about B, there is no way A could ever find out about B.&nbsp; In
+EC's world model, and indeed in <I>any</I> network virtual world model,
+you must be introduced to other users somehow; and if the service you're
+using lies to you or conceals information, you're hosed.&nbsp; It's very
+important to remember this as we move forwards.
+<BLOCKQUOTE><I>There are other things you could try to do; if you had previously
+met B, you could establish some kind of direct connection to B, and ask
+B "Where are you?"&nbsp; If B says it's in region R but region R didn't
+tell you about B, you could infer that region R is not trustworthy, and
+you could try to handle it somehow.&nbsp; In general this kind of "cheating
+detection" is a slippery slope to lots and lots of complexity, and doesn't
+really buy you all that much, since you never know who else the region
+might not be telling you about.</I></BLOCKQUOTE>
+
+<H3>
+<A NAME="TheBasicInsecurityOfEntry"></A>The basic insecurity of entry</H3>
+The other side of the above lack of security is that you, an entering avatar,
+can lie to the region about whether you're somewhere else already.&nbsp;
+In real life you can be in only one room at a time.&nbsp; In cyberspace,
+there's nothing preventing you from entering more than one region at once.&nbsp;
+If the other regions don't know about each other, and you don't tell them,
+they will never find out about your duplicity.
+<BLOCKQUOTE><IMG SRC="Drawing8.gif" HEIGHT=119 WIDTH=371></BLOCKQUOTE>
+Not only can the region lie to you about who else is in it, but you can
+also lie to the region about where else you are (or rather, where else
+you aren't).&nbsp; The only way around this is again via some kind of prior
+communication channel between the various regions; if they can compare
+notes and determine that you are claiming to be in more than one place
+at one time, they can perhaps do something about it.&nbsp; This particular
+kind of control we do in fact have implemented at the moment, via the "realm",
+which is an object that administers a set of regions:
+<BLOCKQUOTE><IMG SRC="Drawing9.gif" HEIGHT=260 WIDTH=371></BLOCKQUOTE>
+The realm can do consistency checking on what the regions tell it about
+who they contain.&nbsp; In general, you need some larger context or preexisting
+relationship in order to detect this sort of cheating.&nbsp; Consistency
+checking at the region level is more straightforward, since the avatar
+can spoof less than the region can.&nbsp; (The avatar sends less state
+to the region than the region sends to the avatar, since the avatar sends
+only state about itself, while the region sends state about itself and
+all other things within it.)
+<H3>
+<A NAME="TheRelationshipBetweenPresencesAndViews"></A>The relationship
+between presences and views</H3>
+So let's suppose R is honest after all.&nbsp; If you are avatar A entering
+R, you are a viewer of R, and therefore R will tell you who else you can
+view (namely B).&nbsp; [Note that there are cases in which viewers cannot
+see everything contained within R; these cases are known as "closed containment"
+and are discussed below.&nbsp; For now, assume that everything contained
+is visible.]
+<BLOCKQUOTE><I>We could state this as, "All viewers of R see everything
+contained within R."</I></BLOCKQUOTE>
+You may then want to interact with B somehow.&nbsp; One straightforward
+way is for R to give you an object representing B; this object has a direct
+connection to B.&nbsp; We say that this object is a "viewer presence" of
+B on your machine, with a connection to B itself.&nbsp; We call this a
+"viewer presence" since it was created on behalf of you, one particular
+viewer.
+<BLOCKQUOTE><IMG SRC="Drawing10.gif" HEIGHT=256 WIDTH=445></BLOCKQUOTE>
+This type of structure gives you a way to interact with the things you
+can see.&nbsp; Just having information about what other avatars are present
+is nice, but actually getting presences of those other avatars is what
+lets you interact with them and view them efficiently.&nbsp; (It is possible
+to build routing mechanisms which let you send messages to objects in the
+region without actually getting presences of those objects, but it forces
+you to do more network traffic, and it prevents you from doing important
+optimizations with local state.)
+<H4>
+<A NAME="TheNetVersusTheStar"></A>The net versus the star</H4>
+The unfortunate thing with the above direct type of connection is that
+it doesn't scale, as follows.&nbsp; If there are 30 other avatars in R,
+you get 30 presences (one per other avatar) when you enter R.&nbsp; Each
+presence has a direct connection to its avatar's machine.&nbsp; So you
+will wind up trying to make 30 network connections.&nbsp; This is Not Good;
+it will consume mondo bandwidth and crypto time (since each connection
+is cryptographically validated).&nbsp; Even if you're not using secure
+network connections, it will use up lots of socket and network resources,
+bogging your system down.&nbsp; (In other words, security per se is not
+the problem here.)
+<BR>We call this type of topology the "net" topology, since each participating
+object--the room, and each individual avatar--has a connection to all the
+other participants.
+<BLOCKQUOTE><IMG SRC="Drawing11.gif" HEIGHT=272 WIDTH=648></BLOCKQUOTE>
+It's actually not just an implementation efficiency issue; it's a world
+consistency issue (again).&nbsp; You run into lots of trouble if only some
+of those connections break.&nbsp; For example, if you are in the room with
+B, and you have a presence of B (which is connected to B itself over on
+machine Z), and your connection to machine Z goes down, then you will be
+left with a deaf-dumb-and-blind presence of B--it can't do much since it
+can't communicate with B itself.&nbsp; And yet since B is still connected
+to R, and since you are still connected to R as well, B is still in the
+room with you!--as far as the information you get from R is concerned.&nbsp;
+It's just that you can't talk to B itself, resulting in much user confusion
+and system flakiness.&nbsp; Here again we have distributed inconsistency
+caused by partial disconnections.
+<BR>The most palatable alternative is to indirect most communication through
+R.&nbsp; We could do this by making R have presences of objects that enter
+R.&nbsp; We call these "region presences" since they are created on behalf
+of the region.&nbsp; These "region presences" are objects connected directly
+to their originating machines.
+<BLOCKQUOTE><IMG SRC="Drawing12.gif" HEIGHT=194 WIDTH=442></BLOCKQUOTE>
+Then when you enter R, and R gives you viewer presences of the other objects
+in the room, R connects them to its region presence, <I>not</I> to the
+actual object.&nbsp; In other words, your viewer presence connects to R's
+region presence, which connects back to the original object, like so.
+<BLOCKQUOTE><IMG SRC="Drawing13.gif" HEIGHT=223 WIDTH=475></BLOCKQUOTE>
+Now we don't have any direct connections between machine Y and machine
+Z; instead of having a three-way "net" of connections, we have a centralized
+"star" of connections, with R at the center.&nbsp; We also no longer have
+any worries about disjoint disconnection handling, since there are no potentially
+problematic between-avatar connections to worry about.&nbsp; We save on
+consistency and on per-client communications resource usage.
+<BR>We lose on latency, since messages your viewer presence of B sends
+towards B will have to bounce off of R to get back to B itself, but that's
+an acceptable price to pay.&nbsp; A perhaps less acceptable price is bandwidth;
+R must now do fanout not only for messages it sends to all viewers of R,
+but R must also do fanout on behalf of all messages sent from avatars&nbsp;
+to avatar presences.&nbsp; Since regions generally will have higher bandwidth
+and better connectivity than client machines, this is the right tradeoff
+for our application.
+<BR>Additionally, R can now intervene and interfere with messages sent
+to client presences.&nbsp; However, this is the case anyway; even in a
+more net-like structure, R could be a "man in the middle" with respect
+to new viewers of a given avatar.&nbsp; So securitywise we have not lost
+much.
+<BR>(Note that this "star" technique is in fact implemented in the current
+alpha; we have region and viewer presences explicitly created and handled
+in the code.)
+<BR>And yes, if A and B are both avatars, then there would also be a region
+presence of A on machine X, and a viewer presence of A on machine Z.&nbsp;
+I left all that out for simplicity of illustration.
+<H3>
+<A NAME="ConsistencyAndViewerPresences"></A>Consistency and viewer presences</H3>
+You may get in a situation where you have presences on your machine of
+some objects that have just disconnected from R, but R hasn't yet told
+you about it.&nbsp; This potential inconsistency is unavoidable given network
+latency; you just can't know instantly what the status of R is, and hence
+you must be prepared for bounces or delivery failures whenever you send
+a message to any presence R gave you.&nbsp; But since you must already
+carefully deal with all potentially-remote objects anyway, since they can
+potentially disconnect at any time, this is nothing new.&nbsp; So long
+as R has the one centralized state about who is present, R can eventually
+update all still-contained-within-R objects about changes to that state.
+<H3>
+<A NAME="GenericInfrastructure"></A>Generic infrastructure</H3>
+Many of these concepts--"region presences", "viewer presences"--are specific
+uses of a more general concept:&nbsp; a local object which is a stateful
+means for interacting with some remote object.&nbsp; We will be working
+to make the underlying infrastructure generic and general, while still
+supporting the specific virtual-world functionality we need to make the
+sort of Microcosm we know how to build.&nbsp; ...without spending too much
+time generifying concepts without bound!
+<H2>
+<A NAME="DepartureControl"></A>Departure control</H2>
+Now that we have a sense of what it means to be somewhere, let's look at
+what's involved in deciding who you let in.&nbsp; Clearly R, as described
+<A HREF="#TheBasicInsecurityOfTheView">previously</A>, has control over
+what it tells viewers about the population of R.If R wants to "kick someone
+out", all it needs to do is tell all the viewers that that someone has
+left.&nbsp; If those other viewers have no separate communication with
+the someone being kicked out, they can only believe what R tells them.
+Kicking out is quite straightforward.
+<BR>Conversely, if avatar A decides to leave region R, it can (with some
+engineering) cut all lines of communication that R uses to communicate
+with it; it can essentially revoke all the presences it made for R, and
+revoke all capabilities it gave R.&nbsp; R will then not be able to mess
+with A.&nbsp; R may make it look like A is still present in R, but anyone
+who can check with A personally will be able to find out otherwise.&nbsp;
+Departure is relatively straightforward in this kind of virtual world.
+<BR>Note that disconnection is a special sort of departure; if your machine
+disconnects from the net altogether, you had better have some local place
+on your machine where you can wind up!&nbsp; This is a "container of last
+resort" strategy for dealing with disconnection--when all else fails, go
+to your home turf, which is on your machine and hence which must be always
+reachable.
+<H2>
+<A NAME="AdmissionControl"></A>Admission control</H2>
+What about admission?&nbsp; The fundamental admission process is:
+<OL>
+<LI>
+Some object contacts a region, passing in some set of information and a
+capability to admit the object.&nbsp; (It passes in the "admit me" capability--i.e.
+it passes a capability the region will use to give it additional capabilities
+if it's admitted.)</LI>
+
+<LI>
+The region looks at that information and decides whether to let the object
+in or not.</LI>
+
+<OL>
+<LI>
+If the region decides to admit the object, it uses the object's "admit
+me" capability to send the object a new "you're contained" capability that
+the object can use to communicate with it.&nbsp; (It passes the "is contained
+by" capability; i.e. the object now has a means to communicate with the
+region that only things contained by the region can use.)</LI>
+
+<LI>
+If not, it doesn't give the object anything.</LI>
+</OL>
+</OL>
+In diagrammatic terms:
+<BLOCKQUOTE><IMG SRC="Drawing14.gif" HEIGHT=299 WIDTH=639></BLOCKQUOTE>
+
+<H3>
+<A NAME="TOSCheckingOnEntry"></A>TOS checking on entry</H3>
+The place where TOS comes in (both in the model and in our current codebase)
+is at step 2.&nbsp; The information A sends to R includes the complete
+specification of <I>what A wants to look like</I>.&nbsp; We call this the
+"presentation state" of A.
+<BR>R looks at A's presentation state, and determines (for each requested
+bit of A's imagery) whether that imagery has all the certificates that
+R requires under R's TOS.&nbsp; If, and only if, all of A's imagery is
+properly certified, will A actually get admitted.
+<BR>R then keeps track of A's presentation state, and <I>R will only tell
+all of R's viewers about the presentation state it knows about.</I>&nbsp;
+In particular, A has no self-created way to display anything to viewers
+of R; it relies entirely on R to relay A's presentation state to R's viewers.
+<BR>This means that R could spoof what A looks like; the presentation state
+A gives to R may not match what R tells its viewers about A, if R has been
+hacked.&nbsp; There is no way around this (<A HREF="#TheBasicInsecurityOfTheView">as
+previously discussed</A>).
+<BR>Conversely, this also means that A cannot put up arbitrary bits on
+the screen once it is in the region.&nbsp; All viewers of R view only what
+R tells them to view; this means that none of the objects that have been
+admitted to R can change their look without R's consent.&nbsp; A can't
+violate TOS after A's been admitted, in other words, as far as this "presentation-based"
+TOS is concerned.
+<BR>(In general this all applies to any form of "entry-checking" TOS, where
+the information checked on entry is information which will be used to present
+and/or implement the object being admitted.&nbsp; For example, certificates
+on art; certificates on class files; etc.)
+<H3>
+<A NAME="IdentityVerificationOnEntry"></A>Identity verification on entry</H3>
+Another important bit of checking is verifying the identity of entering
+avatars.&nbsp; R may be set to admit A, and only A, to its region.&nbsp;
+Yet in step 1, above, R has no way to know that the message that claims
+to be from A is actually from A, and not from someone just pretending to
+be A.
+<BR>In order for R to know that the message is really coming from A, R
+must double-check with A that A is really the object that's trying to get
+in.&nbsp; This happens as follows:
+<OL>
+<LI>
+After step 1 in the above protocol, R obtains A's identity from the information
+passed in the "let me in" message (which, remember, may or may not be from
+A itself; this is what we're trying to check).</LI>
+
+<LI>
+R looks up that identity on the network, obtaining a channel to A.</LI>
+
+<LI>
+R sends a message to A, passing it a reference to the "admit me" capability,
+asking A "did this capability really come from you?"</LI>
+
+<LI>
+If A says "yes", then A is indeed the object which sent the message in
+the first place, and R can let A in (i.e. R proceeds with step 2 above).</LI>
+
+<LI>
+If A says "no", R stops right there and never lets in whoever it was who
+was sending the message (since it wasn't A).</LI>
+</OL>
+Diagrammatically (this step comes in between the two diagrammed steps above):
+<OL><IMG SRC="Drawing15.gif" HEIGHT=275 WIDTH=627></OL>
+In general this pattern applies to any "check before admittal" pattern
+of TOS (i.e. checking the identity of the entering object, checking with
+some other entity--for example, the realm member database--to determine
+whether the entering identity is allowed, etc.).&nbsp; These "identity
+checking" pattern simply adds latency to the "top" of the admission protocol.
+<H2>
+<A NAME="TroubleWithTransfer"></A>The trouble with transfer</H2>
+Let's think for a moment about what API we want to tell something to go
+somewhere.&nbsp; Assuming that we generally want an object to be in only
+one place at one time, the following API makes sense:
+<BLOCKQUOTE>/*
+<BR>&nbsp;* Call this on an object to cause it to transfer itself to a
+given region.
+<BR>&nbsp;* @param newRegionReference where to go
+<BR>&nbsp;* @param errorCallback a callback to invoke in case of failure
+<BR>&nbsp;*/
+<BR>void transferToRegion(RegionReference newRegionReference, ErrorCallback
+errorCallback);</BLOCKQUOTE>
+How could we implement this?&nbsp; Clearly this involves some combination
+of removing ourselves from our old region and adding ourselves to the new,
+but what combination, exactly?
+<BR>The current protocol implements transferToRegion by first attempting
+to add the object to the new region.&nbsp; Only if this completely succeeds
+does transferToRegion then remove itself from the old region.
+<BR>(Doing things the other way around could leave you in limbo, if you
+removed yourself from the old region before trying to add yourself to the
+new region, and you happened not to pass the new region's TOS.&nbsp; Blammo,
+you're banging your head against the door you just shut behind you.)
+<BR>In some sense we are making use of the insecurity of entry.&nbsp; The
+new region doesn't know that you're still in the old region while it's
+admitting you.&nbsp; It has no particular need to know, and if you clean
+up your act in a timely way then no one will be much the wiser... EXCEPT
+for the user.&nbsp; It is almost certainly a good idea to add some kind
+of "shimmering" or "teleporting" or "in-transit" effect, which commences
+as soon as you begin the transfer protocol.&nbsp; This way it's clear to
+those watching you that you may be on your way out.&nbsp; The issue is
+clearly communicating that a transition may be about to take place.
+<H2>
+<A NAME="MultiLevelContainment"></A>Multi-level containment</H2>
+So far all we've talked about is objects contained directly by regions.&nbsp;
+We have not talked at all about objects containing other objects.&nbsp;
+Nothing in what we've said so far, for example, covers an avatar holding
+something in its hand, or a box containing an apple sitting on the floor.&nbsp;
+We call this sort of nested containment <I>multi-level containment.</I>&nbsp;
+Boy, does it make things complicated.
+<BR>Let's take a simple example:&nbsp; we have a region R on machine X,
+an avatar A on machine Y, and an object O on machine Z.&nbsp; The avatar
+is holding the object in the region.&nbsp; This is just a picture, <I>not</I>
+a machines/objects/relationships diagram, because there are several different
+ways we can try to express this on the network, and we need--in fact, it's
+one of the most critical remaining issues--to pick the right one.
+<BLOCKQUOTE><IMG SRC="Drawing16.gif" HEIGHT=237 WIDTH=194></BLOCKQUOTE>
+The most important thing about multi-level containment is this:&nbsp; when
+your container goes, you go.&nbsp; If avatar A decides to leave region
+R, object O must go with it.&nbsp; If avatar A enters region R2, object
+O must enter R2 as well.&nbsp; The distributed consistency problem is looming
+again:&nbsp; how do we get these three objects R, A, and O, on their three
+machines X, Y, and Z, to agree about who is containing what?
+<H3>
+<A NAME="MeaningOfTransitiveContainment"></A>The meaning of transitive
+containment</H3>
+There is a subtler issue.&nbsp; Consider region R as above, only with another
+avatar B having just entered the room as well.
+<BLOCKQUOTE><IMG SRC="Drawing17.gif" HEIGHT=237 WIDTH=304></BLOCKQUOTE>
+When B entered the room, A was holding O. A and O were both in R with B.
+This results in A and O creating (directly or indirectly) viewer presences
+of themselves for B.&nbsp; If B, for example, wants to try to swatch O,
+it would interact with the viewer presence of O that it received when it
+entered R.
+<BR>Now, as in the diagram above, A puts O on the floor.&nbsp; O is now
+changing its container.&nbsp; But it is <I>still in the room with B.</I>&nbsp;
+In fact, O could be contained within R or any other container within R,
+and B would still be able to interact with it. The viewer presence of O
+that was created for B should still continue to exist, whether A is holding
+O or whether O is on the floor (i.e. is contained by R).&nbsp; [Remember,
+we are postponing discussion of "closed containers"--the assumption is
+still that the contents of all containers are visible to the region.]
+<BR>This all goes to show that there are now, in some sense, <I>two</I>
+relationships:&nbsp; direct containment (as in "A is directly contained
+by the region" or "O is directly contained by A"), and multi-level containment
+(as in "O is multi contained by R").&nbsp; If R directly contains A, and
+A directly contains O, then R transitively contains O.&nbsp; R does <I>not</I>
+directly contain O; transitive containment is a relation constructed out
+of multiple direct-containment relations.
+<BLOCKQUOTE><I>So our earlier definition of region viewing can now be updated:&nbsp;
+"All viewers of R see everything transitively contained within R."</I></BLOCKQUOTE>
+Only when an object leaves R altogether--i.e. it removes itself from its
+current container in R, and adds itself to some other container which is
+not transitively contained within R--should it become no longer visible
+to all viewers of R.&nbsp; In particular, this means that the transitive
+containment relationship is what controls the lifetime of viewer presences...
+when you can't see it anymore, you can't dink with it either; and you can
+only see it as long as it and all its containers are in the same region
+with you.
+<H3>
+<A NAME="AddingToASubContainer"></A>Adding to a sub-container</H3>
+One interesting issue is the API we want for containment.&nbsp; In general,
+it seems that we'd want a method invokable on any container (whether avatar
+or region or what have you):&nbsp; "addToContainer(informationAboutNewContents,
+admitMeCapability)".&nbsp; That is, we'd like to be able to look up a given
+container and just add ourselves to it, and not worry about where that
+container itself is located.
+<BR>Two issues immediately emerge.&nbsp; First, the container you're adding
+itself to must eventually&nbsp; inform its region, so that the region will
+be aware of your new location.&nbsp; Second, the region must have some
+way to determine whether you are already present (and just changing your
+parent container), or whether you are truly a new arrival not previously
+transitively contained by that region.
+<BR>The first issue is especially hard because of race conditions.&nbsp;
+Suppose you are adding yourself to a container that is in the process of
+changing <I>its</I> container.&nbsp; What should your newly-selected container
+do when you ask to add yourself?&nbsp; Handling this race condition is
+feasible but is one of the most critical areas (if not <I>the</I> most)
+for maintaining consistency.&nbsp; ("Answer the question," you say?&nbsp;
+OK: the newly-selected container, if it knows it is in transition, should
+probably queue your request for eventual handling when it gets--or fails
+to get--where it's going.)
+<BR>The second issue is dealt with by the following protocol.&nbsp; Each
+object receives a "region key" when it enters the region.&nbsp; When entering
+a new container, you present your current "region key".&nbsp; If your "region
+key" was already known to the region, the region simply relocates you.&nbsp;
+Otherwise, the region considers you a new arrival, issues you a new region
+key, and requests you to create presences of yourself.&nbsp; (In the process,
+you will likely want to kill off all the old presences for the region you
+left, but that's your business.&nbsp; The new region neither knows nor
+cares about your relationships to your old region--unless it is part of
+a realm which contains the old region, in which case it <I>may</I> care.)
+<BR>[illo]
+<H3>
+<A NAME="TransferringContents"></A>Transferring contents</H3>
+&nbsp;Another difficult issue that arises when you introduce the notion
+of sub-containers is the need for transferring multiple objects between
+regions in one go.&nbsp; We alluded to this above given that when A goes
+somewhere while holding O, O had better go along too.&nbsp; There is only
+one operation happening here--A is processing the "transferToRegion(R2...)"
+message--but both A and O wind up having to update their state.
+<BR>This is a particularly sticky issue with respect to TOS.&nbsp; When
+A goes somewhere while holding O, both A and O must pass the TOS of the
+region they are entering in order to both be visible in that region.&nbsp;
+What if A passes TOS but O does not?&nbsp; Should A and O both fail to
+make it in, with a warning message "The thing you are holding does not
+pass TOS?"&nbsp; (This is what we currently do, and seems straightforward
+for users to understand.)&nbsp; Alternately, should O get left behind,
+or automatically put somewhere else?&nbsp; (This would be somewhat more
+confusing for the users, and might get them into regrettable situations,
+if they would rather not have entered a region that their objects couldn't
+also enter.)
+<BR>In general, here is where we start getting into issues of atomic commitment
+and consistency of multiple "transactions"--here is where multiple objects
+all become involved in a single containment operation, where they'd all
+better come out the other side in some meaningful order.
+<BR>[More discussion of this needed???&nbsp; probably not, not at this
+level...]
+<H3>
+<A NAME="OpenAndClosedContainers"></A>Open and closed containers</H3>
+One kind of distinction that turns out to be very useful in our virtual
+world is the distinction between "open" and "closed" containers.&nbsp;
+The definitions are simple:&nbsp; an open container is a container whose
+contents are visible to viewers of its region; a closed container is a
+container whose contents are not visible.&nbsp; You can see what's inside
+an open container; you can't see what's inside a closed container--in fact,
+you can't even know whether there <I>is</I> anything inside it.
+<BR>In particular, this implies that if there's a closed container in the
+region, and you put something into it ("closed" != "can't put stuff inside
+it"), it is no longer visible to or reachable by other viewers in the region.&nbsp;
+Moreover, it is now not able to see or interact with anything in the region
+it used to be in.&nbsp; That is, from the standpoint of the region, closed
+containers <I>have no contents</I>--they directly contain nothing.
+<BLOCKQUOTE><I>Transitive containment clearly applies only to open containers;
+it stops at closed containers.</I></BLOCKQUOTE>
+In some sense, a closed container is like its own little mini-region.
+<BLOCKQUOTE><I>One capability programming maxim is "Leverage what you cannot
+prevent."&nbsp; Note that given the just-mentioned API for requesting a
+container to add some contents, a closed container is on some level simply
+a container that never tells its enclosing region about things that get
+added to it!&nbsp; If object O sends an "addToContainer" message to some
+lockbox B which is a closed container, and lockbox B never tells its enclosing
+region about O, then the enclosing region will never know anything about
+O.&nbsp; This is precisely the definition of a closed container.</I></BLOCKQUOTE>
+We then want some way to implement "openable" containers--that is, containers
+with two states, open and closed; while open their contents are visible,
+but when you close them their contents all become unvisible (not invisible
+:-).&nbsp; This is doable using similar techniques to those involved in
+going between regions.&nbsp; (i.e. closing a container is rather like carrying
+a bunch of things out of the current region.)
+<H3>
+<A NAME="SingleLevelApproach"></A>The "single-level" approach</H3>
+So how do we implement this?&nbsp; One approach is to have the region keep
+track of all the containment relationships for objects within it.&nbsp;
+That picture looks rather like the following:
+<BR>[illo]
+<BR>In this implementation strategy, each object transitively contained
+by the region has a connection directly to the region, and only to the
+region.&nbsp; In particular, objects in the region that contain other objects
+do not therefore have direct connections or references to those other objects.&nbsp;
+The only relationship a given object has is to its current region.
+<BR>The region keeps its own data structure listing what contains what.&nbsp;
+In the above illustration, the region would record that A contains O.&nbsp;
+When it receives a message from O indicating that O wants to transfer itself
+to R (at a particular spot on the floor), the region simply updates its
+internal containment data structure.&nbsp; No new region or viewer presences
+need be created, and none need be destroyed.
+<BR>When an avatar holding an object wants to transfer to another region,
+the avatar must inform its current region that it wants to go elsewhere.&nbsp;
+Why?&nbsp; Because the avatar's current region is the only thing that has
+<I>any idea</I> what the avatar is holding!&nbsp; Without the region's
+help, the avatar must go empty-handed everywhere it goes, since the current
+region is the keeper of all information about the transitive contents of
+the region (and their locations within the region).&nbsp; So the process
+for an avatar transiting to another region looks like this:
+<BR>[illo]
+<BR>The source region, from which the avatar is transferring, must relay
+information to the destination region about not just the avatar but all
+the things the avatar is holding (and all the things those things openly
+contain, etc.); and if the destination region decides to admit all those
+things, then all those things must be informed that their root region has
+changed.&nbsp; (i.e. they must now all come to point at their new region.)
+<H4>
+<A NAME="SingleLevelBenefitsLosses"></A>Consistency benefits, security
+losses, behavioral ramifications</H4>
+One main asset of this approach is that it centralizes almost all information
+about the containment relationships of the region in the region itself.&nbsp;
+There is one and only one arbiter of who's holding what.&nbsp; This forces
+a certain degree of consistency since there is no containment state (except
+for which-region-am-I-in) kept by the contents of the region.
+<BR>There is a significant security issue with this approach, though.&nbsp;
+It is one of the main issues we have to evaluate and address.&nbsp; Since
+the region is the only entity which tracks the transitive contents of the
+region, the region can lie when requested to transfer contents out of it.&nbsp;
+For example, if avatar A is holding object O in region R, and A decides
+to go to R2, it will have to (as described above) send a message to R requesting
+R to move it and all its contents to R2.&nbsp; R may decide to hose A by
+sending R2 information about A only.&nbsp; In that case, when A arrives
+in R2, it will be empty-handed.&nbsp; And there is nothing A can do about
+it since A does not track its contents itself; the user controlling A literally
+has no way to know that A was robbed.
+<BR>[illo?]
+<BR>Now, if the user controlling A has some way to recall O--for example,
+if that user owns O--that user can simply notice that it's no longer holding
+O, and use its recall capability to get O back from wherever R tried to
+hide it.&nbsp; Moreover, R could always make it look like A is empty-handed,
+as could R2.&nbsp; So the concern here is that, under this single-level
+approach, a region you are in can play arbitrary games with the contents
+of containers within it, without the containers being able to detect it.&nbsp;
+This is not just a visual problem, either; the region can rob you of objects
+and you could never get them back without some prior ownership relationship
+with the objects in question.
+<BR>Another issue is interesting behavior of containers.&nbsp; Let's say
+you want to have a table that can only hold three things at a time.&nbsp;
+If the region is the only object which keeps track of transitive contents--and
+therefore the table <I>itself</I> has no state about what its contents
+are--then the region itself must know that the table only wants to hold
+three things, and the region itself must signal appropriate errors when
+someone tries to put more than three things on that table.&nbsp; This generalizes
+to just about all entry-control behavior that we might want containers
+to be able to have.
+<H4>
+<A NAME="SingleLevelDisconnectionIssues"></A>Disconnection issues</H4>
+What happens if an object disconnects?&nbsp; In general, the most sensible
+thing is for that object to vanish while an informative message "That object
+vanished because its owner is no longer on line" appears.&nbsp; But what
+if the object contained other objects?&nbsp; What should happen to those
+other objects?
+<BR>For example, what happens to object O if avatar A vanishes while holding
+it?&nbsp; In this scenario, R has no idea where A vanished to.&nbsp; So
+it has (at least) two choices about what to do with O: make O be contained
+by R (i.e. O "drops to the floor" when A goes poof), or tell O to disconnect
+as well (in which case O reverts to its creators' pocket or to some other
+"container of last resort").&nbsp;&nbsp; Either of these are viable options,
+and it's worth noting that the only reason these are options at all is
+because R has full knowledge of O's containment, and can update O's containment
+any way it likes.
+<BLOCKQUOTE><I>This is another example of "leverage what you cannot prevent".&nbsp;
+R can do arbitrary things to O's containment status; when O's container
+disconnects and O is left floating in limbo, this becomes a feature, not
+a bug, since R can just put O on the floor--or into a lost-and-found bin,
+or what have you.</I></BLOCKQUOTE>
+
+<H3>
+<A NAME="FullMultiLevelApproach"></A>The full multi-level approach</H3>
+A more ambitious way to structure the containment relationship is to define
+actual references between containers and each of their direct containables.&nbsp;
+In this approach, containers are connected directly to the things they
+contain, and vice versa:
+<BR>[illo]
+<BR>However, since all objects transitively contained by the region must
+still be mutually able to see and interact with each other, there still
+needs to be some kind of relationship between each such object and the
+region itself.&nbsp; In our current system, this is done via direct connections
+between the region and each transitively contained object:
+<BR>[illo]
+<BR>In this structure, each container keeps not only references to its
+direct contents, but also state about all of its <I>transitive</I> contents.&nbsp;
+Transferring a container then becomes an operation that involves only that
+container, not its region:
+<BR>[illo]
+<BR>The container tells its new container about its contents.&nbsp; The
+container itself becomes the arbiter of what it contains.
+<H4>
+<A NAME="MultiLevelSecurityProperties"></A>Security properties &amp; motivations</H4>
+The multi-level approach gives us a structure for representing a trust
+relationship between a container and something directly within it.&nbsp;
+This trust relationship is not at all dependent on the region; the objects
+themselves track what they're holding.&nbsp; The region is in no position
+to rob your avatar of what it's holding as you transition out of the region.
+<BR>However, the region can still play games with what it looks like you're
+holding.&nbsp; This would lead to a situation in which your state about
+your contents doesn't match the region's state about your contents (because
+the region has been hacked):
+<BR>[illo]
+<BR>This is one of the main requirements issues we need to sort out:&nbsp;
+how important is this additional dimension of non-hackability to the customer,
+given that visually (though not semantically), they can still be robbed
+by a hacked region?&nbsp; (The customer could just go to a non-hacked region
+and would then still be holding the object, but they would have to know
+to do that.)
+<H4>
+<A NAME="MultiLevelConsistency"></A>Consistency and its dilemmas</H4>
+You may have noticed that there is a lot of state scattered through the
+system now.&nbsp; Keeping this state consistent becomes a major challenge.&nbsp;
+In general we need to know that any permutation of overlapping transferToContainer
+requests will result in a fully consistent system.&nbsp; Analyzing this
+is something that we do not currently have the tools to do properly.&nbsp;
+This may be one of the biggest technical reasons not to use this sort of
+approach... it is not known to be impossible, but it is also not known
+how to make it clearly tractable.&nbsp; And we Really Don't Like Purple
+at this stage.
+<H4>
+<A NAME="MultiLevelDisconnection"></A>Disconnection inconsistencies</H4>
+Another problem, as you might have spotted already, emerges from the current
+technique of using both direct connections between containers and contained
+things, and also direct connections between regions and all their transitive
+contents.&nbsp; Let's assume we have good old R, A, and O again, and let's
+be extra detailed and draw out all the containment relationships and presence
+relationships:
+<BR>[illo]
+<BR>This picture represents pretty much exactly what our current system
+does.&nbsp; Now we have a problem similar to the <A HREF="#ConsistencyAndViewerPresences">problem
+with the original net topology</A>: what happens if machine X disconnects
+from machine Z, while all other connections remain active?&nbsp; In this
+case, as far as R is concerned, A is still telling it that A contains O.&nbsp;
+And as far as A is concerned, A is still contained by R and still contains
+O (and still has presences in R).&nbsp; And as far as O is concerned, A
+is still its container.&nbsp; But the link between O and R is severed,
+which likely means that O will still <I>look</I> like it's present in R
+(since A hasn't told R otherwise and rightly so), but will be dead in the
+water, unable to interact at all.&nbsp; This is an equally confusing (or
+perhaps <I>more</I> confusing) situation than we had originally.
+<H2>
+<A NAME="HowWeGotToWhereWeAre"></A>How we got to where we are: some history</H2>
+When we started out we had no notion of viewers.&nbsp; We basically began
+with a degenerate single-level comm system, and with no explicit control
+over (nor even awareness that we <I>needed</I> explicit control over) the
+lifetimes of presences.&nbsp; We spent a good chunk of last summer thrashing
+around trying to make the containership hierarchy be a completely separate
+hierarchy (managed via a completely different protocol) than the composition
+hierarchy; this was out of misguided concern for modularity.&nbsp; It of
+course turned out that it made no sense to have one data structure representing
+how things were contained in each other, and a <I>different</I> data structure
+representing how things <I>appeared</I> to contain each other.&nbsp; In
+other words, we realized that what you've got should be what you see.&nbsp;
+At this point, composition became basically a code library for depicting
+a particular containership structure, rather than a completely separate
+distributed state system.
+<BR>Once we got that sorted out, we realized that we had a very broken
+multi-level containership structure--and for security reasons we felt we
+needed a multi-level approach, not a single-level approach.&nbsp; So Arturo
+and RobJ, with much brain fever, implemented a version of a multi-level
+protocol that more often than not gets the state right, but that is scarily
+complex.
+<BR>ScottL came along last fall and vehemently pointed out the need for
+some kind of presence management system.&nbsp; He has over time steadily
+clarified the abstract properties that that level of infrastructure needs.&nbsp;
+RobJ wound up building a fairly hacked together system for managing presence
+lifetimes by tweaking the Pluribus runtime, and modified the multi-level
+containership structure to use it.&nbsp; (RobJ also implemented openable
+containers in November sometime.)
+<H2>
+<A NAME="WhereWeAre"></A>Where we are: the subsystem details</H2>
+At this point the containership code includes a single-level containment
+structure, a multi-level very stateful protocol built on that for handling
+multi-level containment tracking, and a way too tightly integrated presence
+management system.&nbsp; All these pieces (or at least the first and third--what
+we do about the multi-level approach still needs to be decided) need to
+be redone in a far more separated and separable way, such that they can
+be composed much more cleanly.
+<BR>Composition is a set of libraries for putting up a particular rendering
+hierarchy that corresponds to a particular containership hierarchy (as
+tracked and updated by the region alone--the region's view of the world
+is what all viewers see, and the composition ingredient is how they see
+it).
+<BR>The Pluribus runtime contains basic functionality for creating scoped
+presences and for passing them around via the comm system; the containership
+code makes use of these abilities.
+<H2>
+<A NAME="WhatWeNeedToDecide"></A>What we need to decide: some viable sets
+of choices</H2>
+The most important one is do we go with the multi-level approach or the
+single-level approach to containment.&nbsp; It's RobJ's goal to make this
+document readable enough that any sufficiently interested person could
+at least understand what each approach is and what risks and benefits are
+associated with each approach.&nbsp; <A HREF="mailto:robj@communities.com">Let
+him know</A> whether he succeeded (or even came close) to doing that.&nbsp;
+Thanks!!!!!!!!!!!!!!!!!
+<BR>&nbsp;
+</BODY>
+</HTML>

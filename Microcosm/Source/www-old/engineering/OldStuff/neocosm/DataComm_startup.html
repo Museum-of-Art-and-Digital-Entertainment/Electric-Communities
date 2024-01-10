@@ -1,0 +1,480 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>Comm Connection Startup Protocol</TITLE>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+   <META NAME="Generator" CONTENT="Microsoft Word 97">
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; U) [Netscape]">
+</HEAD>
+<BODY>
+
+<H1>Neocosm Comm Connection Startup Protocol</H1>
+
+<P>Written by <A HREF="mailto:bill@communities.com">Bill</A>. Current as
+of 7/2/1998. Includes the fixes for resolving crossed connection conflicts.</P>
+
+<P>Update September 8, 1998 [Bill] - Change RegistrarID to VatID. Include
+changes to detect that a connectToVatAt() call has connected to self (in
+Outgoing Expect IAM and Incoming Expect GIVEINFO). Document message formats
+and key generation for the supported crypto suites.<BR>
+Update September 18, 1998 [Bill] - Fix minor errors.<BR>
+Update November 12, 1998 [Bill] - Add description of mode NONE_SDH_M, and
+fix minor errors.<BR>
+Update November 23, 1998 [Bill] - Add describption of mode BLOWFISH56_DSH_M.</P>
+
+<P>
+<HR WIDTH="100%"></P>
+
+<P><B><FONT SIZE=+1>Basic Message Formats</FONT></B></P>
+
+<P>The Connection Startup Protocol uses messages formatted with java.io.DataOutputStream.
+The first byte of the message is one of the types defined in ec.elib.net.data.Msg.
+PROTOCOL_VERSION, PROTOCOL_ACCEPTED, and STARTUP are used in the startup
+protocol. The startup protocol uses writeUTF(), writeShort()&nbsp;(read
+with readUnsignedShort()), and write(byte[]) in sending the pieces of the
+protocol. These are refered to as UTF, short, and byte[] in the descriptions
+below.</P>
+
+<P>The PROTOCOL_VERSION message: (byte type=PROTOCOL_VERSION=1, UTF 1stProtocolID,
+UTF 2ndProtocolID, ...). The only protocol version currently supported
+is &quot;E1&quot;.</P>
+
+<P>The PROTOCOL_ACCEPTED message: (byte type=PROTOCOL_ACCEPTED=3, UTF protocolID).</P>
+
+<P>The STARTUP message is used for all the rest of the messages: (byte
+type=STARTUP=2, byte token, arguments). Where arguments and their format
+are defined in the protocol description below, and token is defined in
+ec.elib.net.data.StartUpProtocol and is one of:</P>
+
+<PRE>    final private static int TOK_BYE                =  1;
+    final private static int TOK_DUP                =  2;
+    final private static int TOK_GIVEINFO           =  3;
+    final private static int TOK_GO                 =  4;
+    final private static int TOK_GOTOO              =  5;
+    final private static int TOK_IAM                =  6;
+    final public  static int TOK_IWANT              =  7;
+    final public  static int TOK_NOT_ME             =  8;
+    final private static int TOK_REPLYINFO          = 10;
+    final public  static int TOK_TRY                = 11;
+    final private static int TOK_RESUME             = 12;
+    final private static int TOK_YOUCHOSE           = 13;
+    final public  static int TOK_ERR_PROTOCOL       = -2;
+    final private static int TOK_ERR_WRONG_ID       = -3;
+    final private static int TOK_ERR_INTERNAL       = -4;</PRE>
+
+<PRE>
+<HR WIDTH="100%"></PRE>
+
+<P><B><FONT SIZE=+1>Connection Establishment</FONT></B></P>
+
+<P>There are three layers of code responsible for connections in the data
+comm system. The top level is ConnectionsManager. It is responsible for
+all the connections between a E vat and other vats. It includes methods
+such as &quot;DataConnection getConnection(remoteVatID , searchPath)&quot;
+and &quot;connectToVatAt(IP:port)&quot; which either create a connection
+and returns it, or return an existing connection.</P>
+
+<P>The connection to a specific other vat is handled by the DataConnection
+object. It is responsible for building new connections and resuming suspended
+connections.</P>
+
+<P>The connection to a specific machine is handled by the DataPath object.
+It, along with its SendThread and RecvThread, handles one TCP connection.</P>
+
+<P>The normal connection build process starts with the connection call
+to the ConnectionsManager described above. The remoteVatID parameter specifies
+which specific vat is wanted, and the searchPath parameter specifies places
+to look for it. The search path is normally a set of Process Location Servers
+to query. There is a specific VatID (&quot;0&quot;) which is recognized
+as &quot;any vat listening at the IP:port passed in the connectToVatAt()
+call on the ConnectionsManager.</P>
+
+<P>The search for a vat starts by building a DataPath to the first address
+on the search path, normally a PLS. If that PLS knows where the vat is,
+it returns the IP address and port number which is inserted into the search
+path. The currently active instance of DataPath has then completed it's
+job, so it closes the TCP connection, and notifies the DataConnection that
+it has shutdown. The DataConnection then builds a new DataPath to try the
+next address in the search path.</P>
+
+<P>The connection startup protocol (Alice is connecting to Bob) used by
+the DataPath is as follows. Note that there are two interleaved protocol
+negotiations involved. The version of the E protocol to use, and the low
+level encryption/compression protocol. The E protocol negotiation is over
+quickly, while the encryption protocol negotiation involves the exchange
+of keys and the verification of identities.</P>
+
+<P>In the description below, &lt;PROBLEM&gt; is one of ERR_PROTOCOL, if
+a wrong protocol message type was received or the remote end is using an
+unsupported version of the protocol, or ERR_WRONG_ID if the far end responds
+IAM for the wrong vatID or the remote public key does not hash to the vatID.
+TOK_ERR_INTERNAL is used to notify the other end that an internal error
+has caused the connection attempt to fail.</P>
+
+<P>The protocol is described using the notation, &quot;Sender: message
+paremeters (comments)&quot;</P>
+
+<PRE>-------------------Outgoing Startup State------------------------
+ Alice: PROTOCOL_VERSION &lt;list of E protocol versions supported&gt;.
+
+ Alice: IWANT &lt;UTF&nbsp;bobVatID&gt;
+
+
+-----------------Incoming New Connection State-------------------
+   Bob: PROTOCOL_ACCEPTED UTF version of E protocol to use,
+    or  &lt;PROBLEM&gt; and throw exception.
+
+------------------Incoming Expect IWANT State--------------------
+   Bob: IAM &lt;UTF bobVatID&gt; &lt;UTF bobsPathToBob&gt; &lt;short keyLen&gt;
+                      &lt;byte[] bobPublicKey&gt;
+                                             (continue with protocol)
+    or  NOTME                                (try next site in search path)
+    or  TRY &lt;UTF possibleAlternatePath&gt;      (add to search path, try next site)
+    or  DUP                                  (crossed connections, quietly stop)
+    or  &lt;PROBLEM&gt;                                    (stop)
+</PRE>
+
+<PRE>-------------------Outgoing Expect IAM State---------------------</PRE>
+
+<P>If Alice receives TRY, as she would from the PLS, she adds the &lt;possibleAlternatePath&gt;
+to her search path and shuts down the DataPath. If she receives NOTME (NotMe)
+she just shuts down the DataPath without adding to the path. The DataConnection
+will build a new DataPath to try the next entry in the path (if any).</P>
+
+<P>If Alice receives Bob's IAM:</P>
+
+<PRE> Alice: GIVEINFO &lt;UTF aliceVatID&gt; &lt;UTF alicesPathToAlice&gt;
+                 &lt;short keyLen&gt; &lt;byte[]alicePublicKey&gt;</PRE>
+
+<PRE>    or  NOTME                                (Bob's VatID is the same as Alice's)
+    or  DUP                                  (duplicated connection, quietly stop)
+    or  &lt;PROBLEM&gt;                                    (stop)
+</PRE>
+
+<PRE>-----------------Incoming Expect GIVEINFO State------------------</PRE>
+
+<P>If Bob receives an invalid message type:</P>
+
+<PRE>   Bob: &lt;PROBLEM&gt;                                    (stop)</PRE>
+
+<P>If Bob receives Alice's NOTME, he recognizes that Alice tried to connect
+to herself and stops.</P>
+
+<P>If Bob receives Alice's GIVEINFO and Bob only knows of one connection:</P>
+
+<PRE>   Bob: REPLYINFO &lt;UTF cryptoProtocols&gt;           (continue)</PRE>
+
+<P>If Bob receives Alice's GIVEINFO and Bob knows of crossed connections
+and Bob is the catbird:</P>
+
+<PRE>   Bob: REPLYINFO &lt;UTF&nbsp;cryptoProtocols&gt;              (continue)
+    or  DUP                                          (stop, crossed connections)</PRE>
+
+<P>If Bob receives Alice's GIVEINFO and Bob knows of crossed connections
+and Alice is the catbird:</P>
+
+<PRE>   Bob: YOUCHOSE &lt;UTF cryptoProtocols&gt;              (continue)</PRE>
+
+<P>Where &lt;cryptoProtocols&gt; is a comma separated list of crypto protocol
+versions that Bob knows (see &lt;version&gt; below), in order from most
+favored to least favored.<BR>
+
+<HR WIDTH="100%"><BR>
+<B><FONT SIZE=+1>Crossed connection notes<BR>
+<BR>
+</FONT></B>A crossed connection exists when Alice tries to build a connection
+to Bob at the same time Bob is trying to build a connection to Alice. If
+Bob's vatID is greater than Alice's, then Bob is the &quot;catbird&quot;
+and must decide which of the two connections to use. Otherwise Alice is
+the catbird and she must be notified that she is to decide.</P>
+
+<P>Since the GIVEINFO state is on an incoming connection, Bob is in a position
+to notice that he is also in the process of building a connection to Alice,
+and the potential for crossed connections exists. If he is not the catbird
+he notifies Alice that she must decide by sending the YOUCHOSE message.<BR>
+<BR>
+If he is the catbird, he looks at the state of the outgoing connection.
+He decides to keep the incoming or the outgoing connection based on that
+state:</P>
+
+<PRE>    ST_UNSTARTED                      Keep incoming
+    ST_OUTGOING_EXPECT_IAM            Keep incoming
+    ST_OUTGOING_EXPECT_REPLYINFO      Keep incoming
+    ST_OUTGOING_EXPECT_GOTOO          Keep outgoing
+    ST_EXPECT_MESSAGE                 Keep outgoing</PRE>
+
+<P>If Alice receives the YOUCHOSE message on her outgoing connection attempt,
+she looks at the state of any incoming connection for Bob's vatID she may
+know about. She decides to keep the incoming or the outgoing connection
+based on that state:</P>
+
+<PRE>    No connection known               Keep outgoing
+    ST_INCOMING_EXPECT_IWANT          Keep outgoing
+    ST_INCOMING_EXPECT_GIVEINFO       Keep outgoing
+    ST_INCOMING_EXPECT_GO             Keep incoming
+    ST_EXPECT_MESSAGE                 Keep incoming</PRE>
+
+<P>When Bob eliminates the outgoing connection or Alice eliminates the
+incoming connection, they shutdown the path they are terminating. This
+action causes the TCP connection to be closed and the DataPath to be shutdown.<BR>
+
+<HR WIDTH="100%"></P>
+
+<PRE>----------------Outgoing Expect REPLYINFO State------------------
+</PRE>
+
+<P>If Alice received an invalid message type:</P>
+
+<PRE> Alice: &lt;PROBLEM&gt;                                    (stop)</PRE>
+
+<P>If Alice receives a DUP she stops attempting to connect on the MsgConnection.
+If she receives one of the &lt;PROBLEM&gt; responses, she generates an
+error log and stops attempting to connect on the MsgConnection.</P>
+
+<P>If Alice receives a YOUCHOSE, she choses which connection to eliminate.</P>
+
+<PRE> Alice: DUP                           (If she keeps the incoming)</PRE>
+
+<P>Otherwise she processes the YOUCHOSE the same as a REPLYINFO.</P>
+
+<P>If Alice receives Bob's REPLYINFO and there is an outgoing suspendID:</P>
+
+<PRE> Alice: RESUME &lt;short len&gt; &lt;byte[] suspendID&gt;
+                                      (resume suspended connection)</PRE>
+
+<P>If Alice receives Bob's REPLYINFO and it includes a crypto protocol
+Alice supports:</P>
+
+<PRE> Alice: GO &lt;crypto parameters&gt;        (continue)</PRE>
+
+<P>If Alice receives Bob's REPLYINFO and CRYPTO_NONE was the selected protocol:</P>
+
+<PRE><TT> Alice: GO (continue, no crypto)
+
+</TT>Otherwise when Alice receives Bob's REPLYINFO:</PRE>
+
+<PRE> Alice: ERR_PROTOCOL                  (can't agree on crypto)
+
+
+--------------------Incoming Expect GO State---------------------
+</PRE>
+
+<P>If Bob received an invalid message type:</P>
+
+<PRE>   Bob: &lt;PROBLEM&gt;                     (stop)</PRE>
+
+<P>If Bob receives a RESUME from Alice and the suspendID matches his suspendID:</P>
+
+<PRE>   Bob: GOTOO                         (resume connection)</PRE>
+
+<P>If Bob receives a RESUME and the suspendIDs do not match:</P>
+
+<PRE>   Bob: BYE                           (Wrong suspendID)</PRE>
+
+<P>If Bob receives a GO and expects a RESUME:</P>
+
+<PRE>   Bob: BYE                           (discarded resumable connection)</PRE>
+
+<P>If Bob receives a GO and it includes a supported crypto &lt;version&gt;:</P>
+
+<PRE>   Bob: GOTOO &lt;crypto parameters&gt;     (Bob starts encrypted session)</PRE>
+
+<P>Otherwise if the GO does not include a supported crypto &lt;version&gt;:</P>
+
+<PRE>   Bob: GOTOO &lt;CRYPTO_NONE&gt;           (Bob starts unencrypted session)
+
+
+-------------------Outgoing Expect GOTOO State-------------------</PRE>
+
+<P>If Alice received an invalid message type:</P>
+
+<PRE> Alice: &lt;PROBLEM&gt;                                    (stop)</PRE>
+
+<P>If Alice receives a BYE, she stops attempting to connect on the MsgConnection
+and signals that it has died.</P>
+
+<P>If Alice receives Bob's GOTOO, she starts an encrypted session or unencrypted
+session depending on what Bob has sent for &lt;crypto parameters&gt;. Thence
+both can send each other E messages according to the message protocol.<BR>
+
+<HR WIDTH="100%"></P>
+
+<P><B><FONT SIZE=+1>Definition of message components</FONT></B></P>
+
+<PRE> &lt;crypto parameters&gt; are:
+      &lt;UTF version&gt; &lt;version specific parameters&gt;
+
+ The value of &lt;version&gt; is selected from the currently supported list:
+      &quot;None&quot;      - No crypto used. No version specific parameters.
+      &quot;3DES_SDH_M&quot; - Triple DES with DH key agreement.  &lt;DHparameters&gt;
+                    are the version specific parameters.
+                    More than one E message may be included a an
+                    encrypted packet.     
+      &quot;NONE_SDH_M&quot; - No encryption with DH key agreement.  &lt;DHparameters&gt;
+                    are the version specific parameters.
+                    More than one E message may be included a packet.</PRE>
+
+<P>The &lt;DHparameters&gt; are shipped as two sequences of (short len.
+byte[] data). They are:</P>
+
+<P><TT>&lt;g<SUP>x</SUP> mod m&gt;,&lt;DSA signature on messages sent +
+g<SUP>x</SUP> mod m&gt;</TT></P>
+
+<P>N.B. The signature covers the startup protocol in addition to just g<SUP>x</SUP>
+mod m. This is to guard against an attack where a man in the middle can
+change the list of supported encryption types and force no encryption when
+both ends would prefer encrypted links. The specific messages included
+in the signature are:</P>
+
+<UL>
+<P>Outgoing connection</P>
+
+<UL>
+<LI>GIVEINFO</LI>
+
+<LI>IAM</LI>
+
+<LI>IWANT</LI>
+
+<LI>PROTOCOL_VERSION</LI>
+</UL>
+
+<P>Incoming Connection</P>
+
+<UL>
+<LI>PROTOCOL_ACCEPTED</LI>
+
+<LI>IAM</LI>
+
+<LI>REPLYINFO</LI>
+
+<LI>YOUCHOSE</LI>
+</UL>
+</UL>
+
+<P><B><FONT SIZE=+1>Key Generation and Message Formats </FONT></B></P>
+
+<P>This section deals with two granualities of message. There are the E
+messages, which are a direct result of E.send and E.sendOnly operations.
+Several of these messages may be combined into a single TCP level message
+for transmission over the TCP connection. This second kind of message will
+be called a TCP message.</P>
+
+<P>These TCP&nbsp;messages are described using a notation which gives the
+length of each element and it's value. For example, a 4 byte integer length
+is described as <TT>(4,length)</TT>. The fields are written one after another
+to indicate concatination. For example: <TT>(4,length) (length,data)</TT>.</P>
+
+<P><B>For encryption <TT>version == &quot;None&quot;</TT></B></P>
+
+<UL>
+<P><B>Key generation</B>: There are, of course, no keys generated.</P>
+
+<P><B>TCP&nbsp;Message format</B>: <TT>(4,length) (length,message)</TT></P>
+</UL>
+
+<P><B>For encryption <TT>version == &quot;3DES_SDH_M&quot;</TT></B></P>
+
+<UL>
+<P><B>Key generation</B></P>
+
+<P>This encryption version calculated 4 separate &quot;keys&quot;. They
+are: a 24 byte 3DES key, a 64 byte MAC key, an 8 byte initial sendIV, and
+an 8 byte initial receiveIV. First a Diffie-Hellman secret (<TT>dhSecret</TT>)
+is calculated by taking the <TT>g<SUP>x</SUP> mod m</TT> value received
+from the other side and calculating <TT>BigInteger secret = (g<SUP>x</SUP>
+mod m)<SUP>y</SUP> mod m </TT>using the standard Java BigInteger class.
+Then <TT>byte[] dhSecret = secret.toByteArray();</TT> </P>
+
+<P>The individual keys are calculated from <TT>dhSecret </TT>using MD5
+and a 16 byte pad consisting of a single byte repeated 16 times as follows:</P>
+
+<UL>
+<P><TT>3DESKey1</TT> is the first 8 bytes of <TT>md5((16,pad)(n,dhSecret))</TT>
+with <TT>0x55</TT> for the pad.<BR>
+<TT>3DESKey2</TT> is the second 8 bytes of <TT>md5((16,pad)(n,dhSecret))</TT>
+with <TT>0x55</TT> for the pad.<BR>
+<TT>3DESKey3</TT> is the first 8 bytes of <TT>md5((16,pad)(n,dhSecret))</TT>
+with <TT>0xaa</TT> for the pad.</P>
+
+<P><TT>MACKey</TT> is <TT>md5((16,pad)(n,dhSecret))</TT> with <TT>0x11</TT>
+for the pad followed by <TT>md5((16,pad)(n,dhSecret))</TT> with <TT>0x22</TT>
+for the pad followed by <TT>md5((16,pad)(n,dhSecret))</TT> with <TT>0x33</TT>
+for the pad followed by <TT>md5((16,pad)(n,dhSecret))</TT> with <TT>0x44</TT>
+for the pad.</P>
+
+<P>The <TT>sendIV </TT>and <TT>receiveIV </TT>are calculated by <TT>md5((16,pad)(n,dhSecret))</TT>
+with <TT>0x99</TT> for the pad. If the connection is an outgoing connection,
+the <TT>sendIV </TT>is the first 8 bytes and the <TT>receiveIV </TT>is
+the second 8 bytes. If the connection is an incoming connection, the <TT>sendIV
+</TT>is the second 8 bytes and the <TT>receiveIV </TT>is the first 8 bytes.</P>
+</UL>
+
+<P><B>TCP&nbsp;Message format</B></P>
+
+<P><TT>(n,totalLength) (20,SHA1_MAC) (n,msgLength1) (msgLength1,message)
+... (n,pad)</TT></P>
+
+<P>The totalLength and msgLength fields are sent in compressed format.
+For values between 0 and 127 (<TT>2<SUP>7</SUP>-1</TT>), the value is sent
+as one byte (with one high zero bit). For values between 128 and 16,383
+(<TT>2<SUP>14</SUP>-1</TT>), the value is sent as 2 bytes (with two high
+zero bits). For values between 16,384 and 2,097,151 (<TT>2<SUP>21</SUP>-1</TT>),
+the value is sent as 3 bytes (with three high zero bits). Since the maximum
+size message is 1,048,576 (<TT>2<SUP>20</SUP></TT>), this encoding covers
+all the legal messages.</P>
+
+<P>The totalLength field is the length in bytes of the all the messages
+including their compressed length field. It does not include the 20 byte
+Message Authentication Code (MAC), the pad, or the length of the totalLength
+field.</P>
+
+<P>The MAC is calculated using SHA1 and the authentication key generated
+as part of key generation. The MAC is the result of: <TT>SHA1( (64,MACKey</TT>
+<TT>) (n,msgLength1) (msgLength1,message) ... (64,MACKey</TT> <TT>) )</TT>.</P>
+
+<P>After the TCP message is generated as above, it is encrypted using Triple
+DES EDE in Cypher Block Chaining mode. (See <I>Applied Cryptography </I>by
+Bruce Schneier for details.) The first Initialization Vector (IV) is calculated
+as part of key generation. The next TCP message uses an IV which is one
+higher than the previous one. The IV is considered to be an 8 byte unsigned
+integer in big endian format for this addition.</P>
+</UL>
+
+<P><B>For encryption <TT>version == &quot;3DES_SDH_M&quot;</TT></B></P>
+
+<UL>
+<P><B>Key generation</B></P>
+
+<P>This encryption version uses the same logic as <TT>3DES_SDH_M</TT>&nbsp;to
+calculate a 7 byte Blowfish key, a 64 byte MAC key, an 8 byte initial sendIV,
+and an 8 byte initial receiveIV. </P>
+
+<P><B>TCP&nbsp;Message format</B></P>
+
+<P>The message format is the same as for <TT>3DES_SDH_M</TT>, except that
+the message is encrypted using Blowfish in Cypher Block Chaining mode.
+The logic of incrementing the send and receive IVs is the same as in that
+encryption version.</P>
+</UL>
+
+<P><B>For encryption <TT>version == &quot;NONE_SDH_M&quot;</TT></B></P>
+
+<UL>
+<P><B>Key generation</B></P>
+
+<UL>
+<P>Key generation is the same as as <TT>3DES_SDH_M</TT>. The encryption
+keys and IVs are not used.</P>
+</UL>
+
+<P><B>TCP&nbsp;Message format</B></P>
+
+<UL>
+<P>The message format is the same as <TT>3DES_SDH_M</TT> except that the
+messages are not encrypted.</P>
+</UL>
+</UL>
+
+</BODY>
+</HTML>

@@ -1,0 +1,734 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE></TITLE>
+   <META NAME="Author" CONTENT="Bill Frantz">
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; U) [Netscape]">
+</HEAD>
+<BODY>
+
+<H1>E Data Comm System Through Firewalls</H1>
+
+<P><B>Last updated:</B><I> </I>[98/09/15 Bill]<BR>
+[98/09/16 Bill] Added a flow control protocol for each TCP stream and a
+description of the server logic.<BR>
+[98/09/17 Bill] Added client implementation logic. Added information on
+configuration for firewall HTTP proxys. Added description of weak and strong
+authentication for HTTP_Logon to eliminate some kinds of denial of service
+attack.<BR>
+[98/09/18 Bill] Eliminate the unauthenticated logon messages, and define
+the wire format of the messages.<BR>
+[98/11/12 Bill] Minor changes to the constants and formating.</P>
+
+<P>Author: <A HREF="mailto:frantz@communities.com">Bill Frantz</A> </P>
+
+<H2>Introduction</H2>
+
+<P>This document describes some ideas for extending the DataComm system
+to operate through various types of firewall. There are four basic levels
+of problem:</P>
+
+<OL>
+<LI>Where the only problem is setting up the firewall to pass incoming
+sockets to the listen address on the local machine and advertising the
+ip:port used on the firewall machine.</LI>
+
+<LI>Where incoming sockets can not be accepted.</LI>
+
+<LI>Where the only communications permitted throught the firewall are via
+outgoing HTTP.</LI>
+
+<LI>Where the only communications permitted throught the firewall are via
+outgoing HTTP, and connections must be made to port 80.</LI>
+</OL>
+
+<H4>Related Documents</H4>
+
+<P>See <A HREF="NewECommSystem.html">New E Data Comm System</A> for information
+about the E Data Comm System.</P>
+
+<P>See <A HREF="DataComm_startup.html">DataComm Startup Protocol</A> for
+information on the start up protocol.</P>
+
+<H2>Requirements</H2>
+
+<P>The basic requirements is that the E Data Comm system be able to operate
+through firewalls without special configuration of the firewall. Furthermore
+this operation should be possible without the cooperation or permission
+of the firewall operator.</P>
+
+<H2>Architecture</H2>
+
+<H3><A NAME="HTTP Tunneling"></A><B>HTTP Tunneling</B></H3>
+
+<UL>
+<P>HTTP Tunneling works by sending POST requests to a &quot;HTTP server&quot;
+and receiving replies. If the firewall allows us to use HTTP on any port,
+then we just need the <A HREF="#DataCommHTTP">DataComm HTTP Server</A>
+code. Otherwise, if the machine must also support a real HTTP server, we
+will use a CGI to redirect the request to the non-port 80 server. Note
+that the Java virtual machine is configured to use a firewall proxy with
+the Java system properties: http.proxyHost and http.proxyPort. After this
+configuration has been set, the URL will use the firewall proxy to contact
+hosts outside the firewall.</P>
+
+<P>If we can use HTTP/1.1 instead of HTTP/1.0, we may be able to take advantage
+of the reusable TCP connections which are supported in HTTP/1.1. In 1.1,
+everyone along the path, including proxys and firewalls has the option
+of tearing down the connection after the first round trip, but even if
+it only helps on some cases, it would be worth while.</P>
+
+<P>The POST request can be sent through a URLConnection generated from
+a URL which specifies a protocol of &quot;http&quot;, a host-name, port-number,
+and a path or cgi reference.</P>
+
+<UL>
+<P><TT>conn = url.openConnection(); conn.setDoOutput(true); conn.setUseCaches(false);
+conn.setRequestProperty(&quot;Content-type&quot;, &quot;application/octet-stream&quot;);</TT></P>
+
+<P><TT>inNotifier.deactivate(); in = null;</TT></P>
+
+<P><TT>return out = conn.getOutputStream();</TT></P>
+</UL>
+
+<P>When the input stream is first read, the buffered output is sent:</P>
+</UL>
+
+<PRE><TT>        outNotifier.deactivate();
+        out.close();
+        out = null;
+
+        // An HTTP error will either show up as an IOException, or it
+        // will show up as the error response.  If the content type is
+        // not &quot;application/octet-stream&quot;, then we are dealing with an
+        // error response.
+        try {
+            in = conn.getInputStream();
+        } catch (IOException e) {
+            throw new IOException(&quot;HTTP request failed&quot;);
+        }
+
+        String contentType = conn.getContentType();
+        if (contentType == null ||
+                !conn.getContentType().equals(&quot;application/octet-stream&quot;)) {
+            throw new IOException(&quot;HTTP request failed&quot;);
+        }
+
+        return in;</TT>
+</PRE>
+
+<UL>
+<P>The request starts out with a fixed header of POST and must include
+<TT>Content-length: </TT>header. To be complient with HTTP (see RFC 2068),
+it must also include <TT>Content-type:</TT>.</P>
+
+<UL>
+<PRE><TT>POST &lt;URI-requested&gt; HTTP/1.0\r\n
+Content-type: application/octet-stream\r\n
+&quot;Content-length: &quot; + sizeOfData + &quot;\r\n&quot;</TT></PRE>
+</UL>
+
+<P>The reply starts out with a fixed <TT>200 OK</TT> header, and also includes
+<TT>Content-length:</TT> and <TT>Content-type:</TT>.</P>
+
+<UL>
+<P><TT>HTTP/1.0 200 OK\r\n<BR>
+Content-type: application/octet-stream\r\n<BR>
+&quot;Content-length: &quot; + sizeOfData + &quot;\r\n&quot;<BR>
+\r\n</TT></P>
+</UL>
+
+<P>If there is a client error, the reply is a fixed <TT>400 Bad Request</TT>
+header.</P>
+
+<UL>
+<P><TT>HTTP/1.0 400 Bad Request - &lt;message&gt;\r\n<BR>
+\r\n</TT></P>
+</UL>
+
+<P>Followed by the data as a transparent byte stream. The system allways
+sends a least one byte of data (a nul) to support clients that object to
+zero bytes of data.</P>
+
+<P>The receiver must discard any extra data which follows the sizeOfData
+bytes in the byte stream. The receiver must also skip all the other headers
+until it reads the blank line (or line consisting only of line terminators
+or whatever).</P>
+</UL>
+
+<H3><A NAME="DataCommHTTP"></A><B>DataComm HTTP Server</B></H3>
+
+<UL>
+<P>The DataComm HTTP server process acts as a remote proxy for the firewalled
+vat client. The proxy supports a listen address where the vat can be contacted,
+and several TCP links to other vats. The protocol between the client and
+the proxy server identifies the TCP&nbsp;link with which a set of data
+is associated. Note that since normal vat-to-vat authentication and privacy
+measures are used, the client to proxy link does not need either encryption
+or authentication. However, some level of authentication would help discourage
+denial of service attacks. Since all communication is driven by the client,
+the proxy needs to be able to time out the client listen address and the
+TCP links. See also <A HREF="#Server Design">Server Design</A>.</P>
+
+<UL>
+<P><FONT SIZE=-1>Note on Timeouts: It is possible that a slow link will
+result in it taking longer for the clent to send a HTTP_Session message
+than the server timeout. If the server can detect that the client has started
+sending a message, it can then use continued progress in receiving the
+message as the timeout criterien rather than just receipt of the message.
+This kind of timeout is straight forward when the client is connected directly
+to the server. I don't know if it is possible when the client messages
+are being redirected by a CGI.</FONT></P>
+</UL>
+
+<H3><B>Client - Proxy <FONT SIZE=+1>Message Formats</FONT></B></H3>
+
+<UL>
+<P>This protocol uses messages formatted with java.io.DataOutputStream.
+The protocol uses writeUTF(), writeByte(), writeShort()&nbsp;(read with
+readUnsignedShort()), and write(byte[]) in sending the data. In the descriptions
+below, the first three are refered to as UTF, byte, and short. The notation
+&quot;byte[]&quot; is also used. All byte[] parameters are assumed to be
+proceeded by a short giving the length of the byte array.</P>
+
+<P>The <TT><A HREF="#HTTP_Logon">HTTP_Logon</A></TT> message includes a
+list of acceptable protocol version numbers. The versionID described in
+this document is &quot;T1&quot;. </P>
+
+<P>All messages between the client and the proxy are carried in HTTP envelopes
+as described under <A HREF="#HTTP Tunneling">HTTP Tunneling</A>. Each of
+the major messages types (<TT><A HREF="#HTTP_Logon">HTTP_Logon</A></TT>,
+<TT><A HREF="#HTTP_Session">HTTP_Session</A></TT>, <TT><A HREF="#HTTP_Shutdown">HTTP_Shutdown</A></TT>,
+and <TT><A HREF="#HTTP_Error">HTTP_Error</A></TT>) are carried in a separate
+HTTP interchange.</P>
+
+<H4>Message Type codes</H4>
+
+<P>All message and response types are single bytes. The assigned values
+are:</P>
+
+<UL>
+<P><TT><A HREF="#HTTP_Logon">HTTP_Logon</A></TT> = 0x01;</P>
+
+<P><TT><A HREF="#HTTP_Session">HTTP_Session</A></TT> = 0x02</P>
+
+<P><TT><A HREF="#HTTP_Shutdown">HTTP_Shutdown</A></TT> = 0x03;</P>
+
+<P><TT><A HREF="#HTTP_Error">HTTP_Error</A></TT> = 0x04;</P>
+
+<P><TT><A HREF="#HTTP_Logged_On">HTTP_LoggedOn</A></TT> = 0x05;</P>
+
+<P><TT><A HREF="#HTTP_Set_Server_Nonce">HTTP_Set_Server_Nonce</A></TT>
+= 0x06;</P>
+</UL>
+
+<P>The subtypes of HTTP_Session are assigned values</P>
+
+<UL>
+<P><TT><A HREF="#HTTP_NewConnection">HTTP_NewConnection</A></TT> = 0x10;</P>
+
+<P><TT><A HREF="#HTTP_Data">HTTP_Data</A></TT> = 0x11;</P>
+
+<P><TT><A HREF="#HTTP_OK_To_Send">HTTP_OKToSend</A></TT> = 0x12;</P>
+
+<P><TT><A HREF="#HTTP_Close">HTTP_Close</A></TT> = 0x13;</P>
+
+<P><TT><A HREF="#HTTP_InvalidID">HTTP_InvalidID</A></TT> = 0x14;</P>
+
+<P><TT><A HREF="#HTTP_ConnectionFailed">HTTP_ConnectionFailed</A></TT>
+= 0x15;</P>
+
+<P><TT><A HREF="#HTTP_ConnectionComplete">HTTP_ConnectionComplete</A></TT>
+= 0x16;</P>
+</UL>
+
+<H4>Client Authentication</H4>
+
+<P>There is a trade off between server performance and the ability of a
+hostile user to cause denial of service attacks on the server and it's
+clients. Most of these attacks can be eliminated by authenticating the
+logon message and using the VatID to control access to the server (for
+billing or to eliminate bad actors).</P>
+
+<P>The server can check three levels of authentication. If the server never
+checks signatures, anyone who knows the vatID and the server URL can deny
+service to that vatID by sending a <TT>HTTP_Logon</TT> with that vatID.
+If the server checks the <TT>clientNonce</TT>, it protects against this
+attack by requiring an attacker to have a signed <TT>HTTP_Logon</TT> message.
+However, the message could come from having snooped the vat's communications.
+If the server checks require that the vat sign a random number provided
+by the server, and the server saves the last number it issued the client
+and makes sure the client is returning that number, then the server knows
+it is communicating with the client. The server should also ensure that
+the vatID is the hash of the public key.</P>
+
+<P>The server can dynamically decide how much authentication to require.
+A policy of only checking authentication if the vatID is already logged
+on seems reasonable.</P>
+
+<H4>Message Descriptions</H4>
+
+<P><A NAME="HTTP_Logon"></A>HTTP_Logon Message </P>
+
+<UL>
+<P><TT>&lt;byte HTTP_Logon&gt; &lt;UTF VatID&gt; &lt;byte[]serverNonce&gt;
+&lt;byte[]clientNonce&gt; &lt;byte[]publicKey&gt; &lt;byte[]signature&gt;</TT>
+- Indicates that &lt;VatID&gt; wants to use the server as a proxy. The
+<TT>serverNonce</TT> is a random number generated by the server, the clientNonce
+is a random number generated by the client, the public key is the client's
+public key, and the signature is the DSA signature over the sequence (as
+transmitted) <TT>&lt;HTTP_Logon&gt; &lt;VatID&gt; &lt;serverNonce&gt; &lt;clientNonce&gt;</TT>.
+The first time the client sends this message, it specifies a zero length
+<TT>serverNonce</TT>. The responses are: </P>
+
+<P><TT>&lt;<A NAME="HTTP_Logged_On"></A>HTTP_LoggedOn&gt; &lt;byte[]sessionID&gt;
+&lt;UTF listenAddress&gt;</TT> - Indicates that the logon is successful
+and provides a sessionID for the session. The <TT>sessionID</TT> is sufficently
+large (64 bits?) that a hacker who is not tapping the communications between
+the client and the server can not easily guess it and interfere with the
+service. The <TT>listenAddress</TT> is the host:port the server is using
+to listen for connections to this vat.</P>
+
+<P>&lt;<A NAME="HTTP_Set_Server_Nonce"></A><TT>HTTP_SetServerNonce&gt;
+&lt;byte[]serverNonce&gt;</TT> - Indicates that the <TT>serverNonce</TT>
+in the logon message was missing or invalid. The client should resend the
+<TT>HTTP_Logon</TT> message using the <TT>serverNonce</TT> in this message.</P>
+</UL>
+
+<P><A NAME="HTTP_Session"></A>HTTP_Session Message</P>
+
+<UL>
+<P>The <TT>HTTP_Session</TT> message is used in both directions to pass
+data to the proxyed TCP connections, open new TCP connections, respond
+to new TCP connections and close TCP connections. The <TT><A HREF="#HTTP_Session">HTTP_Session</A>
+</TT>message consists of a header and zero or more data segments. (A <TT>HTTP_Session
+</TT>message with zero data segments act as Ping/Pong message.) The client
+must send an <TT>HTTP_Session </TT>message every n (60?) seconds or the
+server will shutdown the session. </P>
+
+<P><A NAME="ConnectionID"></A>Messages which describe a specific TCP connection
+use a <TT>&lt;connectionID&gt;</TT> parameter. This parameter is an byte,
+limiting the maximum of proxied TCP sessions active to 255. Positive values
+are assigned by the client for outgoing connections. Negative values are
+assigned by the server for incoming connections. The value zero is not
+legal.</P>
+
+<P>Each TCP connection has its own flow control. Both the client and server
+should limit the amount of data they send to a connection to the value
+in the last <TT><A HREF="#HTTP_OK_To_Send">HTTP_OKToSend</A></TT> message
+for that connection.</P>
+
+<P>The header is:</P>
+
+<P><TT>&lt;HTTP_Session&gt; &lt;byte[]sessionID&gt;</TT> </P>
+
+<P>Any number of data segments may be included in the message. The legal
+data segments are:</P>
+
+<UL>
+<P><TT>&lt;<A NAME="HTTP_NewConnection"></A>HTTP_NewConnection&gt; &lt;byte
+connectionID&gt; &lt;UTF HostID:port&gt;</TT> - Client to host only. Build
+a TCP connection to the specified host and port, and use <A HREF="#ConnectionID">connectionID</A>
+to refer to it in subsquent messages. Responses are not necessarily returned
+in the same exchanges. They are:</P>
+
+<UL>
+<P><TT>&lt;<A NAME="HTTP_InvalidID"></A>HTTP_InvalidID&gt; &lt;byte connectionID&gt;</TT>
+- The <TT>connectionID</TT> passed is invalid because either there is already
+a connection using that ID, or because the ID has the wrong sign. All connections
+with that ID are closed. This response is also used for <TT><A HREF="#HTTP_Data">HTTP_Data</A></TT>,
+<TT><A HREF="#HTTP_OK_To_Send">HTTP_OKToSend</A></TT>, and <TT><A HREF="#HTTP_Close">HTTP_Close</A></TT>
+to indicate there is no connection established for that ID.</P>
+
+<P><TT>&lt;<A NAME="HTTP_ConnectionFailed"></A>HTTP_ConnectionFailed&gt;
+&lt;byte connectionID&gt; &lt;UTF reason&gt;</TT> - The connection could
+not be make. <TT>&lt;reason&gt;</TT> is a textual message describing the
+reason for the failure.</P>
+
+<P><TT>&lt;<A NAME="HTTP_ConnectionComplete"></A>HTTP_ConnectionComplete&gt;
+&lt;byte connectionID&gt;</TT> - The connection is ready to accept data.</P>
+</UL>
+
+<P><TT>&lt;HTTP_NewConnection&gt; &lt;byte connectionID&gt; &lt;UTF host:port&gt;</TT>
+- Server to client only. A new TCP connection has been established to the
+server's listen port for this VatID. The host and port are those of the
+remote end of the TCP connection. </P>
+
+<P><TT>&lt;<A NAME="HTTP_Data"></A>HTTP_Data&gt; &lt;byte connectionID&gt;
+&lt;byte[]data&gt;</TT> - Indicates data to be passed to/received from
+the TCP connection. This data segment may return <TT><A HREF="#HTTP_InvalidID">HTTP_InvalidID</A></TT>
+if there is no connection associated with the <TT><A HREF="#ConnectionID">connectionID</A></TT>
+passed. If data is longer than the limit in the last <TT><A HREF="#HTTP_OK_To_Send">HTTP_OKToSend</A></TT>,
+then the return will be <TT><A HREF="#HTTP_ConnectionFailed">HTTP_ConnectionFailed</A></TT>.</P>
+
+<P><TT>&lt;<A NAME="HTTP_OK_To_Send"></A>HTTP_OKToSend&gt; &lt;byte connectionID&gt;
+&lt;short bytesOfData&gt;</TT> - Indicates that the other end may send
+up to <TT>bytesOfData</TT> to the connection <TT><A HREF="#ConnectionID">connectionID</A></TT>.
+This data segment may return <TT><A HREF="#HTTP_InvalidID">HTTP_InvalidID</A></TT>
+if there is no connection associated with the connectionID passed.</P>
+
+<P><TT>&lt;<A NAME="HTTP_Close"></A>HTTP_Close&gt; &lt;byte connectionID&gt;
+&lt;UTF reason&gt;</TT> - Closes/indicates the connection has been closed.
+<TT>&lt;reason&gt;</TT> is a textual message describing the reason for
+the close. This data segment may return <TT><A HREF="#HTTP_InvalidID">HTTP_InvalidID</A></TT>
+if there is no connection associated with the <TT><A HREF="#ConnectionID">connectionID</A></TT>
+passed.</P>
+</UL>
+</UL>
+
+<P><A NAME="HTTP_Shutdown"></A>HTTP_Shutdown Message</P>
+
+<UL>
+<P><TT>&lt;HTTP_Shutdown&gt; &lt;byte[]sessionID&gt;</TT> - Ends the session
+between the client and the server. The server closes all the TCP connections
+it has open on behalf of the client and stops listening for new connections
+to the client. If the shutdown was initiated by the client, the response
+(server to client) is:</P>
+
+<P><TT>&lt;HTTP_Shutdown&gt; &lt;byte[]sessionID&gt;</TT> - Shutdown complete</P>
+</UL>
+
+<P><A NAME="HTTP_Error"></A>HTTP_Error</P>
+
+<UL>
+<P><TT>&lt;HTTP_Error&gt; &lt;byte[]sessionID&gt; &lt;UTF reason&gt;</TT>
+- An error occured on the session and it must be shut down. <TT>reason</TT>
+is a textual message describing the error. Possible errors are:</P>
+
+<UL>
+<LI>&quot;Session not active&quot; - Perhaps because it has been timed
+out</LI>
+
+<LI>&quot;Protocol error xxx&quot; - An invalid message was received. xxx
+may provide more detail.</LI>
+</UL>
+
+<P>If an HTTP_Error message is received by the server, the response will
+be an HTTP_Shutdown message.</P>
+</UL>
+</UL>
+</UL>
+
+<H4>Off the shelf alternatives</H4>
+
+<P>The transport layer of RMI uses similar techniques, but it is not an
+exposed interface.</P>
+
+<H4>Other Design Objectives, Constraints and Assumptions</H4>
+
+<H2>Current implementation</H2>
+
+<H3>Server</H3>
+
+<P>This server design is a reference implementation. It is designed for
+clarity, not efficency. Being written in Java, it uses threads out the
+yingyang.</P>
+
+<P>HTTPServeMain is the class which contains the main routine. It also
+listens to the HTTP port.</P>
+
+<P>HTTPServeClientPeer is the class which handles HTTP input and output
+for a particular client.</P>
+
+<P>HTTPServeClientState is the class which holds the client state between
+HTTP messages.</P>
+
+<P>None. </P>
+
+<H2>Design Proposal</H2>
+
+<H3><A NAME="Server Design"></A>Server</H3>
+
+<P>The server waits for E connections on one port and HTTP requests on
+another. When the server gets an <TT>HTTP_Logon</TT> message, it builds
+the necessary data structures to service that vatID, generates a sessionID,
+and sends the sessionID in the HTTP response. The data structures include:</P>
+
+<UL>
+<LI>A way to queue received TCP messages to be sent to the client via HTTP.</LI>
+
+<LI>A way to associate the connectionIDs with the associated TCP connection.</LI>
+
+<LI>A way to queue messages received via HTTP on the appropriate TCP connection</LI>
+
+<LI>A way to map from VatID to the HTTP connection for new incoming E connections.</LI>
+
+<LI>The maximum amount of data the server can send the client for each
+connection.</LI>
+</UL>
+
+<P>The basic dataflow logic for various messages is:</P>
+
+<UL>
+<P>New incoming TCP E connection</P>
+
+<UL>
+<P>The server reads the new socket and saves the <TT>PROTOCOL_VERSION</TT>
+message (see <A HREF="DataComm_startup.html">Comm Connection Startup Protocol</A>).
+It saves and reads the <TT>IWANT</TT> message and checks if it is proxying
+for the requested VatID. If the VatID is not known, it generates a <TT>NOTME
+</TT>response and closes the socket. Otherwise it associates the socket
+with the appropriate HTTP connection and generates three <TT><A HREF="#HTTP_Session">HTTP_Session</A></TT>
+submessages for the <TT><A HREF="#HTTP_NewConnection">HTTP_NewConnection</A></TT>,
+the <TT><A HREF="#HTTP_OK_To_Send">HTTP_OKToSend</A></TT>, and the <TT><A HREF="#HTTP_Data">HTTP_Data</A></TT>
+which are queued for the HTTP connection.</P>
+</UL>
+
+<P>Incoming data on the TCP&nbsp;E&nbsp;connection</P>
+
+<UL>
+<P>The server reads the data and queues it on the appropriate HTTP connection
+as a <TT><A HREF="#HTTP_Data">HTTP_Data</A></TT> message.</P>
+</UL>
+
+<P>Incoming close on the TCP E connection</P>
+
+<UL>
+<P>The server queues a <TT><A HREF="#HTTP_Close">HTTP_Close</A></TT> message
+on the appropriate HTTP connection.</P>
+</UL>
+
+<P>Incoming HTTP message from the client</P>
+
+<UL>
+<P>The data portion of the HTTP&nbsp;POST operation is read and the embeded
+messages are processed. When they have been processed, the output queue
+for the HTTP&nbsp;connection is encoded and sent back in the response.
+Note that the output queue is a FIFO queue to preserve the ordering of
+events. The specific POST messages are handled as follows:</P>
+
+<P><TT><A HREF="#HTTP_Logon">HTTP_Logon</A></TT> from the HTTP client</P>
+
+<UL>
+<P>If there is already a session in progress for this VatID, the server
+performs the following checks:</P>
+
+<OL>
+<LI>Check that the client is using the strong authentication form of logon,
+that the server has sent a nonce to this vatID within the timeout interval,
+and that the serverNonce from the client matches the last one the server
+sent to the client. If not send a <TT>HTTP_Set_Server_Nonce</TT> message
+requesting a new logon and record the random number send associated with
+the vatID.</LI>
+
+<LI>Check that the vatID is the hash of the public key. If not, sent <TT><A HREF="#HTTP_Error">HTTP_Error</A></TT>.</LI>
+
+<LI>Check the signature. If it doesn't check, send <TT><A HREF="#HTTP_Error">HTTP_Error</A></TT>.</LI>
+
+<LI>Shutdown the old session.</LI>
+</OL>
+
+<P>Generate a new sessionID, build the necessary data structures, and queue
+a <TT><A HREF="#HTTP_Logged_On">HTTP_LoggedOn</A></TT> message as the response.</P>
+</UL>
+
+<P><TT><A HREF="#HTTP_Session">HTTP_Session</A></TT></P>
+
+<UL>
+<P>Each subtype is processed as follows:</P>
+
+<P><TT><A HREF="#HTTP_NewConnection">HTTP_NewConnection</A></TT> from the
+HTTP client</P>
+
+<UL>
+<P>The server checks the parameters to ensure they are valid. If they are
+not valid, an error response is queued for the HTTP connection. Otherwise
+an asynchronous operation is started to build the TCP connection. It will
+report its success or failure to the HTTP&nbsp;queue when it has finished.</P>
+</UL>
+
+<P><TT><A HREF="#HTTP_Data">HTTP_Data</A></TT> from the HTTP client</P>
+
+<UL>
+<P>The data is queued for the appropriate TCP connection. When the data
+has been sent, a new <TT><A HREF="#HTTP_OK_To_Send">HTTP_OKToSend</A></TT>
+messages is queued for the HTTP&nbsp;client.</P>
+</UL>
+
+<P><TT><A HREF="#HTTP_OK_To_Send">HTTP_OKToSend</A></TT> from the HTTP&nbsp;client</P>
+
+<UL>
+<P>The server updates its send limit for the connection.</P>
+</UL>
+
+<P><TT><A HREF="#HTTP_Close">HTTP_Close</A></TT> from the HTTP client</P>
+
+<UL>
+<P>The designated socked is closed synchronously.</P>
+</UL>
+</UL>
+
+<P><TT><A HREF="#HTTP_Shutdown">HTTP_Shutdown</A></TT> from the HTTP client</P>
+
+<UL>
+<P>All TCP connections are closed. An <TT>HTTP_Shutdown</TT> message is
+queued and all the queued messages are included in the response. All the
+data structures associated with the session are discarded.</P>
+</UL>
+
+<P><TT><A HREF="#HTTP_Error">HTTP_Error</A></TT> from the HTTP client</P>
+
+<UL>
+<P>This message is handled in the same way as an <TT>HTTP_Shutdown</TT>
+message.</P>
+</UL>
+</UL>
+</UL>
+
+<H3>Client </H3>
+
+<P>The client code involves changes to the current DataComm software. There
+are two obvious versions of the client that can be imagined:</P>
+
+<OL>
+<LI>A client that performs all its communication through HTTP Tunnelling</LI>
+
+<LI>A client that is able to build &quot;classic&quot; direct TCP connections
+to some vats and uses HTTP Tunnelling for others.</LI>
+</OL>
+
+<P>The client that supports both direct and tunnelled connections has a
+number of problems to solve:</P>
+
+<UL>
+<LI>Which path should it try to connect to a particular vat?</LI>
+
+<LI>What address should it list with the PLS?</LI>
+
+<LI>How can it assure that it only has one connection to a particular vat
+(to preserve the E message ordering rules).</LI>
+</UL>
+
+<P><A NAME="Tunnel Only"></A><B>Tunnel Only</B></P>
+
+<P>Extend the VatIdentity class to have a getConnectionsManager(URL url)
+method. The url specifies the HTTP Tunnel server.</P>
+
+<P>Change DataComm to use a SocketFactory to get its Sockets. For direct
+connections, this factory returns standard system Sockets. For Tunnel connections,
+a different factory returns Sockets which use the HTTP Tunnel classes for
+communication. For incoming connections, the HTTP Tunnel classes can call
+ConnectionsManager.newInboundSocket directly or through a Thunk. The Tunnel
+classes can directly return the address the server is listening at to the
+ConnectionsManager using the listeningAt(String) method.</P>
+
+<P>The TunnelSocket will respond to as follows to the standard Socket methods:</P>
+
+<UL>
+<LI>close() Closes this socket. Sends a <TT><A HREF="#HTTP_Close">HTTP_Close</A></TT>
+message and performs cleanup of the local resources.</LI>
+
+<LI>getInetAddress() Returns the address to which the socket is connected.
+This address will either be simulated as best we can or DataComm will be
+changed to use instanceof to call a different method for this information.</LI>
+
+<LI>getInputStream() Returns an input stream for this socket. The input
+stream will communicate with the Tunnelling classes.</LI>
+
+<LI>getLocalAddress() Gets the local address to which the socket is bound.
+See getInetAddress().</LI>
+
+<LI>getLocalPort() Returns the local port to which this socket is bound.
+See getInetAddress().</LI>
+
+<LI>getOutputStream() Returns an output stream for this socket. Theoutput
+stream will communicate with the Tunnelling classes.</LI>
+
+<LI>getPort() Returns the remote port to which this socket is connected.
+See getInetAddress().</LI>
+
+<LI>toString() Converts this socket to a String. </LI>
+</UL>
+
+<P>The following methods will be implemented as NOPs sufficent for DataComm's
+use, or will throw exceptions.</P>
+
+<UL>
+<LI>getSoLinger() Returns setting for SO_LINGER. </LI>
+
+<LI>getSoTimeout() Returns setting for SO_TIMEOUT. </LI>
+
+<LI>getTcpNoDelay() Tests if TCP_NODELAY is enabled. </LI>
+
+<LI>setSoLinger(boolean, int) Enable/disable SO_LINGER with the specified
+linger time. </LI>
+
+<LI>setSoTimeout(int) Enable/disable SO_TIMEOUT with the specified timeout,
+in milliseconds. </LI>
+
+<LI>setTcpNoDelay(boolean) Enable/disable TCP_NODELAY (disable/enable Nagle's
+algorithm). </LI>
+</UL>
+
+<P><B>Tunnel and Direct</B></P>
+
+<P>With the above <A HREF="#Tunnel Only">Tunnel Only</A> architecture and
+some additional changes, there are simple answers to the Tunnel and Direct
+questions. The changes are to allow more than one socketFactory to be active
+in the objects under a particular ConnectionsManager. The use of multiple
+factories also allows the vat to listen on more than one interface:port.</P>
+
+<UL>
+<LI>Which path should it try to connect to a particular vat?</LI>
+
+<P>Try them all. First try all the search addresses through each direct
+connection interface. Then try all the URLs registered for Tunnel connections.</P>
+
+<LI>What address should it list with the PLS?</LI>
+
+<P>All the addresses it is listening at. Even if they are not relevant
+to a particular network, trying to connect to them will fail unless there
+is a vat with the desired private key listening there.</P>
+
+<LI>How can it assure that it only has one connection to a particular vat
+(to preserve the E message ordering rules).</LI>
+
+<P>By running under one ConnectionsManager, duplicate DataConnections will
+be prevented.</P>
+</UL>
+
+<P>
+<HR WIDTH="100%"></P>
+
+<H4>Which directories on our tree does this subsystem cover?</H4>
+
+<P>ec5/src/javasrc/ec/elib/net/data</P>
+
+<H4>Is it JavaDoc'ed?</H4>
+
+<P><I>In many cases, this section can link to JavaDoc output from actual
+Java classes and interfaces. This saves writing documentation twice (the
+designers will have to JavaDoc their interfaces anyway). The JavaDoc should
+be linked into the design document. <A HREF="../../../tools/javadoc.html">Chip's
+JavaDoc style guidelines</A> explain how to use JavaDoc effectively.</I>
+</P>
+
+<H4>Examples</H4>
+
+<H4>Testing and Debugging</H4>
+
+<P>See <A HREF="NewECommSystemTesting.html">DataComm Testing</A>. </P>
+
+<H2>Design Issues</H2>
+
+<UL>
+<LI>This server design will not accept incoming TCP connections to VatID
+== &quot;0&quot;, the connectToVatAt protocol because it supports more
+than one vat.</LI>
+
+<LI>The unauthenticated logon allows anyone who knows the VatID and the
+HTTP server that vat is using to disconnect all that vat's connections.</LI>
+
+<LI>How does the firewall HTTP proxy address get set up?</LI>
+
+<P>The user uses the Java system properties: http.proxyHost and http.proxyPort
+to set the host and port of the firewall proxy.</P>
+
+<LI>A vat which receives a connection where the originator goes through
+an HTTP Tunnel may be able to make a direct connection back. This will
+occur if the vat can not receive direct connections, but can make them.
+The architecture has no way to try for this direct connection.</LI>
+</UL>
+
+</BODY>
+</HTML>

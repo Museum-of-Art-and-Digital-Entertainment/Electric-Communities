@@ -1,0 +1,254 @@
+<HTML>
+<HEAD>
+    <TITLE>Identity</TITLE>
+</HEAD>
+<BODY>
+<H1>Identity</H1>
+
+<i>This document maintained by <A HREF="mailto:trev@communities.com">Trev</A>.</i>
+
+
+<h2>Introduction</h2>
+
+An identity object is a way for a group of related objects to use a
+single object as a public face to the world. This single object is the
+"identity" of the group of related objects. Because E object
+references are distributed, persistent and unforgeable you can keep a
+reference to an identity object and know that you can get back in
+touch with that object without anyone being able to intercept your
+messages.
+<p>
+An identity object provides ways of requesting capabilities and
+dropping off capabilities. This, coupled with its unforgeability,
+means an identity can build up a reputation. e.g. I gave this
+identity these capabilities and it used them appropriately so
+I'll give it further capabilities (or it abused them so I'll
+revoke the ones it has and not give it any more).
+
+<h4>The PO Box Analogy</h4>
+
+This analogy shows how if you have a single point of contact with
+someone and you can reliably reach that single point of contact, then
+you can use that point of contact when you want to give that person
+something. From your point of view the point of contact is, in some
+sense, what you trust. An Identity object is a way of representing
+such a point of contact in E code. Anyway, on with the analogy:
+<p>
+Suppose you see an advertisement in a paper which gives a name and PO
+box number. You respond to the ad, giving your name and PO box number.
+Over time you build up a relationship with the owner of the PO box
+(let's call them Alice) by sending mail to each other. One day
+you get a letter, purporting to be from Alice, asking for a loan. At
+this point you have to decide, based on your correspondence, whether
+or not you trust Alice. But one thing you don't have to worry about is
+whether the request is really from Alice. You can just send the money
+to Alice's PO box, which is your only point of contact. If someone
+other than Alice is trying to scam you, all they can achieve is to
+give Alice an unexpected loan. (This assumes you can trust the postal
+service to deliver your money!).
+<p>
+Identity works in a similar way. For example, avatars in Microcosm have
+an identity object. An avatar's manifestations in the world
+(e.g. body, word balloons) are all marked with the avatar's "identity" -
+a persistent object reference to its identity object. As with the PO box
+example, in Microcosm you come to trust someone who is identified by a
+unique (if rather incomprehensible) identifier - an avatar's identity
+object is like Alice's PO box number. When you want to
+give capabilities to an avatar you give them to the identity object
+you have come to trust, just as you would send money to Alice's PO
+box.  The E comm system play the part of the trusted postal service;
+it makes sure messages you send to an identity object are delivered to
+that object and no other.
+
+<h4>Related Documents</h4>
+
+<A href="identity_name.html">Identity Naming</a>
+
+
+<h2>Architecture</h2>
+
+<h4>Architecture Overview</h4>
+
+There are three main classes in the Identity package; Identity,
+IdentityOwner and SturdyIdentity.
+<p>
+An Identity object is the public face of a group of related objects
+(e.g. an avatar). The Identity object itself is given out freely.
+Internally it has a reference to an IdentityOwner object. The
+IdentityOwner is much more tightly held; it should not be exposed
+beyond the group of related objects that the identity represents.
+A SturdyIdentity is just a SturdyRef to an Identity object, plus
+a name field. I think adding the name field was a mistake (Scott
+told me so at the time, but did I listen?).
+<p>
+An Identity provides two basic functions; capability requests
+and capability checking.
+
+<h5>Capability Requests</h5>
+
+A capability request provides a way for an identity to request and
+receive a capability from another identity. The request protocol
+makes use of a temporary CapabilityReceipt object, which identifies
+a particular request. The basic protocol is:
+<ol>
+<li>Identity A requests the capability from B:
+<pre>
+  B <- requestCapability(sturdyRefForIdentityA,requestName,data,&receipt);
+</pre>
+<li>Identity B decides whether or not identity A should be given the
+capability. If so B resolves the SturdyRef to A and calls
+<pre>
+  A <- giveCapability(capability,receiptDistributor)
+</pre>
+This is the "callback" part of the protocol; B knows that the capability
+is going to the identity A and to no other object, something B could not
+know if B just "returned" (via a distributor) a value to the original
+caller. On receiving this request, A will forward the receipt distributor
+to an actual receipt object.
+<li>Meanwhile the original caller, presumably one of the objects represented
+by identity A, calls on the IdentityOwner to redeem the receipt channel
+whose distributor was handed to the original request call. So the full
+call sequence on A's side looks like:
+<pre>
+  CapabilityReceipt receipt;
+  SomeCapability capability;
+  B <- requestCapability(sturdyRefForIdentityA,requestName,data,&receipt);
+  ownerOfA <- getCapability(receipt, &capability);
+  ... use capability ...
+</pre>
+Note that the capability receipt generated when B gave the capability to
+A is only useful to an object which can access the IdentityOwner for A.
+Only the IdentityOwner for A can extract the capability corresponding to
+the receipt.
+</ol>
+So this protocol guarantees that B can reply to A's request and know
+that A, and only A, will get the capability. The capability is only
+accessible to one of the objects represented by identity A, i.e.  one
+of the objects with access to the IdentityOwner object for A.
+<p>
+The request name parameter allows a single identity object to handle
+requests for many different types of capability. Internally the
+Identity object (actually the IdentityOwner object) has a table of
+"capability request handlers", keyed by request name. When a request
+comes in the Identity looks up the appropriate handler, by request
+name. If there is no such handler the request is denied. Otherwise
+the request handler is called and it decides whether or not to
+give the requested capability to the requesting identity.
+<p>
+Often, the capability given to the requestor will be a "filler
+facet", marked with the identity of the requestor. e.g. suppose
+we have two avatars, A and B, and A asked B, via the identity
+mechanism, for a telepathy capability. In that case B would
+give A a telepathy facet marked with A's identity.
+<p>
+This means that A would have a facet with a method of the form
+<code>sendTelepathy(text)</code>. But the facet, before calling into
+whichever part of B dispensed the capability, would add an extra
+argument: <code>sendTelepathy(identityA, text)</code>. A would have
+no way of sending telepathy except via this facet, which would always
+add in A's identity as an argument. So whichever object B has set up
+to respond to telepathy can be 100% sure that the telepathy comes from
+A and can display it (or refuse to display it) accordingly.
+
+<h5>Capability Checking</h5>
+
+Another service provided by the identity object is capability checking.
+This is a way for any object to check whether a given capability belongs
+to a given identity. This check is slightly odd, because any identity
+could claim to own a capability that doesn't actually belong to it. The
+check is really more "if I treat this capability as yours, will you
+mind?".
+<p>
+An example of when this is useful is the current region entry
+protocol. In order to enter a region R an avatar A gives the region an
+identity object and an entry capability C. The region checks if
+identity A should be allowed in. If so it does a capability check - it
+asks identity A "does this entry capability (C) belong to you". If A
+receives such a request it is in A's interest to only say yes if the
+capability really does belong to A; otherwise it will be allowing
+some other avatar into the region under A's identity, and risks the
+corresponding loss of reputation if the other avatar behaves badly.
+Note that if A actually wants to let in another avatar it can always
+do so; there is no protocol that can stop something masquerading as
+A, if A agrees to the masquerade.
+<p>
+Anyway the check capability methods are simple. There are methods on
+the IdentityOwner allowing objects associated with the identity to
+register and unregister capabilities in a set of known capabilities.
+Then there are methods on the Identity - i.e.  callable
+from anywhere - which can be used to see if a given capability is in
+this known set.
+<p>
+The "is this capability in the set" operation comes in two flavors.
+<ol>
+<li><code>checkForCapability(capIn, &capChannel)</code>.
+If <code>capIn</code> is one of the set then the
+<code>&capChannel</code> distributor is forwarded to the same
+capability. If not the distributor is left unforwarded and an
+exception is ethrown. This version allows you to optimistically send a
+message to <code>capChannel</code>; the message will only arrive at
+the capability if it does belong to the identity. In an ideal world
+this would involve few (if any?) round trips; unfortunately, given our
+current E implementation, it actually involves several!
+<li><code>confirmCapability(capIn,confirmer)</code>.
+In this form the <code>confirmer</code> object is a simple callback object
+whose <code>confirmCapability</code> method is called back with true or
+false depending on whether <code>capIn</code> is in the set of
+registered capabilities. This approach doesn't use channels as elegantly
+but avoids some of the hidden round trips.
+</ol>
+
+
+<h4>Design Objectives, Constraints and Assumptions</h4>
+
+<ul>
+<li>Secure identity relies on the security provided by the E runtime and
+comm system.
+<li>The methods are all assumed to run in the E thread, there is no
+synchronization or locking support.
+</ul>
+
+
+<h2>Detailed Design</h2>
+
+Here is the JavaDoc for most of the identity classes. Note that
+the eclasses Identity and IdentityOwner have been changed to be simple
+Java classes (and their emethods have become public void methods) in
+order to make JavaDoc happy.
+<p>
+<A href="identity/packages.html">JavaDoc for Identity classes</a>
+
+<h4>Testing and Debugging</h4>
+
+<ul>
+<li>Use trace category "identity" to see some of what goes on in
+the identity package (it doesn't tell you much at the moment).
+</ul>
+
+<h2>Design Issues</h2>
+
+<h4>Open Issues</h4>
+
+<ul>
+<li>SturdyIdentity should probably not have a name field. Is there any
+need for the SturdyIdentity class at all? Should it just be a SturdyRef?
+<li>The request/give protocol can be wrapped to hide CapabilityReceipts
+from users. The identity ingredient (still in Pluribus code right now)
+does this at the moment. Maybe the wrappers should be convenience
+functions on IdentityOwner?
+<li>The current request/give protocol is very channel based. When we have
+new E should we still use the channel approach, or use a simple callback
+scheme (you request a capability, you get a callback when it arrives)?
+<li>checkCapability and confirmCapability are two ways of doing the
+same thing. One should go.
+</ul>
+
+<p>
+
+<A href="index.html">Back to design notes index</a>
+<br>
+<a href="../index.html">Back to Microcosm engineering main page</a>
+
+</BODY>
+</HTML>
+

@@ -1,0 +1,104 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>LDAP PLS</title>
+</head>
+
+<body bgcolor="#FFFFFF">
+
+<h1>LDAP Process Location Server</h1>
+
+<p><b>Last updated:</b></p>
+
+<p>98/07/30 </i><a href="mailto:jeff@communities.com"><i>Jeff</i></a>
+- Original version.</p>
+
+<h2>Introduction</h2>
+
+<p>This document describes how we will use an LDAP server
+for the purpose of implementing a Process Location Server.</p>
+
+<h2>Requirements</h2>
+
+<li>Ability for ecid to register and update the mapping between
+the ecid's vatid and a location expressed by an IP address and port.</li>
+
+<li>The vatid will be authenticated.  Others should be prevented
+from changing the registered location of another's vatid.</li>
+
+<li>vatids can not be wildcard searched for.  The client 
+doing a lookup must fully specify the vatid, and only one
+vatid/location pair should be returned per lookup.</li>
+
+<li>Ability to handle 0.2 registrations per second.  (See the 
+<a href="../PalaceECIDTest.html">Palace-ECID Test Plan</a> for
+more details on how this number was arrived at.)</li>
+
+<h2>Architecture</h2>
+
+<p>There are two operations that a PLS must implement:</p>
+
+<li>Registering a vatid with a specific IP address and port combination, and</li>
+<li>Looking up an IP address/port by vatid.</li>
+
+<h3>Registering a vatid</h3>
+<p>Registrations are done via a <u>LDAP Registration Server</u>.
+This server exports a "register" method available via RMI.  The EC
+comm system is used beneath RMI to support the authenticating
+of the vatid used on the connection.  This will ensure that
+the vatid being registered is indeed the vatid of the remote
+end that initiated the connection.
+
+<h3>Vatid Lookups</h3>
+<li>Vatid lookups are performed using the LDAP.  We are currently
+using the Netscape Java LDAP API, which is documented in the 
+<a href=http://developer.netscape.com/docs/manuals/dirsdk/jsdk30/index.htm>
+Netscape Directory SDK 3.0 for Java Programmer's Guide</a>.
+
+<p>The following diagram shows the overall architecture, and the
+usage of registration and lookup.</p>
+
+<p align="center"><img
+src="LdapRegistrationSvr.GIF"></p>
+
+<h4>Off the shelf alternatives</h4>
+
+<p>Most of this is off-the-shelf.  To attain full off-the-shelf-ness
+we would need to utilize LDAP authentication mechanisms for the
+registration process. Utilizing our comm system is a much cleaner
+alternative.</p>
+
+<h4>Other Design Objectives, Constraints and Assumptions</h4>
+
+<p><em>TBD.</em></p>
+
+<h4>Implementation overview</h4>
+
+<h4>Performance</h4>
+
+<p>TBD. Performance should take into account:</p>
+<ul>
+    <li>Performance of LDAP servers: How well does it scale?, How
+        many servers do we need?, etc.</li>
+</ul>
+
+<h4>Testing Strategy and Debugging</h4>
+
+<p>TBD. Testing will include load testing of the server using
+load test drivers.</p>
+
+<h4>Interactions and dependencies with other subsystems</h4>
+
+<p><i>TBD.</i>&nbsp; </p>
+
+<h2>Design Issues</h2>
+
+<h4>Resolved Issues</h4>
+
+<h4>Open Issues</h4>
+
+</body>
+</html>

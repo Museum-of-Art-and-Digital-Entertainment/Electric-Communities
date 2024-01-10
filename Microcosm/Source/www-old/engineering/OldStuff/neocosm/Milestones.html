@@ -1,0 +1,452 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="Author" CONTENT="Rob Jellinghaus">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.03 [en] (Win95; U) [Netscape]">
+   <TITLE>Neocosm Milestones</TITLE>
+</HEAD>
+<BODY>
+
+<H1>
+Milestone List</H1>
+initial pass by RobJ, 19 May 98
+<BR>third pass by RobJ, 26 May 98
+<BR>under construction by <A HREF="mailto:johns@communities.com">JohnS</A>
+and <A HREF="mailto:robj@communities.com">RobJ</A>
+<BR>please comment early and often!!!&nbsp;
+<HR WIDTH="100%">
+<BR>This is a third pass at a list of plausible development milestones
+from now through ship.&nbsp; The first section consists of the basic infrastructure
+pieces needed to make a bare-bones graphical Microcosm.&nbsp; The second
+section lists a variety of feature-based milestones which add incremental
+functionality on top of the bare-bones build.
+<BR>Only once we have the bare-bones infrastructure (all the way out to
+the user) complete will we have something that we can legitimately call
+a real Neocosm (and moreover, only then do we have something that we can
+clearly show people).&nbsp; So getting us there quickly yet carefully is
+the main initial challenge.
+<BR>Over the next few weeks, we will need to flesh these milestones out
+and do scheduling of at least the first few, while coming up with projected
+estimates of the remaining milestones all the way out.&nbsp; The earlier
+milestones should have more accurate estimates given as we're further into
+the design process for those pieces.
+
+<P>The format here is clearly minimal, but hopefully enough to comment
+on:
+<H4>
+Milestone Name &lt;Owner(s)></H4>
+(Optional) DEPENDENT ON: previous Milestone Name
+<BR>milestone incremental piece
+<BR>milestone incremental piece
+<BR>MILESTONE: Milestone Name again
+<BR>- testing implications (in fact, hopefully testing <I>preconditions</I>
+for declaring the milestone met)
+<BR>[comments on this milestone--things to remember]
+<BR>&nbsp;
+<H3>
+Contents</H3>
+
+<OL>
+<LI>
+<A HREF="#InfrastructureMilestones">Infrastructure milestones</A></LI>
+
+<OL>
+<LI>
+<A HREF="#Design">Design</A></LI>
+
+<LI>
+<A HREF="#Implementation">Implementation</A></LI>
+
+<LI>
+<A HREF="#Integration">Integration</A></LI>
+</OL>
+
+<LI>
+<A HREF="#ApplicationMilestones">Application milestones</A></LI>
+
+<OL>
+<LI>
+<A HREF="#Technical">Technical</A></LI>
+
+<LI>
+<A HREF="#Feature">Feature</A></LI>
+</OL>
+</OL>
+
+<H3>
+
+<HR WIDTH="100%"></H3>
+
+<H2>
+<A NAME="InfrastructureMilestones"></A>Infrastructure Milestones</H2>
+
+<H3>
+<A NAME="Design"></A><U>Design milestones</U></H3>
+
+<H3>
+Point-to-point E design &lt;Bill/Bob></H3>
+ELib checked in <B>[DONE]</B>
+<BR>ELib reviewed
+<BR>Comm system design <B>[IN PROCESS]</B>
+<BR>Comm system design reviewed
+<BR>MILESTONE: Comm system design signed off on by reviewers
+<BR>[issues: firewalls, Web-friendly "e://whatever"-style URLs, low-priority
+streams for downloading, support for secure network identity]
+<BR>[ISSUE: PLS... need to capture PLS requirements and PLS strategy here!&nbsp;
+Jeff, please help stay on top of this piece!]
+<H3>
+Multipoint comm design &lt;Scott/Bob></H3>
+DEPENDENT ON: Point-to-point E design
+<BR>Multipoint comm design completed <B>[IN PROCESS]</B>
+<BR>Multipoint comm design reviewed
+<BR>MILESTONE: Multipoint comm design signed off on by reviewers
+<BR>[issues: modularity, relationship between network topology and app
+API, clear group membership story]
+<H3>
+Renderer analysis &lt;Tony></H3>
+Renderer features scoped out (customer feedback!!!)
+<BR>Renderer decision made
+<BR>MILESTONE: Convergence on our rendering strategy
+<H3>
+GUI framework analysis &lt;Claire></H3>
+DEPENDENT ON: Renderer analysis
+<BR>GUI toolkit alternatives reviewed <B>[DONE]</B>
+<BR>GUI toolkit selected <B>[DONE... well, unless MFC turns out to be seriously
+smaller]</B>
+<BR>Framework reconstruction designed
+<BR>Framework reconstruction design reviewed
+<BR>MILESTONE: GUI framework design signed off on by reviewers
+<H3>
+Application design &lt;Claire/Arturo/Chip></H3>
+Application structure designed
+<BR>&nbsp;&nbsp;&nbsp; [including the general structure for startup/shutdown
+of the system]
+<BR>Application structure design reviewed
+<BR>MILESTONE: Application structure design signed off on by reviewers
+<BR>[The application structure should provide the basic foundation into
+which the GUI framework and the application logic can be straightforwardly
+placed; the idea is to avoid the big ball of hair we have currently got]
+<H3>
+Testability interface &lt;Brian?></H3>
+Analysis: E acceptable for command-line invocation of world?
+<BR>Design for E versus "console-mode" style testability interface
+<BR>Experimental integration of E interpreter into Microcosm
+<BR>MILESTONE: Testability interface designed
+<BR>- blackbox testing: automated playback-of-commands support
+<BR>&nbsp; (e.g. from a script file, one per line)
+<H3>
+Repository &amp; resource manager design &lt;Bill/Bob/Tony></H3>
+Repository requirements &amp; design reviewed
+<BR>MILESTONE: Repository &amp; resource manager design signed off on by
+reviewers
+<BR>[remember to review DE resource mgr structure; DE is main customer
+of repository]
+<BR>[also need to design some amount of downloading functionality, or at
+<I>least</I> capture downloading requirements]
+<BR><B>[ALSO REMEMBER INTERNATIONALIZATION HERE!!!]</B>
+<H3>
+Exception handling design &lt;?all?></H3>
+A taxonomy of exceptions &amp; review guidelines for exception handling
+<BR>Review of the taxonomy &amp; guidelines
+<BR>MILESTONE: A clear exception handling story that we can use to critique
+code during implementation reviews
+<H3>
+World object design &lt;RobJ/Arturo></H3>
+DEPENDENT ON multipoint comm design
+<BR>Containment design completed
+<BR>&nbsp;&nbsp;&nbsp; [including design for open/closed containers]
+<BR>Containment design reviewed
+<BR>Presentation design completed
+<BR>Presentation design reviewed
+<BR>World object design completed
+<BR>&nbsp;&nbsp;&nbsp; [including general patterns for saving/loading,
+unum structure, state propagation &amp; update]
+<BR>MILESTONE: World object design complete &amp; signed off
+<H3>
+Activity design &lt;RobJ/???></H3>
+DEPENDENT ON: World object design
+<BR>Minimal activity (behavior/verb/etc) design reviewed
+<BR>Minimal avatar designed
+<BR>&nbsp;&nbsp;&nbsp; [including avatar identity &amp; identity verification]
+<BR>Minimal avatar design reviewed
+<BR>Walk around &amp; pick up &amp; put down &amp; teleport actions designed
+<BR>Walk around &amp; pick up &amp; put down &amp; teleport actions design
+reviewed
+<BR>MILESTONE: Activity design complete &amp; signed off
+<H3>
+<A NAME="Implementation"></A><U>Implementation milestones</U></H3>
+
+<H3>
+Point-to-point E working &lt;Bill/Bob></H3>
+DEPENDENT ON: Point-to-point E design
+<BR>Fully functioning new-E point-to-point comm system implemented then
+reviewed
+<BR>MILESTONE: Working point-to-point E
+<BR>- whitebox testing: robustness, performance
+<H3>
+Working multipoint comm &lt;Scott/Bob></H3>
+DEPENDENT ON: Multipoint comm design
+<BR>Multipoint comm implemented then reviewed
+<BR>MILESTONE: Working multipoint comm
+<BR>- whitebox testing: robustness, performance
+<H3>
+Graphical UI framework &amp; renderer available &lt;Claire/?Mike?></H3>
+DEPENDENT ON Renderer rework
+<BR>DEPENDENT ON GUI framework analysis
+<BR>Framework reintegrated with renderer
+<BR>Framework reconstruction implemented then reviewed
+<BR>Framework test app available
+<BR>MILESTONE: Graphical UI framework &amp; renderer available
+<BR>[dynamics engine considered part of this milestone]
+<BR>- blackbox testing: research automated GUI testers &amp; if possible
+pick one
+<BR>- performance testing: evaluate frame rate, interactivity
+<H3>
+Non-downloading repository &amp; basic resource manager &lt;Bill/Bob></H3>
+Certifiability implemented for repository items
+<BR>Repository (re)implemented then reviewed
+<BR>MILESTONE: Non-downloading repository available
+<H3>
+Application shell &lt;?Claire/Arturo/Chip?></H3>
+Application shell implemented
+<BR>Application shell reviewed
+<BR>MILESTONE: Application shell available for integrating GUI framework
+and world object logic
+<H3>
+Production tools &lt;???></H3>
+Production path nailed down for catalogs &amp; avatars &amp; regions-if-possible
+<BR>Point-and-shoot tools for all three (or at <I>least</I> the first two)
+<BR>MILESTONE: Production tools that straightforwardly produce the core
+world objects
+<H3>
+Performance engineering tools &lt;???></H3>
+Tools for profiling RAM usage at every level of the system
+<BR>&nbsp;&nbsp;&nbsp; [class count, Java heap consumption, working set
+consumption]
+<BR>Tools for verifying that our runtime performance isn't backsliding
+(i.e. we're not getting slower)
+<BR>MILESTONE: Performance engineering toolset
+<BR>[All these may be available off the shelf in the nearish term--i.e.
+OptimizeIt 3.0, etc.]
+<BR>[The point of this milestone is to have the tools in the bag and to
+be applying them consistently as each implementation milestone is met and
+becomes measurable]
+<H3>
+<A NAME="Integration"></A><U>Integration milestones</U></H3>
+
+<H3>
+A multi-user graphical world with passive objects &lt;?All?></H3>
+DEPENDENT ON World object design
+<BR>DEPENDENT ON Testability interface
+<BR>DEPENDENT ON Non-downloading repository
+<BR>DEPENDENT ON Graphical UI framework &amp; renderer available
+<BR>DEPENDENT ON Application shell
+<BR>Containment implemented then reviewed
+<BR>Presentation implemented then reviewed
+<BR>&nbsp;&nbsp;&nbsp; GUI framework &amp; renderer integrated here
+<BR>World object instantiation (i.e. realmtext replacement) implemented
+then reviewed
+<BR>Base world object implemented then reviewed
+<BR>MILESTONE: A multi-user graphical world with passive objects
+<BR>- whitebox testing: of presentation &amp; containment consistency,
+of
+<BR>&nbsp; automated object creation
+<BR>- blackbox testing: an interactive shell UI "make a blob" "delete a
+blob"
+<BR>- performance reviewing: how large are blobs, how many can be in a
+room at once
+<H3>
+A multi-user graphical world with avatars walking around holding stuff
+and teleporting &lt;?All?></H3>
+DEPENDENT ON: A multi-user graphical world with passive objects
+<BR>DEPENDENT ON: Activity design
+<BR>Activity infrastructure implemented then reviewed
+<BR>Minimal avatar implemented then reviewed
+<BR>Walk around &amp; pick up &amp; put down &amp; teleport actions implemented
+then reviewed
+<BR>MILESTONE: A multi-user graphical world with avatars walking around
+holding stuff and teleporting
+<BR>- testing of containment while transitioning/teleporting
+<BR>- rigorous review of presence cleanup (for security &amp; resource
+concerns)
+<BR>&nbsp;
+
+<P>
+<HR WIDTH="100%">
+<H2>
+<A NAME="ApplicationMilestones"></A>Application Milestones</H2>
+From here out is where we are off and running on features, doing self-consistent
+sets of them, testing the hell out of each as we do it, all of it built
+on a code base we have some confidence in.
+
+<P>The technical milestones are "sub-application" features that aren't
+necessarily directly visible to the user.&nbsp; The feature milestones
+are user-visible, documented application functionality.&nbsp; The definitions
+here are fuzzy but hopefully you can see what I'm getting at.&nbsp; In
+any case, the point is that all these milestones are (or should be) conceptually
+modular and conceptually relatively independent, and hence amenable to
+reordering or reprioritizing as our customer tells us what they want most.
+<H3>
+<A NAME="Technical"></A><U>Technical milestones</U></H3>
+
+<H3>
+Help infrastructure &lt;???></H3>
+Help design
+<BR>&nbsp;&nbsp;&nbsp; [determine whether browser-based help is adequate;
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; determine whether integrated help would
+be too costly performancewise]
+<BR>Help design reviewed
+<BR>Help implementation
+<BR>Help implementation reviewed
+<BR>MILESTONE: Help system integration complete
+<H3>
+Dynamo3D rework &lt;!MAJOR HOLE!></H3>
+3D dynamo replacement implemented then reviewed
+<BR>Test application for renderer available
+<BR>MILESTONE: Functional and stable renderer
+<BR>- testing: stability, performance
+<H3>
+Customized UI &lt;???></H3>
+Customer defines what customization they want
+<BR>We do it for them
+<BR>MILESTONE: Customized UI delivered to customer's satisfaction, with
+acceptable performance
+<H3>
+Downloading repository &lt;Bill/???></H3>
+DEPENDENT ON Non-downloading repository
+<BR>DEPENDENT ON Point-to-point E working
+<BR>Downloading repository design
+<BR>Downloading repository design review
+<BR>Downloading repository implementation
+<BR>Downloading repository implementation review
+<BR>MILESTONE: Downloading repository available
+<H3>
+<A NAME="Feature"></A><U>Feature milestones</U></H3>
+
+<H3>
+Teleport features &lt;???></H3>
+Milestone: teleport features
+<BR>&nbsp;&nbsp;&nbsp; teleport pads, teleport lists
+<H3>
+Portal &lt;???></H3>
+DEPENDENT ON: Teleport
+<BR>First milestone: basic portals
+<BR>&nbsp;&nbsp;&nbsp; half-portals, instantiation, turf creation with
+portals
+<BR>&nbsp;&nbsp;&nbsp; testing
+<BR>Second milestone: portal features
+<BR>&nbsp;&nbsp;&nbsp; portaportals
+<BR>[may make sense to use lots of the current ingredient code, hand-translated?!&nbsp;
+evaluate]
+<H3>
+In-world balloon speech &lt;???></H3>
+First milestone: in-world speech infrastructure
+<BR>&nbsp;&nbsp;&nbsp; presentation of speech, region capabilities for
+speech
+<BR>&nbsp;&nbsp;&nbsp; conversation &amp; converser
+<BR>&nbsp;&nbsp;&nbsp; testing of speech &amp; speech disconnection when
+region is left
+<BR>Second milestone: speech GUI integration
+<BR>&nbsp;&nbsp;&nbsp; word balloons, text input
+<BR>&nbsp;&nbsp;&nbsp; testing of text input (performance, latency)
+<H3>
+Naming &lt;???></H3>
+First milestone: support for binding identities to speech
+<BR>&nbsp;&nbsp;&nbsp; pet name data structures
+<BR>Second milestone: tagging speech with identity
+<BR>&nbsp;&nbsp;&nbsp; adding to speech infrastructure
+<BR>&nbsp;&nbsp;&nbsp; inserting into balloon output
+<H3>
+Telepathy &lt;???></H3>
+DEPENDENT ON: Naming
+<BR>First milestone: telepathy infrastructure
+<BR>&nbsp;&nbsp;&nbsp; ability to contact someone given their identity
+<BR>&nbsp;&nbsp;&nbsp; ability to send speech along that channel
+<BR>&nbsp;&nbsp;&nbsp; connection handling
+<BR>&nbsp;&nbsp;&nbsp; testing of telepathy &amp; disconnection, etc.
+<BR>Second milestone: telepathy features
+<BR>&nbsp;&nbsp;&nbsp; name addresssing by pet names
+<BR>&nbsp;&nbsp;&nbsp; testing of GUI implementation &amp; features
+<H3>
+Catalogs &lt;???></H3>
+First milestone: catalog infrastructure
+<BR>&nbsp;&nbsp;&nbsp; archive of world object data
+<BR>&nbsp;&nbsp;&nbsp; indexable, instantiable
+<BR>&nbsp;&nbsp;&nbsp; inventory underlying data structure
+<BR>&nbsp;&nbsp;&nbsp; testing: consistent catalog formats, catalog verifier
+tools, scalability
+<BR>Second milestone: catalog features
+<BR>&nbsp;&nbsp;&nbsp; catalog presenter
+<BR>&nbsp;&nbsp;&nbsp; inventory presenter &amp; functionality
+<BR>&nbsp;&nbsp;&nbsp; testing: catalog presenter display, successful usage,
+PERFORMANCE
+<H3>
+Turfs &lt;???></H3>
+DEPENDENT ON: Catalogs
+<BR>First milestone: ability to instantiate regions from catalogs
+<BR>Second milestone: changing room
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; implement changing room &amp; turf-tracking
+mechanism
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; testing: full-fledged new-identity-creation
+path now works
+<H3>
+Realms [Hub features] &lt;???></H3>
+DEPENDENT ON: Turfs
+<BR>First milestone: admin functionality of realm
+<BR>&nbsp;&nbsp;&nbsp; do design for new hub DB/etc
+<BR>&nbsp;&nbsp;&nbsp; implement initial lightweight realm
+<BR>&nbsp;&nbsp;&nbsp; testing: basic kick out, etc. functionality
+<BR>Second milestone: proper full hub integration
+<BR>&nbsp;&nbsp;&nbsp; implement hub DB/etc infrastructure
+<BR>&nbsp;&nbsp;&nbsp; integrate with realm API to make heavyweight realm
+<BR>&nbsp;&nbsp;&nbsp; testing: full-fledged end-to-end membership support
+<H3>
+Containers &lt;???></H3>
+Milestone: openable/pocket features
+<BR>&nbsp;&nbsp;&nbsp; implement put in pocket, implement openableness
+<BR>&nbsp;&nbsp;&nbsp; implement list presenters or whatever else we do
+for opened containers
+<BR>&nbsp;&nbsp;&nbsp; testing: verify
+<H3>
+Property Sheets [&amp; Magic Wand] &lt;???></H3>
+First milestone: client-side property update infrastructure
+<BR>&nbsp;&nbsp;&nbsp; generic way to have client-side updates propagate
+<BR>&nbsp;&nbsp;&nbsp; built on generic state-dissemination world-object
+infrastructure
+<BR>Second milestone: property sheet UI
+<BR>&nbsp;&nbsp;&nbsp; in-world updates, UI update
+<H3>
+Path Planning &lt;???></H3>
+First milestone: support for spatial extent &amp; path computation in composition
+<BR>Second milestone: actual use for either client-side-only (please!)
+or server-side authoritative pathing
+<BR>[please let's be careful about what we tell Broderbund we will do here--this
+is a slippery slope leading all the way to Quake....]
+<H3>
+Certification &lt;???></H3>
+First milestone: certification infrastructure for user art
+<BR>&nbsp;&nbsp;&nbsp; along with production &amp; operations implications
+<BR>Second milestone: certification infrastructure used from within Microcosm
+<BR>&nbsp;&nbsp;&nbsp; testing: TOS scenarios, certification turnaround
+time, hackability
+<H3>
+Address book &lt;???></H3>
+DEPENDENT ON: Naming
+<BR>First milestone: extended address book
+<BR>Second milestone: UI for extended address book
+<H3>
+Permissions &lt;???></H3>
+DEPENDENT ON: Teleport &amp; Property Sheets
+<BR>First milestone: support for per-ID entry / lockout permissions setting
+<BR>Second milestone: UI for managing identities in permissions windows
+&amp; updating turf TOE
+<H3>
+Audio &lt;???></H3>
+Audio fu.&nbsp; Including in-world sounds and potentially NetMeeting-SDK-based
+point-to-point chat, <B><I><U>IF</U></I></B> the customer wants it!
+<H3>
+External app integration &lt;???></H3>
+Magic powers for invoking Netscape, an emailer, et al.
+<BR>&nbsp;
+</BODY>
+</HTML>

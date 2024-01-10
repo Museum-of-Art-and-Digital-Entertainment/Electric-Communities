@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!--last modified on Thursday, January 22, 1998 08:25 AM -->
+<HTML>
+
+<HEAD>
+	<META NAME="GENERATOR" Content="Visual Page 1.0 for Windows">
+	<META NAME="Author" Content="Mark S. Miller">
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html;CHARSET=iso-8859-1">
+	<TITLE>E Design Goals</TITLE>
+</HEAD>
+
+<BODY BACKGROUND="wood.gif">
+
+<H1 ALIGN="CENTER">E Design Goals</H1>
+<P ALIGN="CENTER">(from a correspondence with Amy Marr, archived on ec_design)</P>
+<P>E is designed to start as a scripting / rapid prototyping / command language, sacrificing performance and support
+for programming in-the-large (like static type checking) in exchange for simplicity and ease of use. Not sacrificed
+even a smidgen is security. Like E, E is a capability-secure persistent distributed pure-object language (it inherits
+most of these features from our E platform).</P>
+<P>As a simple one-at-a-time command language, E is intended to be quickly learnable by non-programmers. As a
+programming language, E is intended to seduce lightweight programmers schooled in C-tradition languages: C, C++,
+Java, Python, Perl, Tcl, csh. It should also be accessible to (fingers crossed) Visual Basic programmers. Speaking
+loosely, Python is to C++ as E is to Old-E.</P>
+<P>(And I didn't say &quot;lambda&quot; even once. Oops.)</P>
+<H2>Intended Uses at EC:</H2>
+
+<UL>
+	<LI><B>Internal poking</B>. The difference between the Smalltalk / Lisp / scripting language experience and the
+	Java / Old-E / Pluribus experience is striking. In the former, &quot;what would happen if?&quot; questions are answered
+	interactively during that moment of curiosity. This supports learning and debugging. (This difference is often
+	thought to be associated with compiled vs interpreted languages, but this is mistaken, as Smalltalk is as fully
+	compiled as C, and until recently Java was only interpreted.)
+	<P>E can already invoke any public method of any Java object, and can send and receive any public emethod as well.
+	Once E is available, I expect most of us will keep a live E read-eval-print loop at our side while programming.</P>
+	<P>
+	<LI><B>Internal Testing</B>. E should be a good language for writing replayable test scripts. Initially for unit
+	testing of internal programming abstractions. Once also made a scripting language for Microcosm, we should be able
+	to easily write replayable scripts of user actions. Which brings us to:
+	<P>
+	<LI><B>A Microcosm Command Language</B>. E's message dispatch mechanism is designed to also include calculated
+	verbs, such as appear on our pop-up menus. Once this interfacing is done and scoping issues have been figured out,
+	E is intended to replace our current command line interface.
+	<P>
+	<LI><B>A Secure Hub Administration Language</B>. This was actually the motivating case for creating the language.
+	<P>
+	<LI><B>User Creation / Extension of Una Behaviors</B>. This could range from simply adding new Una verbs defined
+	in terms of existing ones, to piecemeal programming interactions like Hypercard's ability to &quot;dive into&quot;
+	a button and edit its script. MOO experiences show this to be a compelling source of richness of the world.  See
+	<A HREF="e-world-scripting.html">E World Scripting Examples</A>.
+</UL>
+
+<P>&gt;Is this something we will eventually ship?</P>
+
+<P>In stages. Early on, potentially only to hub operators. I expect support for other uses to ship shortly thereafter.
+Once we ship, the pressures for open programmability will quickly become irresistible.</P>
+
+<P>Long term, assuming it can eventually be compiled as well as Scheme (as it was designed to be), E could give
+us a migration path away from Java. E is sort of Old-E without the Java (which ironically is different from Joule,
+even though Old-E is sort of Joule + Java). We have already spent at least ten times as much effort working around
+flaws in Java as it takes to invent, build, and support a good simple programming language (like Scheme, Joule,
+or E). So much for saving effort by leveraging a supported platform!</P>
+
+<P>Oh yeah,</P>
+
+<UL>
+	<LI><B>Making Distributed Secure Programming easy!
+</UL>
+
+<P>
+
+</BODY>
+
+</HTML>

@@ -1,0 +1,84 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.03 [en] (Win95; U) [Netscape]">
+   <TITLE>ECID Inter-Application Communication Module</TITLE>
+</HEAD>
+<BODY>
+
+<H1>ECID Inter-Application Communication Module (IACM)</H1>
+<P><I>Last updated: [98/08/12 Sidney]</I>
+
+<P><I>Author: <A HREF="mailto:sidney@communities.com">Sidney Markowitz</A></I>
+
+<P><H2>Introduction</H2>
+
+<P>This document describes the architecture of the support for communication between the ECID Palace Plug-in and the ECID module as implemented under 32-bit Windows. The module is referred to as IACM within this document.
+
+<P>Related Documents: ECID Architecture, Palace ECID Plug-in
+
+<P><H2>Requirements</H2>
+
+<P>Runs on 32 bit Windows platforms
+
+<P>Provides a DLL that can be used by the Palace ECID plug-in (preferably generically useable by future application clients)
+
+<P>Provides a DLL with a native interface (JNI) to ECID
+
+<P>Implements interprocess communication on a single machine between the application client and ECID
+
+<P>Architecture does not unnecessarily impede future development on the Macintosh and Unix
+
+<P>Allows either the application client or ECID to be started first
+
+<P>If application client is started first it automatically launches ECID
+
+<P><H2>Architecture</H2>
+
+<P>The IACM provides simple message pass-through between an application client and ECID. The only application we are implementing at first is the Palace, using the Palace ECID Plug-in.
+
+<P>IACM contains two DLLs.  One is loaded by the application client and runs in its process space. The other, loaded by the ECID services provider program, runs in its process space. All calls are synchronous non-blocking.
+
+<P>There is only one method call
+
+<P>  <FONT FACE="Courier New">void handleECIDEvent(int EVENT_ID, Ptr ParamBlockData)</FONT>
+
+<P>The different values of the EVENT_ID parameter are described in the Palace ECID Plug-in document. IACM doesn’t care what most of them are, simply passing them through.
+
+<P><I>[Note: Are there also some special methods for startup and shutdown?]</I>
+
+<P><I>[Diagram showing Palace ECID Plugin box talking back and forth with API side of the IACM client side DLL box, the COM side of the IACM client side DLL box talking back and forth via COM with the COM side of the IACM ECID side DLL box, and the JNI side of the IACM ECID side DLL box talking back and forth with the ECID box]</I>
+
+<P>The DLLs act as both COM client and servers, since calls go in both directions. ECID never initiates calls to an application client that has not at called a startup method. Thus the application side COM client can start up ECID when it tries to call the ECID side COM server, but ECID never tries to launch an application client. It is up to the ECID Manager to direct a message to the instance of the COM server object that corresponds to the proper application client.
+
+<P><H4>Startup</H4>
+
+<P>When ECID starts up it loads its side IACM DLL and calls a startup method that ends up in the native method code defined in the DLL. The startup method performs the COM initialization and starts up an event handling thread that waits for calls to the COM server.
+
+<P>When the Palace (or other application client) ECID plug-in starts up it loads the application side IACM DLL and calls a startup method that performs COM initialization and starts up its COM server with the appropriate message loop. It also initializes a COM client that contacts the COM server in the ECID side IACM DLL. That server is registered with the operating system to launch ECID if necessary.
+
+<P><I>[Open issue: How does the application side IACM COM client get the ECID side COM client talking to an instance of the IACM COM server that knows about that application? There is some passing around of an object instance from the application client that has to be done for this to work.]</I>
+
+<P><H4>Operation</H4>
+
+<P>Once things are initialized, the ECID Manager has an object instance that corresponds to the application client and the application client has an object instance that represents its connection to ECID. The application client calls <FONT FACE="Courier New">handleECIDEvent</FONT> on the object to send a message to ECID. The application side IACM COM client calls the ECID COM server with <FONT FACE="Courier New">handleECIDEvent</FONT> passing the arguments on through, which does the same to pass the call on into Java code in the ECID Manager. When ECID has something to send the application client it calls <FONT FACE="Courier New">handleECIDEvent</FONT> on the application client side COM server, using the object instance that it has for the appropriate application client.
+
+<P><H4>Exception handling</H4>
+
+<P>While in general IACM simply passes through messages between an application client and ECID Manager, it should send shutdown messages when it hits an exception that it can’t handle or when it determines that it cannot talk to one side or the other.
+
+<P><H4>Testing strategy and debugging</H4>
+
+<P>Visual C++ 5.0 comes with tools for testing and debugging COM objects that can be used with these ones.
+
+<P>Interactions and dependencies with other subsystems
+
+<P>Is interdependent with Palace ECID Plug-in and ECID
+
+<P><H2>Design Issues</H2>
+
+<P><H4>Resolved issues</H4>
+
+<P><H4>Open issues</H4>
+</BODY>
+</HTML>

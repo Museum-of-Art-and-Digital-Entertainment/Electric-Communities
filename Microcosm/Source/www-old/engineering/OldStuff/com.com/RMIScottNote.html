@@ -1,0 +1,53 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>I've been looking at RMI a lot more closely today, so that I could</TITLE>
+</HEAD>
+<BODY LINK="#0000ff">
+
+<P>I've been looking at RMI a lot more closely today, so that I could understand a) exactly what its security properties are; b) whether it is potentially useful to us for the ECID work.</P>
+
+<P>Here are my basic conclusions:</P>
+
+<OL>
+
+<LI>RMI's basic name resolution system (Naming.lookup, Naming.bind, Naming.unbind, Naming.rebind, and Naming.list) ultimately result in calls to an object that implements the java.rmi.registry.Registry interface (with basically the same same method signatures as the Naming class).  The Registry interface is a subclass of the java.rmi.Remote interface, which means (in RMI) that it is remotely accessible (but not fully for obvious security reasons...see more below).</LI>
+
+<LI>The class that implements the Registry interface in Sun's implementation is the sun.rmi.registry.RegistryImpl class.  I decompiled this class, and it *disallows* remote invocation of bind, rebind, and unbind (through machine InetAddress comparison), but *allows* remote access to lookup() and list().  Lookup has to be exposed to allow name-proxy resolution, but it's kind of unexpected and insecure that list() is allowed to be called remotely.</LI>
+
+<LI>It is possible (and I tried it to be sure) to define your own implementation of the Registry interface, and have RMI use whatever Registry instance you wish to define.  A system property defines the class that implements the Registry functionality...by default it is sun.rmi.registry.RegistryImpl as I said above.  The (final) LocateRegistry class is responsible for creating an instance of this class locally, and providing access to the proxy for a remote Registry.  Like I said above, it is easy to have RMI use a class of our choosing for the Registry implementation...meaning that the functionality of the Registry itself (whether it even responds AT ALL to lookup, bind, unbind, rebind, and list, or perhaps only responds to local invocations, etc.) is easily redefinable.  I created a simple class that implemented the Registry interface and throws AccessExceptions with every call (lookup, list, etc.), and this works just fine with all of the Registry creation/use machinery.</LI>
+
+<LI>The sun.rmi.registry.RegistryImpl class is extremely simple...basically it's just a Hashtable associating a name to an Object.  If you are curious about it let me know and I'll show you/send you the decompiled source.</LI>
+
+<LI>In the *current* version of RMI it is possible to redefine the transport used for all RMI messaging (including with the Registry).  This is done by overriding two methods, one used to create a Socket class for clients and another for the object server (for sockets created by accept()).  This means (e.g.) that it is possible to use a Socket subclass that (e.g.) uses an SSL socket as the transport layer (including messaging with a remote registry), and such a socket could have whatever authentication and encryption requirements we define for it.  The current (1.1.6) version allows this transport layer substitution with Socket subclasses.  The 1.2 API will be adding the means to define a different kind of Socket subclass (e.g. encrypted or not) for separate objects, and therefore allow different levels of transport security to be specified for individual objects.</LI>
+
+<LI>The current version of RMI seems (I haven't actually tested it yet) to support using HTTP for transport for firewall support.  This means that if a firewall exists between one machine and another that RMI will (after failing on the direct TCP connection) attempt to connect via HTTP (and be able to use a proxy server for the request), and send the RMI message via a POST request.  This HTTP tunnelling is (of course) an order or magnitude slower than a direct TCP connection, but it does allow RMI to work through firewalls.</LI></OL>
+
+
+<P>Conclusions:</P>
+
+<OL>
+
+<LI>RMI allows the definition/use of alternative implementations of the Registry.  This allows the redefinition of all of the security-critical name resolution functions (lookup, bind, list, etc.).</LI>
+<LI>RMI allows the definition/use of alternative implementations of the transport layer by using one's own Socket subclass implementations.  This allows the customization of authentication and encryption.</LI>
+<LI>It supports using HTTP tunnelling for firewall support.</LI></OL>
+
+
+<P>Given these things, IMHO RMI is definately something we should look at closely for our immediate work...particularly with the ability to define/implement our own (secure) registry and transport layers with very little effort (given our expertise and existing code, a very small amount of work).</P>
+
+<P>This stuff is pretty well documented in the RMI docs.  For those interested, I would take a look at the RMI spec:  </P>
+
+<P><A HREF="http://java.sun.com/products/jdk/1.2/docs/guide/rmi/spec/rmiTOC.doc.html">http://java.sun.com:80/products/jdk/1.2/docs/guide/rmi/spec/rmiTOC.doc.html</A></P>
+
+<P>the stuff on the RMI custom socket factory:</P>
+
+<P><A HREF="http://java.sun.com/products/jdk/1.2/docs/guide/rmi/rmisocketfactory.doc.html">http://java.sun.com:80/products/jdk/1.2/docs/guide/rmi/rmisocketfactory.doc.html</A></P>
+
+<P>and the RMI home page:</P>
+
+<P><A HREF="http://java.sun.com/products/jdk/rmi/index.html">http://java.sun.com:80/products/jdk/rmi/index.html</A></P>
+
+<P>Scott</P>
+</BODY>
+</HTML>

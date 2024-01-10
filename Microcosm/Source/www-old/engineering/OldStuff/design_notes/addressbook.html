@@ -1,0 +1,243 @@
+<HTML>
+<HEAD>
+    <TITLE>Address Book Ingredient</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Address Book Ingredient</H1>
+
+<em>This page is maintained by <A HREF="mailto:trev@communities.com">Trev</A>.</em>
+
+<h2>Introduction</h2>
+
+The address book is a feature in Microcosm which allows the "local
+avatar" (i.e. the users avatar) to keep track of other
+avatars. Avatars who are in the address book are "acquaintances";
+avatars who aren't are "strangers". The address book has many
+features:
+<ul>
+<li>You can share information about your avatar with others (and
+to change your avatar's name)
+<li>You can see information about other avatars
+<li>You can check if another avatar is currently on line
+<li>You can communicate with another avatar (start a telepathy
+balloon, use VoxChat, visit their turf or send them email)
+<li>You can choose nick names for other avatars
+<li>You can set the privileges which you allow other avatars
+to have (the right to send you telepathy, the right to visit
+your turf). These can be set per avatar, for all acquaintances
+or all strangers.
+<li>You can specify a list of avatars to track, so you'll know
+when they are on line.
+</ul>
+Overall, though the address book has a lot of features, each feature
+is simple; so the ingredient is complex, but not deep. It also makes
+heavy use of the <A href="identity.html">identity</a> and
+<A href="identity_name.html">identity naming</a> packages to do
+some of the hard work.
+<p>
+This document only deals with the internals of the address book; the
+UI code is a large, and fairly cleanly separated, class in its own
+right.
+
+<h4>Related Documents</h4>
+
+<ul>
+<li><A href="identity.html">Identity</a>
+<li><A href="identity_name.html">Identity Naming</a>
+</ul>
+
+<h2>Architecture</h2>
+
+<h4>Architecture Overview</h4>
+
+The address book ingredient is one of the avatar ingredients. It has a
+"neighbor" interface which is used by other avatar ingredients to:
+<ul>
+<li>map names to avatar identities (and vice versa)
+<li>to check permissions for identities, and track changes in those permissions
+<li>to track changes in the local avatar's description e.g. name changes
+</ul>
+Its other big interface is to the address book UI; this is described
+more below.
+
+<h5>Address Book State</h5>
+
+There are several important pieces of avatar state. These are all
+declared in the state bundle for the address book, so they persist.
+
+<dl>
+
+<dt>The local avatar page
+<dd>This contains information about the local avatar (name,
+basic information fields, hobbies, essay) and also the default
+privileges given to "stranger" avatars (i.e. avatars which don't
+have a page in the address book).
+
+<dt>Avatar page tables
+<dd>A pair of hashtables are used to map (nick) names and identities
+to AvatarPage objects. AvatarPage objects contain details about
+another avatar (name, basic information fields, hobbies, essay)
+and also contain the privileges given to that avatar (telepathy,
+right to visit turf).
+
+<dt>Identity name table
+<dd>This is used to keep track of avatar nick names - see <A
+href="identity_name.html">identity naming</a> for more details.
+Note that the AvatarPage objects, in the avatar page tables, all
+contain an IdentityNameRef for their avatar, which ensures that
+the nick names of all avatars in the address book are maintained
+in the IdentityNameTable.
+
+<dt>Avatar name list
+<dd>A sorted list of avatar names. This is handy for some functions
+needed by the UI but I'm not sure it should be maintained all the time
+(as it is now); it might be better to just generate a copy as needed,
+to avoid the problems of keeping it up to date.
+
+</dl>
+
+<h5>Ingredient to UI Communication</h5>
+
+The address book is fairly cleanly split from its UI. Its UI is on the
+other side of the presenter layer, operating in a different thread, so
+there are two presenter level interfaces for the UI and the ingredient
+to communicate. The ingredient uses the AddressBookPresenter interface
+to update the UI. The UI calls back into the ingredient via the
+AddressBookInputHandler interface. 
+<p>
+The UI is assumed to be the only way some changes can happen to the
+address book e.g. a callback from the UI is the only way to change the
+local avatar's name. Because of this the address book UI doesn't
+register to watch for address book changes (more of this below); it
+is more tightly linked to the ingredient than a normal registered
+watcher (maybe it shouldn't be?).
+<p>
+Having the UI and ingredient in different threads introduces the risk
+of synchronization problems. To avoid this the UI is required to hold
+the vat lock before calling into the ingredient. This is currently
+handled by a "wrapper" class that sits between the UI code and the
+ingredient, and locks the vat before relaying the UI's request. When
+the ingredient calls the UI it is the UI's responsibility to avoid
+threading problems (the IFC UI code uses the IFC event queue to make
+sure all UI changes happen in the IFC thread). One thing the
+ingredient does do is clone all the arguments it gives to the UI, and
+all the results it returns to the UI; this ensures that the UI and the
+ingredient never hold onto a common instance of a mutable object
+(e.g. an AvatarPage).
+
+<h5>Registering For Address Book Changes</h5>
+
+Other avatar ingredients can register with the address book in order
+to be notified when the address book changes. This interface doesn't
+cover all possible address book changes, but you can find out if the
+local avatar's description changes (name changes are one especially
+important example), or if a privilege changes (e.g. you decide to
+prevent avatar X from sending you telepathy).
+
+<h5>Secure Address Book Update</h5>
+
+The address book uses the identity secure capability exchange protocol
+to query other avatars' address books and get their latest address book
+information. It is a slightly odd use of the protocol because it is
+used to return a data structure rather than a capability, but it does
+ensure that the data is communicated securely between the avatars.
+<p>
+This is how the "online" indicator in the address book works; if the
+capability exchange fails due to a network error the target avatar is
+assumed to be offline.
+
+<h4>Design Objectives, Constraints and Assumptions</h4>
+
+<ul>
+<li>The address book ingredient code assumes it will only be
+accessed by one thread at a time, so it doesn't do any locking
+of its state.
+</ul>
+
+
+<h2>Detailed Design</h2>
+
+I'm going to cop out here and point you at the source. The source is
+fairly well commented and has been reviewed (by Walendo and Dima) so
+I hope it's easy enough to understand. Unfortunately it's all E and
+Pluribus code, so I can't get JavaDoc for it, which is what I'd prefer
+to use in this section.
+<p>
+Anyway, here are the important files:
+
+<dl>
+
+<dt>cosm1/ui/presenter/steward/AddressBook.java
+<dd>This file contains the interfaces between UI and ingredient, and also
+the AvatarPage and LocalAvatarPage classes.
+
+<dt>cosm1/ui/presenter/crew/AddressBookWrapper.java
+<dd>Simple class which sits between the UI and the ingredient, and ensures
+that the vat is locked before the UI thread calls into the ingredient.
+
+<dt>cosm1/objects/ingredients/avatar/AvatarAddressBook_kind.plu
+<dd>The address book ingredient interfaces, as exposed to neighboring
+ingredients. Read this file before looking at the state bundle and the
+implementation.
+
+<dt>cosm1/objects/ingredients/avatar/AvatarAddressBook_state.plu
+<dd>The address book ingredient state bundle
+
+<dt>cosm1/objects/ingredients/avatar/AvatarAddressBook_impl.plu
+<dd>The address book ingredient implementation. This is big -
+probably too big. I'm not sure how to modularize it though.
+
+</dl>
+
+<h4>Testing and Debugging</h4>
+
+<ul>
+<li>Turn on the "addressbook" trace category to get address book tracing.
+When it is turned on the address book will print out trace message and
+check itself for consistency after most operations.
+</ul>
+
+
+<h2>Design Issues</h2>
+
+<h4>Resolved Issues</h4>
+
+<ul>
+<li>The address book used to have even more functionality - groups,
+and the "friends list", a list of avatars which was going to be
+used in some parts of the UI (e.g. in a pull down menu for telepathy).
+I removed all this code a few weeks before alpha. Should groups and
+the friends list ever return I wouldn't recommend resurrecting the code
+it as it was, as I think my design was poor. 
+</ul>
+
+<h4>Open Issues</h4>
+
+<ul>
+<li>The UI and ingredient currently use names to communicate i.e. they
+identify avatars by giving names. This is wrong because they are in
+different threads, so there can be races when a name changes. They
+should identify avatars by using identity objects. This is a lot
+simpler now we've got rid of crew/guest distinctions (identities,
+being guest, couldn't be given to crew code). Unfortunately I didn't
+have time to fix this before Alpha.
+<li>The address book and some of its neighbor ingredients are linked
+by circular neighbor statements at the moment. The address book is a
+fairly low level avatar utility, used by many higher level
+ingredients. But it also calls out into some higher level ingredients
+in order to send mail, start a telepathy balloon etc.  This should be
+fixed, probably by providing a registration and callback style
+interface e.g. a "register service" interface where you specify a
+service type (email, telepathy, visit turf, vox chat) and a handler to
+be called when the service is needed.
+</ul>
+
+
+<p>
+<a href="index.html">Back to design notes index</a>
+<br>
+<a href="../index.html">Back to Microcosm engineering main page</a>
+
+</BODY>
+</HTML>

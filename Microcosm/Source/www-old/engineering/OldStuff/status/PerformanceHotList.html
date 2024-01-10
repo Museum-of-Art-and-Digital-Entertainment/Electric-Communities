@@ -1,0 +1,425 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.03 [en] (Win95; U) [Netscape]">
+   <TITLE>Performance Hot List</TITLE>
+</HEAD>
+<BODY>
+
+<CENTER>
+<H1>
+Performance Hot List</H1></CENTER>
+
+<CENTER>updated 22 Dec 1997 at 2:46 PM</CENTER>
+
+<H2>
+RAM</H2>
+<B>Problem: Yellow bellied swap sucker.</B> The hub thrashes with more
+than seven people in it.
+
+<P><B>The Story So Far: </B>The Java VM was instrumented and found not
+to be the problem.&nbsp; Chip and Russ instrumented Win95's own malloc()
+to capture most allocations and do a full map of the address space; we
+found many mysterious 1 megabyte chunks.&nbsp; Russ hypothesized that these
+were thread stacks (though exactly what kind of thread stack is still a
+bit unclear).&nbsp; Some tests with -ss100k vs. -ss1m seem to indicate
+this is the case.&nbsp; The further theory is that Dan's reuse-a-single-run-queue-thread
+fix (it used to make new ones all the time) had a big effect.&nbsp; As
+of Friday 12/19, we are able to get 17 people into a hub without the working
+set going haywire.
+
+<P>There may be other swap suckers!&nbsp; There are certainly other performance
+and stability problems.&nbsp; We will be doing runs intensively all next
+week and fixing as much as we can as fast as we can.
+
+<P><B>Current Approaches:</B>
+<UL>
+<LI>
+<B>RAM swap sucker:</B> Solaris hub version: new build environment on Solaris?</LI>
+
+<BR><B>Explanation:</B> We don't know if the swap sucker is potentially
+a Windows-only thing.&nbsp; Be nice to find out... but deprioritized.
+<BR><B>Anticipated outcome:</B> Data about whether the swap sucker is Windows-only,
+or whether it (or some other sucker) strikes on Solaris too.
+<BR><B>People involved: </B>Bob, with Eric [Bob says makefile rule problems
+are in the way; Eric is helping and hopes to have that done by the end
+of Wednesday, 12/10.]
+<BR>&nbsp;
+<LI>
+<B>Working set analysis: </B>We do not know for sure that our working set
+is reasonable or stable.&nbsp; We will need to spend a lot of cycles next
+week carefully watching the working set of our hub.</LI>
+
+<BR><B>Anticipated outcome: </B>We get a hub that runs with many people
+connected in only a few megabytes.
+<BR>&nbsp;
+<LI>
+<B>World instantiation overhead:</B> It seems to take a lot more memory
+to read in the Preview realm than to read in OneRegion.&nbsp; This doesn't
+bode well for our RAM consumption when hosting many regions.&nbsp; We need
+to do some intensive load tests with much bigger realms next week as well.</LI>
+
+<BR>&nbsp;
+<LI>
+<B>32 meg machines:</B> We have not done enough testing recently with 32
+megabyte machines.&nbsp; We need to track down stress.exe (which can artificially
+limit the RAM available to Windows) so we can do some testing early next
+week with our current 64M machines.&nbsp; Paul and Alan are looking into
+this today (including setting the Java heap size lower so it doesn't try
+to grab so much heap).</LI>
+
+<BR>&nbsp;</UL>
+
+<H2>
+Startup</H2>
+<B>Problem: Class loading.&nbsp; </B>When we start up, we need to load
+about 2,100 classes.&nbsp; This is not an unreasonable number for an app
+as large as ours (if we were written in C++ this whole issue would not
+exist), but most Java VMs are not optimized for loading classes quickly
+and take 30 to 60 seconds to load them all.&nbsp; Yet we <I>must</I> find
+a way to speed this up, as it currently dominates startup time and 50+-second
+startup is not acceptable in the market (no competitive app takes that
+long to start up).
+
+<P>Cafe is one Java development environment (from Symantec) which we are
+looking at.&nbsp; Supercede (from Asymetrix) is the other.&nbsp; The best
+hope for both seems to be to compile all of Microcosm into one native-code
+executable file (.exe), which will load orders of magnitude faster than
+the piecemeal class-loading and class-parsing of our current VMs.
+
+<P><B>Current Approaches:</B>
+<UL>
+<LI>
+<B>Cafe compiling all our source: </B>Some tweaks to the E runtime and
+to the Cafe project have yielded a natively-compiled E runtime which
+seems to work properly.&nbsp; Progress is being made on the Cafe front.</LI>
+
+<BR><B>Anticipated outcome:</B> We get Cafe to compile all our code into
+an .exe and we get much faster startup.
+<BR><B>People involved: </B>Jay (and perhaps others soon if Supercede doesn't
+pan out)
+<BR>&nbsp;
+<LI>
+<B>Openers porting to Supercede/Cafe</B></LI>
+
+<BR><B>Explanation:</B> The openers library uses one non-standard Sun VM
+hook; if we didn't use that hook, we could perhaps get onto other platforms
+(VMs and compilation environments) more easily.&nbsp; It turns out that
+there are <A HREF="http://www-int.communities.com/archives/ec_tech/1472.html">equivalent
+hooks under the hood</A> in most Java VM's.&nbsp; Sidney is working on
+porting openers to Supercede so Wayne and Dima can make more progress.
+Update: the port gets as far as Supercede launching to the login screen,
+then craps out; Sidney and Dima are working on it.
+<BR><B>Anticipated outcome:</B> We get openers (and hence comm, checkpointing,
+and the repository) working under Supercede and Cafe.
+<BR><B>People involved: </B>Sidney, Dima
+<BR>&nbsp;
+<LI>
+<B>State bundles</B></LI>
+
+<BR><B>Explanation: </B>Arturo has (in ~arturo) a full source tree that
+implements state-bundle-based persistence (saving AND loading) of Microcosm.&nbsp;
+It still needs some work and is not merged with the current source.&nbsp;
+Arturo will be merging it and checking it in on his return; meanwhile,
+Scott and Trev are fixing up the save file format and the avatar's serialization/deserialization,
+respectively.
+<BR><B>Anticipated outcome:</B> We get substantially faster saving and
+somewhat faster loading of saved turfs, as well as the ability to upgrade
+our code while keeping our worlds.
+<BR><B>People involved: </B>Arturo, ScottL, Trev</UL>
+<B>Problem: Overall startup</B> <B>time</B>
+<BR><B>Current Approaches:</B>
+<UL>
+<LI>
+<B>Lots of startup tweaking</B></LI>
+
+<BR><B>Explanation:</B> Outside of class loading, there doesn't seem to
+be a big startup/revive hog, so we're looking for lots of ways to shave
+seconds off the startup time. For example, changing UI art to 8-bit rather
+than 24-bit cuts two seconds off startup. Also, Menus.txt is currently
+parsed on every startup of Microcosm.&nbsp; It could be parsed once and
+stored in the repository, saving that time.&nbsp; Likewise, realm.txt files
+are parsed on every (initial) startup.&nbsp; Mike is also putting in more
+timing code to help find the choke points.
+<BR><B>Anticipated outcome:</B> Lots of small improvements on startup.
+<BR><B>People involved: </B>Claire, Mike</UL>
+
+<H2>
+Region transitions</H2>
+
+<UL>
+<LI>
+<B>Reducing comm traffic: RobJ's transition optimizing?</B></LI>
+
+<BR><B>Explanation: </B>Walendo has instrumentation to provide visibility
+on what happens during region transition; RobJ will be using it to optimize
+this week (Karl has taken over most of the class bloat work).
+<BR><B>Anticipated outcome:</B> Region transitions get down under 10K,
+hopefully down under 5K.
+<BR><B>People involved: </B>Robj
+<BR>&nbsp;
+<LI>
+<B>E modem benchmarks</B></LI>
+
+<BR><B>Explanation: </B>We do not currently know how many E round trips
+a 28.8K modem can give us.&nbsp; This will put an upper bound on our network
+protocols' latency (of course, a lagging server will dramatically worsen
+the situation).</UL>
+
+<H2>
+Scaling</H2>
+
+<UL>
+<LI>
+<B>Stability with many people:</B>&nbsp; The recent hub runs have not thrashed
+the server to death, but they still seem to bog down at about 8 or 9 people
+in the world.&nbsp; Some of this seems due to weird comm exceptions that
+Rob's presence spread code was not handling very well; some is due to other
+as yet undetermined stuff.&nbsp; We need more visibility on how hubs perform
+under load (and on how loaded the comm system is), and we have LOTS, LOTS
+LOTS LOTS, more work to do to get a really robust scalable hub.</LI>
+
+<BR><B>Anticipated outcome: </B>Double-digit people logged into the hub
+without breaking a sweat.&nbsp; (We must have this in order to ship!&nbsp;
+and it can't come too soon.)
+<BR><B>People involved:</B> Anybody and everybody.</UL>
+
+<H2>
+General</H2>
+
+<UL>
+<LI>
+<B>Prolonged run leakage</B></LI>
+
+<BR><B>Explanation:</B> Run for a long time and objects accumulate for
+no very apparent reason.&nbsp; The more this happens the worse we will
+scale.
+<BR><B>Anticipated outcome:</B> We kill them all and we can run indefinitely.
+<BR><B>People involved: </B>John, RobJ (soon)</UL>
+
+<H2>
+Resolved/Deferred</H2>
+
+<H3>
+RAM</H3>
+
+<UL>
+<LI>
+<B>Thread stack consumption:</B> We wound up going with 64k stacks on the
+latest hub tests and it seems to run OK!&nbsp; 1M per thread seems like
+a lot, and does not scale to a hub with many connections.&nbsp; There are
+several things we can do.&nbsp; The simplest:</LI>
+
+<UL>
+<LI>
+Reduce the current -ss1m to -ss128k or so and see what behavior we get
+(last time it died down in Java GC due to inability to do a deep mark pass
+on some way-too-big data structures; the big structures are probably bugs
+anyway, and Java 1.1.4 is supposedly better about this).</LI>
+</UL>
+This was being tried on the hub tests on Tuesday 12/16.&nbsp; News forthcoming.
+<BR>Reengineeringwise, we can:
+<UL>
+<LI>
+Make each connection create only one thread instead of two.</LI>
+
+<LI>
+Make encode/decode happen in the vat thread, and make the comm threads
+use smaller stacks.</LI>
+</UL>
+ScottL doesn't think these are good ideas, though, as threads in other
+Java environments seem nowhere near so expensive (his last Java project
+had 150+ threads, no problem), and this would be a lot of engineering work
+in some already-complex code.&nbsp; First we will try with the smaller
+thread stacks and evaluate.
+<BR>&nbsp;
+<LI>
+<B>Walendo's Windows API logger</B></LI>
+
+<BR><B>Explanation:</B> Alan has a tool that logs every Windows NT API
+call. We will be using it for our NT runs as we do more swap sucker analysis.
+<BR><B>People involved: </B>Alan
+<BR>&nbsp;
+<LI>
+<B>Comm system VM size investigation:</B> what eats 3M per connection?</LI>
+
+<BR><B>Explanation: </B>Walendo found that on each connection the process
+size grows by a good chunk.&nbsp; This turns out to be mostly the 1m thread
+stacks of the two threads that get started per connection.&nbsp; There
+are various fixes for this being debated now.
+<BR><B>People involved:</B> Walendo and Gordie
+<BR>&nbsp;
+<LI>
+<B>Chip's/Russ's native DLL instrumentation</B></LI>
+
+<BR><B>Explanation:</B> Chip and Russ instrumented the Java VM and the
+C runtime's malloc(), and augmented analdump, so we can log every call
+to malloc() and free() that we can intercept (which is most but not quite
+all of them), and get a view on the process's complete address space.&nbsp;
+This tool enabled us to find the multiple 1M chunks of the thread-stack
+swap sucker.
+<BR><B>Anticipated outcome:</B> We seem to have found the big swap sucker,
+but next week's runs will confirm or refute this.
+<BR><B>People involved: </B>Trev, Alan, Russ, Chip, Alex.</UL>
+
+<H3>
+Startup</H3>
+
+<UL>
+<LI>
+<B>Class bloat fixes</B></LI>
+
+<BR><B>Explanation: </B>Karl has written the code needed to reduce the
+compile-time classes produced by over 50% and has host-client Pluribus
+test cases working; he's now&nbsp; merging with Microcosm! It is getting
+checked in as I type this.
+<BR><B>Anticipated outcome:</B> Substantial compile-time reduction in number
+of classes produced (hopefully producing some compilation speedup in cosm1/objects/una
+to boot); some run-time reduction in class load time.
+<BR><B>People involved: </B>Karl, Robj
+<BR>&nbsp;
+<LI>
+<B>Supercede native library link problem</B></LI>
+
+<BR><B>Explanation:</B> Supercede was choking on native libraries.&nbsp;
+Much good help from Asymetrix has given us the fixes we need, and they
+do indeed support JNI.&nbsp; Full speed ahead.
+<BR><B>Anticipated outcome:</B> We get Supercede to make us a peachy fast-loading
+.exe.
+<BR><B>People involved: </B>Dima, Wayne, Bill
+<BR>&nbsp;
+<LI>
+<B>Scott's optimized loader</B></LI>
+
+<BR><B>Explanation: </B>ScottL tried out an optimized classloader for loading
+all our classes upfront quickly.&nbsp; It looks like this may speed up
+startup by only 7 seconds, and that only if loading only the classes we
+need gets our pre-login window load time down to about 12 seconds.
+<BR><B>Outcome:</B> Mike has checked this in; together with other startup
+tweaks our startup time is down to 45 seconds.
+<BR><B>People involved: </B>ScottL, Mike
+<BR>&nbsp;
+<LI>
+<B>Supercede subsetting-.exe problem</B></LI>
+
+<BR><B>Explanation:</B> Some initial results seem to indicate that Supercede
+requires all classes referenced from a native-code-compiled .exe be in
+the .exe itself.&nbsp; i.e. it is not clear that implicit (by-reference)
+classloading, nor even explicit Class.forName() loading, work from a native-code-compiled
+.exe.&nbsp; Bill is helping Wayne make sure. Asymetrix seems to think it
+<I>should</I> work. It turns out that the Supercede .exe doesn't read the
+CLASSPATH property from the environment; instead it needs to be in a special
+.properties file.&nbsp; When Wayne put his CLASSPATH there, Class.forName()
+started working from his .exe!
+<BR><B>Anticipated outcome:</B> We get Supercede to make us a peachy fast-loading
+.exe.
+<BR><B>People involved: </B>Dima, Wayne, Bill
+<BR>&nbsp;
+<LI>
+<B>Postpone sound initialization?</B></LI>
+
+<BR><B>Explanation:</B> It looked for a while like sound was taking too
+long to start up, but it turns out it's not (&lt;1 second).
+<BR><B>People involved: </B>RobL, Claire
+<BR>&nbsp;
+<LI>
+<B>Process viewer</B></LI>
+
+<BR><B>Explanation: </B>Walendo found a tool which displays a process's
+heap, but it gets illegal memory access violation loading openers.dll;
+he is trying it with alternate startup interface (invoke instead of exec).&nbsp;
+This is on the back burner at the moment since it appears that other tools
+give us more information.
+<BR><B>Anticipated outcome:</B> Odds are it will not give us enough detail
+about when exactly the big allocations are happening, but it might quickly
+tell us which .dll is responsible
+<BR><B>People involved: </B>Walendo, with Markm?</UL>
+
+<H3>
+Transitions</H3>
+<B>Problem: RAM usage during transitions</B>
+<BR><B>Current Approaches:</B>
+<UL>
+<LI>
+<B>E runtime allocation</B></LI>
+
+<BR><B>Explanation: </B>Dan has eliminated all of the objects allocated
+in doing E message dispatch.&nbsp; He had some good benchmarks but is redoing
+them to increase his confidence in their truth.
+<BR><B>Anticipated outcome:</B> Generally better performance under heavy
+load; less time spent in ObjAlloc() in the Java VM (the latter can be profiled
+to confirm).
+<BR><B>People involved: </B>Dan
+<BR>&nbsp;
+<LI>
+<B>Optimizing appearance file loading</B></LI>
+
+<BR><B>Explanation: </B>Walendo's timings indicate that we spend significant
+time parsing Appearance files every time we read them from the repository
+(or otherwise unserializing them).&nbsp; Harry has checked in two recipes
+already to speed this up.
+<BR><B>Anticipated outcome:</B> Another few seconds shaved off of every
+region transition!
+<BR><B>People involved: </B>Harry, Sidney, MarkM
+<BR>&nbsp;
+<LI>
+<B>Problem:</B> Still 1 meg per transition</LI>
+
+<BR><B>Explanation:</B> Fixed!&nbsp; RussP used vadump to find a DirectDraw
+leak.&nbsp; Now we leak only 17K per transition which we can live with
+for the moment!
+<BR><B>Anticipated outcome:</B> Bounded memory usage over multiple transitions
+<BR><B>People involved: </B>Russ/Paul/Claire
+<BR>&nbsp;
+<LI>
+<B>Problem:</B> Seven round trips per initial teleport!!!</LI>
+
+<BR><B>Explanation:</B> Rob looked into the spam of region transitions
+and determined there were SEVEN round trips required before the una got
+sent over.&nbsp; He eliminated four of them and hopes to check in today
+(Monday 12/22).
+<BR><B>Anticipated outcome:</B> Better region transition times especially
+over modems!
+<BR><B>People involved:</B> Rob, Trev, Walendo</UL>
+
+<H3>
+Scaling</H3>
+
+<H3>
+General</H3>
+
+<UL>
+<LI>
+<B>What about 21 threads? All sensible?</B></LI>
+
+<BR><B>Explanation:</B> We have 21 threads.&nbsp; <A HREF="http://www-int.communities.com/archives/ec_perf/0352.html">Here's
+the scoop.</A>&nbsp; Some of the timer threads may be killable.&nbsp; Tasks
+perhaps pending...&nbsp; We do not currently know if we are spending much
+time in lock contention.&nbsp; See the RAM notes for more about the evils
+of threads.
+<BR><B>Anticipated outcome:</B> Less thread overhead
+<BR><B>People involved: </B>Bill
+<BR>&nbsp;
+<LI>
+<B>Checkpoint disrepancy</B></LI>
+
+<BR><B>Explanation: </B>Checkpointing on Sidney's machine takes around
+10 seconds, yet when Alison benchmarks it, it takes on the order of 5 minutes
+or so without the tracing turned on. It turns out this is because of the
+beta JIT; when Alison uses the beta JIT with the checkpoint warnings turned
+off, she can reproduce Sidney's faster timings.
+<BR><B>Anticipated outcome: </B>As predicted by Sidney, this seems to be
+due to the build environment still using the slow Javasoft 1.1.3 non-JIT
+VM.
+<BR><B>People involved: </B>Sidney, Alison
+<BR>&nbsp;
+<LI>
+<B>Tools for working set visiblity &amp; tuning</B></LI>
+
+<BR><B>Explanation:</B> We needed tools to display our working set during
+a run.&nbsp; Walendo's tool vadump (look for description in the tools pages
+XXX TREV LINK HERE) seems to do the trick.</UL>
+<A HREF="http:index.html">Back
+to the index</A>
+</BODY>
+</HTML>

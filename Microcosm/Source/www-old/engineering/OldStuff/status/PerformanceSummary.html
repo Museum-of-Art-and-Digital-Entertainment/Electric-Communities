@@ -1,0 +1,107 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.03 [en] (Win95; U) [Netscape]">
+   <TITLE>Performance Summary</TITLE>
+</HEAD>
+<BODY>
+
+<CENTER>
+<H1>
+Performance Summary</H1></CENTER>
+Engineering has set performance targets for ourselves. Our goal is to reach
+these targets <I>and see room for improvement</I> by January 7, 1998. All
+measurements are on a Pentium 166 machine with 32 megs of RAM. Transitions
+must be done over a 28.8 modem.
+
+<P><B>Updated 12/16/97</B>
+
+<P>&nbsp;
+<H2>
+RAM</H2>
+<B>Problem: </B>Our application needs to run in 32 megs by January 7, and
+needs to support many people on a hub without thrashing severely.&nbsp;
+We have succeeded in getting nine people into a hub (on Friday 12/12) without
+thrashing; we are running further scaling tests and 32M-machine tests this
+week.
+
+<P>&nbsp;<B>Approaches: </B>See the hotlist.
+
+<P>&nbsp;<B>Prognosis: </B>We have developed RAM profiling tools that give
+us almost complete visibility into our heap and its VM layout.&nbsp; These
+have already proved helpful in finding significant RAM consumptions (scene,
+renderer, and native threads) that have since been optimized.&nbsp; We
+look forward to these tools earning their keep.&nbsp; It is still too early
+to tell whether we have a viable product on a 32M machine; tests this week
+will give us that data.
+
+<P>&nbsp;
+<H2>
+Startup</H2>
+<B>Problem: </B>Most products start up in about 5 to 15 seconds (some even
+less), and ours needs to do the same. For the 1/7/98 date, we're setting
+a target of 30 seconds. Currently, the application is taking 90 seconds
+with the JIT.
+
+<P><B>Approaches:&nbsp; </B>1) Speed up class loading in our current environment
+(ScottL).&nbsp; 2) Compile all of Microcosm to a native .exe file (Jay,
+Dima, Wayne).&nbsp; 3) Speed up startup in general (Claire, Mike).
+
+<P><B>Prognosis:</B> The biggest thing standing in our way is the inability
+of all the Java environments we have yet looked at to load a couple thousand
+classes in a reasonable amount of time.&nbsp; It's not that our application
+is unduly big (plenty of other apps our size load much more quickly); it's
+that we're using Java environments that have not been optimized for delivering
+or launching big systems.&nbsp; Some Java environments are moving in the
+direction of supporting larger Java systems; we are aggressively working
+to bring Microcosm into those environments, and we expect either positive
+results (in which case we win) or negative results.&nbsp; If none of the
+currently shipping Java build environments are able to compile Microcosm
+into some faster-loading form, we may be stuck with slow load times until
+such environments appear... i.e. we will then be at the mercy of the Java
+tools marketplace.&nbsp; HOWEVER, Supercede and Cafe are both looking promising
+as solutions to this problem.
+
+<P>&nbsp;
+<H2>
+Transitions</H2>
+<B>Problem: </B>Users move from region to region on a regular basis, and
+it needs to feel snappy. We're hoping for 1-3 second transitions for the
+product, but we'll be satisfied with 10-second transitions for January
+7, again assuming we see room for improvement. Currently, transitions are
+taking 13 seconds in stand-alone mode with the JIT. When a user is connected
+to another machine, transitions take 33 with the JIT.&nbsp; These measurements
+are prior to the presence spread code's checkin.
+
+<P>&nbsp;<B>Approaches: </B>The presence spread code changes this behavior.&nbsp;
+We have also had some runs where host/client transitions were quite speedy;
+however, initial entry into a hub is still too slow, and needs extensive
+profiling this week.&nbsp; Also, modems have not been sufficiently tested.&nbsp;&nbsp;
+Rob has eliminated over half the round trips in initial world entry/teleporting
+to a new region; this will definitely have an impact but has not been measured
+yet.
+
+<P>&nbsp;<B>Prognosis:</B> Once logged into a hub on a LAN, transitions
+are already performing adequately; but initial entry and over-a-modem transitions
+are still in need of work.
+
+<P>&nbsp;
+<H2>
+Scaling</H2>
+<B>Problem: </B>Our hub product needs to support 50 users on one machine,
+though we expect to limit regions to about 6-10 avatars at any given time.
+For January 7, we need to be able to have 7 avatars in a region at the
+same time with ease. Ideally, we should be able to have 20 users on the
+same machine at the same time.
+
+<P>&nbsp;<B>Approaches:</B> Kill the swap sucker!!!!!&nbsp; Much progress
+has been made on this front and we have succeeded at getting 9 into a region
+on Friday 12/12 followed by 17 people on 12/19 and hopefully 30 this week.
+
+<P>&nbsp;<B>Prognosis:</B> Looks like we may be doing well on this one.
+
+<P>&nbsp;
+
+<P><A HREF="index.html">Back to the index</A>
+</BODY>
+</HTML>

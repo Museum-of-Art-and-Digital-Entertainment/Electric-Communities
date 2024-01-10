@@ -1,0 +1,141 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="Author" CONTENT="Alan Walendowski">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.03 [en] (WinNT; U) [Netscape]">
+   <TITLE>All about .mcm files</TITLE>
+</HEAD>
+<BODY>
+
+<H1>
+About .mcm and .mcmav files</H1>
+<I>Note: 2/10/98 This page is maintained by <A HREF="mailto:walendo@communities.com">walendo</A>.
+Please send corrections to him.</I>
+<BR> 
+<BR><U>.mcm files</U><U></U>
+
+<P>In order to get two Habi*'s talking to eachother, one of them needs
+to know the address of the other one so it can make contact. In the e (language)
+world, those addresses are known as SturdyRefs and the human readable version
+of them is called an EARL ("e absolute reference locator", I seem to remember)
+
+<P>This means that if you're running a client and you want to enter a region
+hosted by some server somewhere, you need to supply the SturdyRef of the
+destination region to your client.  You could just type in the EARL
+(the readable form of the SturdyRef) by hand, but since they're a bit more
+complex than a typical URL that's fairly inconvenient. For example, an
+EARL might look like this:
+<PRE>  e://george.communities.com:1669;gracie.communities.com:1669;
+  harpo.communities.com:1669/4rolqnhtrjjtb1fp0fimwr7xub5hyhm/ivxwc8</PRE>
+.mcm files came about as a way to package these kinds of addresses in a
+way that people could deal with. This way, when you run a Habi*, you can
+just hand it a .mcm file containing the address of the region you want
+to enter  (it's actually the address of the destination teleport pad)
+and off you'll go. This is what you're doing when you use run.bat and give
+it the "rgnFile = ./PublishedRefs/foo.mcm" argument, and this is also what
+happens under the covers when you double click on a .mcm file in a mail
+message, on a web page, or in your explorer window. The latter case is
+handled by <A HREF="HabiSplat.html">HabiSplat</A>, and is explained on
+<A HREF="HabiSplat.html">this</A> page.  BTW, if you haven't guessed,
+the extension .mcm was chosen when the products name was Microcosm.
+
+<P>Originally, .mcm files contained only the EARL of a  teleport pad
+- but as time went on we discovered the need for passing around the SturdyRefs
+of avatars along with address book information as well. (This way, I could
+email you my in-world "contact information" as a .mcm filed and when you
+double clicked on it,  Habi* would enter the information into your
+avatar's address book. And, since you'd have my the SturdyRef of my avatar,
+you could open a direct telepathy connection without even being on the
+same hub as me. You could also make sure you have the latest contact info
+for me by contacting me directly and asking for an update.).
+
+<P>Thus, .mcm files now contain exported java.util.Properties objects.
+A typical teleport pad .mcm file might look like this:
+<PRE>  #This file automatically generated. Do not edit.
+  #Wed Feb 04 15:04:45 PST 1998
+  Name=Great-Round-Square.mcm
+  Type=TeleportPad
+  EARL=e://george.communities.com:1669;gracie.communities.com:1669;
+       harpo.communities.com:1669/aks407vahgdtnaxe9lzcjgrkhzl77c0/4y9wvh</PRE>
+And a typical avatar .mcm file might look like this:
+<PRE>  #This file automatically generated. Do not edit.
+  #Wed Feb 04 15:04:48 PST 1998
+  Politics=libertarian
+  Sexual orientation=
+  Birthday=
+  Name=Dax
+  Email=dax@communities.com
+  Country=USA
+  Home tel.=555-1212
+  Age=14
+  Kids=
+  Gender=
+  Marital status=
+  Town=
+  Other=
+  Type=AvatarID
+  EARL=e://george.communities.com:1669;gracie.communities.com:1669;
+       harpo.communities.com:1669/aks407vahgdtnaxe9lzcjgrkhzl77c0/apqyv2
+  Occupation=
+  Real name=Dax Daxilopolos
+  Pager=555-1212
+  Cell=
+  Web page=http://www.dax.com
+  State=
+  Religion=
+  Work tel.=</PRE>
+When you start Habi*, it creates one .mcm file for your avatar (the 'contact
+information file) called Name_ID.mcm and one .mcm file for each of the
+teleport pads in the realm that you're hosting. By default, these files
+live in the PublishedRefs subdirectory of your Habi* install directory.
+The teleportpad .mcm files live in a subdirectory of PublishedRefs named
+after your avatar. So, if you start TwoRegions up and log in as Dax, you'll
+end up with the following files:
+<PRE>    PublishedRefs\Dax_ID.mcm                  (the contact info)
+    PublishedRefs\Dax\Park-Entrance.mcm       (teleport pad)
+    PublishedRefs\Dax\Aztec-Turf.mcm          (teleport pad)</PRE>
+Internally, Habi* looks for the 'Type' field first and decides what to
+do based on its value. At the moment, it only understands "Type=AvatarID"
+and "Type=TeleportPad". The code inside of Habi* that deals with .mcm files
+is mostly in AvatarReceptionist_ingr.plu if you're curious. The code EXTERNAL
+to Habi* that deals with .mcm files lives in HabiSplat.cpp. See the page
+on <A HREF="HabiSplat.html">HabiSplat</A> for info on how that works. 
+If you've got any questions on .mcm files, ask <A HREF="mailto:walendo@communities.com">walendo</A>.
+<BR> 
+<BR><U>.mcmav Files</U>
+
+<P>.mcmav files are similar to .mcm files, except that they are only used
+as a mechanism to store information about the avatar accounts that you've
+got setup. For instance, if you've created two avatars named Foo and Bar,
+you'll get two .mcmav files named Foo.mcmav and Bar.mcmav in the
+<BR>Avatars subdirectory of your Habi* install directory. These files might
+look like this:
+<PRE>  #Wed Feb 04 15:01:06 PST 1998
+  Encrypted=no
+  AvatarBody=animations/Dax.appearance2d
+  DefaultStartRegion=NewParkScroll1
+  ProcessDirectory=Processes\\Process_0
+  AvatarName=Foo
+  checkpoint=Processes\\Process_0\\checkpoint.evat</PRE>
+The information contained in there isn't useful to any Habi* installation
+other than your own and these files aren't meant to be given out to anyone.
+The login and account manager use them to keep track of the accounts available
+when you start Habi*. <A HREF="mailto:dima@communities.com">Dima</A> is
+the creator and maintainer of these files, so he can answer any questions
+you might have about them. I'll take a shot at the field definitions, though.
+
+<P> Encrypted: whether or not the checkpoint file is encrypted (needs
+a passwd)
+<BR> AvatarBody: which body your avatar has
+<BR> DefaultStartRegion: self explanatory
+<BR> ProcessDirectory: where to find the checkpoint files for this
+avatar
+<BR> AvatarName: self explanatory
+<BR> checkpoint: the name of the checkpoint file for this avatar
+<BR> 
+<BR> 
+<BR><A HREF="index.html"> Back to the Index!</A>
+
+<P> 
+</BODY>
+</HTML>

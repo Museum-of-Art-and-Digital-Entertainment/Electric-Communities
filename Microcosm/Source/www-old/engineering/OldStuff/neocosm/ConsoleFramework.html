@@ -1,0 +1,113 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>Console UI Framework</TITLE>
+<META NAME="Template" CONTENT="C:\Program Files\Microsoft Office\Office\html.dot">
+</HEAD>
+<BODY LINK="#0000ff" VLINK="#800080">
+
+<I><H1>Console UI Framework</H1>
+</I><ADDRESS>This page was originally written by <A HREF="mailto:claire@communities.com">Claire</A>.</ADDRESS>
+<B><P>Last updated:</B><I> [98/07/08 </I><A HREF="mailto:claire@communities.com"><I>Claire</I></A><I>]</I> </P>
+<H2>Introduction</H2>
+<P>The console framework was created to allow a text only interface into a world. It has the advantage of being much smaller. It has no graphics overhead and so is much simpler.</P>
+<H4>Related Documents</H4>
+<ADDRESS><A HREF="GUIFramework.html">GUI Framework</A></ADDRESS>
+<ADDRESS><A HREF="UIFramework.html">UI Framework</A></ADDRESS>
+<H2>Requirements</H2>
+<P>The console is a text only framework for interacting in a world. It can only receive text input and can only display text output. There is no constraint on whether this is done in a separate window with styled fonts and a system menu bar or in same window as the command line. If possible, it should be scriptable for use in testing.</P>
+<H2>Architecture</H2>
+<H4>Current Architecture Overview</H4>
+<P>At start-up, the user can select an avatar from a list of avatars. He can enter a password if necessary. On entering a region, he will see a list of all the items currently in the region including other avatars.</P>
+<P>All objects are represented as text. All commands are sent by referencing the object by name and then entering the command. Any object that can be named and for which the commands are known can be sent. Currently many object names cannot be resolved. If there are two chairs named "chair" neither can receive commands. Object commands that require special 3-D spatial understanding also won't work. </P>
+<P>The factories return console specific versions of the requested presenter. The presenters may contain little real functionality. Most of the support for external windows has not been implemented. There are several reasons for this. The principle one being time. There is also no UI design document that explains how the console should display things or take input from the user with the equivalent detail that is found in the GUI design document. The current UI specification document is focused almost exclusively on GUI presentation.</P>
+<H4>Proposed Architecture Overview</H4>
+<P>The console framework will for the moment be considered to have two client users.  The first is testing.  The second is hub operators.   There are no plans to make the console usable by an average user looking for a text chat interface.  There is however, every attempt to allow the console to move in that direction should a client request it.  </P>
+<P>The requirements for the testing are detailed in the <A HREF="CLITestingRequirements.html"><I>CLITestingRequirements Document</I></A><I>.  </I>The document can be divided into separate functional components.  The first includes all of the scripting and scripting integration functions.  The second includes those elements that are related to providing information flow between the console and the unum or the UI Framework requirements.  This discussion will include only the latter.</P>
+<P>There is currently no document that details all of the requirements necessary for a hub operator.  There has been a request to allow for a hub operator to remotely interact with the running application.  Additional requirements may exist but they are not yet detailed and therefore are not reflected in the current discussion.</P>
+<P>Changes which are proposed:</P>
+<OL>
+
+<LI>The most significant change to the console is to add a help command which allows the user to closely approximate the mouse enter event.  This is what forces an update context call in the GUI.  In the console, this call will display the current commands available for that object.  In addition, addressing a command to a named object will cause it to be updated if the "needs update" flag is set.  This flag is being added to the Unum UI Presenter.</LI>
+<LI>The UI Framework will hold onto a name/Unum UI Presenter table that will guarantee that every object has a unique name and that every object in a region is therefore reachable from the command line.  This table is flushed on scene transition.  Objects which have a name are not guarenteed to have the same name once the scene changes.  So if you carry chair(4) to another room it may well become chair(2).  I don't know of a better way of handling this.</LI>
+<LI>Every container object will support a "contents" command that will list the current contents.  To allow for the name to unambiguous the object will have to use its Unum UI Presenter to get the correct name.</LI>
+<LI>Every object will support a "describe" command that will describe the object in either terse or verbose terms.  Currently the unum return a string, in the new design the unum will return a state object which will be formatted by the front end into the appropriate string or strings.</LI>
+<LI>Every object will support a "location" command that will state the container and 3d location of the object.  This should also be returned as data object.  The console will format it for output.</LI>
+<LI>All objects will return success or failure as string ids rather than as strings.  This will allow the message to be formatted by the UI in all cases.  Testers and Hub Operators will have ready access to the string lists.  It will also allow for a verbose or terse output.</LI>
+<LI>There has been a request to support a kill connection command.  It is unclear how this will work but all objects will need to support this command.</LI>
+<LI>All UI Presenters, which includes external window presenters, must have as part of their interface the ability to accept a command either from a window widget or from a command string.  This will allow all of the main ui elements to be readily accessible from the command line.  If these commands result in a state change, they must return a text equivalent.</LI>
+<LI>Wherever possible, the console and GUI will share a single code path.  This was partially addressed earlier but large parts of the console remain unimplemented.  Every GUI will be a console.</LI>
+<LI>The console will be agnostic as to the source of its commands.  This means it will not care if they come from a script file, a standard dos console or a log window.  </LI>
+<LI>The console will allow multiple "input" and multiple "output" streams.  This and the change above should make running the console remotely or scripting a problem that is external to the console itself.</LI></OL>
+
+<P>There are several problems that remain unresolved.  First is how to support scripting.  This is easy in console only mode but extremely problematic in GUI mode.  The GUI performs badly when its thread is called too infrequently.  In addition, some scripting commands want to block.  It is unclear if this blocking is at the command level i.e. block command processing until the last command completes or if it is at the global level i.e. block entirely until the last command completes.  Either case is a problem if the GUI is to remain responsive to user events.  There is currently no "central" controller for messages to una.  This implies adding something that will serve in this capacity.</P>
+<H4>Off the shelf alternatives</H4>
+<P>None.</P>
+<H4>Other Design Objectives, Constraints and Assumptions</H4>
+<H2>Current implementation</H2>
+<P>Current directory: ec\cosm\ui\console. Current Package: ec.cosm.ui.console</P>
+<P>The console UI Framework consists of the console implementation of the FrameworkOwner and Framework, the four factories and the console implementaion of the UI Presenters. The base class for all console presenters is the ConsoleBasePresenter which provides the common println format used for most output. Large amounts of the current Presenter code is a no-op.</P>
+
+<UL>
+<LI>ConsoleUnaPresenterFactory: Used to create una presenters. This is the in-world representation of an unum. It can be a string or a complex collection of three-D textured objects. &lt; link to realmtext formats, dynamics engine&gt;</LI></UL>
+
+<OL>
+<OL>
+
+<LI>Console Avatar Presenter: text presenter for the avatar</LI>
+<LI>Console Prop Presenter: text presenter for a prop</LI>
+<LI>Console Compositor Prop Presenter: text presenter for a prop which can hold other props</LI>
+<LI>Console Region Presenter: </LI>
+<LI>Console Texture Presenter: stub</LI>
+<LI>Console FrontPlane Presenter: output text equivalent</LI></OL>
+</OL>
+
+
+<UL>
+<LI>ConsoleUnumUIPresenterFactory: most of the functionality is found in the CommonUnumUIPresenter. Currently the factory returns the UnumUIPresenterData that was passed in as it output since all UnumUIPresenterData includes the strings needed to display it. </LI>
+<LI>ConsoleUIPresenterFactory: Used to create external UI Presenters that do not need to be closely held by the avatar or region. This includes alerts, catalogs, etc. It is also used to create the UnumUIPresenter that is held by the unum and used to speak to the UnumUIPresenterFactory. The factory currently is responsible for the following presenters:</LI></UL>
+
+<OL>
+<OL>
+
+<LI>Console Alert Presenter: output a message</LI>
+<LI>Console Catalog Presenter: the catalog as a display list</LI>
+<LI>Console Trading Machine Presenter: not currently used but supports the trading machine</LI>
+<LI>Console Property Sheet Presenter: <VAR>stub</LI>
+</VAR><LI>Console UnumUI Presenter: support for the unum ui menus, labels and context updating</LI>
+<LI>Console List Presenter: support for display of lists of text</LI></OL>
+</OL>
+
+
+<UL>
+<LI>SessionUIPresenterFactory: Used to create external UI Presenters that are created once per session and/or which should be tightly held by the avatar or region. In addtion, there are several utility routines used to set or get session information. The factory is currently responsible for the following presenters.</LI></UL>
+
+<OL>
+<OL>
+
+<LI>Console Session Speech Presenter: wraps the support necessary for maintaining the speech that has occurred during a session.</LI>
+<LI>Console In-world Message Presenter: non editable message text for system messages</LI>
+<LI>Console Transition Presenter: output a transition message</LI>
+<LI>Console Notification Manager: support for user notifications as text strings</LI>
+<LI>Console Presenter: the console window</LI>
+<LI>Console Teleport List Presenter: <VAR>stub</LI>
+</VAR><LI>Console Address Book Presenter: <VAR>stub</LI>
+</VAR><LI>Console Inventory Presenter: <VAR>stub</LI>
+</VAR><LI>Console VoxChat Presenter: <VAR>stub</LI>
+</VAR><LI>Console Password Presenters: <VAR>stub</LI>
+</VAR><LI>Console Editable Message Presenter: <VAR>stub</LI></OL>
+</OL>
+
+</VAR><I><P>&lt; add javadoc links&gt;</P>
+<P>Are there examples?</I> </P>
+<H4>Testing and Debugging</H4>
+<I><P>(Optional) Lists any tests and debugging utilities which are to be developed to help test the design (e.g. test classes, trace categories, etc)</I> </P>
+<H2>Design Issues</H2>
+<H4>Resolved Issues</H4>
+<I><P>History of issues raised and resolved during initial design, or during design inspections. Can also include alternative designs, with the reasons why they were rejected</I> </P>
+<H4>Open Issues</H4>
+<P>A partial unification of the gui and console framework ui occurred with the inclusion of a CommonUnumUIPresenterFactory and the CommonUnumUIPresenter. This allowed any object with a name to receive commands. The problem has been how to resolve the name of objects with identical names.</P>
+<P>Building a more complete UI and tools for supporting the console</P>
+<P>&nbsp; </P></BODY>
+</HTML>

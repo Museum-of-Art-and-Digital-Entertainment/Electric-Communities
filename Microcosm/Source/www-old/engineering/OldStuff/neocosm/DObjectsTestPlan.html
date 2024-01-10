@@ -1,0 +1,175 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>DObjects Test Plan</TITLE>
+<META NAME="Template" CONTENT="E:\Program Files\Microsoft Office\Office\html.dot">
+</HEAD>
+<BODY LINK="#0000ff" VLINK="#800080">
+
+<I><H1>DObjects (DOM) Test Plan</H1>
+</I><B><P>DRAFT - based on Marick's reading of the DObject documentation and conversations with Scott and Robj. Still a lot to learn.</P>
+<P>Last updated:</B><I> [98/06/26 marick, based on comments by Scott Lewis, reproduced </I><A HREF="DObjectsTestPlanErrata.html">here</A><I>]</I> </P>
+<I><P>Written by </I><A HREF="mailto:marick@communities.com"><I>marick</I></A><I>. Subsystem by </I><A HREF="mailto:slewis@communities.com">Scott Lewis</A> </P>
+<H4>Related Documents</H4>
+<P><A HREF="DObjects.html">DObjects design</A></P>
+<H2>Level of Effort</H2>
+<TABLE CELLSPACING=0 BORDER=0 CELLPADDING=7 WIDTH=823>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P ALIGN="CENTER"><B>Aspect</B></TD>
+<TD WIDTH="26%" VALIGN="TOP">
+<B><P ALIGN="CENTER">Assessment</B></TD>
+<TD WIDTH="48%" VALIGN="TOP">
+<B><P ALIGN="CENTER">Justification</B></TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>Suspected bugginess</TD>
+<TD WIDTH="26%" VALIGN="TOP">
+<P>&nbsp;Moderate</TD>
+<TD WIDTH="48%" VALIGN="TOP">
+<P>Not exactly new code, as an early version has existed for a while. But it is not a modification of code that's found production use. Has changed somewhat as integrated into Neocosm.</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>Likely visibility of bugs</TD>
+<TD WIDTH="26%" VALIGN="TOP">
+<P>Moderate&nbsp;</TD>
+<TD WIDTH="48%" VALIGN="TOP">
+<P>Bugs might result in clients not being able to see things happening on other machines. That might be barely noticeable, but is more likely to cause much confusion. "Presence spread" bugs will not be noticeable at all.</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>Likely severity of bugs</TD>
+<TD WIDTH="26%" VALIGN="TOP">
+<P>High</TD>
+<TD WIDTH="48%" VALIGN="TOP">
+<P>This is a fundamental feature, part of the whole <I>point</I> of EC. It has to work.</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>Difficulty of exercising through normal use or whole-product testing</TD>
+<TD WIDTH="26%" VALIGN="TOP">
+<P>Moderate for normal case, high for error cases</TD>
+<TD WIDTH="48%" VALIGN="TOP">
+<P>This code has to deal with coordination of information in the face of network partitions. That can't be adequately tested through the user interface.</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>Difficulty of debugging problems when they're found in normal use or whole-product testing</TD>
+<TD WIDTH="26%" VALIGN="TOP">
+<P>High</TD>
+<TD WIDTH="48%" VALIGN="TOP">
+<P>Containment bugs might lie in the GUI (presentation), in the containment code, or here. That could be a mess to debug.</TD>
+</TR>
+</TABLE>
+
+<P>One of the highest priority testing tasks.</P>
+<H2>Who Does What and When?</H2>
+<P>Effort will be divided between a tester (TBD) and Scott Lewis. Both will do some test design and some test implementation.</P>
+<H2>Total Effort</H2>
+<P>TBD</P>
+<H2>Repeatability and Automation </H2>
+<P>TBD.</P>
+<P>Some likelihood of changes under the hood to support new topologies, but that's far enough in the future that I'd be reluctant to automate solely on that basis. Based on past experience, this is part of an area that's undergone lots of churn in both implementation (good for automation) and interface (bad for automation). I'd make repeatable normal-use tests of the main interface and some error-handling tests, but only with considerable care to avoid tests that will become a maintenance hassle. Likely strategy for other tests: write them, run them until they break, discard them.</P>
+<H2>What Is To Be Tested (Overview)</H2>
+<P>Priority ordering is <FONT COLOR="#ff0000">red highest, </FONT><FONT COLOR="#800000">brown next,</FONT><FONT COLOR="#ff0000"> </FONT>black last.</P>
+<H3>API</H3>
+<P>Standard functional testing applied to the different methods in the exposed API and to the user-relevant state of the underlying data structures. </P>
+<P>Some of these tests would be redundant with tests in other categories. That is, a scenario test might exercise a DObject method in a way that would also be exercised by a pure functional test. The other categories should take precedence (since they test more besides). Because I expect scenario and failure tests to hit the most critical cases that functional tests would, this category is not highest priority.</P>
+<P>If particular methods or uses of methods are unlikely to be exercised by this subsystem's clients (containment, communications), they should be tested last, if there's time.</P>
+<P>Here are the main areas (but see the full Javadoc):</P>
+<H4>DObject functions</H4>
+
+<UL>
+<LI>all members exposed to subclasses </LI>
+<LI>each protected method </LI>
+<LI>creation and destruction </LI>
+<LI>between-presence messaging</LI></UL>
+
+<H4>DObject &lt;-&gt; SessionMember interaction</H4>
+
+<UL>
+<LI>notification of group changes (the whole group membership protocol) </LI>
+<LI>are change messages sent at the right time? </LI>
+<LI>garbage collection issues: are now-unneeded objects and connections torn down. (Presence spread)</LI></UL>
+
+<H4>Capability transfer and cleanup</H4>
+<P>(Note: the nomenclature has changed, so these method names may be no longer correct.)</P>
+
+<UL>
+<LI>getSessionMemberFacet </LI>
+<LI>requestCapability </LI>
+<LI>giveCapability</LI></UL>
+
+<H4>Containment support</H4>
+
+<UL>
+<LI>package dom.container</LI></UL>
+
+<FONT COLOR="#ff0000"><H3>Scenarios (highest priority)</H3>
+</FONT><P>Some of the scenarios should be constructed from simple but high-level uses (e.g., one, two, three, or a few DObjects, hosted on one or a couple of the participating machines, with repeated changes of session membership).  [98/06/26]</P>
+<P>Some should be typical traces of method calls from the containment and communication (word balloon) subsystems. This has two advantages:</P>
+<OL>
+
+<LI>they will force exploration of design assumptions (checking whether the API matches the needs of client subsystems).</LI>
+<LI>they will provide "normal use" tests that can be used as regression tests.</LI></OL>
+
+<P>Further tests will be created by spinning variations on scenario tests. Variations should be realistic (could happen in real life). Pay especial attention to changes in hosting patterns (which objects are hosted where) and error cases.</P>
+<P>Note: in scenario tests, pay special attention to presence spread issues. It is important that now-defunct objects and connections be cleaned up.</P>
+<FONT COLOR="#ff0000"><H3>Network partition tests (same priority as scenarios)</H3>
+</FONT><P>Much of the point of DObjects is to handle network partitions cleanly. There are these types of these tests: (yes, I know the numbering is wrong. Word doesn't handle it right, and it's not worth futzing with)</P>
+<OL>
+
+<LI>Create a static session structure and kill one connection to all objects hosted on a particular "machine". This simulates that machine going down or hanging up. Check all notifications. Check that appropriate cleanup has been done. </LI></OL>
+
+
+<UL>
+
+<UL>
+<LI>It's desirable to start with a simple structure, but move rapidly to using structures like those used in scenario testing. </LI>
+<LI>As a variant of this test, wait for the session to quiesce, then kill another connection. </LI>
+<LI>Explore the API to find all possible responses to a connection failure. Try them all.</LI></UL>
+</UL>
+
+<OL>
+
+<LI>Create a static session structure and kill all outgoing connections. This simulates the modem being dropped. Check all notifications. Check that appropriate cleanup has been done.</LI></OL>
+
+
+<UL>
+
+<UL>
+<LI>My hope is that this case subsumes the case where 2-of-N connections are dropped "simultaneously".</LI></UL>
+</UL>
+
+<OL>
+
+<LI>Repeat previous two types of tests, but cause connection failure while the session structure is changing. This will probably require support within the DObjects code. If that support is too expensive, or if the number of tests required to exhaust the possibilities is too high, fall back to a random testing strategy (below).</LI>
+<LI>Random testing creates and changes session structures continuously. At random intervals, kill some connection. Check for accumulation of garbage and grievous failures. (A disadvantage of random testing is that it's often impossible to check for less-than-grievous failures.) This testing might be omitted. Or it might be fruitfully combined with random testing of the containment code.</LI></OL>
+
+<H3>Stress/load/timing tests</H3>
+<FONT COLOR="#800000"><H4>Interleaving protocol operations (priority not as high as scenarios and network partition tests [98/06/26])</H4>
+</FONT><P>This testing concentrates on concurrency "down" (from clients of the DObjects API). </P>
+<P>The first step is to run several scenario tests simultaneously and repetitively, first using scenarios that operate on a disjoint set of objects, then using scenarios that share objects. (The latter will allow much less correctness checking.) I currently have no good idea of how much of a risk area this is, and these tests may quickly tell me.</P>
+<P>Potential problem with this strategy: the scenarios might not exercise all operations (for example, destroying a DObject completely) and thus might miss low-frequency operations that lead to critical bugs. Couple the above with design/code reviews.</P>
+<P>If more detailed testing is justified, identify all DObject operations that are not indivisible with respect to the run queue (that is, operations that use elib messages themselves). Then:</P>
+<OL>
+
+<LI>Apply those operations "nearly simultaneously" to two different DObjects. Unless there's a way to control sequencing (unlikely, because there would be too many control points), set up a cyclic test that tries them all (with varying amounts of short delay). &lt;I'm guessing this is a low-yield set of tests, probably deferrable.&gt;</LI>
+<LI>Apply the operations to the same DObject (this simulates two different client computations operating on the same DObject). In this case, it will be more difficult to check correctness.</LI>
+<LI>Repeat (1) using different operations. (That is, operation O1 is applied to object D1, operation O2 to D2.) Because there will be a lot of possible combinations, pick pairs of operation carefully, concentrating on those most likely to share data. &lt;probable low-yield&gt;</LI>
+<LI>Repeat (2) using different operations.</LI></OL>
+
+<H4>Thread safety</H4>
+<P>This testing concentrates on concurrency "up" from APIs that the DOBject subsystem uses. In particular, messages from the Comm system (especially those about connection failures). In the current system, such concurrency is impossible, so this is low priority. Scott will do it, if anyone.</P>
+<FONT COLOR="#800000"><H2>Performance (priority same as stress/load/timing) [98/06/26]</H2>
+</FONT><P>TBD</P>
+<P>Use OptimizeIt to determine the number of objects created in a particular common scenario. </P>
+<P>For time performance, it would be good to measure the additional cost of group coordination as the group grows, especially the cost to a hub. Best to use communication scenarios, possibly containership transfer scenarios. Should this measurement be done at the higher levels?</P>
+<P>What else? Walendo?</P>
+<H2>Test Support Needed </H2>
+<P>There will need to be test support outside DObjects to simulate connection failure (probably trivial). There will probably need to be test support within DObjects to allow the test to "take control" and force failures at particular points during the computation.</P>
+<P>There will need to be some way to make presence spread more obvious - to detect if objects and connections have not been discarded (perhaps logging in a finalization method).</P>
+<P>TBD: to what extent will the DObjects code be tested with the comm system stubbed out, and to what extent using the real comm system? My leaning is toward using the real comm system, except that it will make class bloat harder to measure.  </P>
+<P>Note, however, that DObjects is already built on its own small comm system, which can be used until the real one is finished, and might serve as a stub system (or the basis for one). [98/06/26]</P>
+<H2>Issues</H2>
+<H4>Resolved Issues</H4>
+<H4>Open Issues</H4>
+<P>Because there are a lot of TBDs, they are noted in the relevant sections.&nbsp; </P></BODY>
+</HTML>

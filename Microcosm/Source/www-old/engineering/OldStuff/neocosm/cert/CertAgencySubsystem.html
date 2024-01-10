@@ -1,0 +1,103 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>CertAgencySubsystem</TITLE>
+<META NAME="Template" CONTENT="D:\Program Files\Microsoft Office\Office\html.dot">
+</HEAD>
+<BODY LINK="#0000ff" VLINK="#800080">
+
+<H1>EC Certification Agency</H1>
+<B><P>Last updated:</B>[98/05/20 MES] </P>
+<P>Mike Slominski: <A HREF="mailto:mike@communities.com">mike@communities.com</A>. </P>
+<H2>Introduction</H2>
+<P>The Certification Agency is the infrastructure necessary to do EC type Certification. The Certification Agency is composed of a master CertAgencyServer, individual certificate family servers, and facet-like interfaces to access these servers. The master server's main job is manage and provide access to the individual certificate family servers. The individual certificate family servers manage and provide access to certificate family information.</P>
+<H4>Related Documents</H4>
+<P>Also see the <A HREF="CertificateSubsystem.html">CertificateSubsystem</A>. </P>
+<H2>Requirements</H2>
+<P>The Certification Agency needs to: </P>
+
+<UL>
+<LI>keep track of certificate information for long periods of time </LI>
+<LI>provide for certificate management </LI>
+<LI>provide for informational queries </LI>
+<LI>maintain at least two levels of access.</LI></UL>
+
+<H2>Architecture</H2>
+<H4>Current Architecture Overview</H4>
+<P>Here is an OMT class diagram for the Certification Agency package (ec.app.cert).  Some of the classes here are actually in the ec.cert package described in the <A HREF="CertificateSubsystem.html">CertificateSubsystem</A> document.</P>
+<P>&nbsp;</P>
+<P ALIGN="CENTER"><IMG SRC="CertAgencyOMT.gif" WIDTH=601 HEIGHT=382></P>
+<P>&nbsp;</P>
+<I><P>State and methods</I><BR>
+The Certification Agency consists of an agency server object and multiple Certificate Family servers. Both of these server types are written in E and use state bundles for persistence. The agency server maintains a list of Certificate Family servers. It also provides methods to: </P>
+
+<UL>
+<LI>add new certificate families </LI>
+<LI>remove certificate families (not yet implemented) </LI>
+<LI>return references to certificate family servers </LI></UL>
+
+<P>A Certificate Family server maintains the family's description, the family's public and private keys, and a list of issued certificates, revoked certificates, and items submitted for certification. The Certificate Family server also provides methods to:</P>
+
+<UL>
+<LI>add a certificate to its' list of certificates </LI>
+<LI>add a certificate to its' list of revoked certificates </LI>
+<LI>get the list of revoked certificates </LI>
+<LI>get a certificate for an object from the families list of certificates </LI>
+<LI>get the families description </LI>
+<LI>get a <B>Verifier </B>that can verify the family's certificates </LI>
+<LI>get a <B>Certifier</B> that can certify data and create new certificates of this family </LI>
+<LI>submit an object for certification </LI>
+<LI>get the list of items submitted for certification </LI>
+<LI>remove an item from the submission list</LI></UL>
+
+<I><P>Access</I><BR>
+There are two levels of access to Certification Agency and Certificate Family servers: public access and trusted access. Public access generally limits access to sensitive data while trusted access exposes all external server methods. As an example, an entity with trusted access could obtain a <B>Certifier</B> to certify items, add a certificate to a revoked list, and remove a Certificate family from the Agency server. These activities are not available with public access.</P>
+<I><P>Using the Certification Agency</I><BR>
+Starting up a fresh Certification Agency results in the creation of two sturdy references that are published to disk: a "trusted" sturdy reference and a "public" sturdy reference. The first thing the Agency's operator (i.e. the Certification Authority) needs to do is to use an administration tool - in conjunction with the trusted sturdy reference - to create one or more certificate families. A certification tool that has access to the trusted sturdy reference can then be used to certify stuff. Currently the only certification tool is the <B>Curator</B>. </P>
+<B><P>Verifiers</B> are used to check certificates. To check a "Prudes-R-Us" "No Nudity" certificate, for example, the agent doing the checking needs to posses a <B>Verifier</B> for that certificate family. Thus, the TOS enforcement code for microcosm's Beach Town regions must be given <B>Verifiers</B> for the "EC Cert" and "Kid Safe" certificate families to check for and verify certificates from these families. In the case of Microcosm, <B>Verifier</B> distribution happens via the curator - which retrieves <B>Verifiers</B> from all of the certificate families it has access to and stores them in the repository. The microcosm startup code loads these <B>Verifiers</B> and gives them to the TOS enforcement objects. The method to retrieve the <B>Verifier</B> from a Certificate Family server is a publicly accessible method - all that is needed is a public sturdy reference to the Certification Agency Server or to the Certificate Family Server itself. Using the repository is probably not the best distribution method.</P>
+<I><P>(this part not fully implemented)</I> If when checked an object is not carrying a certificate, or if the certificate it is carrying has expired, the <B>Verifier</B> doing the checking will contact its' Certificate Family server to see if the object has been certified or recertified. The Certificate Family server will automatically recertify an expired certificate if the certificate is not on the server's revoked list. Below is a logic diagram of a uCosm certificate check.  </P>
+<P>&nbsp;</P>
+<P ALIGN="CENTER"><IMG SRC="CertTOS.gif" WIDTH=474 HEIGHT=328></P>
+<P>&nbsp;</P>
+<P> </P>
+<H4>Off the shelf alternatives</H4>
+<P>None (9/1/97).</P>
+<H4>Other Design Objectives, Constraints and Assumptions</H4>
+<P>The biggest assumption is in the validity of SturdyRefs and the use of E. The only other assumption is that public key cryptography works.</P>
+<H2>Current implementation</H2>
+<P>The package for the Certificate Agency is ec/app/cert and is found in ec4/javasrc/ec/app/cert. The package is composed of the following classes:</P>
+
+<UL>
+<U><LI>CertAgencyServer.e</U> - The implementation of the Certificate Agency Server. This file also includes the public and trusted access facets to the server as well as a state-bundle class. </LI>
+<U><LI>CertFamilyServer.e</U> - The implementation of the Certificate Family Server. This file also includes the public and trusted access facets to the server as well as a state-bundle class. </LI>
+<U><LI>ConnectedCertifier.java</U> - This is a Wrapper for <B>Certifier</B> objects that holds a reference back to its' certificate family server so that it can tell the family server about any certificates it makes. This is a powerful object to posses and is only available to trusted users. </LI>
+<U><LI>CertSubmissionBundle.java &amp; CertRequesterData.java </U>- Structures that encapsulates some data to be certified as well as some extra helpful information. CertSubmisionBundle.java and CertRequesterData.java are not currently used and there is at present no method for users to submit new objects for certification.</LI></UL>
+
+<P>There is a primitive Certification Agency administration tool that resides in src/apps/CertMaker. This tool needs Visual Cafe's Symbeans.jar to compile and run so a slightly special build environment is necessary. The tool can only add certificate families to a Certificate Agency server and needs a trusted sturdy reference to do so.</P>
+<P>A trusted sturdy reference to the active certificate agency is checked-in to cvs as media/CertAgencySRef and should remain good as long as the agency it references has been started from a good checkpoint. The sturdy reference that is checked-in now points to a server that has been running on George for quit a while, the server was started from the directory ~mike/CertServer and that's where the current server's checkpoint file is. If a new server is started, then the new TrustedCertAgencySRef should be checked into media as CertAgencySRef.</P>
+<P>&nbsp;</P>
+<H4>Examples</H4>
+<P>To start a Certification Agency use something like the following command line:</P>
+<P>java ec.e.boot.EBoot ec.app.cert.CertAgencyServerLauncher -ECproperties CertAgency.props </P>
+<P>The props file contains information necessary to register with the various PLSs and the name of the checkpoint file ("SaveFile" property). If the checkpoint file exists, the Certification Agency server is started with the saved state. </P>
+<H2>Design Issues </H2>
+<H4>Open Issues</H4>
+
+<UL>
+<LI>A real certificate administration tool needs to be developed. </LI>
+<LI>The packages should be moved to pure Java.</LI>
+<LI>There is much development to be done in the area of submitting objects for certification. </LI>
+
+<UL>
+<LI>The infrastructure has to be completed </LI>
+<LI>A microcosm interface for submission needs to be developed </LI>
+<LI>A tool to review objects submitted for certification needs to be developed.</LI></UL>
+
+<LI>A story needs to be developed for running a Certificate Agency for real, including installation. </LI>
+<LI>The auto-recertification of expired certificates needs to be implemented. </LI>
+<LI>The retrieval for certificates directly from a certificate family server as a distribution backup needs to be implemented. </LI>
+<LI>A better scheme for distributing <B>Verifiers</B> needs to be developed.</LI></UL>
+
+<P>&nbsp;</P></BODY>
+</HTML>

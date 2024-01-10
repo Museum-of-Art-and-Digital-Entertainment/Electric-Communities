@@ -1,0 +1,620 @@
+0. Introduction
+
+        This document covers how ingredients and una implement 
+properties for modification via a property sheet.
+
+1. Interfaces (between property manager and property peer)
+
+The following interfaces are implemented in the source file:
+
+        /cosm1/objects/ingredients/property/property_kind.plu
+
+a. The property ingredient implements the following interface so
+that property peers within an unum may register themselves.
+
+---
+
+  public interface jiPropertyRegistration {
+    public jiPropertyManagerFacet registerPropertyPeer(jiPropertyPeer peer);
+  }
+
+^^^
+
+It is expected that such registration would be done by property peer
+host ingredients at init time. 
+
+Note that a facet to the property manager is returned for use in
+subsequent notifications by the peer.
+
+b. The property peer implements the following interface so
+that the property manager can gather information about properties
+(that will be needed by PropertySheet UIs) and pass any proposed change 
+to a property value to the peer who published that property:
+
+---
+
+  public interface jiPropertyPeer {
+    public void getProperties(EDistributor /* Vector of PSProperty */ result);
+    public void propose(PSProperty property, EDistributor status);
+  }
+
+^^^
+
+Note that rather than a callback object for each property, a central
+method for the ingredient (the "propose" method) handles all
+proposed property value changes.  That saves a class per property
+at the expense of managing property id's (and a conditional
+in the propose method). 
+
+c. The property manager gives the peer upon registration a facet 
+implementing this interface so the peer can notify the manager
+when it accepts a proposed change and of any in-world change
+that would effect a property's value.  
+
+---
+
+  public interface jiPropertyManagerFacet {
+    public void report(PSProperty property);
+    public void accept(EDistributor status);
+    public void forwardProperties(Vector /* PSProperty */ properties,
+       EDistributor result);
+  }
+
+^^^
+
+2. Example: adding 2 properties to exitPad_ingr.plu
+
+Two properties have been added to
+        cosm1/objects/ingredients/portal/exitPad_ingr.plu
+in order to test the property manager. These are test implementations only
+and not intended for the product, but they are correct in terms
+of their interface to the property manager.  
+
+The properties added are "exit_pad_position" (whose value corresponds to the
+Point3D member of the  state variable "myLocation") and "exit_pad_animation" (whose value corresponds to the state variable "myAnimation", a String).
+
+Here are the changes necessary in the exitPad_ingr unit of the 
+exitPad_ingr.plu to implement these properties:
+
+
+    I. unit level (exitPad_ingr unit)
+
+        a) include property kind declarations
+
+---
+
+                unit property_kind; 
+
+^^^
+
+
+        b) import declarations for the classes PSProperty and 
+        PSPropertException.
+
+---
+
+                import ec.cosm.ui.presenter.PSProperty;
+                import ec.cosm.ui.presenter.PSPropertyException;
+
+^^^
+
+        c) import declarations for property value types, if necessary.
+        In this case:
+---
+
+                import ec.misc.graphics.Point3D;
+
+^^^
+
+    II. ingredient impl level (iiExitPad ingredient impl)
+
+        a) add a neighbor declaration for the property ingredient
+
+---
+
+                neighbor ingredient iinProperty kind ikProperty;
+
+^^^
+        b) specify that the ingredient implements the property peer
+        interface
+
+---
+
+                implements jiPropertyPeer;          
+
+^^^
+
+        c) register as a property peer in the host init routine
+
+---
+      jiPropertyManagerFacet propertyManagerFacet;
+
+^^^
+
+---   
+      // allow for inclusion of this ingredient in any presence that
+      // has no property (manager) ingredient, in which case
+      // iinProperty can be mapped to null in the unum specification
+      if (iinProperty != null) {
+              propertyManagerFacet = ((jiPropertyRegistration)iinProperty).
+                registerPropertyPeer((jiPropertyPeer)this); 
+      }
+^^^
+
+        d) implement the property peer interface (follow the
+        code comments:
+
+
+---
+
+    // provide an id for each property, must be unique for each
+    // property in this ingredient
+    public final static int PORTAL_EXIT_POSITION = 1;
+    public final static int EXIT_ANIMATION = 2;
+
+
+    // Implement getProperties so that the property manager
+    // can collect the properties this ingredient wants to publish.
+    // This may be called more than once.
+    function public void  getProperties(EDistributor result) {
+      Vector properties = new Vector();
+      
+      // Create a modifiable property object with an id, a display name
+      // (this selects UI characteristics of the property),
+      // and the current value of the point member of myLocation
+
+      properties.addElement(new PSProperty(PORTAL_EXIT_POSITION,
+           "EXIT_PAD_POSITION", 
+            myCommonState.myLocation.location().point()));
+
+      // Create a property object for exit animation much
+      // as for the exit pad position, but this one uses
+      // a four parameter constructor, the 4th argument
+      // "true" selects a read-only property.
+      properties.addElement(new PSProperty(EXIT_ANIMATION,
+           "EXIT_ANIMATION", 
+            myCommonState.myAnimation, true));
+
+      // forwardProperties is a convenience function to
+      // hide wrapping the Vector in a jObjectFuture
+      propertyManagerFacet.forwardProperties(properties, result);
+    }
+
+    // Implement propose so that this ingredient can be informed
+    // of a proposed change in any of the properties this ingredient
+    // publishes. The proposed value may not be valid. 
+    function public void propose(PSProperty property, 
+      EDistributor status) {
+
+      if (property.id() == PORTAL_EXIT_POSITION) {
+
+        try {
+           myCommonState.myLocation = new SurfaceLocation(new Location( 
+            (Point3D)property.value()), myCommonState.myLocation.floorNum());
+
+        } catch (ClassCastException) {
+          ethrow PSPropertyException.newUnexpectedType();
+                  // caller available for a throw here, needn't ethrow
+          return;
+        }
+      } else if (property.id() == EXIT_ANIMATION) {
+        myCommonState.myAnimation = (String)property.value();        
+      } else {
+        // unexpected property, don't know this id
+        ethrow PSPropertyException.newUnknownId();
+        return;
+      } 
+
+      // if the proposed property change was okay, let the property
+      // manager know (allowing it to broadcast change to any other
+      // GUIs beside the one submitting the change).
+      propertyManagerFacet.accept(status);
+
+    }
+        
+^^^
+
+        d) Reporting in-world updates of state corresponding to a
+        published property. This should be done whenever such
+        state changes.
+
+---
+
+
+          propertyManagerFacet.report(new PSProperty(PORTAL_EXIT_POSITION,
+           "EXIT_PAD_POSITION", 
+            myCommonState.myLocation.location().point()));
+
+^^^
+
+
+3. Related steward classes
+
+   The following classes are located in the source file
+   "cosm1/ui/presenter/steward/PropertySheet.java":
+
+   a. PSProperty
+
+        A peer ingredient could simply use the 2 constructors
+        used in the exitPad example and the accessor functions
+        used in that example ( id(), value()). 
+
+        It's not necessary to always create new PSProperty
+        objects, as is done in the example, for the same
+        property. In that case, use of the updater function
+        setValue may be desirable.
+
+        It's not expected that a property will change its id
+        or display (or that a new property with an id not 
+        published in the first getProperties call will later
+        be sent to the property manager). [ The property
+        manager currently is not checking for such cases].
+        
+        The source member of PSProperty is set and used internally
+        by the property manager. Any value set by the peer
+        is ignored and may be overwritten.
+
+   b. PSPropertyValue
+
+        The use of this interface is covered in section 5a
+        (cloneability policy) below.
+
+   c. PSPropertyUI
+
+        Each PSProperty object has a display member variable
+        (a String) that refers to a PSPropertyUI object.
+        The PSPropertyUI object contains information the
+        PropertySheet UI needs to display the property
+        (and allow its editing if its writeable).
+
+        Note well: be sure to let John know as early as possible if 
+        the property you are implementing is of a property type not
+        defined in the PSPropertyUI class. The one's defined
+        already are:
+
+                BOOLEAN
+                INTEGER
+                STRING
+                POINT3D
+                POINT2DINT
+                ENUMERATED      // ask John what that means 
+
+        It's possible two properties in different una 
+        could share the same PSPropertyUI object.
+
+        See the section below on the PSPropertyUIFetcher for
+        more information about the PSPropertyUI object your
+        property will need. If John creates the property type
+        and instance for your propperty's display,
+        you'll only need to reference it by the key (String)
+        it's known by in the PSPropertyUIFetcher's table.
+
+   d. PSPropertyException
+
+        The property manager expects to receive no other
+        exception from the peer than a PSPropertyException
+        (and these exceptions are only expected as a result
+        of a call to propose, as a means of rejecting a
+        proposed property change).
+
+        PSPropertyException is patterned after eeIdentifyException.
+        A PSPropertyException can include another exception as
+        a member, for example, a general-purpose invalid value exception
+        for the state change associated with a property change.
+        It also can include a free-form String in the event
+        there is some additional information about the exception
+        (which would probably be for debugging purposes, since
+        the UI would have its own error strings).
+
+        The only PSPropertyExceptions currently implemented
+        are for:
+                 a) unknown id
+
+                 If the id is not one that the peer published
+                 in getProperties, then there is an internal
+                 error in the property manager (which shouldn't
+                 occur, but if it did could be detected readily
+                 via throwing this exception instead of
+                 ignoring the proposed change).
+   
+                 b) unexpected value type
+
+                 This also indicates an internal error, e.g.
+                 the property manager is proposing a change
+                 for a property but that change is of the
+                 wrong type for this property
+                 
+                 c) a generic invalid value
+
+                 This could happen in normal usage. The
+                 peer and not the UI is responsible for
+                 validating any change. If the range of
+                 valid value is not the full range of possible
+                 values for the value's type, then the
+                 peer should reject the proposed change
+                 by throwing a PSPropertyException. 
+
+                 The generic invalid value, INVALID_VALUE,
+                 is intended for use in early development,
+                 i.e. before a specific exception is
+                 added.  
+        
+        Like eeIdentityException, the preferred way to 
+        add a new PSPropertyException is via an errCode
+        rather than by subclassing. If you do, you'll
+        also need to inform John Sullivan so that he
+        can determine a suitable error message for that
+        exception. 
+
+   The following class is located in the source file
+   "cosm1/ui/presenter/steward/PSPropertyUIFetcher.java" 
+
+   a. PSPropertyUIFetcher
+
+   The instancess of PSPropertyUI objects available by named
+   reference are here, accessible to any PropertySheet UI.
+
+   John has already prepared instances for many of the
+   properties which were specified in Ellen's UI document.
+   If one doesn't exist for a property you are implementing,
+   you can ask John to add an instance or add it yourself 
+   if the property is of a type already defined by John 
+   (although John may change it to conform to UI requirements, 
+   but if you can add your own it may at least help for
+   your initial local work).
+
+   If instances already exists of the type you need,
+   you should be able to figure out from them how to make your own
+   instance, as I did below for the "EXIT_PAD_POSITION" (that's
+   the value of the display member of a PSProperty object
+   I used in the exitPad example above):
+
+-----
+        // exit pad position - Wayne S.
+        createPoint3DUI("EXIT_PAD_POSITION", "Exit Pad Position:", 
+                        PSPropertyUI.APPEARANCE,
+                        200, 3, "x:", "y:", "z:",
+                        "point avatar will walk to if you click on a portal before the region transition");
+^^^^
+
+  Or if you let John know in advance, I believe he will add it
+  (or tell you just what to add). 
+
+
+4. Unum level changes (using the portal unum as an example)
+
+Here are the changes required in the portal unum specification
+due to making the exitPad ingredient a property peer assuming
+a property ingredient has already been added to the portal unum.
+All that's needed is to map the property ingredient as a neighbor
+of the property peer (the exitPad ingredient) for the host and,
+if applicable, the client.
+
+[See Appendix A at the end of this document for the steps
+needed to add a property ingredient to an unum].
+
+  in portal_unum.plu
+
+    to the piPortalGenericHost presence impl
+     
+        
+        a) add a mapping to the exitPad template
+
+
+-----
+        ingredient pinExitPad template {
+          impl iiECExitPad;
+          map neighbor iinProperty to pinProperty; // just add this line
+          // N.B. if portalGenericHost shouldn't have a property
+          // sheet, don't add a property ingredient and map to null here
+        }        
+        
+^^^^^
+
+   to the piPortalGenericClient presence impl a matching change:
+
+        b) add a mapping to the exitPad template
+
+        ingredient pinExitPad template {
+          impl iiECExitPad;
+          map neighbor iinProperty to pinProperty; // just add this line
+          // N.B. if portalGenericClient  shouldn't have a property
+          // sheet, don't add a property ingredient and map to null here
+        }        
+        
+^^^^^
+    
+5. Additional policies and responsibilites
+
+a. cloneability
+
+        Assume that the property manager needs a deep copy
+        of the value member of the PSProperty object.
+
+        The property manager wil expects the value member of the
+        PSProperty object to either:
+
+                a) be one of the following types:
+
+                        * Boolean
+                        * Integer
+                        * String
+                        * Point2DInt    
+                        * Point3D
+                        
+                b) implement the interface PSPropertyValue (from
+                PropertySheet.java) so as to supply a *deep copy*
+                of the value object:
+
+                public interface PSPropertyValue extends Cloneable {
+                        public Object clone();
+                }
+
+
+b. encodeability
+
+        The property manager assumes that the value member of
+        the PSProperty object is encodeable [i.e. either a Java
+        object or implementing the RtEncodeable interface]. 
+
+c. ordering 
+
+        The property managers assumes that for any two calls it
+        might make to a peer's propose function with the same 
+        property (i.e. same property id, but value may differ),
+        that the peer will accept or reject the first call before
+        it accepts or rejects the second call. It is the
+        responsibility of the peer to insure such ordering. 
+
+d. update propagation to clients
+
+        The property manager assumes that if the peer accepts a 
+        proposed property change, that peer is fully responsibile 
+        for update propagation to its clients based on the
+        state change corresponding to the property change.
+
+*****************************************************************
+
+Appendix: adding a property ingredient to an unum
+
+Here are the changes required in the portal unum specification
+to add a property ingredient. Note than when an ingredient
+becomes a property peer ingredient, every unum which includes 
+that ingredient will need a property ingredient.
+
+  in portal_struct.plu
+
+    to the unit portal_struct
+        
+        a) imports
+
+----
+        unit property_kind;
+
+^^^^                
+
+    to the psPortalHost presence struct
+
+        b)  add the property ingredient to the host
+
+----
+        ingredient pinProperty  { kind ikProperty;}
+^^^^        
+
+    to the psPortalClient presence struct
+
+        c)  add the property ingredient to the client
+  
+----
+                ingredient pinProperty  { kind ikProperty;}
+^^^^
+
+  in portal_unum.plu
+
+    to the portalGeneric_unum unit
+
+        a) imports
+
+----
+        unit property_ingr;
+
+^^^^
+
+   to the piPortalGenericHost presence impl
+     
+        b) add an argument to the prime init
+
+----
+        ,istProperty propertyState)
+^^^^
+
+       c) init the property ingredient
+
+
+-----
+        
+        (ingredient pinProperty.init(propertyState);
+
+^^^^^
+
+        d) add a template for the property ingredient
+
+-----
+
+        ingredient pinProperty template {
+                impl iiECProperty;
+
+                map neighbor iinVerbManager to pinVerbManager;
+        }
+^^^^^
+        
+        e) add property to the make portalClient specification
+
+-----
+        , pinProperty.istPropertyClient();
+
+^^^^^
+
+   to the piPortalGenericClient presence impl a set of
+   changes like those for the host:
+     
+        f) add an argument to the  init
+
+----
+        ,istProperty propertyState)
+^^^^
+
+       g) init the property ingredient
+
+
+-----
+        
+        (ingredient pinProperty.init(propertyState);
+
+^^^^^
+
+        h) add a template for the property ingredient
+
+-----
+
+        ingredient pinProperty template {
+                impl iiECProperty;
+
+                map neighbor iinVerbManager to pinVerbManager;
+        }
+^^^^^
+        
+        i) add property to the make portalClient specification
+
+-----
+        , pinProperty.istPropertyClient();
+
+4a MCUnumFactory change
+
+    If adding a property ingredient to an unum, also make a change
+    for that unum like this one which was made for the portal unum
+    (in cosm1/agent/MCUnumFactory.plu)
+
+-----
+      // added this to get property state
+      istProperty propertyState = 
+        ingredientFactory.createPropertyState(context);
+
+      // construction now requires additional property state argument
+      Unum portal = (Unum) new unum uimPortalGeneric(
+        descriptionState,
+        destinationState,
+        portabilityState,
+        modifyState,
+        interfaceState,
+        behaviorManagerState,
+        verbManagerState,
+        changeRegionState,
+        entryPadState,
+        exitPadState,
+
+        compositableState,
+        containershipState,
+        propertyState   // now need this arg for portal construction
+        );
+^^^^^^    

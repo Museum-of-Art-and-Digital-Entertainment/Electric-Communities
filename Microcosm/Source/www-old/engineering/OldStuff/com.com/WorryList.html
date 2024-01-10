@@ -1,0 +1,136 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+</HEAD>
+<BODY LINK="#0000ff" VLINK="#800080">
+
+<H2>The ECID/ComCom Worry List</H2>
+<P>Last updated by Ronin – 7 August 1998 @ 9:45pm</P>
+<P><HR><BR>
+Format of this list: </P>
+<OL>
+
+<LI>[Author Date] The Worry. <FONT COLOR="#008000">[Author (date): comment]</FONT> <FONT COLOR="#0000ff">[Author (date): reference to decision.]</LI></OL>
+
+</FONT><P>I’m stealing this idea from RobJ because I think it will be very useful for us to have a concrete place, other than email, where we can maintain an EC-accessible list of potential problems with ECID and/or ComCom. I have populated the initial list with items I’ve culled from various email/hallway/meeting discussions. I’m certain that I missed some salient issues. Please either let me know and I will add them, or, if you prefer, you can add them yourself. If you do add a worry to this list, please update the "last updated" line above with your name and the date/time. Thanks.</P>
+<P>I’ve marked in <FONT COLOR="#ff0000">red</FONT> any issues which directly affect the six-week ECID deliverable. Items marked in <FONT COLOR="#0000ff">blue</FONT> have had a decision made which can be found in the first section (Decisions for First Release of ECID). <FONT COLOR="#ff00ff">Pink</FONT> items are preliminary decisions which have not yet been signed off on by all affected parties. PLEASE IGNORE THE COLOR OF THE LIST NUMBERS THEMSELVES. ASSUME THEY ARE ALL BLACK.</P>
+<P><HR></P>
+<B><FONT FACE="Arial"><P>Decisions for First Release of ECID</P>
+</B></FONT><P>This section is a list of assumptions/decisions that have been made about the six-week ECID/Palace integration. Unless marked in <FONT COLOR="#ff00ff">pink</FONT>, they should be assumed to be the final decision. The author for all decisions is assumed to be Ronin unless otherwise stated. (Rest assured that I am not making these decisions by myself!)</P>
+<OL>
+
+<LI>[30 July 1998] There is only one ECID per user. Re-installs of the palace client should find and re-use whatever ECID is already there. <FONT COLOR="#008000">[Ronin (7 August 1998): In addition, ECID’s are non-transferable from machine to machine. I.e. an ECID is unique to the machine it is on. There are too many problems associated with allowing users to move an id from one machine to another. These issues can be addressed, but not for the short-term release.]</LI>
+</FONT><LI>[30 July 1998] We will implement both the @whereis and @esp functions via ECID to provide these functions across different palaces.</LI>
+<LI>[30 July 1998] We can’t do a Lookup Lite. UI concerns, and other issues, make this too problematic for the short term (see Claire and Jeff for details). Adding someone to your internal "buddy-list" can only take place if you meet them in-world. It might be possible to do a buddy-list display in the palace client, but that is a second tier solution. Doing a Lookup Lite interface is a third tier objective and not achievable for the first release.</LI>
+<LI>[30 July 1998] Whereis and Esp capabilities will probably not be able to be revoked in the first release due to UI concerns, unless we are able to implement the second tier buddy-list UI mentioned in item 3.</LI>
+<LI>[30 July 1998] Servers for PLS and Directory will be Sparc (20 and Ultra) stations running Solaris. Exact configurations tbd.</LI>
+<LI>[30 July 1998] <STRIKE>ECID will only startup when the palace client starts, as opposed to starting it up when the user boots their system. We also probably want ECID to start first and be responsible for starting the palace client</STRIKE>. <FONT COLOR="#008000">[Tony (31 July 1998): This seems odd -- we certainly can't guarantee this launch order for future apps. Also, how will this affect the launching of Palace sites via the web?] [Ronin (7 August 1998) We need to know when the Palace plug-in will start and if it can start the ECID process.]</LI>
+</FONT><LI>[30 July 1998] Auto-upgrade of ECID can’t be done for the initial release of ECID or ComCom, but should be included for followup releases of ComCom.</LI>
+<LI>[7 August 1998] Security should be equal to that of Habitats R167, with the addition of an authenticated PLS registration. <FONT COLOR="#008000">[Ronin (7 August 1998): Can someone provide a concise list of exactly what R167 security means?]</LI>
+</FONT><FONT COLOR="#ff00ff"><LI>[7 August 1998]</FONT> Jeremy has a preliminary list of expected PLS scaling numbers contained toward the bottom of his <A HREF="http://www-int.communities.com/engineering/OldStuff/com.com/PalaceECIDTest.html">Palace-ECID Test Plan</A> document.</LI>
+<FONT COLOR="#ff00ff"><LI>[7 August 1998]</FONT> Tentatively thinking that the only required data we need for ECID creation is a username, password and default nickname.</LI>
+<LI>[7 August 1998] It has been decided that we will use RMI as our communication layer at least for the short-term ECID deliverable. As much as possible, designs should be made comm system independent so that we may substitute a different comm system at a later date should the need arise and the benefits outweigh the versioning issues that will probably result from such a change.</LI>
+<FONT COLOR="#ff00ff"><LI>[7 August 1998]</FONT> To help reduce the size of our download, we will compile our java code down into DLL or EXE file(s) and release it with the necessary Symantec runtime DLL’s. Preliminary results are encouraging. With compression, it may be able to keep our download to under 1Meg. But more investigation is needed.</LI>
+<LI>[7 August 1998] We will re-write the palace client installer in InstallShield and incorporate the necessary steps to create an ECID. Bob and Masa will be doing this work. Bob is confident that this should not be a big deal unless the palace installer is doing some funky stuff with WISE that InstallShield doesn’t know how to do.</LI>
+<FONT COLOR="#ff00ff"><LI>[7 August 1998] </FONT>Claire will be making the necessary UI changes to the palace client to work with ECID via the palace plug-in api. This has the advantage of not having to change any of the palace client code. However, we still need to have a set of well-defined changes that are going to be made.</LI>
+<LI>[7 August 1998] ECID’s on a user’s local machine will not be protected by passphrases, i.e. anyone will be able to come up to someone’s machine, start up the palace and pretend to be that person.</LI>
+<LI>[7 August 1998] In the short-term, the directory server will need to support as many user’s as are registered for the palace. To date, that number is about 23,000, but will be higher by the time we ship the first drop of ECID and the palace plug-in. Long-term we’d like to see over a million users. The directory server (Netscape’s) is an LDAP server which provides mechanisms for spreading the database out over multiple machines. Assuming that feature works well, this should not be an issue even in the long term and certainly not in the short term.</LI>
+<FONT COLOR="#ff00ff"><LI>[7 August 1998]</FONT> Jeremy has a preliminary set of guidelines for how we should determine if ECID-for-Palace is ready for release in his <A HREF="http://www-int.communities.com/engineering/OldStuff/com.com/PalaceECIDTest.html">Palace-ECID Test Plan</A> document.</LI>
+<FONT COLOR="#ff00ff"><LI>[7 August 1998] </FONT>We will use the Directory Server as our PLS. This has numerous advantages for us. It will mean we only have to administer a single server. Also, the Netscape directory server is an off-the-shelf product that has numerous administration capabilities, including transaction logging for crash recovery, support for multiple-servers-seend-as-one, replication of data, backup and restore, and event logging for trouble-shooting. LDAP has a well-defined port (389) which may address some of our long-term firewall issues. Also, the Netscape Java SDK has a client-side memory cache to help reduce lookup times. Jeff, Scott and I discussed the technical aspects of this and Jeff has agreed that using LDAP is a reasonable approach for providing PLS support.</LI></OL>
+
+<B><FONT FACE="Arial"><P>&nbsp;</P>
+<P>ECID-specific Issues:</P>
+<OL>
+
+</B></FONT><LI>[Tony 30 July 1998] I’m worried that the worry list isn’t done yet. <FONT COLOR="#008000">[Tony (31 July 1998): I'm worried that Ronin is entering worries on my behalf.</LI>
+</FONT><FONT COLOR="#ff0000"><LI>[Ronin 30 July 1998]</FONT> How important is security for the short-term, i.e. ECID-for-Palace? What level, if any, of security do we realistically have to support for this first deliverable? <FONT COLOR="#008000">[Tony (31 July 1998): This seems super-critical to me; given our schedule, we need something out there fast. If the first release is going to be low-key and essentially invisible to users, that gives us an opportunity to test scaling and server implementations. </FONT><FONT COLOR="#0000ff">[Ronin (7 August 1998): See decision number 8.]</LI>
+</FONT><FONT COLOR="#ff0000"><LI>[Ronin 30 July 1998]</FONT> What are some true scaling numbers for the current PLS? How much effort is it to build a higher-capacity PLS? How high-capacity does it need to be? <FONT COLOR="#0000ff">[Ronin (7 August 1998): See decision number 9.]</LI>
+</FONT><FONT COLOR="#ff0000"><LI>[Ronin 30 July 1998] </FONT>Exactly what information do we need to gather from the user to create an ECID? Where is this information stored? <FONT COLOR="#0000ff">[Ronin (7 August 1998): See decision number 10.]</LI>
+</FONT><FONT COLOR="#ff0000"><LI>[Chip/Jeff 30 July 1998]</FONT> (Ronin: I am writing this for Chip and Jeff, so it may not be their exact worry.) How much work is needed to put an ECID Client app around the current EC Identity package? <FONT COLOR="#008000">[Ronin (7 August 1998): We need to discuss this some more as far as how much function should be part of the ECID java code and how much should be in the COM object (inter-app library) that Sidney is doing and how much should be in the Palace plug-in itself.]</LI>
+</FONT><FONT COLOR="#ff0000"><LI>[Ronin 30 July 1998]</FONT> Can we use
+RMI as at least a short-term solution to our ProxyComm issues and
+PLS-scaling problems? We know RMI is not currently secure, but see issue
+2 above. Would we still need a non-secure PLS for handling dynamic IP
+address issues for RMI? What is real-world performance for RMI? Can
+RMI’s inherent synchronous nature be handled easily/efficiently by
+spawning threads for RMI calls? Is the RMI .list() method evil, or can
+we override it to do nothing? <FONT COLOR="#008000">[Ronin 3 August
+1998] See </FONT><A
+HREF="http://www-int.communities.com/engineering/OldStuff/com.com/RMIScottNote.html">Scott’s
+note</A><FONT COLOR="#008000"> for more information about RMI.
+</FONT><FONT COLOR="#0000ff">[Ronin (7 August 1998): See decision number
+11.]</LI>
+</FONT><FONT COLOR="#ff0000"><LI>[Ronin 30 July 1998]</FONT> We need a
+well-defined set of UI changes for the Palace very soon. We also need to
+know who is going to be making those changes? Is it CarlM? If so, he
+needs to be more in the loop than he is now. At the very least, he
+should be down here for several days to a week in order to get Claire
+up-to-speed on the Palace codebase. <FONT COLOR="#008000">[Tony (31 July
+1998): Is this happening soon? If we're truly sticking to our schedule,
+then ECID seems like it should be all hands on deck. </FONT><FONT
+COLOR="#0000ff">[Ronin (7 August 1998): See decision number 14 for a
+partial answer.]</LI>
+</FONT><FONT COLOR="#ff0000"><LI>[Ronin 30 July 1998]</FONT> Who is
+doing modifications to the Palace installer? Related to number 4 above,
+we need to know what information needs to be gathered for the
+creation/registration of an ECID. At present, it is thought that this
+information should probably be obtained from the palace installation
+script. Objections? If not, who will make these changes? <FONT
+COLOR="#008000">[Tony (31 July 1998): Who is doing the ECID installer.
+Or maybe that's what you mean. Is the first ECID really going to be
+tucked into the Palace install? We should start identifying our spot in
+the registry and making sure that the installer can put things in the
+right place and that the Palace can read them. Remeber how Walendo did
+weeks of iteration and tweaking on this stuff. It's not that the work
+was hard, just that it took lots of time and installations on many
+machines to find all the problems. </FONT><FONT COLOR="#0000ff">[Ronin
+(7 August 1998): See decision number 13.]</LI>
+</FONT><STRIKE><FONT COLOR="#ff0000"><LI>[Ronin 30 July 1998]</FONT> Where is the internal buddy-list maintained, ECID or the COM object (inter-app library) or the palace plug-in?</STRIKE> <FONT COLOR="#008000">[Ronin (7 August 1998): This is part of worry number 5.]</LI>
+</FONT><FONT COLOR="#ff0000"><LI>[Ronin 30 July 1998]</FONT> Ops needs to know how much memory/disk space we will need for the PLS and Directory servers. They need this info no later than Tuesday, August 4<SUP>th</SUP>. <FONT COLOR="#008000">[Tony (31 July 1998): How about lots of both. :-) </LI>
+</FONT><FONT COLOR="#ff0000"><LI>[Ronin 30 July 1998] </FONT>How do we handle versioning and upgrading for ECID?</LI>
+<LI>[Ronin 30 July 1998] What is the whole story for if/how we support X.509 certificates?</LI>
+<LI>[Ronin 30 July 1998] Assuming ECID’s become ubiquitous, how do we handle a situation where a well-established ECID is compromised, either by loss or theft?</LI>
+<LI>[JohnS 30 July 1998] We need to support a Mac version of ECID to capture the educational market.</LI>
+<FONT COLOR="#ff0000"><LI>[BrianM 30 July 1998]</FONT> Are ECID’s protected by passphrases? <FONT COLOR="#0000ff">[Ronin (7 August 1998): See decision number 15.]</LI>
+</FONT><FONT COLOR="#ff0000"><LI>[BrianM 30 July 1998]</FONT> Who's writing the documentation that explains clearly, to the end user, what an ECID is, what it buys her, and what she has to do to protect it? (Editorial: write drafts of all the user documentation NOW.) <FONT COLOR="#008000">[Ronin (7 August 1998): Action item for Randy. There was talk of getting Lani to do this since she is now back from her vacation.]</LI>
+</FONT><FONT COLOR="#ff0000"><LI>[BrianM 30 July 1998]</FONT> What's the required capacity for the Directory to support current/projected Palace user base? Long term? <FONT COLOR="#0000ff">[Ronin (7 August 1998): See decision number 16.]</FONT>  </LI>
+<FONT COLOR="#008000"><LI>[Tony 31 July 1998] Great list Brian... </LI>
+</FONT><FONT COLOR="#ff0000"><LI>[Tony 31 July 1998]</FONT> What's the installation procedure like? I get the new Palace with the new ECID inside. I install it. Do I choose a name? Do I fill out a registration form. How are we collecting aggregate data? Do I get a password/passphrase? Do I need to use the password everytime I launch the new Palace. What if I want to use the password? <FONT COLOR="#ff0000">USER EXPERIENCE SPEC!!! </FONT><FONT COLOR="#008000">[Ronin (7 August 1998): This is an action item for Randy &amp; Christina. Also, see related worry #21.]</LI>
+</FONT><FONT COLOR="#ff0000"><LI>[Tony 31 July 1998]</FONT> Do we have a projected download footprint. Maybe twice our existing classes + JRE + Interapp library + ???. Is this a problem that we'll be doubling (conservative) the size of the download without much perceived improvement from users? Are we going to require existing users to get the new version? <FONT COLOR="#0000ff">[Ronin (7 August 1998) See decision number 12.]</LI>
+</FONT><FONT COLOR="#ff0000"><LI>[Jeremy 3 August 1998]</FONT> How to transition (painlessly) from being a non-ECID user to being a fully-fledged directory-registered user. Mainly the sequence of events and how to deal with error and recovery such as: user is not on-line when they generate their ECID, directory server is not responding/down, line drops in middle of registration, etc. Does the user receive an acknowledgement of registration? If so, what do we do if they don't get one; if not, how do we know if it was successful? <FONT COLOR="#008000">[Ronin (7 August 1998): This is an action item for Randy &amp; Christina. Also, see related worry #19.]</LI>
+</FONT><FONT COLOR="#ff0000"><LI>[Jeremy 3 August 1998]</FONT> How much time will we have for testing with a complete system (Palace, ECID, PLS, Directory server)?</LI>
+<FONT COLOR="#ff0000"><LI>[Jeremy 3 August 1998]</FONT> How will we know when we are done, i.e. ready to release? Suggest we agree on acceptance criteria soon. E.g. minimum vs. desired functionality, load limits, configurations supported (Win95, NT, dial-up, processor, RAM, etc) types of defect we will live with, etc. <FONT COLOR="#0000ff">[Ronin (7 August 1998): See decision number 17.]</LI>
+</FONT><FONT COLOR="#ff0000"><LI>[Jeff 5 August 1998]</FONT> If we’re going to provide some kind of web-interface to the directory server, this needs to be put out on the table soon. We can’t just say, &quot;Ok, let’s just do this via a web-interface.&quot; There is a lot of work involved to create a web-interface. <FONT COLOR="#008000">[Ronin (7 August 1998): I talked this over with Randy and he is aware that this is a non-trivial feature request.]</LI>
+</FONT><FONT COLOR="#ff0000"><LI>[Jeremy 5 August 1998] </FONT>The current Palace Win32 system requirements are as follows (as advertized on the website): 486+ processor; Windows 95/NT; 8Mb of RAM; 256+ color display; 640x480+ support; 14.4+ connection to the Internet; Mouse. Will these be significantly changed by the ECID/Palace implementation? If so, what to? For OS's, I know we need Windows98 in there; I would like to restrict it to NT 4.0 as well.</LI>
+<FONT COLOR="#ff0000"><LI>[Paul 5 August 1998] </FONT>If all the ECID functionality can be separated from the main client (i.e. a plug-in), which historical versions of The Palace will we support. Realistically, we will be stretched to test with the current one. Can we restrict ourselves to v 3.4 Build 111?</LI></OL>
+<DIR>
+<DIR>
+
+<P>&nbsp;</P></DIR>
+</DIR>
+
+<B><FONT FACE="Arial"><P>ComCom-specific Issues:</P>
+<OL>
+
+</B></FONT><LI>[Ronin 30 July 1998] We don’t care about firewalls for the ECID-for-Palace because we already know that the palace doesn’t work behind firewalls. But what should we do about firewalls for ComCom? Http-tunneling has been suggested as a solution, but we need someone who knows to stand up and say, "This will/won’t work and here’s how/why …"</LI>
+<LI>[Ronin 30 July 1998] What demographic data do we want to capture?</LI>
+<LI>[BrianM 30 July 1998] What persuades people to allow you to capture their demographic data? What's in it for them? Will customers of aggregate data be happy if only 10% agree? 50%? (If it's 10%, might we assume the demographics are skewed in a way that reduces the value of the data?)</LI>
+<LI>[BrianM 30 July 1998] What's the contingency plan for when the first person puts up a web page claiming that EC is in fact capturing specific, not aggregate, data? Tylenol, Pentium bug, etc. show the value of a quick, open, credible response, even to bogus claims. Would it make sense to preempt with an independent audit by someome with strong privacy credentials? Perhaps Dorothy Denning or Bobby Inman? (That's a... I say... that's a *joke*, son.)</LI>
+<LI>[BrianM 30 July 1998] Are there escrow issues? A corporate customer ought to worry what happens if EC goes belly-up. Will parts of their product/site stop working? (You know that users will not distinguish between the EC-supplied part of what they see and the customer's part.) How are they protected? How do they recover? What's the story?</LI>
+<LI>[BrianM 30 July 1998] Can I use two separate identities at the same time, one for doing things I'm ashamed of, one for doing things I'm not? Will ComCom break?</LI>
+<LI>[BrianM 30 July 1998] What's the required capacity for the ComCom server to support current/projected Palace user base? (Will it start out being used only for Palace?) Long term?</LI>
+<LI>[BrianM 30 July 1998] Suppose a new product bundles ComCom. What affect does that have on my instance of the ComCom client? (From the UI, it looks as if perhaps new icons are made available, for example.) How does the user become aware of the new product?</LI>
+<LI>[BrianM 5 August 1998] Will there be a point at which the only app that ComCom supports is Palace? If so, the UI might need to look different than the final version, which will support many applications. Unused generality might be confusing.</LI></OL>
+<DIR>
+<DIR>
+
+<P>&nbsp;</P></DIR>
+</DIR>
+
+<B><FONT FACE="Arial"><P>Personnel Issues:</P>
+<OL>
+
+</B></FONT><FONT COLOR="#ff0000"><LI>[Ronin 30 July 1998]</FONT> When RobK leaves, do we have anyone who can do Unix admin tasks on the Directory &amp; PLS servers? I’m assuming Brian Price can take on this task. Is that correct?</LI></OL>
+</BODY>
+</HTML>

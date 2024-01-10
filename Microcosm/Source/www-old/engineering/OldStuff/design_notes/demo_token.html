@@ -1,0 +1,123 @@
+<HTML>
+<HEAD>
+    <TITLE>The 1997 PCForum Demo Token Unum</TITLE>
+</HEAD>
+<BODY>
+<H1>The 1997 PCForum Demo Token Unum</H1>
+
+<h1>Introduction</h1>
+
+This design note explains the Demo Token Unum and key related
+ingredients used in Microcosm for the March 1997 PCForum.
+
+<h1>Overview</h1>
+
+This Token Unum is a very simple unum tailored for the Demo
+to support spending. 
+<p>
+The Token unum behaves like a debit-card. Its current value
+is decremented by the price of an item rented from the Demo
+Vending Machine.
+
+<h1>Token Unum Details</h1>
+
+The Token Unum is a Prop derivative. 
+
+It adds only one unum method beyond what it inherits from Prop:
+
+<p><code>
+  uSpend(int amount)
+</code><p>
+
+where <code>amount</code> represents the price of the vended item. 
+
+<h1>Ingredient Details</h1>
+
+<h2>Token</h2>
+
+The Token ingredients are a client/server pair. The
+server is initialized with one state variable:
+
+<ul>
+<li> <code>int tokenAmount;</code>
+</ul>
+
+where <code>tokenAmount</code> represents the current value of the
+token. A condition related to <code>tokenAmount</code> is that
+it always be non-negative, implying that it cannot be used to
+rent an item whose price is greater than the <code>tokenAmount</code>.
+
+<p>
+
+If the client ingredient receives the <code>uSpend</code>, it forwards
+the <code>amount</code> to the server ingredient by calling
+the server (host presence) method:
+
+<p><code>
+  pSpend(int amount)
+</code><p>
+
+This method simply calls the server method:
+
+<p><code>
+  uSpend(int amount)
+</code><p>
+ 
+passing the amount. The server <code>uSpend</code> method decrements
+the <code>tokenAmount</code> by the spent <code>amount</code>. 
+
+
+<h2>UIToken</h2>
+
+The UIToken ingredient is a derivative of the UIProp ingredient.
+The only differece (intended) is that the <code>label</code> 
+command for Token display the <code>tokenAmount</code> along
+with the basic Token description.
+
+<h1>Problems</h1>
+
+<ul>
+
+<li> The display of the value in the label (via calls to
+init to adjust the value) was not implemented. The value
+was shown in spam after each rental.
+<p>
+<li> There is no security control over the token including 
+minting/copying and setting value. 
+<p>
+<li>
+No checks were made on the argument to <code>uSpend</code>
+or on the state variable <code>tokenValue</code>:
+<ul> 
+<p>
+<li>The intended non-negative value condition for 
+<code>tokenValue</code> was not enforced [and because
+also the vending machine didn't have access to the value of the
+token, spending was always allowed].  
+<p>
+<li>
+ There was no check that the amount spent is positive, so
+a call to <code>uSpend</code> with a negative argument would
+increase the <code>tokenValue</code>.
+</ul>
+<p>
+<li> The initial value of <code>tokenValue</code> was always set 
+in the host presence init to 9999, ignoring the intended initial
+value set via the realm text file.
+<p>
+<li> Only one size of token was supported. 
+<p>
+<li> Merge and split commands are not supported. 
+<p>
+<li> There is no sound when spending. Sound was intended
+for spending, merging, and splitting.
+
+</ul>
+ 
+
+<a href="index.html">Back to design notes index</a>
+<br>
+<a href="../index.html">Back to Microcosm engineering main page</a>
+
+</BODY>
+</HTML>

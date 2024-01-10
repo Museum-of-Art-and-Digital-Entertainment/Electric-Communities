@@ -1,0 +1,57 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>Exceptions propagate</TITLE>
+<META NAME="Template" CONTENT="C:\Program Files\Microsoft Office\Templates\Web Pages\Web Page Wizard.wiz">
+</HEAD>
+<BODY TEXT="#000000" LINK="#0000ff" VLINK="#800080" BACKGROUND="Image1.gif">
+<DIR>
+
+<FONT FACE="Garamond"><P>This example shows how E Exceptions propagate.  The Sender sends a message to the Forwarder, which sends a message to the Receiver.  The Receiver throws an exception of type "First".  The Forwarder only catches exceptions of type "Second", so the exception propagates to the Sender's etry block, which catches that type of exception.</P>
+<P>All this is as you'd expect.</P>
+</FONT>
+<CODE>
+<PRE>
+eclass Receiver
+{
+  emethod receive(String message)
+    {
+      ethrow(new RtEExceptionFirst("foo"));
+    }
+}
+
+eclass Forwarder
+{
+  emethod transfer(String message, Receiver r)
+    {
+      etry
+        {
+          r &lt;- receive(message);
+        }
+      ecatch (RtEExceptionSecond e)
+        {
+          System.out.println("Forwarder caught second exception type.");
+        }
+    }
+}
+
+eclass Sender
+{
+  emethod send(String message, Forwarder via, Receiver destination)
+    {
+      etry
+        {
+          via &lt;- transfer(message, destination);
+        }
+      ecatch (RtEExceptionFirst e)
+        {
+          System.out.println("Sender caught the first exception type.");
+        }
+    }
+}
+</PRE>
+</CODE>
+</DIR>
+</BODY>
+</HTML>

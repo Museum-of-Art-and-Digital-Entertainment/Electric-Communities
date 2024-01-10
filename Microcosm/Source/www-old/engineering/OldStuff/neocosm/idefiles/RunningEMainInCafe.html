@@ -1,0 +1,98 @@
+<HTML>
+<HEAD>
+
+<TITLE>Running EMain in Visual Cafe</TITLE>
+
+</HEAD>
+<BODY>
+<H2>Running EMain in Visual Cafe</H2>
+
+<p><b>NOTE:</b> There were some differences between 2.0 and 2.5, but only in the
+format of windows and subwindows.  I have included instructions for both versions.</p>
+
+<OL>
+<LI>Get the CD or use Scott's download and install it.</LI>
+<LI>Do a <b>"cvs up -d ec"</b> in <b>/src/ec4/javasrc</b>.</LI>
+<LI>Run the Symantec Visual Cafe PDS (probably from your START menu).</LI>
+<OL>
+<LI>Cafe 2.0:
+<OL>
+<LI>This should give you 3 windows: <b>"Visual Cafe - Untitled1"</b>,
+<b>"Project - Untitled1"</b>, and <b>"Applet1 - Form Designer"</b>.</LI>
+<LI>Close the <b>"Applet1 - Form Designer"</b> window.</LI>
+</OL>
+<LI>Cafe 2.5:
+<OL>
+<LI>This should give you 1 window, <b>"Visual Cafe - Untitled1"</b>, with 3 subwindows:
+<b>"Project - Untitled1"</b>, <b>"Property List - Applet1"</b> and <b>"Applet1.java"</b>.</LI>
+<LI>Close the <b>"Applet1.java"</b> window.</LI>
+</OL>
+</OL>
+<LI>Delete the <b>"Applet1"</b> icon from the <b>"Project - Untitled1"</b> window (click on it and hit the "Delete" button).</LI>
+<LI>Add the source files to your project (there's probably a way to script this, but this works for now and is not too painful): </LI>
+<OL>
+<LI>In the <b>"Visual Cafe - Untitled1"</b> window,
+select the <b>"Insert:Files into Project..."</b> menu option to get the <b>"Project Files"</b> window.</LI>
+<LI>Navigate to /src/ec4/javasrc/ec/e/evm directory.</LI>
+<LI>Select all the .java files and hit the <b>"Add"</b> button.</LI>
+<LI>Repeat steps 2 and 3 for:</LI>
+<OL>
+<LI>/src/ec4/javasrc/ec/e/scope</LI>
+<LI>/src/ec4/javasrc/ec/e/syntax</LI>
+<LI>/src/ec4/javasrc/ec/elib/base</LI>
+<LI>/src/ec4/javasrc/ec/elib/prim</LI>
+<LI>/src/ec4/javasrc/ec/elib/quasi</LI>
+<LI>/src/ec4/javasrc/ec/tables</LI>
+<LI>/src/ec4/javasrc/ec/trace</LI>
+<LI>/src/ec4/javasrc/ec/util</LI>
+<LI>/src/ec4/javasrc/ec/util/assertion</LI>
+<LI>/src/ec4/javasrc/ec/vcache</LI>
+</OL>
+<LI><b>VERY IMPORTANT:</b> Hit the <b>"OK"</b> button to close the <b>"Project Files"</b>
+window.  It appears as if hitting the <b>"X"</b> button in the upper right corner
+may not actually add the files you just worked so hard to select.</LI>
+</OL>
+<LI>Don't do anything for about 15 - 20 seconds to give Cafe the chance
+to actually add the files; I got impatient once and managed to hang Cafe
+by trying to initiate some other actions while it was doing this.</LI>
+<LI>In the <b>"Visual Cafe - Untitled1"</b> window,
+select the <b>"Project:Options.."</b> option to get the <b>"Project Options"</b> window.</LI>
+<OL>
+<LI>Under the <b>"Project"</b> tab</LI>
+<OL>
+<LI>Set the <b>"Project Type:"</b> to <b>"Application"</b></LI>
+<LI>Set the <b>"Main Class:"</b> to <b>"ec.e.syntax.EMain"</b></LI>
+</OL>
+<LI>Under the <b>"Directories"</b> tab</LI>
+<OL>
+<LI>Set the <b>"Show directories for:"</b> field to <b>"Output files"</b></LI>
+<LI>Set the value to <b>"D:\program files\VisualCafePDE\Projects\"</b>
+(or the equivalent for wherever you installed Cafe on your system)</LI>
+</OL>
+</OL>
+<LI>In the <b>"Visual Cafe - Untitled1"</b> window,
+select the <b>"Project:Execute"</b> option or hit <b>"CTRL-F5"</b>to open the
+EMain window.  This will take about 10 or 15 seconds while all the source files
+are compiled.</LI>
+<LI>Dink away at EMain window to your heart's content. :}</LI>
+<LI>Save your new Cafe project as <b>ec4.vep</b>, or whatever.</LI>
+<LI>Quit and restart Cafe; you should come up in the last project you were
+working on.  Clicking on the <b>ec4.vep</b> file will also launch Cafe
+for you and bring you up in the correct project.</LI>
+</OL>
+
+<b>NOTE:</b> I could not get EMain to run in the debugger.  It appears as if
+it does not open the little black Java window fast enough before it also gets
+to java.io.FileInputStream#read(byte, int, int) which then calls the native
+method readBytes(byte, int, int) and hangs.
+
+<BR>
+<BR>
+<B>
+<BR><A HREF="cafe.html">Back to Cafe main page</A>
+<BR><A HREF="../index.html">Back to Neocosm survey page</A>
+<BR><A HREF="../../index.html">Back to Microcosm engineering main page</A>
+</B>
+
+</BODY>
+</HTML>

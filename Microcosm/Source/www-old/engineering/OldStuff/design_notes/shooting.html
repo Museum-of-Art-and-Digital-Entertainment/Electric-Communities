@@ -1,0 +1,156 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>Shooting Protocol for PC Forum</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+<P><FONT SIZE=+2>Introduction</FONT></P>
+
+<P>This is documentation for the shooting interaction and all associated
+ingredients and unums, as implemented for the PC Forum demo.</P>
+
+<P><FONT SIZE=+2>Overview</FONT></P>
+
+<P>Shooting is an interaction between several parties, each of which may
+be on different machines, each of which may have credentials to deliver
+to each other in order to securely complete the interaction, and each of
+which may have special behavior with respect to shooting. For this reason
+the shooting protocol essentially moves through each party in turn, gathering
+credentials and performing checks.</P>
+
+<P><FONT SIZE=+2>Unums and Ingredients</FONT></P>
+
+<P><B>Target Unum</B></P>
+
+<UL>
+<P>Prop + Shootable ingredient</P>
+</UL>
+
+<P><B>Shooter Unum</B></P>
+
+<UL>
+<P>Avatar + Shooter ingredient</P>
+</UL>
+
+<P><B>Gun Unum</B></P>
+
+<UL>
+<P>Prop + Fireable ingredient</P>
+</UL>
+
+<P><B>ShootingJudge</B></P>
+
+<UL>
+<P>Prop + Shooting Judge ingredient</P>
+</UL>
+
+<P>HACK: The necessary UI hooks for message delivery were just added to
+the generic UI ingredients for Prop and Avatar.</P>
+
+<P><FONT SIZE=+2>Init</FONT></P>
+
+<P>&quot;Shooter&quot; Avatars are created and initialized as normal with
+no extra paramaters.</P>
+
+<P>Gun props are created and initiliazed as normal Props with no extra
+paramaters, and are acquired by Shooter Avatars by simply picking up the
+Gun like any other Prop.</P>
+
+<P>A ShootingJudge is initiliazed like a normal Prop but with extra paramaters,
+and creates a series of Targets when it is created. The extra parameters
+given to the ShootingJudge (currently through RealmText) can cause them
+to instantiate different kinds and numbers of targets at different positions.
+Targets also acquire a reference to their ShootingJudge in init.</P>
+
+<P><FONT SIZE=+2>Shooting Protocol</FONT></P>
+
+<P><B>UI sends uShoot() to Target's UI Ingredient</B></P>
+
+<P>The first message of the protocol goes to the Target; this was just
+the simplest UI mechanism when the protocol was written. Target is not
+really the appropriate reciever of the initial message of the protocol,
+since at this point the Target has no arguments on which to perform verification.
+The only check that could be performed at this point is that the Target's
+internal state indicates that it is allowed to be shot by <I>anything at
+all</I> at this point.</P>
+
+<P>The uShoot() message is sent on the basis of the user clicking on the
+Target (ie, &quot;Shoot&quot; is the default item in the pie menu for Targets).
+No checking of user-click coordinates vs server-side Target coordinates
+is involved so no client-server latency is visible.</P>
+
+<P><B>Target sends uShootAtMe(Target) to Shooter</B></P>
+
+<P>This is an opportunity for the Shooter (an Avatar, typically) to verify
+the fact that he can and wants to shoot. The Shooter needs to produce his
+capability to shoot, ie a gun and bullets, from his hand (represented by
+containership behavior within the Shooter Avatar Unum). HACK: currently
+the Avatar just uses a global variable to get to the Gun in his hand.</P>
+
+<P><B>Shooter sends uShoot(Shooter, Gun) to Target</B></P>
+
+<P>Here's where the Target would do any real checking that it is delegated
+to do. It currently does nothing but pass the message on to it's ShootingJudge.</P>
+
+<P><B>Target sends uShot(Shooter, Gun, Target) to ShootingJudge</B></P>
+
+<P>The ShootingJudge would perform the task of verifying that the gun is
+a valid gun, verifying that there are valid bullets available, and spending
+the actual scarce bullet as managed by a central authority for bullets.
+HACK: not currently implemented. ShootingJudge allows any shot to complete,
+as long as the arguments to uShot are of the correct kinds.</P>
+
+<P>The ShootingJudge also exists to keep and store any information about
+the group of Targets it manages, such as score. </P>
+
+<P><B>ShootingJudge sends uTakeShot() to Target</B></P>
+
+<P>This message informs the target that it has indeed been shot (all parties
+are in agreement and all credentials have been verified). At the moment
+this triggers a gesture for being shot and then teleports the target back
+to the position at which it was created, which was the correct behavior
+for 3D Motion Factory gargoyles.</P>
+
+<P><FONT SIZE=+2>Problems</FONT></P>
+
+<OL>
+<LI>Scarcity for bullets is not implemented, as stated. Bullets need to
+be managed like a currency, ie, bullets can be double-spent. This means
+that the party responsible for expending the bullets (the ShootingJudge)
+needs a reference to the party that enforces scarcity for bullets, which
+can come as a special capability to the Gun or to some Unum representing
+a store of bullets. However, once the owner of the bullets has granted
+the capability for a bullet to be spent, the ShootingJudge must have some
+way of verifying the identity of the party responsible for scarcity of
+bullets. This is a fairly large problem area, involving minting of Microcosm
+authority certificates. This will be hacked around for the next revision
+of shooting.</LI>
+
+<LI>There seems to be significant latency the first time the protocol is
+executed, but not thereafter.</LI>
+
+<LI>Gargoyles don't actually perform a gesture for being shot, although
+they receive the command to do so. This is a matter of support for gestures
+at the Motion Factory level.</LI>
+
+<LI>The initial message should be to the Avatar, with the Target as an
+argument.</LI>
+
+<LI>The Shooter Avatar needs to get access to the Gun the correct way,
+ie through privileged <I>intra</I>-unum messaging with the container ingredient
+representing the Avatar's hand.</LI>
+
+<LI>There are issues with what party would be able to initiate and bring
+to completion the shooting protocol. For instance, having acquired a reference
+to the Gun, Target and Shooter Avatar, some other party able to fire off
+an unum message might be able to initiate the protocol and cause a shot
+to be fired. This is an issue with the idea of the &quot;user session&quot;
+and what security properties it should have, or alternately an issue with
+the region as a context for unum messaging and what security properties
+it should have.</LI>
+</OL>
+
+</BODY>
+</HTML>

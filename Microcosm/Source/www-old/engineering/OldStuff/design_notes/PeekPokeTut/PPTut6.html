@@ -1,0 +1,72 @@
+<!--NewPage-->
+<!-- Created by Masa Maeda on 05.14.97  -->
+<!-- Copyright 1997 Electric Communitites. -->
+<!-- All rights reserved worldwide.  -->
+<!-- Proprietary and confidential. -->
+<HTML>
+<HEAD>
+<pre>
+<a href="PPTut5.html">Previous</a>  <a
+href="PPTut7.html">Next</a>  <a
+href="PPTutI.html">Index</a>  <a
+href="PPTut1.html">Home</a></pre>
+<TITLE>The PeekPoke Tutorial</TITLE>
+</HEAD>
+<BODY>
+<P><HR WIDTH="100%" SIZE=2></P>
+
+
+<FONT SIZE=2><P>&nbsp;</P>
+</FONT><B><P>Step 3. Determine Ingredients’ Components</P>
+</B><FONT SIZE=2>
+</FONT><P>Ingredients hold the actual code that implement a property’s behavior, that
+is, ingredients are an unum's part where the internal structure, appearance, and
+behavior of presences are determined. As can be seen in Figure 2 each presence
+structure holds two ingredient structure kinds (isk), one for peekable and one for
+pokeable, that group the unum and presence kinds. These isk contain the unum and
+presence kinds previously coded. See, for example, the code for the ingredient
+structure kind <FONT FACE="Courier">iskPeekable</FONT> below. It has three components:
+one that corresponds to the unum for peekable, i.e., <FONT
+ACE="Courier">ukPeekable</FONT>, and two for the host and client presences for
+peekable, i.e., <FONT FACE="Courier">pkHostPeekable</FONT> and <FONT
+FACE="Courier">pkClientPeekable</FONT> respectively.</P>
+
+<P><HR WIDTH="80%" SIZE=2></P>
+<PRE>
+
+	// ----- Create Ingredients kind -----
+	export kind iskPeekable  {
+	  kind ukPeekable;
+	  kind pkHostPeekable;
+	  kind pkClientPeekable;
+	}
+	export kind iskPokeable  {
+	  kind ukPokeable;
+	  kind pkHostPokeable;
+	  kind pkClientPokeable;
+	}
+
+
+<P><HR WIDTH="100%" SIZE=2></P>
+<pre>
+<a href="PPTut5.html">Previous</a>  <a
+href="PPTut7.html">Next</a>  <a
+href="PPTutI.html">Index</a>  <a
+href="PPTut1.html">Home</a></pre>
+
+</HTML>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

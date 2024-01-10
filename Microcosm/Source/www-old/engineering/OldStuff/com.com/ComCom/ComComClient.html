@@ -1,0 +1,112 @@
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+	<META AUTHOR="Bob Schumaker">
+	<TITLE>The ComCom Client Experience</TITLE>
+</HEAD>
+
+<BODY>
+<A NAME="introduction"><H2>Introduction</H2></A>
+The ComCom Client is designed to add value to the traditional
+'buddy list' concept pioneered by ICQ by also tracking 'locations.'
+The location information can be anything related to a persons presence on
+the net -- the simple fact that they are 'online' and connected,
+the URL(s) they are currently browsing, or the current Palace server they
+are connected to.
+<P>The ComCom Client provides a rich, yet easy to use, interface to these
+disparate types of information. It presents the concept of location in a
+form that allows a much richer experience than merely knowing that your
+friends are connected -- now you can find out where they are as well.
+<H4>Related Documents</H4>
+<A HREF="mailto:cobblers@communities.com">Bob's</A> and
+<A HREF="mailto:karl@communities.com">Karl's</A> <A HREF="ComComDesignNotes.html">ComCom Design Notes</A>
+<BR><A HREF="index.html">ECID &amp; ComCom Home Page</A>
+<BR><A HREF="..\Components.html">ECID/ComCom Project Components List</A>
+<BR><A HREF="ComComSystemArchitecture.html">ComCom System Architecture</A>
+<A NAME="requirements"><H2>Requirements</H2></A>
+The ComCom Client needs to be able to display varied location information about
+other ECID users, as well as aggregated information about the various locations
+themselves (<I>e.g.</I> 'There are 15 people currently connected to the South Park
+Palace', where the count is the number of ECID users currently connected).
+<P>In addition to displaying location information, the ComCom Client will also provide
+a full-fledged user interface for the ECID core module. Through the ComCom Client, the user
+will be able to change profile information, set up demographic data, and gain fine-grained
+control over the various services provided by the ComCom client and the ECID module.
+<A NAME="ui"><H2>User Interface</H2></A>
+The ComCom Client will be written in C++ using the appropriate application framework
+for each platform (<I>i.e.</I> MFC for Windows, <A HREF="http://www.metrowerks.com">Metrowerks</A>
+PowerPlant for Macintosh, and perhaps <A HREF="http://www.metrowerks.com">Metrowerks</A> Latitude for X-Windows).
+As much of the core functionality dealing with processing messages from the server and
+interfacing with the ECID module will be generic (<I>i.e.</I> cross-platform support will
+be an key criteria in design decisions) while allowing each user interface paradigm to
+be as natural as possible for each platform.
+<P>Initally, the ComCom Client will support a limited set of operations:
+<UL>
+<LI>Display and update a "Who's Online" window that displays the names/handles of the buddy list, with
+their status (online or offline) and some indicator of how "stale" the information is</LI>
+<LI>Display and update a "Who's Where" window that displays a user-settable list of location information
+for members of the buddy list</LI>
+<LI>Manage (edit and update) the profile information collected by the installer</LI>
+<LI>Manage (edit and request) an "Addressbook" that contains information relating to the profiles of
+the members of the "buddy list" (<I>e.g.</I> nicknames) as well as the types of location information
+desired.</LI>
+</UL>
+In both the "Who's Online" and "Who's Where?" windows, clicking on any given line will bring up
+a popup menu of options (send instant message, goto location, etc.). Some of these options may
+be available in a pop-up menu in the "Addressbook" as well.
+<H4>"Who's Online" Window</H4>
+The exact look and feel of the window will be operating system dependant, but the main features will
+be a list of names with an indicator next to each one. This indicator will change color based on the
+currently known online status of the specified ECID.
+<UL>
+<LI>An open circle means that non information is known about that user.</LI>
+<LI>An circle filled in with red means that the user is currently offline.</LI>
+<LI>An circle filled in with yellow means that the user is probably online, but the information
+is old, and no longer accurate.</LI>
+<LI>An circle filled in with green means that the user is currently online.</LI>
+</UL>
+<H4>"Who's Where" Window</H4>
+The "Who's Where" window consists of a list of pairs containing names/nicknames of selected ECID users
+and their current location. In the single line mode, the last know location, regardless of type, will
+be displayed next to each user. In expanded mode (which can be set on a per user basis dynamically, think
+drop-down triangle from the Macintosh Finder), one (or more, based on a user preference) of each kind
+of location received for that user will be displayed, along with an indication of how "stale" the
+information is <FONT COLOR="#FF0000">[color changes? timestamps?]</FONT>. If more than one entry for
+any given location type is specified, the last <TT>N</TT> entries for that location type will be
+displayed for that user.
+<H4>"Addressbook" Window</H4>
+The "Addressbook" Window will display all of the ECID information kept by the user about other
+ECID clients <FONT COLOR="#FF0000">[Will we want to keep other indexes? Like ICQ and Yahoo! Pager
+information even if they don't have an ECID?]</FONT>. As each ECID is added to the addressbook, an
+authenticated connection is attempted to the remote VAT, and the profile information for that ECID
+is retrieved. The addressbook entry can be updated to contain a local "nickname" for that ECID, which
+will be displayed preferentially in other ComCom Client windows.
+<P>In addition, the user will be able to "vouch" for any of the ECIDs in the addressbook. Part of the
+profile information associated with an ECID is a list of other ECIDs willing to support the rest
+of the information in the profile (PGP keyrings are an example). This way we can get a primitive
+reputation system going, with very little effort on our part.
+<A NAME="architecture"><H2>Architecture</H2></A>
+<IMG SRC="ComComClientArch.gif" WIDTH="400" HEIGHT="292" HSPACE="0" VSPACE="0">
+<BR>
+<IMG SRC="ComComClientDetail.GIF" WIDTH="382" HEIGHT="292" HSPACE="0" VSPACE="0">
+<H4>Message Format</H4>
+Messages from the ComCom Server will consist of UDP packets containing location and connection status
+messages. There are two kinds of location message, and three kinds of status message.
+<UL>
+<LI>ECID Location message: consists of the ECID, the class of location message (<I>e.g.</I> PAL, URL,
+MOO, MUD, etc.), the machine readable location string, an optional human readable location string, and
+other optional application specific fields.</LI>
+<LI>Location "watch" message: consists of a "NULL" ECID, the class of location message, the machine
+readable location string, an optional human readable location string, and
+other optional application specific fields.</LI>
+<LI>Connection status message: consists of the ECID and one of login, logout, or "PING". Connections
+status will also be inferred from ECID Location messages.</LI>
+</UL>
+All messages will consist of ASCII strings <FONT COLOR="#FF0000">[UNICODE strings?]</FONT>,
+with an ascii TAB between each field.
+<HR>
+<BR><A HREF="../index.html">Return to ECID &amp; ComCom Home Page</A>
+<BR><A HREF="../Components.html">Return to ECID/ComCom Project Components Page</A>
+
+</BODY>
+</HTML>

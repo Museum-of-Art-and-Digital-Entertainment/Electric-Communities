@@ -1,0 +1,237 @@
+<HTML>
+<HEAD>
+   <TITLE>Repository File Design</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Repository File Design</H1>
+
+<P><B>Last updated:</B><I> [98/07/08 <A HREF="mailto:karl@communities.com">Karl</A>]</I><BR>
+</P>
+
+<H2>Introduction</H2>
+[<I>98/06/30 <A HREF="mailto:karl@communities.com">Karl</A></I>]
+A RepositoryFile is an implementation of the
+<A HREF="Repository.html#Repository">Repository interface</A> which sits
+(at this point) on top of a RandomAccessFile of data.  The
+writeable version will store new information in tables which can then be
+written out on command; if you don't add anything to such a repository,
+no re-writing of the file needs to be done; if you add only a few things,
+updating the file is a quick append operation.
+
+<P>This document describes:
+<ul>
+<li>A suggested <A HREF="#FileFormat">format</A> for the file.  This first
+attempt describes a scheme using a
+<A HREF="http://www.javasoft.com/products/jdk/1.1/docs/api/java.io.RandomAccessFile.html">RandomAccessFile<A>.
+<li>A description of the APIs for the <A HREF="#RepositoryFile">RepositoryFile</A>
+and <A HREF="#WriteableRepositoryFile">WriteableRepositoryFile</A> classes.
+</ul>
+
+<H4>Related Documents</H4>
+
+<P>
+The <A HREF="index.html">general</A> Repository design document</A>.
+<BR>The <A HREF="Repository.html">Repository</A> design document</A>.
+<BR>The <A HREF="RepositoryManagement.html">Repository Management</A> design document</A>.
+<BR>The <A HREF="RepositoryProduction.html">Repository Production</A> design document</A>.
+
+<a name="Requirements">
+<H2>Requirements</H2>
+[<I>98/07/08 <A HREF="mailto:karl@communities.com">Karl</A></I>]
+
+<ol>
+<li>Contain raw data, CryptoHashes, hints and certificates
+<li>Allow updates to file after creation (writeable)
+<li>Update Repository files <A HREF="RepositoryRequirements.html#Speedy">speedily</A> - Don't make production people wait to make simple changes
+<li>Allow for "compacting" to remove unwanted data
+<li>Efficiently retrieve of blobs of data both as byte arrays and streams.
+<li>Map name spaces onto data blobs (most likely name to CryptoHash
+mapping).
+<li><A HREF="RepositoryRequirements.html#TrackExtraInfo">Track extra info</A> about objects
+<li><A HREF="RepositoryRequirements.html#Reporting">Report</A> on tracked info above
+<li>Serve up art/sound/geometry/code.
+</OL>
+
+<H2>Architecture</H2>
+
+<H4><a name="PAO">Proposed Architecture Overview</A></H4>
+
+[<I>98/07/08 <A HREF="mailto:karl@communities.com">Karl</A></I>] The
+Repository file is ultimately a RandomAccessFile containing the raw data
+and the various informational data about it, all indexed by the
+CryptoHash of the raw data.  I will probably have an interface (say
+RepositoryFiling) which extends the Repository interface.  Then there will
+be 2 classes (RepositoryFile and WriteableRepositoryFile).  These three
+Java Objects will form the basis for interacting with Repository files.
+
+<ul>
+<a name="RepositoryFiling"></a>
+<li>interface <b>RepositoryFiling</b>
+	<ul>
+	<li>extends <A HREF="Repository.html#Repository">Repository</A>
+	<li>defines final ints describing types of data (HINTS, CERTIFICATES,
+	BITMAP, APPEARANCE2D, WAVEFILE, etc.)
+	<li>getting and caching data by CryptoHash
+	<li>reading/flushing all data into/from Hashtables
+	<li>reading/flushing specific types of data into/from Hashtables
+	</ul>
+<a name="WriteableRepositoryFiling"></a>
+<li>interface <b>WriteableRepositoryFiling</b>
+	<ul>
+	<li>extends <A HREF="#RepositoryFiling">RepositoryFiling</A>
+	<li>extends <A HREF="Repository.html#WriteableRepository">WriteableRepository</A>
+	<li>adding data, hints and certificates
+	<li>deleting data, hints and certificates
+	<li>updating file
+	<li>rewriting file
+	</ul>
+<a name="RepositoryFile"></a>
+<li>class <b>RepositoryFile</b>
+	<ul>
+	<li>implements <b>RepositoryFiling</b>
+	<li>contains a RandomAccessFile of data
+	<li>contains a Hashtable of data locations in the file
+	<li>reads location data from the RandomAccessFile into the Hashtable upon construction
+	</ul>
+<a name="WriteableRepositoryFile"></a>
+<li>class <b>WriteableRepositoryFile</b>
+	<ul>
+	<li>extends <b>RepositoryFile</b>
+	<li>implements <A HREF="#WriteableRepositoryFiling">WriteableRepositoryFiling</A>
+	<li>contains Hashtables for original data, hints and certificates
+	<li>contains Hashtables for added data, hints and certificates
+	<li>contains Hashtables for deleted data, hints and certificates
+	<li>updates (appends) data from added Hashtables out to file
+	<li>rewrites (compacts) a file, deleting unused data, hints, etc.
+	</ul>
+</ul>
+
+<a name="FileFormat">
+
+The file contains raw data, CryptoHashes, hints and certificates,
+<A HREF="RepositoryRequirements.html#TrackExtraInfo">extra information</A>,
+along with pointers to new sets of data as described below.  The basic format
+is simply:
+
+<OL>
+<LI>A "secret" number (a long integer) indicating this is a Repository file
+<LI>The version number (an integer) of the RepositoryFile (changes when/if
+the format does)
+<LI>The number (a long integer) of unique CryptoHashes in the file
+<LI>Pairs of 1). a location table and 2). a list of Repository data
+</OL>
+
+A location table consists of:
+
+<OL>
+<LI>The number of entries (a long integer) in the table
+<LI>Zero or more sets of location data:
+<OL>
+<LI>A CryptoHash (16 bytes)
+<LI>The file location (long integer) of the raw data
+<LI>The file location (long integer) of the first hints Vector
+<LI>The file location (long integer) of the first Certificates Vector
+<LI>The file location (long integer) of the first set of
+<A HREF="RepositoryRequirements.html#TrackExtraInfo">extra information</A>
+<LI>The character length (integer) of the original file name
+<LI>The original file name as a String
+</OL>
+<LI>The file location (a long integer) of the next location table
+</OL>
+
+Lists of Repository data consist of zero or more sets of the following:
+
+<OL>
+<LI>The CryptoHash to associate this data with (16 bytes)
+<LI>An int indicating the type of data (HINTS, CERTIFICATES, BITMAP, etc.)
+<LI>The size (a long integer) in bytes of this data
+<LI>The data itself as raw bytes (just bytes or serialized Vectors)
+<LI>The file location (a long integer) of the next set of this type of
+data for this CryptoHash
+</OL>
+
+<B>NOTES:</B>
+<OL>
+<LI>If the long integer which is a file location is zero, then there is
+no more data of that type in the file.  For example, if "The file
+location (long integer) of the hints Vector" is zero, there are no more
+hints for this CryptoHash. Similarly, if "The file location (a long
+integer) of the next location table" is zero, there is no further table.
+Also note that the file location of the next set of "raw data" will always
+be zero--There can only be one set of raw bytes.
+
+<LI>If the size in bytes of some raw data is zero, then the actual data
+is not in this Repository file, but there should be some hints available
+under the same CryptoHash which could be used to track the data down.
+
+<LI>If the size in bytes of any data element is negative, then the data
+has been "deleted" but this file has not yet been compacted.
+
+<LI>Raw data will be just that, a series of bytes.  Hints and
+Certificates will be written out as serialized Vectors.
+
+<LI>At this point [98/06/30], the
+<A HREF="RepositoryRequirements.html#TrackExtraInfo">extra information</A>
+is as described by <A HREF="mailto:tony@communities.com">Tony</A>.  My plan
+(thanks to <A HREF="mailto:cobblers@communities.com">Bob</A> for the original
+idea) is to just treat such information as raw bytes and it's up to whoever
+stored it to parse it out into something useful.  This way we don't have
+to worry about what format such extra information should take or what
+kinds of information should be included.  The inclusion of such extra
+information will cover Tony's desire for some
+<A HREF="RepositoryRequirements.html#Reporting">reporting</A> functionality.
+</OL>
+
+<P>New CryptoHash additions to a
+<A HREF="#WriteableRepositoryFile">WriteableRepositoryFile</A> cause a new
+location table to be appended to a file, followed by the new data. The
+updating of hints, Certificates or extra info of  already extant raw
+data entries results in the appending of said data to the end of the
+file, followed by the update of the (previously zero) "pointers" after
+the old data to the the file location of the new serialized Vectors or
+extra info bytes. Appending is quicker than rewriting the entire file,
+so we can get our "speedy" updates this way.
+</P>
+<P>Deleted items will have their sizes set to negative values (see the Java
+classes defined below) rather than being removed and causing rewrites of
+the entire file. The "rewrite/compact" method of the <A
+HREF="#WriteableRepositoryFile">WriteableRepositoryFile</A> will rewrite
+the entire file, omitting "deleted" items and thus compacting the file.
+If a Repository file is "rewritten", such entries will not be written
+out, and will not exist in the new version.
+</P>
+
+<H4>Off the shelf alternatives</H4>
+
+[<I>98/06/30 <A HREF="mailto:karl@communities.com">Karl</A></I>]
+None I can think of at the moment.
+
+<H2>Design Issues</H2>
+
+<H4>Resolved Issues</H4>
+
+<I>History of issues raised and resolved during initial design, or during
+design inspections. Can also include alternative designs, with the reasons
+why they were rejected</I>
+
+<H4>Open Issues</H4>
+
+<UL>
+<LI>[</a><I>98/06/30 <A HREF="mailto:karl@communities.com">Karl</A></I>]
+	<OL>
+	<LI>Is a RandomAccessFile really the way to go, or would just a stream of
+	bytes be a better alternative?
+	<LI></A>Are Hashtables the right Objects for the job of storing the data in
+	memory, or is there a better way?
+	</OL>
+<LI>[</a><I>98/06/25 <A HREF="mailto:karl@communities.com">Karl</A></I>]
+What sort of reports do we want to generate from the extra information and how.
+</UL>
+<BR>
+To main <A HREF="index.html">Repository</A> page<BR>
+To <A HREF="../CosmSurvey.html">Cosm Survey</A> page<BR>
+<BR>
+<BR>
+</BODY>
+</HTML>

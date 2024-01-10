@@ -1,0 +1,34 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>Ecatch as an ewhen</TITLE>
+<META NAME="Template" CONTENT="C:\Program Files\Microsoft Office\Templates\Web Pages\Web Page Wizard.wiz">
+</HEAD>
+<BODY TEXT="#000000" LINK="#0000ff" VLINK="#800080" BACKGROUND="Image1.gif">
+<DIR>
+
+<FONT FACE="Garamond"><P>Here is an example of the consequences of ecatch being an ewhen.</P>
+</FONT><CODE><PRE>
+eclass Forwarder
+{
+  // Transfer message to the receiver.
+  emethod transfer(String message, Receiver r)
+    {
+      etry
+        {
+          System.out.println("Forwarder transferring " + message);
+          r &lt;- receive(message);
+        }
+      ecatch (RtEException x)
+        {
+          System.out.println("Forwarder: Bailing out.");
+          ethrow(x);
+        }
+      loggingReceiver &lt;- log("All is OK: " + message);
+    }
+}
+</CODE></PRE></DIR>
+
+<FONT FACE="Garamond"><P>It doesn't matter if Receiver r throws an exception, the logging message will always be sent to the loggingReceiver.  Because of the similarity between ecatch and catch, this behavior is probably more unexpected than it is with an explicit ewhen.</P></FONT></BODY>
+</HTML>

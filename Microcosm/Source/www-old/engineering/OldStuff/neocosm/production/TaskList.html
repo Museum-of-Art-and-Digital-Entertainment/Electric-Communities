@@ -1,0 +1,972 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>EarlyTasks</TITLE>
+</HEAD>
+<BODY LINK="#0000ff" VLINK="#800080">
+
+<H1>Task List and Schedule For Production Tools</H1>
+ <B>Last updated: </B>[98/05/14 <A HREF="mailto:tony@communities.com">Tony</A>]
+ <P>
+
+<H2>Overview</H2>
+This is the task list generated in February. John and I had just started to work on the first items when the plug was pulled. 
+
+<P>This list, as is, amounts to about <B>48 engineering-weeks</B> of effort. It will be critical to decide what the right set of tools to do is because doing a complete set is a very large piece of work.
+
+<P>We need input to do the right work here.
+
+<H2>Meta Tasks/Discussions</H2>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000080" CELLPADDING=7 WIDTH=584>
+<TR><TD WIDTH="13%" VALIGN="TOP" BGCOLOR="#000080">
+<P><B><FONT SIZE=2 COLOR="#ffffff">Length</B></FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Person</B></FONT></TD>
+<TD WIDTH="74%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Task</B></FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>x days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Discuss modular approach to Appearance editors.</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>x days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Discuss unums as files in tool land</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>x days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Discuss when to port the vb tools</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>x days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Discuss Interconnectivity of modules</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>x days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Discuss State dictionaries with Arturo. Evaluate against realmText</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>x days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Discuss Gesture class and file format for sharing anims among avatars</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>x days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Discuss tool classes: app2d, app3d, unum, region, realm, catalog</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>x days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Discuss visual editing (3D objects, all regions)</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>x days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Discuss repository/curation. Tightly integrate or write out .cur files and shell out to run the curator</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>x days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Discuss Certificate support. Impacted by who's using the tool.</FONT></TD>
+</TR>
+</TABLE>
+
+<H2>LEADtools Image support</H2>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000080" CELLPADDING=7 WIDTH=582>
+<TR><TD WIDTH="13%" VALIGN="TOP" BGCOLOR="#000080">
+<P><B><FONT SIZE=2 COLOR="#ffffff">Length</B></FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Person</B></FONT></TD>
+<TD WIDTH="74%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Task</B></FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>4 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Java ImageProducer to support any imaginable image file type</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Renderer support</FONT></TD>
+</TR>
+</TABLE>
+
+<P>6 days </P>
+<H2>Appearance2D Editor</H2>
+<P>Dependencies: LEADTools</P>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000080" CELLPADDING=7 WIDTH=582>
+<TR><TD WIDTH="13%" VALIGN="TOP" BGCOLOR="#000080">
+<P><B><FONT SIZE=2 COLOR="#ffffff">Length</B></FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Person</B></FONT></TD>
+<TD WIDTH="74%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Task</B></FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>1 day</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>New frame, integrate into project</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Text format input &amp; output</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>General appearance information (art size, default gestures/slots)</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>10 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Swatchables and SwatchGroups</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Revise Swatchable editing after feedback from Production</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>10 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Slots &amp; Registration points</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Revise Slot/RegPoint editing after feedback from Production</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>5 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Cels, Frames (importing, defining size, assigning reg points)</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>1 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Revise Cel editing after feedback from Production</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>5 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Bitmap display</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>8 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Positions (moods and orientations as dimensions)</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>10 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Gestures &amp; sounds (refer to Positions)</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Revise Gesture editing after feedback from Production</FONT></TD>
+</TR>
+</TABLE>
+
+<P>60 days </P>
+<H2>Appearance3D Editor</H2>
+<P>Dependencies: None </P>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000080" CELLPADDING=7 WIDTH=582>
+<TR><TD WIDTH="13%" VALIGN="TOP" BGCOLOR="#000080">
+<P><B><FONT SIZE=2 COLOR="#ffffff">Length</B></FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Person</B></FONT></TD>
+<TD WIDTH="74%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Task</B></FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>1 day</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>New frame, integrate into project</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>3 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Text format input and output</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>General appearance information (flags, geometry, default gestures/slots)</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>3 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Swatchable integration</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>3 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Slots &amp; Registration points (no visual editing)</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>6 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Gestures &amp; sounds</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>6 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Connect to VRML parser to check validity and provide a list of nodes</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>3 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Revise editing after feedback from Production</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>(15 days)</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>(optional) simple VRML display</FONT></TD>
+</TR>
+</TABLE>
+
+<P>27 days </P>
+<H2>Object/Unum Editor</H2>
+<P>Dependencies: Appearance</P>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000080" CELLPADDING=7 WIDTH=582>
+<TR><TD WIDTH="13%" VALIGN="TOP" BGCOLOR="#000080">
+<P><B><FONT SIZE=2 COLOR="#ffffff">Length</B></FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Person</B></FONT></TD>
+<TD WIDTH="74%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Task</B></FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>1 day</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Define new class</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>1 day</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>New frame, integrate into project</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>3 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Build unum type table-- contains unumtypes and their corresponding fields</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Read unum type table from file</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>5 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Select unum type-- change displayed fields accordingly</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>3 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Generic object editor (launch appearance editor, etc.)</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>1 day</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Spec unum file format</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Read/write unum file format</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Revise after feedback from Production</FONT></TD>
+</TR>
+</TABLE>
+
+<P>20 days </P>
+<H2>Region Editor</H2>
+<P>Dependencies: Unum </P>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000080" CELLPADDING=7 WIDTH=582>
+<TR><TD WIDTH="13%" VALIGN="TOP" BGCOLOR="#000080">
+<P><B><FONT SIZE=2 COLOR="#ffffff">Length</B></FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Person</B></FONT></TD>
+<TD WIDTH="74%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Task</B></FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>1 day</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Define new class</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>1 day</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>New frame, integrate into project</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Region RealmText parsing (split with realm)</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Region toString methods for saving (split with realm)</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Generic region editor (Name, description, etc.)</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>4 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>List of objects and position information</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>3 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>TeleportPads with positions</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>(x days)</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>(optional) Visual editing in region editor?</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>TOS </FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Revise after feedback from Production</FONT></TD>
+</TR>
+</TABLE>
+
+<P>19 days </P>
+<H2>Realm Editor</H2>
+<P>Dependencies: Region, Unum </P>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000080" CELLPADDING=7 WIDTH=582>
+<TR><TD WIDTH="13%" VALIGN="TOP" BGCOLOR="#000080">
+<P><B><FONT SIZE=2 COLOR="#ffffff">Length</B></FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Person</B></FONT></TD>
+<TD WIDTH="74%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Task</B></FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>1 day</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Define new class</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>1 day</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>New frame, integrate into project</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Realm RealmText parsing (split with realm)</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Realm toString methods for saving (split with realm)</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Lists of regions</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>TOS</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>6 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Connecting regions via portals</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Revise after feedback from Production</FONT></TD>
+</TR>
+</TABLE>
+
+<P>18 days </P>
+<H2>Catalog Editor</H2>
+<P>Dependencies: Unum </P>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000080" CELLPADDING=7 WIDTH=582>
+<TR><TD WIDTH="13%" VALIGN="TOP" BGCOLOR="#000080">
+<P><B><FONT SIZE=2 COLOR="#ffffff">Length</B></FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Person</B></FONT></TD>
+<TD WIDTH="74%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Task</B></FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>1 day</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Define new class</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>1 day</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>New frame, integrate into project</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>1 day</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Catalog RealmText parsing (integrate)</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>1 day</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Catalog toString methods for saving (integrate)</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>4 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Lists of objects</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>6 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Tabbed category support</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>5 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Different catalog types</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>4 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Thumbnail support</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Revise after feedback from Production</FONT></TD>
+</TR>
+</TABLE>
+
+<P>25 days </P>
+<H2>Repository/Curation</H2>
+<P>Notes: May want to connect directly to Repository </P>
+<P>Dependencies: Realm, Region, Catalog support is done. </P>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000080" CELLPADDING=7 WIDTH=582>
+<TR><TD WIDTH="13%" VALIGN="TOP" BGCOLOR="#000080">
+<P><B><FONT SIZE=2 COLOR="#ffffff">Length</B></FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Person</B></FONT></TD>
+<TD WIDTH="74%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Task</B></FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>5 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Curator script generation</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>4 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Run curator in a shell</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>3 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Integrate with necessary modules</FONT></TD>
+</TR>
+</TABLE>
+
+<P>12 days </P>
+<H2>Region Importer</H2>
+<P>Notes: Port from working VB version, some of this work is shared with 3D object/avatar tool </P>
+<P>Dependencies: AtticWrapper DLL, region, unum, appearance </P>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000080" CELLPADDING=7 WIDTH=582>
+<TR><TD WIDTH="13%" VALIGN="TOP" BGCOLOR="#000080">
+<P><B><FONT SIZE=2 COLOR="#ffffff">Length</B></FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Person</B></FONT></TD>
+<TD WIDTH="74%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Task</B></FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>1 day</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>New frame, integrate into project</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>4 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>JNI version of AtticWrapper</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Flags for VRML loading options</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>3 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Open VRML and store Mesh info</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Save VRML geometry</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>3 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Create appearance/unum file for each mesh</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>3 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Create region</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Revise after feedback from Production</FONT></TD>
+</TR>
+</TABLE>
+
+<P>20 days </P>
+<H2>3D Avatar/Object Importer</H2>
+<P>Notes: Port from working VB version </P>
+<P>Dependencies: JNI of AtticWrapper, unum, appearance </P>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000080" CELLPADDING=7 WIDTH=582>
+<TR><TD WIDTH="13%" VALIGN="TOP" BGCOLOR="#000080">
+<P><B><FONT SIZE=2 COLOR="#ffffff">Length</B></FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Person</B></FONT></TD>
+<TD WIDTH="74%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Task</B></FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>1 day</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>New frame, integrate into project</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>1 day</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Integrate JNI version of AtticWrapper</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Parse animation settings from VRML </FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>1 day</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Animation settings (cycle interval, speed)</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>1 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Open VRML and store Mesh info</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>1 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Save VRML geometry </FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>1 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Save VRML animation</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>1 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Create appearance/unum file for each mesh</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Revise after feedback from Production</FONT></TD>
+</TR>
+</TABLE>
+
+<P>11 days </P>
+<H2>2D Region Importer</H2>
+<P>Notes: Port from working VB version </P>
+<P>Dependencies: LEADTools DLL support </P>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000080" CELLPADDING=7 WIDTH=582>
+<TR><TD WIDTH="13%" VALIGN="TOP" BGCOLOR="#000080">
+<P><B><FONT SIZE=2 COLOR="#ffffff">Length</B></FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Person</B></FONT></TD>
+<TD WIDTH="74%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Task</B></FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>1 day</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>New frame, integrate into project</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>4 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>JNI version of Photoshop DLL</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>1 day</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Horizon line support</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Save separate bitmap for each layer</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Create appearance/unum file for each layer</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Create region</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Revise after feedback from Production</FONT></TD>
+</TR>
+</TABLE>
+
+<P>14 days </P>
+<H2>Single Frame Importer</H2>
+<P>Dependencies: LEADTools, Region, Unum, Appearance </P>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000080" CELLPADDING=7 WIDTH=582>
+<TR><TD WIDTH="13%" VALIGN="TOP" BGCOLOR="#000080">
+<P><B><FONT SIZE=2 COLOR="#ffffff">Length</B></FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Person</B></FONT></TD>
+<TD WIDTH="74%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Task</B></FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>1 day</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>New frame, integrate into project</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>1 day</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Import bitmap file</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>1 day</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Create appearance/unum file</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>1 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Create region</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>1 day</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>General info (name, scale)</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Revise after feedback from Production</FONT></TD>
+</TR>
+</TABLE>
+
+<P>7 days </P>
+<H2>Animated GIF Importer</H2>
+<P>Notes: Not sure how simple LEADTools makes it to get at the animated GIF. Could be easy. </P>
+<P>Dependencies: LEADTools, Unum, Appearance </P>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000080" CELLPADDING=7 WIDTH=582>
+<TR><TD WIDTH="13%" VALIGN="TOP" BGCOLOR="#000080">
+<P><B><FONT SIZE=2 COLOR="#ffffff">Length</B></FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Person</B></FONT></TD>
+<TD WIDTH="74%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Task</B></FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>1 day</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>New frame, integrate into project</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>4 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Save separate bitmap for each frame</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>3 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Create appearance/unum file with animation</FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>2 days</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<P>&nbsp;</TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>Revise after feedback from Production</FONT></TD>
+</TR>
+</TABLE>
+
+<P>10 days </P>
+<H2>Certificate Support</H2>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000080" CELLPADDING=7 WIDTH=582>
+<TR><TD WIDTH="13%" VALIGN="TOP" BGCOLOR="#000080">
+<P><B><FONT SIZE=2 COLOR="#ffffff">Length</B></FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Person</B></FONT></TD>
+<TD WIDTH="74%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Task</B></FONT></TD>
+</TR>
+<TR><TD WIDTH="13%" VALIGN="TOP">
+<FONT SIZE=2><P>???</FONT></TD>
+<TD WIDTH="12%" VALIGN="TOP">
+<FONT SIZE=2><P>???</FONT></TD>
+<TD WIDTH="74%" VALIGN="TOP">
+<FONT SIZE=2><P>???</FONT></TD>
+</TR>
+</TABLE>
+
+<P>??? </P></BODY>
+</HTML>

@@ -1,0 +1,454 @@
+<html>
+
+<head>
+<title>Hub Requriements</title>
+</head>
+
+<body>
+
+<h1>Hub requirements and strawman task spec</h1>
+
+<p>Here's a loose list of "features" that are specific to the "hub" side of things.
+
+<p>I look at the "hub" features as additional, and in some cases, external, components that 
+add value to the basic "cosm" application.  The value-add is in the form of features that 
+facilitate the support of large communities.  <b>Keep in mind that these requirement need to
+be taken into account when designing and implementing other features.</b> &nbsp For example, the
+realm and region need to support hub requirements.
+
+<p>This list is derived from collecting past notes, emails, etc, on current
+hub requirements, current knowledge of the alpha, and changes 
+to r167 that we want to make. There has been some review of this
+by RobJ, Dean, and John.  Send comments to <a href=mailto:jeff@communities.com>jeff</a>.
+
+<p>I've used an outline format which is a bit terse, however I think this is
+the best way to present this info.  For each item, I've included...
+<ul>
+<li>A name for the feature with a "Priority" label which is a number between 1 and 4 on 
+how "important" *I* think the requirement/feature is for the product.
+<li>A short description of the feature, including requirements.
+<li>Whether or not its in r167, and if its not in r167 whether it was spec'ed.
+<li>A list of design and implemntation tasks neccessary to complete the feature.
+</ul>
+
+<p>I've attempted to order these so that related items are "kept together".
+Other than that, ordering is somewhat random.
+
+
+<ul>
+<li><a href=#gendir>Generic directory support</a></li>
+<li><a href=#webdir>Web Based Directory Browser</a></li>
+<li><a href=#persondir>Person Directory</a></li>
+<li><a href=#placedir>Place Directory </a></li>
+<li><a href=#ntservice>NT Service Runner</a></li>
+<li><a href=#bbs>BBS</a></li>
+<li><a href=#install>Installer for realm, pls, repository server, db schemas, etc</a></li>
+<li><a href=#plsstats>PLS Statistics</a></li>
+<li><a href=#configtool>Configuration and startup tool</a></li>
+<li><a href=#realmtools>Realm/Region maintenance tools </a></li>
+<li><a href=#mbrbrowser>Membership browser</a></li>
+<li><a href=#mbrreports>Membership report tool</a></li>
+<li><a href=#events>Schedule of events</a></li>
+<li><a href=#realmstatus>External access to Realm/Region Current User Count, aka Realm Status Object</a></li>
+<li><a href=#remotecontrol>Remote Control Tool, Lightweight Status Tool</a></li>
+<li><a href=#entrylog>Realm/Region avatar entry exit log (aka system event log)</a></li>
+<li><a href=#bankickpin>Ban/Kick/Pin</a></li>
+<li><a href=#magicwand>Magic Wand tools</a></li>
+<li><a href=#userlabels>User class labels (helper, acolyte, manager, etc.)</a></li>
+<li><a href=#whoson>Who's on now in this realm</a></li>
+<li><a href=#pagehelper>Page turf owner, helper, acolyte, etc.</a></li>
+<li><a href=#broadcast>Broadcast to everyone in the realm</a></li>
+<li><a href=#realmentrypolicies>Realm Entry Policies</a></li>
+<li><a href=#realmentryplugin>Programmatic Realm Entry check</a></li>
+<li><a href=#tickets>"Ticket" certificates for entry authorization</a></li>
+<li><a href=#inworldpush>In world "Push" mechanism</a></li>
+<li><a href=#map>Map, in-model rendering</a></li>
+<li><a href=#avatardensities>Avatar densities on map </a></li>
+<li><a href=#ecurl>EC:// href urls </a></li>
+</ul>
+
+<h5><a name=gendir>Generic directory support (Priority 1)</a></h5>
+
+<ul>
+    <li> The current directory in r167 is
+        limited. LDAP directory technology is available off the
+        shelf and is quite flexible. Java access to LDAP
+        directories is supported through the use of JNDI. The
+        idea here is that we investigate and use an off-the-shelf
+        directory server for the directory component of the hub
+        product.</li>
+    <li> r167 has a special purpose limited avatar directory using sqlserver.</li>
+    <li> required for full up community.</li>
+    <li> Use LDAP directories, JNDI.</li>
+    <li> Sort out LDAP server alternatives (probably just use netscape directory server).</li>
+    <li> Need to sort out update authentication story.</li>
+    <li> Spec dir entry attributes, JNDI/EC integration story.</li>
+    <li> Implement initial directory using EC ID, integrated with our code.</li>
+    <li> Implement update authentication.</li>
+</ul>
+
+
+<h5><a name=webdir>Web Based Directory Browser (Priority 2)</a></h5>
+<ul>
+<li> It would be ideal if the generic directory was browsable on the web, only because the web browser is a common denominator frontend application platform.  There are off the shelf tools to support this.. exactly how useful these tools are is unknown.
+<li> Required for full up community.
+<li> Possibly use off-the-shelf software. (wax500?)
+</ul>
+
+<h5><a name=persondir>Person Directory (Priority 1)</a></h5>
+<ul>
+<li> This is a directory based on the generic directory support 
+that stores information about individual members of a world. 
+"Member" could mean avatar, or it could mean the actual person.  
+A key issue that we have to solve here is what attributes we 
+want to store in the directory for each entry, and how we plan 
+to collect the values for the attributes.  Finally, its possible 
+that we want to use the address book as a frontend browser to 
+the person directory.  Key requirements are:
+    <ul>
+      <li> List/search members that have registered with the realm(s).
+      <li> Address book me page is published by user's and stored in the directory.
+      <li> There needs to be a privacy story, eg how do I control access to my info?
+      <li> UI Frontend on the web for searching; address book for update.
+      <li> Admin tool on the web for editing/browsing directory.
+    </ul>
+<li> r167 has a special purpose limited avatar directory based on sql server. 
+See <a href=http://www-int/engineering/OldStuff/neocosm/hub/avatardir.html>http://www-int/engineering/OldStuff/neocosm/hub/avatardir.html</a> for complete details.
+<li> required for full up community.
+<li> Uses generic directory support.
+<li> Need design story on how folk get added to the directory/
+<li> Spec directory attributes.
+<li> Need story on how this is related to address book. (This may affect address book design.)
+</ul>
+
+<h5><a name=placedir>Place Directory (Priority 3)</a></h5>
+<ul>
+<li> By using a generic directory mechanism such as LDAP, its possible to build
+  a "directory of places".  The frontend ui for the place directory could be the
+  web (possible in the form of a map of maps), or even the address book, maybe
+  in the form of a "places" tab.  This task includes sorting out what the attributes
+  are for entries in a place directory.  Attributes might include a short description of 
+  of the realm, and the URL to the TOS page for the realm.  Other requirements
+  include:
+      <li> Be able to list/search for realms and link to the map for a realm.
+      <li> Show current user counts for a realm or realms.
+      <li> UI frontend on the web only (address book possible).
+      <li> Admin frontend on the web allowing for adding/editing of entries.
+<li> r167 has map.
+<li> Required when there is lots of communities out there.
+<li> Uses generic directory support.
+<li> Design "launch cosm from place directory".  (Probably just a simple URL.)
+<li> Need story on how this is related to address book.
+<li> Place Directory Browser (probably web based) spec, design, implement.
+</ul>
+
+<h5><a name=ntservice>NT Service Runner (Priority 1)</a></h5>
+<ul>
+<li> The NT Service Runner (ecntsvc.exe) is required if we want hub-o-cosm to run
+  at startup.  On NT, processes that run at startup in the background, are called
+  services.  The NT web server, IIS, is an example of one of the services.  
+  There is a service control panel that is used to start and stop these processes.  
+<li> currently in r167.
+<li> Fix ODBC bug; required if we want the java processes running as an NT service to  
+  be able to talk to a sql db.
+</ul>
+
+<h5><a name=bbs>BBS (Priority 1)</a></h5>
+<ul>
+<li> To support a full up community there needs to be an asynchronous
+   messaging system or BBS.  It needs to support posting/reading/threading
+   of messages, multiple topic areas, admin-only posting areas.
+   Requirements include:
+       <li> multiple topics, in addition to "only admin can post" topics.
+       <li> Message threading.
+       <li> Posting of messages by members.
+       <li> Reading of messages.
+       <li> Show me new messages since I was last on.
+       <li> Email notification of new messages (not in r167).
+       <li> Admin requirements: delete/archive msgs, add/remove conference, manage user base.
+<li> Currently using webboard 2.0 in r167, though BBS userid and EC id are separate.
+<li> Ideally, integrate EC Identity.
+<li> Consider using WebBoard 3.0: it has support for external databases.
+<li> Unknown estimate, unknown if this is even doable.
+</ul>
+
+<h5><a name=install>Installer for realm, pls, repository server, db schemas, etc (Priority 1)</a></h5>
+<ul>
+<li> To support a shippable product we need installers for all the pieces.
+<li> Not in r167, though we have a windows based installer for the non-hub version of 
+  the product.
+</ul>
+
+<h5><a name=plsstats>PLS Statistics (Priority 2)</a></h5>
+<ul>
+<li> During the alpha test it became apparent that we need some level of statistics from the PLS.
+<li> Currently in r167, though stats seem weak.
+<li> required for production level operations.
+<li> current statistics not effective: "unregister" is not implemented resulting in vague numbers.
+</ul>
+
+<h5><a name=configtool>Configuration and startup tool (Priority 2)</a></h5>
+<ul>
+<li> Currently, configuration is done by tweaking text files containing 
+  Java properties.  To support a ship-able product, configuration
+  needs to be presented in a coherent and clear user interface.
+  <a href=http://www-int/engineering/OldStuff/neocosm/hub/HubManagement.html>http://www-int/engineering/OldStuff/neocosm/hub/HubManagement.html</a> describes the current process for configuring and starting the hub and pls.
+<li> Not in r167, nice to have
+<li> Sets startup properties.
+<li> Should be able to modify configuration of running system.
+<li> Very detailed application: may need to take into account "dependent" configuration items.
+<li> Details unknown at this time; need to design other subsystems first.
+<li> We could design a "configuration" framework that is generalized.
+<li> unknown estimate
+</ul>
+
+<h5><a name=realmtools>Realm/Region maintenance tools (Priority 3)</a></h5>
+<ul>
+<li> Late in the current cosm we surmised that we needed a mechanism 
+  to migrate regions from one machine to another.  If we design the
+  "realm description" mechanism correctly, then we can skip this 
+  requirement.
+<li> Not in r167, nice to have.
+<li> Required for splitting regions in one realm across multiple realms/machines.
+<li> If we design realm-text (realm description file) correctly, this tool isn't necessary.
+</ul>
+
+<h5><a name=mbrbrowser>Membership browser (Priority 4)</a></h5>
+<ul>
+<li> Given that the realm/hub has members, there needs to be a way 
+  for a world manager to manually tweak individual members.  For 
+  example we might want to put the "ban" functionality in this context.
+<li> Not in r167, nice to have.  Depends on how we do membership.
+<li> Required for full up community support.
+<li> Use off-the-shelf LDAP directory browser if possible.
+<li> Ban/Unban is dependent on realm.
+</ul>
+
+<h5><a name=mbrreports>Membership report tool (Priority 2)</a></h5>
+<ul>
+<li> Given a full up community, the owner needs some mechanism to 
+  realize benefit from running the community.  This reports on information
+  derived from the membership and realm/region usage.  In addition, we
+  might want to consider providing information separately to hub managers
+  and hub owners.  Ie, treat managers and owners as two distinct users
+  of the information.
+<li> Not in r167, though we have a crude tool to digest logs into usage graphs
+<li> Required for community management
+</ul>
+
+<h5><a name=events>Schedule of events (Priority 3)</a></h5>
+<ul>
+<li> Simple web page would work, though it would be nice if the schedule had
+  automatic notification to members of upcoming events, or maybe only events
+  that the member is interested in.
+<li> Not in r167, though we use a simple web page
+<li> Nice to have: Automatically notify members X days in advance of upcoming events.
+</ul>
+
+<h5><a name=realmstatus>External access to Realm/Region Current User Count, aka Realm Status Object (Priority 1)</a></h5>
+<ul>
+<li> This is a "realm" task.  Essentially it amounts to implementing and exposing a 
+  "status" object that allows access to interesting information contained within 
+  the realm.  Access to the "status object" would be closely held.
+<li> Not in r167 (r167 has "where is everyone" which shows user counts.  This is
+  only available from within the application.
+<li> Required for external status tools, avatar density map
+</ul>
+
+<h5><a name=remotecontrol>Remote Control Tool, Lightweight Status Tool (Priority 1)</a></h5>
+<ul>
+<li> This is a tool to access the proposed "realm status object".
+<li> Ideally, the hub console should just be a remote tool.  Ie, "console mode" commands
+     are 100% available from a remote application.
+<li> Not in r167; spec'd but not implemented.
+<li> Currently, r167 status/shutdown/restart is difficult.
+<li> Proposal: implement command line version supporting an initial command (eg shutdown).
+<li> Dependent on comm and pls working.
+<li> Dependent on "External access to Realm/region current user count".
+</ul>
+
+<h5><a name=entrylog>Realm/Region avatar entry exit log (aka system event log) (Priority 1)</a></h5>
+<ul>
+<li> This is a simple flat file that contains a log record of when an avatar 
+  enters the realm, leaves the realm, enters a region, and leaves a region.
+  In addition, it contains realm start/stop log records.  We use a simple 
+  parser to create usage graphs from the log info.  Heavily documented
+  in <a href=http://www-int/engineering/OldStuff/neocosm/hub/HubEventLog.html>http://www-int/engineering/OldStuff/neocosm/hub/HubEventLog.html</a>.
+<li> In r167.
+<li> Should take a couple days to convert it over to neocosm.
+</ul>
+
+<h5><a name=bankickpin>Ban/Kick/Pin (Priority 3)</a></h5>
+<ul>
+<li> To run a community, complete with problem members, some mechanism is required
+  in order to restore order when things get out of hand.  One such mechanism is the 
+  ability to kick people out, and prevent them from returning, and/or signing up a new id.
+  Any method must rely on a scarce resource: money, email addresses, etc.  
+  Unfortunately, with a free service this is difficult.
+<li> Not in r167; required to run a full-up community.
+<li> This task is probably related to the realm and region, and potentially related to the magic wand tool.
+</ul>
+
+<h5><a name=magicwand>Magic Wand tools (Priority 2)</a></h5>
+<ul>
+<li> The magic wand tool is a tool to enable remote editing of a region.  Currently,
+   the property sheet in the region is the way a user makes changes to the region.
+   Since hosting === ownership, we limited access to the property sheet only to
+   the avatar that is hosted where the property sheet's object is hosted.  Unfortunately,
+   this is untenable for a "lights out" hub (ie a hub that is hosted on a machine in
+   a computer room somewhere).  With the "lights out" hub, the world manager 
+   needs to make changes remotely.  Since the world manager's avatar is not
+   hosted on that hub, we need a tool to allow the world manager avatar (and only the
+   world manager avatar) to make remote changes.
+<li> Partially in r167.
+</ul>
+
+<h5><a name=userlabels>User class labels (helper, acolyte, manager, etc.) (Priority 3)</a></h5>
+<ul>
+<li> With a full up community it is essential to delegate some of the world mgmt
+   functions to volunteers.  There is likely no way to support such a community with
+   paid staff.  To do this, the community (or the world manager) needs to be able
+   to designate who the volunteer helpers are, and be able to label the 
+   volunteers.  The ideal way to do this is with certificates that have in-world
+   manifestation, and enable the certificate holders to have additional powers.
+   I'm not clear why we dot have certificate based avatar labels.  A second
+   proposal was to do avatar labels with the member db.
+<li> Not in r167.
+<li> Required for full-up community support.
+<li> Assume simple design where we add labels to the member db or directory.
+<li> Requires design.
+<li> Probably affects address book, main window (mouse over), member db, directory, realm, region, avatar.
+</ul>
+
+<h5><a name=whoson>Who's on now in this realm (Priority 1)</a></h5>
+<ul>
+<li> r167 has a feature off the region watermark that opens a window containing
+  a list of all the avatars in the realm, and the region that each avatar is in.  This is
+  useful for finding out who's around, and where they are.
+<li> Already in r167.
+<li> r167 missing "teleport to avatar".
+<li> Essential feature for turf, hub.
+<li> Dependent on realm, region, application ui.
+</ul>
+
+<h5><a name=pagehelper>Page turf owner, helper, acolyte, etc. (Priority 2)</a></h5>
+<ul>
+<li> To support customers by using volunteer staff there needs to be a way
+  for customers to contact a support person/volunteer.  Ideally, there should
+  be a "pool" of helpers within a given world that are "on duty" and will
+  receive pages.  In the case of  the "turf" product, there needs to be a 
+  way for visitors to contact the turf owner.
+  This feature essentially invokes a telepathy conversation.
+<li> Not in r167.
+<li> Required for full up community.
+<li> Dependent on realm/region/directory, probably speech ui.
+<li> Need ui design
+</ul>
+
+<h5><a name=broadcast>Broadcast to everyone in the realm (Priority 2)</a></h5>
+<ul>
+<li> It would be useful for the turf or realm owner to be able to broadcast a  
+  message from the turf or realm everyone in the realm.  An example is 
+  event announcement.   I'm not sure if it makes sense to be able to 
+  broadcast to everyone in all realms.
+<li> Not in r167.
+<li> Required for full up community.
+<li> Dependent on realm/region, speech ui
+</ul>
+
+<h5><a name=realmentrypolicies>Realm Entry Policies (Priority 2)</a></h5>
+<ul>
+<li> To support a limited access community where entry requirements 
+   are placed on the users, it is necessary to have a framework
+   in place to support the implementation of realm entry policies.
+   Policies include:
+     <ul>
+     <li> Depending on hub-side status of entering avatar's account, a url
+       is sent to the user.  (in r167, works, not fully rung out.)
+     <li> Avatar must be registered.
+     <li> Avatar not banned in hub/realm.
+     <li> Avatar limits, eg only X number of avatars in region.
+          (Fix bug: turf owner is alowed to enter regardless of avatar limit.)
+     <li> Turf/hub is open.  Implies that realm has a "closed" state.  Only the 
+        owning avatar can enter when the realm is "closed".
+     <li> In address book, avatar is set for "allowed to visit turf". (turf only)
+     </ul>
+<li> Currently in r167.  See requirements for details.
+<li> Required for full up community that is "closed" and limits access.
+<li> Take these requirements into account when designing realm
+</ul>
+
+<h5><a name=realmentryplugin>Programmatic Realm Entry check (Priority 3)</a></h5>
+<ul>
+<li> We probably want to make realm entry checking as dynamic and extensible
+   as possible.  By supporting an interface for external code (or script) to 
+   execute, we can allow the world owner to implement powerful mechanisms
+   for authorizing avatar entry to the world.  An example might be directing a 
+   returning user to a web page to fill out a one time form.  What's proposed here
+  is essentially a Realm interface that allows plug-in code to do custom world 
+  entry checking based on entering identity.  Might have security implications: 
+  its a security problem if  world operators start passing around their plug-ins.
+<li> Not in r167.
+<li> Nice to have, but if done correctly would differentiate us from others.
+<li> Need better spec: this is something that hub customers would see.
+</ul>
+
+<h5><a name=tickets>"Ticket" certificates for entry authorization. (Priority 3)</a></h5>
+<ul>
+<li> Not in r167.  was in initial spec.
+<li> Nice to have; would facilitate lighter weight realm entry and differentiate us from others.
+<li> Need spec.
+</ul>
+
+<h5><a name=inworldpush>In world "Push" mechanism (Priority unknown)</a></h5>
+<ul>
+<li> [I'm not sure what this entails.  Someone needs to spec requriements.]
+<li> Not in r167.
+<li> Nice to have, especially for marketing purposes.
+<li> Need spec.
+</ul>
+
+<h5><a name=map>Map, in-model rendering (Priority 4)</a></h5>
+<ul>
+<li> In r167 we use the web browser to present the map.
+<li> Nice to have: in-model rendering of map image; using web browser is too jarring.
+<li> unknown estimate.
+</ul>
+
+<h5><a name=avatardensities>Avatar densities on map (Priority 4)</a></h5>
+<ul>
+<li> This is a feature that was triaged from the early spec.  The idea here is to
+  show where in the realm avatars are, and do it in a graphical way.
+<li> Not in r167.
+<li> Nice to have, especially for thriving communities.
+<li> Where is everyone satisfies this to some degree, but that tool requires entry into the world.
+<li> If we just tack this on to the web page maps, and assuming we have realm status,
+this would be somewhat straightforward.
+</ul>
+
+<h5><a name=ecurl>EC:// href urls (Priority 1)</a></h5>
+<ul>
+<li> Not really a hub requirement per se.
+<li> We currently have an .mcm file that contains either teleport information
+  or avatar address book information.  Its possible for these files to be placed
+  on the web such that they are "clickable" in a web browser, and will launch
+  microcosm.  The use of .mcm  file requires settings on the web server side, 
+  hence it might not be possible for some users to use this feature: it requires 
+  access to the web server.  A totally web _client_ centric mechanism for 
+  specifying a "web link" to a microcosm region, or address book page, would  
+  only require users to add the link to the html page.  The proposal tossed
+  around is to use ec:// in the standard URL query string format to support this.
+<li> MCM file launching currently in r167.
+<li> This is how we launch from a web page into cosm.
+<li> We should have ec:// urls which would eliminate the need for web server side
+  functionality that currently generates the mcm file contents.
+<li> Essential if we want to allow individuals to refer to their turfs from their web pages.
+<li> Requires changes to cosm launch process.
+<li> Requires web browser DDE/OLE hooks.
+</ul>
+
+</body>
+</html>
+
+
+

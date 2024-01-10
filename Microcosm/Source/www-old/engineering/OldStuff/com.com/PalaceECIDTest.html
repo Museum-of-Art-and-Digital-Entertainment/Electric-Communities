@@ -1,0 +1,444 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>Items to be tested</TITLE>
+</HEAD>
+<BODY>
+
+<B><FONT FACE="Arial" SIZE=4><P>Brief Testing Plan for initial ECID / Palace release</P>
+</B></FONT><FONT FACE="Arial" SIZE=2><P>&nbsp;</P>
+</FONT><B><FONT FACE="Arial"><P>Items to be tested</P>
+</B></FONT><FONT FACE="Arial" SIZE=2>
+
+<UL>
+<LI>Palace Win32 client</LI>
+<LI>Comm (Inter-application library)</LI>
+<LI>ECID client</LI>
+<LI>Proxycomm/Datacom</LI>
+<LI>PLS server</LI>
+<LI>Palace/ECID installation</LI>
+<LI>Directory server?</LI>
+<LI>Directory authorization?</LI></UL>
+
+<P>&nbsp;</P>
+</FONT><B><FONT FACE="Arial"><P>Features to be tested</P>
+</B></FONT><FONT FACE="Arial" SIZE=2><P>Ess = essential.</P>
+<P>NTH = nice-to-have.</P>
+<B><P>Palace UI changes</P>
+
+<UL>
+</B><LI>Support for entering demographic data required by ECID. (Ess.)</LI>
+<LI>Palace must ask for demographic information (first time Palace starts?) (Ess.)</LI>
+<LI>Support for new ECID-related commands (@whereis, @esp). (Ess.)</LI>
+<LI>Ability for Palace to operate in non-ECID mode (i.e. with ECID turned off). (Ess.)</LI></UL>
+
+<B><P>Storing of demographic information</P>
+
+<UL>
+</B><LI>Support for storing demographic information locally. (Ess?)</LI></UL>
+
+<B><P>Palace/ECID connectivity</P>
+
+<UL>
+</B><LI>Ability to register current Palace location with ECID on startup and when location changes. (Ess.)</LI></UL>
+
+<B><P>Registering ECID with Directory Server</P>
+
+<UL>
+</B><LI>Ability to register a new ECID and associated demographic data with the Directory server. (NTH.)</LI>
+<LI>Ability to update existing demographic data with the Directory server? (NTH.)</LI>
+<LI>Ability to delete ECID and demographic data from the Directory server? (NTH.)</LI>
+<LI>Ability to unregister an ECID when Palace shuts down? (NTH.)</LI></UL>
+
+<B><P>Capabilities</P>
+
+<UL>
+</B><LI>Support for locating a potential buddy and initializing the capability request. (Ess.)</LI>
+<LI>Support for requesting a ‘where are you/esp?’ capability from another ECID. (Ess.)</LI>
+<LI>Support for granting a ‘where are you/esp?’ capability request to another ECID. (Ess.)</LI>
+<LI>Support for denying a ‘where are you/esp?’ capability from another ECID. (Ess.)</LI></UL>
+
+<B><P>Storing of capabilities</P>
+
+<UL>
+</B><LI>Support to store a local list of buddies that have granted you a capability. (Ess.)</LI>
+<LI>Support to store a local list of buddies that you have granted a capability. (Ess.)</LI></UL>
+
+<P>&nbsp;</P>
+<B><P>@esp</P>
+
+<UL>
+</B><LI>Ability to issue an @esp to a buddy that has already granted the appropriate capability. (Ess.)</LI>
+<LI>Ability to do the above irrespective of requesters or requestees location within the Palace. (Ess.)</LI>
+<LI>Inability to to issue a successful @esp to an ECID that has not granted that capability. (Ess.)</LI>
+<LI>Ability to perform multiple @esps to the same ECID in a contiguous (on-line?) Palace seesion without invoking multiple calls to PLS [implies local caching]. (NTH.)</LI></UL>
+
+<B><P>@whereis</P><DIR>
+
+</B><P>Note: these will be implicit in an @esp; the priority here refers to an explicit command available in The Palace.</P></DIR>
+
+
+<UL>
+<LI>Ability to issue an @whereis to find a buddy that has already granted the appropriate capability. (NTH.)</LI>
+<LI>A successful @whereis returns the Palace:room location of the buddy. (NTH.)</LI>
+<LI>Inability to to issue a successful @whereis to an ECID that has not granted that capability. (NTH.)</LI>
+<LI>Inability to to issue a successful @whereis to an ECID that has granted that capability and subsequently revoked it. (NTH.)</LI></UL>
+
+<B><P>PLS load</P><DIR>
+
+</B><P>PLS server must be able to handle a load of (see Load Testing):</P></DIR>
+
+
+<UL>
+<LI>Number of registrations per hour (heavyweight opeation) – 150,000</LI>
+<LI>Number of capability requests per hour (lightweight operation) – 10,000</LI>
+<LI>Number of esp/whereis per hour (lightweight operation) – 100,000</LI></UL>
+<DIR>
+<DIR>
+
+<P>Note: we need response times to make these meaningful; it would also be useful to define ‘heavyweight’ and ‘lightweight’ in absolute units of some sort.</P></DIR>
+</DIR>
+
+<B><P>Directory load</P>
+
+<UL>
+</B><LI>Directory Server (including EC-created authorization modul) must be able to handle a load of:</LI>
+
+<UL>
+<LI>TBD.</LI></UL>
+</UL>
+
+<B><P>Setup</P>
+
+<UL>
+</B><LI>New never-used-Palace-before installations</LI>
+<LI>Have Palace client but now installing plug-in and ECID (might include new Palace client if it has to change).</LI>
+<LI>Re-installing both or one of the above.</LI></UL>
+
+<B><P>Configurations</P>
+</B><I><P>Operating systems - client</P>
+
+<UL>
+</I><LI>Windows95 (Ess.)</LI>
+<LI>WindowsNT (Ess.)</LI></UL>
+
+<I><P>Operating systems – server</P>
+
+<UL>
+</I><LI>PLS – Solaris 5.?</LI>
+<LI>Directory – Solaris 5.?</LI></UL>
+
+<P>&nbsp;</P>
+<I><P>Connection</P>
+
+<UL>
+</I><LI>Dial-up (Lowest/Highest). (Ess.)</LI>
+<LI>Providers, IP address, firewalls (NTH.)</LI></UL>
+
+<B><P>Regression</P>
+
+<UL>
+</B><LI>Palace changes must not affect current Palace functionality (Ess.)</LI></UL>
+
+<P>&nbsp;</P>
+</FONT><B><FONT FACE="Arial"><P>Features not to be tested</P>
+
+<UL>
+</B></FONT><FONT FACE="Arial" SIZE=2><LI>Revoking capabilities – not supported in this release?</LI>
+<LI>File transfer capability – not supported on this release?</LI>
+<LI>Security – to perform meaningful tests on security would require more time and intellectual capacity than we have at our disposal.</LI>
+<LI>Palace servers.</LI></UL>
+
+<P>&nbsp;</P>
+</FONT><B><FONT FACE="Arial"><P>Who does what</P>
+</B></FONT><FONT FACE="Arial" SIZE=2></FONT>
+<TABLE BORDER CELLSPACING=1 CELLPADDING=7 WIDTH=486>
+<TR><TD WIDTH="72%" VALIGN="TOP">
+<B><FONT FACE="Arial" SIZE=2><P>Item</B></FONT></TD>
+<TD WIDTH="28%" VALIGN="TOP">
+<B><FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">Tester</B></FONT></TD>
+</TR>
+<TR><TD WIDTH="72%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P>Palace</FONT></TD>
+<TD WIDTH="28%" VALIGN="TOP">
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">Alison/Jeremy</FONT></TD>
+</TR>
+<TR><TD WIDTH="72%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P>Palace Win32 client</FONT></TD>
+<TD WIDTH="28%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">Alison/Jeremy</FONT></TD>
+</TR>
+<TR><TD WIDTH="72%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P>ECID client</FONT></TD>
+<TD WIDTH="28%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">Alison/Jeremy</FONT></TD>
+</TR>
+<TR><TD WIDTH="72%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P>Comm (Inter application library)</FONT></TD>
+<TD WIDTH="28%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">Alison/Jeremy</FONT></TD>
+</TR>
+<TR><TD WIDTH="72%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P>Communications (includes proxycomm/datacomm)</FONT></TD>
+<TD WIDTH="28%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">Paul</FONT></TD>
+</TR>
+<TR><TD WIDTH="72%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P>PLS functionality</FONT></TD>
+<TD WIDTH="28%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">Paul</FONT></TD>
+</TR>
+<TR><TD WIDTH="72%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P>PLS load</FONT></TD>
+<TD WIDTH="28%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">Paul</FONT></TD>
+</TR>
+<TR><TD WIDTH="72%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P>Directory functionality</FONT></TD>
+<TD WIDTH="28%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">Masa</FONT></TD>
+</TR>
+<TR><TD WIDTH="72%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P>Directory load</FONT></TD>
+<TD WIDTH="28%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">Masa</FONT></TD>
+</TR>
+<TR><TD WIDTH="72%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P>Setup/configuration</FONT></TD>
+<TD WIDTH="28%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">Alison/Jeremy</FONT></TD>
+</TR>
+<TR><TD WIDTH="72%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P>Operational testing</FONT></TD>
+<TD WIDTH="28%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">Brian/Reeve?</FONT></TD>
+</TR>
+<TR><TD WIDTH="72%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P>System load test</FONT></TD>
+<TD WIDTH="28%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">Alison/Jeremy/Paul</FONT></TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Arial" SIZE=2>
+<P>&nbsp;</P>
+</FONT><B><FONT FACE="Arial"><P>How they do it</P>
+</B></FONT><FONT FACE="Arial" SIZE=2></FONT>
+<TABLE BORDER CELLSPACING=1 CELLPADDING=7 WIDTH=582>
+<TR><TD WIDTH="31%" VALIGN="TOP" HEIGHT=15>
+<B><FONT FACE="Arial" SIZE=4><P>Item</B></FONT></TD>
+<TD WIDTH="23%" VALIGN="TOP" HEIGHT=15>
+<B><FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">White-box</B></FONT></TD>
+<TD WIDTH="23%" VALIGN="TOP" HEIGHT=15>
+<B><FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">Component-level</B></FONT></TD>
+<TD WIDTH="23%" VALIGN="TOP" HEIGHT=15>
+<B><FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">Black-box</B></FONT></TD>
+</TR>
+<TR><TD WIDTH="31%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P>Palace</FONT></TD>
+<TD WIDTH="23%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">N/A</FONT></TD>
+<TD WIDTH="23%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">N/A</FONT></TD>
+<TD WIDTH="23%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">100</FONT></TD>
+</TR>
+<TR><TD WIDTH="31%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P>ECID client</FONT></TD>
+<TD WIDTH="23%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">5</FONT></TD>
+<TD WIDTH="23%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">60</FONT></TD>
+<TD WIDTH="23%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">40</FONT></TD>
+</TR>
+<TR><TD WIDTH="31%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P>Proxycomm</FONT></TD>
+<TD WIDTH="23%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">10</FONT></TD>
+<TD WIDTH="23%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">50</FONT></TD>
+<TD WIDTH="23%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">40</FONT></TD>
+</TR>
+<TR><TD WIDTH="31%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P>Datacomm</FONT></TD>
+<TD WIDTH="23%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">10</FONT></TD>
+<TD WIDTH="23%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">50</FONT></TD>
+<TD WIDTH="23%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">40</FONT></TD>
+</TR>
+<TR><TD WIDTH="31%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P>PLS functionality</FONT></TD>
+<TD WIDTH="23%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">0</FONT></TD>
+<TD WIDTH="23%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">60</FONT></TD>
+<TD WIDTH="23%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">40</FONT></TD>
+</TR>
+<TR><TD WIDTH="31%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P>PLS Load</FONT></TD>
+<TD WIDTH="23%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">N/A</FONT></TD>
+<TD WIDTH="23%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">70</FONT></TD>
+<TD WIDTH="23%" VALIGN="TOP" HEIGHT=17>
+<FONT FACE="Arial" SIZE=2><P ALIGN="CENTER">30</FONT></TD>
+</TR>
+</TABLE>
+
+<FONT FACE="Arial" SIZE=2>
+<P>White-box: standard code coverage test cases.</P>
+<P>Component-level: exposed methods tested programatically.</P>
+<P>Black-box: standard user-centric test cases.</P>
+
+<P>N/A = type of testing not possible/applicable/appropriate to this item.</P>
+<B><P>Load testing</P>
+</B><I><P>PLS</P>
+</I><P>The following is based on these assumed ICQ numbers:</P><DIR>
+<DIR>
+
+<P>- 12,000,000 registered ICQ UINs,</P>
+<P>- 400,000 are online at any one time (3.333*%),</P>
+<P>- 2 million new sessions per day (16.7%).</P>
+</DIR>
+</DIR>
+
+<P>For the PLS we will assume higher usage per ECID to give us a design margin add more variables. Also just used # online to keep it simple.</P><DIR>
+<DIR>
+
+<P>- 1,000,000 ECIDs,</P>
+<P>- 10% active at any one time = 100,000,</P>
+<P>- average session length = 1 hour (conveniently).</P>
+<P>- 0.1% of active users will request a capability per hour = 10,000.</P>
+<P>- Each user will request esp/whereis once per session hour.</P>
+<P>- 25% start sessions per day = 250,000,</P>
+</DIR>
+</DIR>
+
+<P>So,</P>
+
+<UL>
+<LI>Number of registrations per hour:</LI>
+
+<UL>
+<LI>((# active / average session lengh hrs) * factor for re-registrations)</LI>
+<LI>e.g. (100,000 / 1) * 1.5 = 150,000.</LI></UL>
+</UL>
+
+
+
+<UL>
+<LI>Number of capability requests per hour</LI>
+
+<UL>
+<LI># active *  % requesting a capability</LI>
+<LI>100,000 * 0.1 = 10,000</LI></UL>
+</UL>
+
+
+
+<UL>
+<LI>Number of esp/whereis per hour</LI>
+
+<UL>
+<LI># active * # number of requests made per session hour</LI>
+<LI>100,000 * 1 = 100,000</LI></UL>
+</UL>
+
+
+
+<UL>
+<LI>Unregistering?</LI></UL>
+
+<P>&nbsp;</P>
+<I><P>Configuration testing</P>
+</I><P>Minimum functionality will be verified in each configuration.</P>
+<I><P>Operational testing</P>
+</I><P>Combining system testing with operational testing would give us the best return in this compressed timeframe; this means that testing the full system (Palace, ECID, PLS) would take place in the actual operational environment.</P>
+<P>&nbsp;</P>
+</FONT><B><FONT FACE="Arial"><P>&nbsp;</P>
+<P>Release acceptance criteria</P>
+</B></FONT><I><FONT FACE="Arial" SIZE=2><P>Functionality and attributes</P>
+</I><P>The functions and attributes in ‘Features to be tested’ must be categorized into:</P>
+
+<UL>
+<LI>Essential,</LI>
+<LI>Nice to have (non-essential).</LI></UL>
+
+<DIR>
+
+<P>Essential items: these must be present in the product and meet the minumum stability criteria defined below. If these standards are not met the product cannot be released.</P>
+<P>Note: for load criteria we need some maximum acceptable response times for each function.</P>
+
+<P>Nice-to-have items: these must be present in the product and meet the minumum stability criteria defined below to be considered part of the release. If they do not meet the criteria then they are not considered part of the release.</P>
+<P>&nbsp;</P></DIR>
+
+<I><P>Configuration</P>
+</I><P>Clients</P>
+
+<UL>
+<LI>486+ processor </LI>
+<LI>Windows 95/NT </LI>
+<LI>8Mb of RAM </LI>
+<LI>256+ color display </LI>
+<LI>640x480+ support </LI>
+<LI>14.4+ connection to the Internet </LI>
+<LI>Mouse</LI></UL>
+
+<P>&nbsp;</P>
+<I><P>Servers</P>
+</I><P>As we control these they are not as critical.</P>
+<I><P>Stability</P>
+
+<UL>
+</I><LI>Defect count (by severity)</LI>
+
+<UL>
+<LI>Absolute threshold of defects in essential functionalty and attributes (TBD).</LI></UL>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+
+<P>Example: ‘the product cannot be released with any severity one defects in essential functionality’ would be a useful standard.</P></DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<LI>Absolute threshold of defects in non-essential functionalty and attributes (TBD).</LI></UL>
+</UL>
+<DIR>
+<DIR>
+<DIR>
+
+<P>Example: ‘if there is a severity one defect in nice-to-have feature, that feature cannot be part of the release.</P>
+</DIR>
+</DIR>
+</DIR>
+
+
+<UL>
+<LI>Defect report rate (by severity)</LI></UL>
+<DIR>
+<DIR>
+
+<P>Note: given the compressed schedule I doubt this will be a meaningful criterion.</P></DIR>
+</DIR>
+
+
+<UL>
+
+<UL>
+<LI># defects reported in a 24 hour (?) period in essential functionalty and attributes (TBD).</LI>
+<LI># defects reported in a 24 hour (?) period in non-essential functionalty and attributes (TBD).</LI></UL>
+</UL>
+</FONT></BODY>
+</HTML>

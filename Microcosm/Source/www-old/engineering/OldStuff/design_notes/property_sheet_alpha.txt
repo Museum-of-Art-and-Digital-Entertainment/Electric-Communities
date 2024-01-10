@@ -1,0 +1,352 @@
+Title
+======
+
+Property Sheet alpha notes
+
+Introduction
+============
+
+Herein are some notes on the status of the Property Sheet,
+which may be helpful for future Property Sheet development.
+These notes focus on the Property Ingredient (also known
+as the Property Manager Ingredient).
+
+Reference
+==========
+
+The principal references are:
+
+1) Microcosm User Interface Spec, the section "Property Sheet".
+
+Word97 version:
+\\alexandria\home\ellen\UISpec - Official\3.31.98UISpec  pages 50-53    
+
+
+2) A design note on preliminary investigations into the Property Sheet:
+
+    src\www-int\engineering\design_notes\property_sheet_prelim.txt
+
+    Although there were a number of open issues at the time
+    this was written, the final implementation has little
+    that contradicts this preliminary study and much in
+    this study was realized in the implementation, so this
+    document still may be useful for understanding the
+    design issues of the Property Sheet.    
+
+3) A design note on how to make an ingredient a property peer:
+
+    src\www-int\engineering\design_notes\propertysheet_peer.txt
+
+    Includes documentation on many of the key data structures
+    used within the Property Sheet implementation. Randy
+    has made many ingredients into property peers so he
+    not only has experience with this but may also still have
+    a simplified document on making a property peer. 
+
+4) A design note on the Trading Machine at the time it was frozen:
+
+    src\www-int\engineering\design_notes\trading_machine.txt
+
+    Some of the design decisions for the TradingMachine were
+    re-used for the PropertySheet.
+ 
+5) Source files
+
+The key files (with path and highest revision number that I tested) are:
+ 
+    // for the property manager ingredient itself 
+
+    cosm1/objects/ingredients/property
+        Property_kind.plu   1.35
+            Property_state.plu  1.6
+        Property_ingr.plu   1.14
+    cosm1/objects/ingredients/GNUmakefile 1.152
+
+    // classes (shared with the Property Sheet UI) describing
+    // common state and messages    
+
+    cosm1/ui/presenter/steward
+        PropertySheet.java  1.29
+        PropertySheetPeer.java  1.5
+        GNUmakefile 1.28
+
+There are a separate set of files used for the Property Sheet UI,
+developed by John Sullivan and which I rarely touched. These
+are located in:
+
+    // principal GUI files for Property Sheet
+    
+    cosm1/ui/gui/uipresenter    
+        GUIPropertySheetPresenter.java  1.61
+        GUIPropertyEditors.java     1.26
+        GUIPropertySheetCGItems.java    1.19
+        GNUmakefile     1.27
+
+
+    // a "do nothing" version on the Console side
+
+    cosm1/ui/console
+
+        ConsoleUIPresenterFactory.java  1.29
+        ConsolePresenters.java  1.97
+        GNUmakefile 1.5
+
+    // interface the presenter to the property ingredient
+
+    cosm1/ui/presenter/steward
+        PresenterFactoryIntf.java   1.34
+        PresenterFactoryStewards.java   1.40    
+        UIPresenterIntf.java    1.40
+        UIPresenterStewards.java    1.39 
+
+Differences in implementation from the UI Spec (Property Sheet section)
+=======================================================================
+            
+Reference spec: \\alexandria\home\ellen\UISpec - Official\3.31.98UISpec  pages 50-53    
+
+Note that this version of the spec already has some earlier
+specified functionality removed (e.g. Precise Positioning) and
+such removed functionality is not included in the differences
+listed here, which are only with respect to the 3/31/98 version
+of the spec.  
+
+Most unimplemented features in the spec appear now in italics. 
+
+The significance differences of the alpha release Property Sheets 
+from the spec (excluding those unimplemented features shown in
+italics in the spec AND differences from the list of object
+properties that begins on page 50) are:
+    
+    1) [page 50]: "the object's owner or anyone with edit 
+       capabilities"
+
+       [page 50]: "When the owner of an object opens a
+       property sheet, one of the items on the sheet lets
+       the owner decide whether all users can edit this
+       object" [thru end of paragraph].
+         
+    In alpha, the only way to get edit capabilities of
+    an object is to be the owner (=host) or be a client
+    whose avatar is holding a magic wand. There is no
+    item on the sheet to let the owner grant all users
+    the right to edit the object.    
+
+    2) [page 50]: "...then we may want to allow users
+    to select multiple objects in the inventory and
+    bring up a property sheet that displays all the
+    properties in common."
+
+    Not implemented in alpha.
+
+    3) [page 50]: "All property sheets show the label
+    and owner of the object."
+
+    In alpha, the owner is not shown on any property sheet.
+
+
+    4) [page 50]: "The owner and portal destination are
+    not editable". 
+
+    The portal destination (Web page property of portal)
+    is editable. Why is that a problem?
+
+    Note the owner property is not included in alpha.
+
+    5) [page 52]: "Each property has an implicit set of
+    reasonable values, and any other value should be
+    treated as invalid....If the user enters an invalid
+    value, as soon as that value is entered, the value
+    is reverted to the previous acceptable value, a
+    sound plays, and a footer appears briefly explaining
+    the problem...if the user has pressed the close box,
+    the window does not close so that the user has a    
+    chance to see the status message". 
+
+    Before remote modify was implemented, the property manager
+    implemented and tested support
+    for a specialized property sheet exception handling, 
+    so that property peers could alert the property manager
+    to invalid property values, which could then alert
+    the GUI. I believe John also implemented and tested
+    support for value reversion, the error footer, and
+    possibly even the sound. I don't know if he implemented
+    the close inhibition.
+
+    None of the alpha property peers however throw a property
+    sheet exception. Some may reject bad input values
+    but the property manager is not notified and hence the
+    GUI is not notified, so it does not revert to the
+    previous acceptable value.  
+
+    During the alpha remote modify implementation,
+    it was therefore assumed that no property sheet 
+    exceptions would be thrown. If a property peer
+    were changed so as to throw one and the inputter
+    was a remote modifier and there is no local property
+    sheet GUI active, in the current implementation
+    the property manager will get an NPE (null pointer
+    exception) because it assumes that the local property
+    sheet presenter is non-null and should receive the
+    exception information (rather than it being directed
+    to the remote presenter). A stop-gap is to dump
+    the exception if the local presenter is null. A correct
+    implementation would detect that the source of
+    the property input is remote, would have a callback,
+    and would notify the remote property manager which
+    could then notify its presenter.
+
+    6) [page 52,italicized section Shared Editing]: "Randy
+    points out that we need property sheet support for a remote
+    sysop".
+
+    A very simplified implementation of remote editing was
+    implemented for alpha. Randy designed it, I implemented
+    the property manager core changes, and Sidney added
+    a magic wand based security restriction. A key
+    aspect of the alpha implementation is that the Property
+    Sheet GUI properties and their values are gathered
+    from the client object but any user proposed updated entered
+    in the GUI  are sent to the host object's property manager.   
+    This approach simplified the implementation based on the
+    assumption that the client object would have local access 
+    to all properties that a remote sysop might wish to modify.
+
+Design [Rough notes]
+=====================    
+
+The key set of files related to the property manager are those 
+for:
+
+    1) the property ingredient
+
+    2) PropertySheet.java, which among other things
+    contains:
+
+        a) PSProperty, the principal class used to define
+    the property sheet property information passed between
+    the property peers, the property managers and the
+    property sheet presenters.
+
+        b) PropertySheetMessage. the class used to
+    pass property sheet information between the property
+    sheet managers and the property sheet presenters.
+
+The key decisions were:
+
+    1) follow the TradingMachine design 
+    by using a single PropertySheetMessage type for
+    inputs to the property managers (from the GUI and
+    from inworld events). 
+
+    2) follow the TradingMachine queuing 
+    scheme (ordering, serialization, blocking/unblocking).
+
+    As with the TradingMachine, only ordering of inputs
+    from any one GUI is guaranteed. Each GUI queues
+    its inputs, so depending on queue lengths a temporally
+    later input from one GUI could be processed by the
+    property manager after an earlier input at another
+    GUI (especially if the later GUI has a long queue).
+    On the other hand, processing time for GUI inputs
+    to be routed by the property manager and applied
+    by the appropriate property peer is relatively
+    small (as compared, for example, to TradingMachine
+    inputs), so queue lengths are typically short   
+    (in the TradingMachine it was possible for one trader
+    to queue 10 or more inputs easily).
+
+    Also, as with the TradingMachine, there is an internal
+    queue which contains at most one input from each active
+    GUI as well as one or more inworld inputs. There is 
+    no high priority mechanism for inworld inputs, so
+    it would be possible with many remote modifiers to
+    markedly delay the processing of inworld inputs [the
+    TradingMachine only had 2 GUI inputters so this problem
+    could not arise for it]. Currently remote modification
+    is available only to sysop's [actually to anyone who
+    knows how to create a wand and has a correct password],
+    so the lack of a high priority mechanism for inworld    
+    inputs is unlikely to be a problem. If, however,
+    remote modify is implemented for users given permission
+    by an owner, a high priority mechanism seems essential
+    so that, for example, all PropertySheets can be updated 
+    quickly when one inputs a valid change.    
+    
+
+    Note that with a high priority message mechanism
+    there would be no need for a queue of
+    each GUI's input (unless there was some concern
+    an one misbehaving inputter rapidly queueing up changes so
+    as to delay inputs from another GUI, but given the rate
+    at which inputs are currently processed that doesn't seem
+    like it would be a problem - testing might give better
+    evidence of whether a misbehaving inputter could queue
+    up a lot of inputs). 
+
+    A  simple way to give any internal messages a high
+    priority is to have a innermost queue that contains
+     2 queues, one of all external inputs
+    (and perhaps low priority internal inputs) and the
+    other for the high priority messages. 
+
+    3) the property peer interface design decisions are explained   
+    in more detail in the design note for property peers 
+    (src\www-int\engineering\design_notes\propertysheet_peer.txt).
+
+    Key elements include:
+
+        a) a filler facet given to the peer at the time 
+    it registers with the property ingredient: this filler 
+    facet holds an internal identifier used by the property 
+    ingredient to identify the peer).
+
+        b) instead of a callback object per property (compare
+    the verb peer callbacks) the use of an
+    interface implemented by the peer: this saves a class
+    per property of bloat.      
+
+        c) policies with clear peer responsibilities regarding 
+    cloneability, encodeability, ordering, and update propagation.
+    Currently property sheet messages from the GUI do not
+    contain a number that would indicate its order of submission
+    to the property manager (and the property manager does not
+    stamp them with such a number). However, that would be
+    useful so that the property manager or the GUI could 
+    detect out-of-order responses from a peer.   
+
+    4) remote modify: see #5 in the "Differences" section. 
+
+Property Manageer problems (things that are wrong as opposed 
+to things not implemented in the spec or things otherwise 
+desirable to add) 
+===============================================================
+
+1. The property manager can't handle a PSPropertyException
+from a peer in response to a propose if the GUI inputter is remote.
+This is not an immediate problem because no peers raise a 
+PSPropertyException except for internal (fatal) errors that probably
+will never occur except during development due to a serious
+mistake in the property manager.
+
+2. Even though it is permissible to have multiple PropertySheet GUI's
+active for a single object (e.g. a local one and/or one or more 
+remote one's), if one sheet submits a valid change any other active
+sheets are not updated with that value.   
+
+Property Peer problems (propably a partial list, a simple
+inspection of all property peers and their property-oriented
+methods is called for and this list does not intend to
+replace such an inspection but rather to indicate its need.
+As a start, such an inspection should be an easier way to
+find flaws in peer implementations than testing).
+==================================================
+
+1. Peers are not using the report method to notify the
+property manager of in world changes to the state associated
+with properties: sheets may go stale.
+
+2. Most peers are not propagating updates to clients of clients.
+Compositable is, Containership may be, all others do not.
+
+3. Some peers are not propogating at all (e.g. RegionBehavior) or
+are not propagating all properties.  

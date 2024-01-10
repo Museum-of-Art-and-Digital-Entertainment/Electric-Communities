@@ -1,0 +1,262 @@
+<HTML>
+<HEAD>
+    <TITLE>The Entry And Exit Pad Ingredients</TITLE>
+</HEAD>
+<BODY>
+<H1>The Entry And Exit Pad Ingredients</H1>
+
+<h1>Introduction</h1>
+
+This design note explains the entry and exit pad ingredients used to
+implement portals and teleport pads in Microcosm.  It describes the
+design as it was at the time of the PCForum demo, in late March '97.
+
+<h1>Overview</h1>
+
+Entry and exit pads are the basic units from which portals and
+teleport pads are built. An entry pad is a particular entrance to a
+region. It knows where an avatar should appear when it uses that
+entrance and also knows any animations and further movements the avatar
+should make upon entering. An exit pad is a particular exit from a
+region; it knows where an avatar should move in order to use the exit,
+what animation the avatar should make upon leaving and what transition
+(e.g. fade, scroll) should be used. An exit pad also points at an
+entry pad which the departing avatar uses to enter a new region. 
+
+<p>
+
+Note that nearly all the information in entry pads and exit pads is local
+to the region that contains them. The only exception is an exit pad's
+pointer to the remote entry pad.
+
+<p>
+
+A portal is usually made up of two exit pads and two entry pads. Suppose
+we had two regions, A and B, connected by a doorway. Region A would contain
+half of the portal, i.e. one entry pad and one exit pad. The entry pad
+would know the location of the doorway and would know the animation (e.g.
+closing the door) to be made on entering by that doorway. The exit pad
+would also know the location of the doorway and would also know the
+exiting animation (opening the door) and transition (doorway transition).
+The exit pad would point to the corresponding entry pad in the other
+half of the portal, in region B.
+
+<p>
+
+A teleport pad is a very thin layer on an entry pad. It knows how
+to add an avatar to a region at a particular location and how to do
+the "teleport transition" i.e. fading in the region and fading in
+the avatar.
+
+<p>
+
+Note that the exit and entry animations (including teleport fading) are
+not hooked up yet.
+
+
+<h1>Exit Pad Ingredient</h1>
+
+The exit pad ingredient can act as either a client or a server. Client
+exit pads are not as dumb as most clients; they do a lot of the
+work. The job of the server is to maintain unum references to the
+enclosing region and to the destination entry pad; clients should only
+get these references when they need them (you don't want to get
+presences of the region and destination entry pad just because you
+have a client presence of an exit pad).
+
+<p>
+
+An exit pad contains the following information:
+<ul>
+<li>Enclosing region (server only)
+<li>Destination entry pad (server only)
+<li>Exit animation
+<li>Exit failure animation
+<li>Exit location
+<li>Exit transition
+</ul>
+
+The destination entry pad can be held as either a live reference
+or an EARL.
+
+The exit pad has one method:
+
+<p><code>
+  uExit()
+</code><p>
+
+This method takes no arguments at the moment; it operates on the
+"current user session" which is held in global state. This is, of
+course, wrong.  <code>uExit()</code> should be given a parameter which
+is a capability to the user session (probably not a capability to the
+avatar as exit pads should still work if you're a observer). This
+capability should give the exit pad just what it needs to do its job -
+i.e. the ability to move and animate the avatar (if not in observer
+mode) and the ability to transfer the avatar to a new region.
+
+<p>
+
+<code>uExit</code> first moves the avatar to the exit location (and it
+should, at this point play the exit animation). Then it gets the
+destination entry pad and enclosing region from the server (it uses
+channels, so this is done optimistically). Then it calls
+<code>uEnter</code> on the destination entry pad, handing in the
+current enclosing region and the region transition (more on
+<code>uEnter</code> later).
+
+<p>
+
+If all goes well the exit pad's job is now done. If <code>uEnter</code>
+throws an exception, however, the transfer to the new region must have
+failed. In this case the exit pad catches the exception and plays the
+failure animation (well it would if it did any animating!). So, for
+example, the avatar might close a door after failing to exit. The
+user also needs more feedback about what failed. Currently the exit
+pad rethrows some exceptions, assuming the caller will tell the user
+what happened.
+
+<h1>Entry Pad Ingredient</h1>
+
+Like the exit pad, the entry pad ingredient can act as either client
+or server. And, also like the exit pad, the main difference between
+client and server is that the server maintains extra unum references
+that should only be given to clients when needed.
+
+<p>
+
+An entry pad contains the following information:
+<ul>
+<li>Enclosing region (server only)
+<li>Initial entry location
+<li>Entry animation
+<li>Final entry location
+</ul>
+
+<p>
+
+The entry pad has one unum level operation:
+
+<p><code>
+    uEnter(kind uskRegion oldRegion, RegionTransition transition);
+</code><p>
+
+This method is often called from an exit pad, as described in the
+exit pad section.
+
+<p>
+
+Like <code>uExit</code>, <code>uEnter</code> has an implicit argument - the
+current user session, which is to be moved from the <code>oldRegion</code>
+to the entry pad's region, using the given <code>transition</code>. Again
+the user session is currently accessed via globals, which is horrible. It
+should be accessed via a capability to the user session.
+
+<p>
+
+<code>uEnter</code> first gets the destination region from the server
+(remember the clients don't keep this reference, to avoid presences
+spreading where they're not needed). Unfortunately <code>uEnter</code>
+currently uses an <code>ewhen</code> to do this; it can't use a channel
+because of some coercions that happen in the container code (this will
+be fixed soon). Once it has the destination region <code>uEnter</code>
+constructs the composition envelope which will put the avatar at the
+correct initial entry position, then it calls TOSTransferUnum to
+actually do the transfer (the composition envelope is an argument
+to TOSTransferUnum).
+
+<p>
+
+If the transfer succeeds <code>uEnter</code> calls
+<code>uLocalSetRootCompositor</code> on the destination region, thus
+making it the current region. It also plays the entry animation (or
+would if animations were hooked up!) and moves the avatar to the final
+entry position, if non null. <code>uEnter</code> also does a couple of
+other nasty things at the moment: it updates a global "current region"
+variable and it calls the "demo realm" code to check if the avatar has
+entered a new realm.
+
+<p>
+
+If the transfer fails <code>uEnter</code> doesn't catch the resulting
+exception; it relies on its caller to do the appropriate cleanup.
+
+<h1>Teleport Pad Ingredient</h1>
+
+The teleport pad is a very simple ingredient, which relies on a neighboring
+entry pad ingredient to do all the hard work.
+
+<p>
+
+It has one operation:
+
+<p><code>
+    uTeleport();
+</code><p>
+
+which then calls <code>uEnter</code> on the neighboring entry pad, handing
+in the current region (a global!) and the teleport transition.
+
+<p>
+
+There are currently two teleport pad unums - TeleportPad and TeleportPadLite.
+TeleportPad was built as a Prop. Unfortunately Prop uses the Containable
+ingredient which, by default, drags in its enclosing container (usually
+a region) and all its contents. This meant that getting a client presence
+of a TeleportPad dragged in the entire enclosing region. TeleportPadLite
+is a simpler unum which just contains a teleport pad and entry pad, thus
+avoiding the "dragging in the world" problem.
+
+<h1>Entry, Exit And Teleport Pad Problems</h1>
+
+<ul>
+<li>The reliance on globals is clearly wrong. I think we need some way
+to pass in a capability to the user session (do other people think
+that's right?). One problem with this is that when a user clicks on
+a portal this results in a message straight to the portal's UI ingredient.
+Once you're in the portal's UI ingredient, how can you get a capability
+to the user session? Maybe the avatar gave it to the enclosing region
+when it entered?
+
+<li>Teleport pad is built on a normal entry pad. This may be a problem
+in the future because teleport pads and entry pads need slightly
+different capabilities. The entry pad needs to animate the avatar,
+while the teleport pad needs to fade in and fade out the avatar. We
+could have one capability that does both or we could split them out
+(in which case we might need to split entry pad into a "core entry
+pad" used in both cases and separate "teleport pad" and "entry pad"
+ingredients that build on the core).
+
+<li>We need to get rid of the current region global variable. Maybe
+this is a valid part of a user session object though? If not how
+does the teleport pad know which region to teleport <b>from</b>?.
+
+<li>Entry and exit pads currently have unrestricted references to
+their enclosing region. They should really have references to
+special entry and exit capabilities for the region. Or maybe there
+should be no "exit region" capability? Should entering the new region
+implicitly remove you from the old one? This would solve the problem
+of how a teleport pad knows which region to remove the avatar from.
+
+<li>We need to decide whether the entry pad, exit pad or the caller of
+<code>uExit</code> displays errors to the user. I think the entry pad
+(or possibly the region entry capability?) should do it, so it can be
+done in one place.
+
+<li>The <code>uLocalSetRootCompositor</code> call should probably only
+be callable by the user session (its effect is to make the region
+that receives it the user session's current region). This would be
+easy if we were using a capability to the user session instead of
+global variables.
+
+<li>The demo realm code is bogus. But the entry pad, or more likely
+the region entry capability, is probably the right place to do realm
+and world tracking.
+
+</ul>
+
+<a href="index.html">Back to design notes index</a>
+<br>
+<a href="../index.html">Back to Microcosm engineering main page</a>
+
+</BODY>
+</HTML>

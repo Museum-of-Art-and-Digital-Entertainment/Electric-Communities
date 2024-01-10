@@ -1,0 +1,35 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>Ecatch as an ewhen</TITLE>
+<META NAME="Template" CONTENT="C:\Program Files\Microsoft Office\Templates\Web Pages\Web Page Wizard.wiz">
+</HEAD>
+<BODY TEXT="#000000" LINK="#0000ff" VLINK="#800080" BACKGROUND="Image1.gif">
+<DIR>
+
+<FONT FACE="Garamond"><P>Here is an example of the consequences of ecatch being an ewhen.</P>
+</FONT><PRE>
+<CODE>
+eclass Forwarder
+{
+  emethod transfer(String message, Receiver r)
+    {
+      EBoolean itDone;
+      etry
+        {
+          System.out.println("Forwarder transferring " + message);
+          r &lt;- receive(message, &amp;itDone);
+        }
+      ecatch (RtEException x)
+        {
+          System.out.println("Forwarder: I have caught an exception.");
+        }
+      loggingReceiver &lt;- log("All is OK: " + message);
+    }
+}
+</CODE>
+<FONT FACE="Garamond">It doesn't matter if Receiver r throws an exception, the logging message will always be sent to the loggingReceiver</FONT><FONT FACE="Arial">.
+</FONT></PRE></DIR>
+</BODY>
+</HTML>

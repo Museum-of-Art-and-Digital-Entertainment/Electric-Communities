@@ -1,0 +1,56 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>RealmandRegionUna</TITLE>
+<META NAME="Template" CONTENT="C:\PROGRAM FILES\MICROSOFT OFFICE\OFFICE\html.dot">
+</HEAD>
+<BODY LINK="#0000ff" VLINK="#800080">
+
+<I><H1>Cosm application support - Account Manager</H1>
+</I><B><P>Last updated:</B><I> [98/05/13 Masa]</I> </P>
+<I><P>Author(s) </I><A HREF="mailto:masa@communities.com">masa@communities.com</A></P>
+<I><P>Subsystem originally written by Dima Nasledov</P>
+</I><H2>Introduction</H2>
+<P>Account Manger is the user account manager window.  It is through the Account Manger that user starts, opens, and removes avatars from user's identity.</P>
+<H4>Related Documents</H4>
+<P>Cosm startup.</P>
+<P>Ingredient and unum factories. </P>
+<H2>Requirements</H2>
+<P>Requirements currently implemented:</P>
+<OL>
+
+<LI>GUI presenter for the login window.</LI>
+<LI>ELogin.</LI>
+<LI>PassphraseVerifier.</LI>
+<LI>MCAvatarDB</LI>
+<LI>Encripted avatar props</LI>
+<LI>ECApplication</LI>
+<LI>Netscape.application</LI></OL>
+
+<H2>Architecture</H2>
+<P><A HREF="realmregion.gif">&nbsp;</A><B>Current Architecture Overview</P>
+</B><P>Account Manager's architecture is quite simple, consisting of only one class and a handful of methods to manipulate the account manager window.</P>
+<H4>Proposed Architecture Overview</H4>
+<P>Same as above. This architecture is working fine currently. </P>
+<H4>&nbsp;</H4>
+<H4>Off the shelf alternatives</H4>
+<P>None.</P>
+<H4>Other Design Objectives, Constraints and Assumptions</H4>
+<OL>
+
+<LI>Allow user to change avatar name without affecting any other avatar information or status.</LI>
+<LI>Allow multiple selection.</LI></OL>
+
+<H2>Current implementation</H2>
+<P>AccountManager is the only class and contains, in addition to its constructor, methods to handle events, control the tab key behavior, manipulate the window and verify avatar encription.</P>
+<H4>Which directories on our tree does this subsystem cover?</H4>
+<P>The source for cosm1/ui/gui/login/crew/AccountManger.java</P>
+<H4>Examples</H4>
+<P>AccountManager is automatically invoked  when  starting ECHabitats. It allows user to create a new avatar, to open an existing avatar or to remove avatars. It behaves like any standard windows window.</P>
+<P>&nbsp;</P>
+<H4>Testing and Debugging</H4>
+<P>Being such a simple and small subsystem, its test has been straightforward and there are no known bugs.. </P>
+<P><A HREF="index.html">Back to Neocosm survey page</A></P>
+<P><A HREF="../index.html">Back to Microcosm engineering main page</A></P></BODY>
+</HTML>

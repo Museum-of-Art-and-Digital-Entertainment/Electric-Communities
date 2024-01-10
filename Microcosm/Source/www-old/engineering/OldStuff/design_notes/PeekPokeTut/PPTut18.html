@@ -1,0 +1,67 @@
+<!--NewPage-->
+<!-- Created by Masa Maeda on 05.14.97  -->
+<!-- Copyright 1997 Electric Communitites. -->
+<!-- All rights reserved worldwide.  -->
+<!-- Proprietary and confidential. -->
+<HTML>
+<HEAD>
+<pre><a href="PPTut17.html">Previous</a>        <a href="PPTutI.html">Index</a>  <a
+href="PPTut1.html">Home</a></pre>
+<TITLE>The PeekPoke Tutorial</TITLE>
+</HEAD>
+<BODY>
+<P><HR WIDTH="100%" SIZE=2></P>
+
+<B><P>Step 3. Modify <FONT FACE="Courier">RunMe</FONT> file </P></B>
+
+<P>The <FONT FACE="Courier">RunMe</FONT> file to generate the host and three clients
+is listed here. The difference between this file and the one for only one client lies
+in the client file generation code.</P>
+
+
+<P><HR WIDTH="80%" SIZE=2></P>
+<PRE>
+
+	#!/bin/sh
+	# -v
+	# java -debug ec.e.start.EBoot ec.pl.runtime.Agency Agent=ec.pl.examples.PeekPoke
+	LSERVER=gracie.communities.com:666
+	PID1=test1.$$
+	PID2=test2.$$
+	PID3=test3.$$
+	ZZZ="RegisterWith=$LSERVER SearchPath=$LSERVER"
+	set -x
+	java ec.e.start.EBoot ec.pl.runtime.Agency Agent=ec.pl.examples.PeekPoke 
+		PublisherId=$PID1 $ZZZ > output0 &amp
+	sleep 5
+	java ec.e.start.EBoot ec.pl.runtime.Agency Agent=ec.pl.examples.PeekPoke 
+		PublisherId=$PID2 $ZZZ url=e://$LSERVER/$PID1/DoPeekPoke > output1 &amp
+	sleep 5
+	java ec.e.start.EBoot ec.pl.runtime.Agency Agent=ec.pl.examples.PeekPoke 
+		PublisherId=$PID3 $ZZZ url=e://$LSERVER/$PID1/DoPeekPoke > output2 &amp
+	sleep 5
+	java ec.e.start.EBoot ec.pl.runtime.Agency Agent=ec.pl.examples.PeekPoke 
+		PublisherId=$PID4 $ZZZ url=e://$LSERVER/$PID1/DoPeekPoke > output3
+
+</PRE>
+
+<P><HR WIDTH="100%" SIZE=2></P>
+<pre><a href="PPTut17.html">Previous</a>        <a href="PPTutI.html">Index</a>  <a
+href="PPTut1.html">Home</a></pre>
+<P>
+For questions and comments, please contact <A HREF="mailto:masa@communities.com">Masa Maeda</A>
+</P>
+
+</HTML>
+
+
+
+
+
+
+
+
+
+
+
+

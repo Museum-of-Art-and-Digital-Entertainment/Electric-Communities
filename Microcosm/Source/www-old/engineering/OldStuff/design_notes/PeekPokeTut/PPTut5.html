@@ -1,0 +1,93 @@
+<!--NewPage-->
+<!-- Created by Masa Maeda on 05.14.97  -->
+<!-- Copyright 1997 Electric Communitites. -->
+<!-- All rights reserved worldwide.  -->
+<!-- Proprietary and confidential. -->
+<HTML>
+<HEAD>
+<pre>
+<a href="PPTut4.html">Previous</a>  <a
+href="PPTut6.html">Next</a>  <a
+href="PPTutI.html">Index</a>  <a
+href="PPTut1.html">Home</a></pre>
+<TITLE>The PeekPoke Tutorial</TITLE>
+</HEAD>
+<BODY>
+<P><HR WIDTH="100%" SIZE=2></P>
+<P>&nbsp;</P>
+<B><P>Step 2. Determine Presence Components</P>
+</B>
+<P>The structure for a host/client architecture requires two presence structures per
+unum kind. One is the client presence and the other one the host presence. As can be
+seen in Figure 2, there are two sets of Peekable and Pokeable presence kinds (pk),
+each one enclosed within a presence structure kind (psk), again one for the Host and
+one for the Client.</P>
+<P>&nbsp;</P>
+<P><HR WIDTH="80%" SIZE=2></P>
+<h2><IMG SRC="figure3.gif" WIDTH="520" HEIGHT="360" BORDER="1" HSPACE="40"></h2>
+<P ALIGN="CENTER">Figure 3.  PeekPokeAble unum structure.</P>
+<P><HR WIDTH="80%" SIZE=2></P>
+
+</FONT><P>The corresponding code is shown below. Presence kinds and presence structure
+kinds are also interfaces, like those for the unum.  The difference consists in that
+the presence kinds are utilized exclusively for communication with other
+presences.</P>
+
+<P><HR WIDTH="80%" SIZE=2></P>
+<PRE>
+	// ----- Create Presence structure kind -----
+	export kind pkHostPeekable {
+	  pHostPeek(String pokeMessage);
+	}
+	export kind pkHostPokeable {
+	  pHostPoke(String pokeMessage);
+	}
+	export kind pskHostPeekPokeAble {
+	  kind pkHostPeekable;
+	  kind pkHostPokeable;
+	}
+
+	export kind pkClientPeekable {
+	  pClientPeek(String pokeMessage);
+	}
+	export kind pkClientPokeable {
+	  pClientPoke(String pokeMessage);
+	}
+	export kind pskClientPeekablePokeable {
+	  kind pkClientPeekable;
+	  kind pkClientPokeable;
+	}
+</PRE>
+<P><HR WIDTH="80%" SIZE=2></P>
+
+</FONT><P>The motivation behind having a host and a client resides in that a client
+makes a request to the host and it is up to the host to actually attend such
+request.</P>
+</FONT><P>The code for both Peekable and Pokeable are integrated here for simplicity.
+It is not necessary to do so and the code for each of them could well be in a separate
+file.  In general, the organization presented here is the one recommended by EC since
+it is in accordance with EC's coding standards.</P>
+<P>&nbsp;</P>
+
+<P><HR WIDTH="100%" SIZE=2></P>
+<pre>
+<a href="PPTut4.html">Previous</a>  <a
+href="PPTut6.html">Next</a>  <a
+href="PPTutIdx.html">Index</a>  <a
+href="PPTut1.html">Home</a></pre>
+
+</HTML>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

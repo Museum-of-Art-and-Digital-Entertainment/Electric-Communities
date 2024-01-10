@@ -1,0 +1,317 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!--last modified on Tuesday, July 21, 1998 05:47 PM -->
+<HTML>
+
+<HEAD>
+<!--last modified on Wednesday, May 13, 1998 06:23 PM -->
+
+	<META NAME="GENERATOR" Content="Visual Page 1.0 for Windows">
+	<META NAME="Author" Content="Mark S. Miller">
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html;CHARSET=iso-8859-1">
+	<TITLE>Design Document Template</TITLE>
+</HEAD>
+
+<BODY>
+
+<H1 ALIGN="CENTER">E's Semantics:<BR>
+Asynchronous Optimistic Messaging<BR>
+for Distributed Secure Reliable O-O Programming</H1>
+<P><B>Last updated:</B><I> [July 10, 1998. </I><A HREF="mailto:markm@caplet.com"><I>MarkM</I></A><I>]</I> <BR>
+<I>Document authored by </I><A HREF="mailto:markm@caplet.com"><I>MarkM</I></A><I>.</I> <BR>
+<I>Original Subsystem (E) authored primarily by </I><A HREF="mailto:danfuzz@milk.com"><I>Danfuzz Bornstien</I></A><I>.</I><BR>
+<I>Current Subsystem (</I><A HREF="#javadocing"><I>ELib</I></A><I> and </I><A HREF="index.html"><I>E</I></A><I>)
+authored by </I><A HREF="mailto:markm@caplet.com"><I>MarkM</I></A><I>.</I></P>
+
+<P>See &quot;<A HREF="#javadocing">What Javadoc Does Who Need to Know?</A>&quot; below, to get started quickly.
+<H2>Introduction</H2>
+<P>Over time, programmers have become (in some ways) reasonably successful at organizing computation that occurs
+within a single machine. The necessary lessons cost generations of failed companies. For Electric Communities to
+succeed, we must become reasonably successful at organizing computation spread across a large number of machines,
+while securely serving the interests of a diverse set of parties. To succeed at this, we cannot afford to learn
+the necessary lessons from scratch -- these would likely be even more expensive than the uni-machine lessons. Nor
+can we simply leverage the lessons of previous distributed systems builders -- there are not yet adequate demonstrations
+of success. Instead, we must borrow lessons from uni-machine programming where appropriate.</P>
+<P>But only where appropriate! Distributed systems (such as CORBA and RMI) can also fail by overgeneralization
+from uni-machine programming practices. In certain ways, uni-machine and distributed systems are very similar.
+In other ways, they are very different. Our strategy for generalizing uni-machine programming paradigms must account
+for both their similarities and their differences.
+<H4>Related Documents</H4>
+<H5>Current issues</H5>
+<P>Some current issues with the design of New-E have their own pages explaining the design space and the potential
+solutions. <BR>
+Currently the only one is the <A HREF="ProxyTyping.html">proxy typing</A> discussion.
+<H5>Background reading</H5>
+<P>E derives from a long and diverse pedigree of languages and operating systems:
+<CENTER>
+<IMG SRC="pedigree.gif" WIDTH="473" HEIGHT="453" ALIGN="BOTTOM" BORDER="0"></CENTER>
+Those in blue (and connected by green links) are those that have a <I>capability-nature</I>, whether or not they
+were actually capability secure. Most important of E's ancestors is <A HREF="http://www.agorics.com/joule.html">Joule</A>.
+See also:</P>
+<P>Agorics' <A HREF="http://www.agorics.com/agorics/allkey.html">KeyKOS</A> pages, and Jonathan Shapiro's <A HREF="http://www.cis.upenn.edu/~KeyKOS/">KeyKOS</A>
+and <A HREF="http://www.cis.upenn.edu/~eros/">EROS</A> pages.</P>
+<P>Ken Kahn &amp; Mark Miller, &quot;<A HREF="http://www.agorics.com/agorics/agoricsPapers/aos/AOS.refs.html#iv"><I>Language
+Design and Open Systems</I></A>&quot; in <I>The Ecology of Computation</I>, ed Bernardo Huberman, North Holland,
+1988.</P>
+<P>&quot;<A HREF="http://www.communities.com/products/tools/e/e_white_paper.html">The E Extension to Java</A>&quot;
+(an EC white paper)</P>
+<P>&quot;<A HREF="http://www.communities.com/products/tools/techpapers/satan/index.html">Satan Comes to Dinner</A>&quot;
+(secure dining philosophers in E)</P>
+<P>Mark Stiegler's &quot;<A HREF="http://www.communities.com/company/papers/security/index.html">Intro to Capability
+Security</A>&quot;</P>
+<P>MarkM's &quot;<A HREF="http://crit.org/http://www.caplet.com/security/taxonomy/">Computer Security</A>&quot;
+pages (still in formation)</P>
+<P>Presentation on Mult-E to OnLive (<A HREF="../../papers/mult-e-talk/mult-e-talk.ppt">powerpoint</A> converted
+to <A HREF="../../papers/mult-e-talk/mult-e-talk/index.html">html</A>)</P>
+<P>&quot;A wise man even learns from the mistakes of others&quot; <I>--seen on a fortune cookie.</I>
+<H2>Requirements (or Strong Preferences)</H2>
+<P>Smooth integration between the local/sequential and distributed worlds.
+
+<UL>
+	<LI>Abstraction power of Object Orientation in both worlds.
+	<LI>Capability Security Paradigm integrated across both worlds.
+	<LI>Concurrency control amenable to maintaining the invariants of mutable objects under all conditions.
+</UL>
+
+<P>Powerful and simple programming paradigm for organizing distributed computation, that accomodates the properties
+of distributed systems.
+
+<UL>
+	<LI>Partial Failure
+	<LI>Inherent Asynchrony
+	<LI>Long Latencies
+	<LI>&quot;<A HREF="http://crit.org/http://www.caplet.com/security/taxonomy/">Cooperation without Vulnerability</A>&quot;
+	without a shared TCB (Trusted Computer Base).
+	<LI>Objects that outlive program versions (and hence may need to be upgraded)
+	<LI>Co-existence of diverse versions of the participating programs
+</UL>
+
+<P>Single address space test: Programs built correctly for the distributed case work correctly in the local case.</P>
+<P>Requirements (or strong preferences) not met by the current E system:
+
+<UL>
+	<LI>E itself provides no support for upgrade, and arguably shouldn't. This is provided instead by state bundles.
+	<LI>E does not currently support version co-existence.
+	<LI>Provision of the above by a library within a standard language (eg, Java) without
+	<UL>
+		<LI>bloat (unreasonable expansion from the code as written by the programmer to the code that runs)
+		<LI>preprocessors
+		<LI>post-processors
+		<LI>funky classloaders
+		<LI>or anything else that would inhibit straightforward use of stock programming environments and debuggers.
+	</UL>
+</UL>
+
+<H2>Architecture</H2>
+<H4>Starting Uni-Machine Programming Paradigms:</H4>
+<P>
+<TABLE BORDER="1">
+	<TR>
+		<TD>Abstraction mechanisms</TD>
+		<TD>Object-oriented programming</TD>
+		<TD>As in Smalltalk</TD>
+	</TR>
+	<TR>
+		<TD>Security</TD>
+		<TD><A HREF="http://www.communities.com/company/papers/security/index.html">Capability</A> patterns</TD>
+		<TD>As in <A HREF="http://www.agorics.com/agorics/allkey.html">KeyKOS</A></TD>
+	</TR>
+	<TR>
+		<TD>Concurrency</TD>
+		<TD>Actors/Event-loop programming</TD>
+		<TD>As in <A HREF="http://www.agorics.com/joule.html">Joule</A></TD>
+	</TR>
+</TABLE>
+Relevant Differences of Distributed Computation: 
+<TABLE BORDER="1">
+	<TR>
+		<TD>Partial Failure</TD>
+		<TD>&quot;Quake&quot; model of failures <BR>
+			Sturdy vs Fragile References</TD>
+	</TR>
+	<TR>
+		<TD>Inherently Asynchronous</TD>
+		<TD>One-way Messages</TD>
+	</TR>
+	<TR>
+		<TD>Long Latencies</TD>
+		<TD>Non-blocking event loop <BR>
+			Optimistic References <BR>
+			Pipelined Requests</TD>
+	</TR>
+	<TR>
+		<TD>No Universal TCB</TD>
+		<TD>Object/Machine Trust Equivalence</TD>
+	</TR>
+	<TR>
+		<TD>Objects outlive versions</TD>
+		<TD>State Bundles (outside E)</TD>
+	</TR>
+	<TR>
+		<TD>Comm Co-existence</TD>
+		<TD>Not currently supported</TD>
+	</TR>
+</TABLE>
+<IMG SRC="dist-msg.gif" WIDTH="768" HEIGHT="576" ALIGN="BOTTOM" ALT="Dynamic Distributed Reference Graph" BORDER="0">
+<H4>Current Architecture Overview</H4>
+<P><I>The introduction set the scene; this section gives the key properties of the current design. It may mention
+classes and some important interfaces but it doesn't go into details. Someone should be able to read just the overviews
+of our design documents and get a good understanding of how the system works and fits together, without knowing
+the full details.</I> <I>Also include any insights gained from experience like design bugs or expense discovered
+in usage.</I>
+<H4>Proposed Architecture Overview</H4>
+<P>These need to be turned into real illustrations surrounded by a real explanation</P>
+<CENTER>
+<P><IMG SRC="elib-1.gif" WIDTH="600" HEIGHT="765" ALIGN="BOTTOM" BORDER="0"></P>
+
+<P>
+<HR ALIGN="CENTER">
+<IMG SRC="elib-2.gif" WIDTH="600" HEIGHT="765" ALIGN="BOTTOM" BORDER="0"></P>
+
+<P>
+<HR ALIGN="CENTER">
+<IMG SRC="elib-3.gif" WIDTH="600" HEIGHT="765" ALIGN="BOTTOM" BORDER="0"></P>
+
+<P>
+<HR ALIGN="CENTER">
+<IMG SRC="elib-4.gif" WIDTH="600" HEIGHT="765" ALIGN="BOTTOM" BORDER="0"></P>
+
+<P>
+<HR ALIGN="CENTER">
+<IMG SRC="elib-5.gif" WIDTH="600" HEIGHT="765" ALIGN="BOTTOM" BORDER="0"></P>
+
+<P>
+<HR ALIGN="CENTER">
+<IMG SRC="elib-6.gif" WIDTH="599" HEIGHT="765" ALIGN="BOTTOM" BORDER="0"></P>
+
+<P>
+<HR ALIGN="CENTER">
+<IMG SRC="elib-7.gif" WIDTH="599" HEIGHT="765" ALIGN="BOTTOM" BORDER="0"></P>
+
+<P>
+<HR ALIGN="CENTER">
+<IMG SRC="elib-8.gif" WIDTH="617" HEIGHT="788" ALIGN="BOTTOM" BORDER="0">
+</CENTER>
+<H4>Off the shelf alternatives</H4>
+<P><I>Any notes about potential off the shelf technologies that could be used, and their trade-offs.</I>
+<H4>Other Design Objectives, Constraints and Assumptions</H4>
+<P><I>Lists any special objectives and assumptions of the code e.g. reusability, thread safety, security, performance,
+use of resources, compatibility with existing code etc. This section gives important context for reviewers</I>
+<H2>Current implementation</H2>
+<H4>Which directories on our tree does this subsystem cover?</H4>
+<P>Currently, ec5/src/javasrc/ec/elib/*. It uses ec5/src/javasrc/ec/{util, util/assertion, trace, tables}. It is
+used at least by ec5/src/javasrc/ec/e/*.<A NAME="javadocing"></A></P>
+<H4>What Javadoc Does Who Need to Know?</H4>
+
+
+<BLOCKQUOTE>
+	<P>Note: the following links point at javadoc generated from ec4, since that is currently the only javadoc-umentation
+	of interface (as opposed to implementation) that we have. Once we have interface javadoc-umentation of ec5, I'll
+	edit the links accordingly. As of this writing, the ec4 javadocs are not yet too stale to be useful.</P>
+
+</BLOCKQUOTE>
+
+<P>All of ELib is javadoc'ed, but for the ELib user most of this is irrelevant internal detail. The normal ELib
+application programmer should only need to use the methods found in <A HREF="../../API_doc/ec4/ec.ezlib.prim.E.html">E</A>,
+the <A HREF="../../API_doc/ec4/ec.ezlib.prim.Promise.html#Promise(java.lang.Class)">constructors</A> and <A HREF="../../API_doc/ec4/ec.ezlib.prim.Promise.html#takeResolver()">takeResolver</A>
+method of Promise, and the methods found in <A HREF="../../API_doc/ec4/ec.ezlib.prim.Resolver.html">Resolver</A>.</P>
+<P>Intermediate between ELib implementer and ELib application programmer is the ELib framework creator -- using
+the ELib constructs to create new forms of message plumbing. In the E language, the abstraction provided for this
+purpose was the Deflector. In ELib, one instead defines new implementors of <A HREF="../../API_doc/ec4/ec.ezlib.base.Callable.html">Callable</A>
+(for intercepting synchronous calls) or <A HREF="../../API_doc/ec4/ec.ezlib.prim.Sendable.html">Sendable</A> (for
+intercepting asynchronous and synchronous calls). For example, A <I>Proxy</I> would be a kind of Sendable, since
+it needs to intercept asynchronous calls, whereas a vat-to-crew or crew-to-vat <I>Tether</I> may be a Callable,
+if it only needs to intercept synchronous calls.</P>
+<P>If one wished to create multiple runQ's (need link to issues), one would also need to use the class <A HREF="../../API_doc/ec4/ec.ezlib.prim.Runner.html">Runner</A>.
+Programs not trying to do this should simply begin with:</P>
+<PRE>        Runner.setDefaultRunner(new Runner());</PRE>
+<P>
+<H4>Examples, Testing and Debugging</H4>
+<P>ELib is currently tested by two pieces of code: <A HREF="../../API_doc/ec4/ec.ezlib.prim.tests.ERunDemo.html">ERunDemo</A>
+is a trivial test/example that demostrates event-loop concurrency and Promise-based optimism. <A HREF="http:index.html">E</A>
+is a programming language, usable as a test harness to test/exercise/debug all of ELib as well as programs built
+using ELib. (As you might guess from the names, ELib was originally built to be the runtime library for E.)<A NAME="bugs"></A></P>
+<H2>Known Bugs &amp; Deficiencies</H2>
+<P><I>E.whenKept()</I> and <I>E.whenBroken()</I> are not yet implemented.</P>
+<P><A HREF="../../API_doc/ec4/ec.ezlib.prim.tests.ERunDemo.html">ERunDemo</A> demonstrates and documents a mysterious
+(but repeatable!) concurrency control bug that doesn't occur under the debugger. This is high priority.</P>
+<P>The coverage testing hooks in ec.elib.prim.JavaMemberNode provide access to global static state, and so provide
+a covert channel. This needs to be guarded by a capability which can be given out only to authorized testing code.</P>
+<P>ELib to Java Binding Issues:
+
+<UL>
+	<LI>Only arguments are coerced to the parameter type. We should also coerce the receiver to the receiver type.
+	(in ec.elib.prim.JavaMemberNode.execute())
+	<P>
+	<LI>ec.elib.prim.JavaMemberNode.coerce() is a hacky bunch of special cases that grew as needed, rather than a principled
+	framework. Such a principled framework has yet to be designed.
+	<P>
+	<UL>
+		<LI>Deflectors of public java interfaces should eventually be generated and loaded on the fly, driven by attempting
+		to load a mangling of the original interface name.
+		<P>
+	</UL>
+	<LI>ec.elib.prim.ScriptMaker currently presents <I>all</I> public java methods and fields of <I>all</I> public
+	java classes, modulo 1) In overloading, only name and arity are significant. and 2) A sugaring mechanism whereby
+	various sugaring classes (ec.elib.base.*Sugar and ec.elib.prim.ObjectSugar) add or override instance methods of
+	the corresponding java classes. Deficiencies in this mechanism:
+	<P>
+	<UL>
+		<LI>When more than one java method of the same name has the same arity, an arbitrary one wins. This is unacceptably
+		stupid. Rather, that name-arity should be ruined for that object (bound to a method that throws), and methods with
+		each of the full signatures as names should be defined instead. <B><I>Partially done:</I> </B>Methods we also register
+		the methods under mangled names using the parameter-type signature.
+		<P>
+		<LI>I'm not sure whether a non-sugar instance method on a subclass can override a sugar method associated with
+		a superclass. This is needed for the ambassador pattern.
+		<P>
+		<LI>For production use, methods should be exported explicitly, and hidden by default. The exported methods should
+		all be audited for security.
+		<P>
+		<LI>For debugging use, where methods are exported by default (as in the current implementation) one must be able
+		to explicitly prevent certain methods from being exported (such as java.lang.Object.wait()).
+		<P>
+		<LI>The binding between a class and its sugaring class is currently by initialize-time registration in ec.elib.prim.ScriptMaker.
+		It should instead be by class discovery of a mangling of the original class's name.
+		<P>
+		<LI>Inheritance of multiple sugaring (for which there are no known cases) just picks the sugaring of an arbitrary
+		supertype, rather than doing the right thing. What &quot;the right thing&quot; is here has yet to be specified.
+		<P>
+		<LI>There is currently no way to sugar a static method.
+		<P>
+		<LI>JavaMemberNodes are currently recreated rather than inherited, leading to wasted space, and making the ELib
+		coverage recorder much less useful.
+		<P>
+		<LI>Each array type gets its own vtable with its own JavaMemberNodes, when they should instead be shared, similarly
+		wasting space and making coverage stats less meaningful.
+		<P>
+	</UL>
+	<LI>ELib needs a protocol-inquiry meta-protocol so that, for example, an object can be registered as listening
+	only for those events it can respond to. (thanks for this requirement go to Tony Grant and Bill Frantz) E would
+	also benefit from this addition.
+</UL>
+
+<H2>Design Issues</H2>
+<H4>Resolved Issues</H4>
+
+<UL>
+	<LI>Methods are registered under both their unmangled and their mangled names.  See <A HREF="ejbind.html">The E-to-Java
+	Binding Spec</A>.
+	<LI>If <I>p</I> is a broken reference, should <I>E.resolution(p)</I> throw a NestedException containing the problem,
+	or should it return <I>p</I>? Either answer is semantically plausible, so it would be good to know which is more
+	convenient. But this needs to get pinned down <I>soon</I>!
+	<UL>
+		<LI>Done. If <I>p</I> is broken, E.resolution(p) returns p. Turns out to be much more convenient.
+	</UL>
+</UL>
+
+<H4>Open Issues</H4>
+
+<UL>
+	<LI><A HREF="http:ProxyTyping.html">Proxy typing</A>
+	<LI>Are optimistic return results good? (placeholder for link to possible document by Arturo)
+</UL>
+
+
+</BODY>
+
+</HTML>

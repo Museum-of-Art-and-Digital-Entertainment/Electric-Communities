@@ -1,0 +1,1 @@
+d:\jdk1.2beta\bin\javadoc -doclet SrcDoclet -private -nodeprecated -author -header "DObjects API" -sourcepath d:\projects;d:\jdk1.2beta\lib\classes.zip -d ..\docs -relativepath ../.. dom.id dom.tests dom.net dom.container dom.serial dom.session dom.util

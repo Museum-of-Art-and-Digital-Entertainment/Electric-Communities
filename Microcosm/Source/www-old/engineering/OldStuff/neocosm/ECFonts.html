@@ -1,0 +1,333 @@
+</HTML>
+<H1>
+<I>Title of Document - Name of Subsystem</I></H1>
+<B>Last updated:</B><I> [98/05/26 <A HREF="mailto:walendo@communities.com">walendo</A>]</I> <I></I>
+</BR></BR>
+
+<A HREF="mailto:walendo@communities.com">Walendo</A> is the author of most 
+of this stuff, though 
+<A HREF="mailto:claire@communities.com">Claire</A> is also pretty familiar
+with the API to it. If Walendo isn't around anymore, you can ping him at
+<A HREF="mailto:walendo@bitsmith.com">his home email address</A>.
+
+
+<H2>
+Introduction</H2>
+ECFonts is the code that is used to create the text that appears in-world -
+text-balloons, labels, and hints. There are two parts to it: The Java API,
+and the underlying native code that actually generates the bitmaps that get
+passed into the renderer. 
+
+
+<H4>
+Related Documents</H4>
+None.
+<H2>
+Requirements</H2>
+
+The ECFonts subsystem (called 'FastFonts' at cosm startup) was created
+to address the need for text balloons, and custom text in-world. Although 
+plain Java text could be used, AWT's text support is very primitive and 
+there's no mechanism for 'balloons'. Our text also has some further
+customization like outlines around the letters and and so on. <p>
+
+
+A functionally equivalent replacement font subsystem would have to: <br><br>
+<ul>
+<li> Handle multiple fonts. We use, at least, plain and italic Verdana.
+<li> Handle arbitrary width word wrapping. </li>
+<li> Be able to outline the text. We use a 2 pixel wide outline.</li>
+<li> Allow the foreground and the outline colors of the text to be specified.</li>
+<li> Be able to generate the 6 balloon styles: Speak, Think, Shazam,
+     Square, Sing, and Octagon.
+     </li>
+<li> Allow the foreground and background colors of the balloon to be 
+     specified. </li>
+<li> Be able to underline arbitrary pieces of a string. </li>
+<li> Be able to generate text balloons quickly enough to keep up with a 
+     fast typist.</li>
+<li> Not leak memory. :-) </li>
+<li> Create TexturedObjects (eg. WidgetPolygons) suitable for use with 
+     the renderer. </li>
+</ul>
+
+
+<H2>
+Architecture</H2>
+
+
+<H4> Current Architecture Overview</H4>
+As I mentioned earlier, there are two main parts to the ECFonts stuff:
+The API, and the underlying native code where most of the work is done. <p>
+
+The API portion is responsible for calling into the native code
+(which allocs native memory) to create bitmaps, generating Textures and 
+WidgetPolygons you'd probably want to create a WidgetPolygon or other 
+TexturedObject suitable for passing into the renderer so it can be 
+displayed on the screen. To create the WidgetPolygon, you'd call
+ECText.getPoly(), and the result will be a WidgetPolygon with the 
+bitmap of your text string applied to it.
+
+
+<H4>
+Proposed Architecture Overview</H4>
+<I>This section is not urgent for the first version of this document, you
+should capture what direction you feel this subsystem ought to take. As
+we start addressing specific systems this section will grow into the core
+of the design document.</I>
+<H4>
+Off the shelf alternatives</H4>
+If we're looking for the same look, there are no off-the-shelf alternatives.
+However, if we're just looking for some way to get text in-world, we could
+use whatever built in text support Java (or AWT, or JFC, or...) has - though
+there would be some need to convert things to bitmaps, etc. <p>
+
+
+<H4>
+Other Design Objectives, Constraints and Assumptions</H4>
+<ul>
+<li>The code needs to be fast. A new text balloon (2 bitmaps leading to
+    2 textures and 2 polygons) is created for every new character in
+    a string when a user is typing. Any delay here is very noticeable.
+<li>The code shouldn't eat much memory, for overall footprint reasons.
+<li>We need to be able to handle, or at least not preclude handling,
+    UniCode fonts for localization purposes.
+</ul>
+
+<H2>
+Current implementation</H2>
+
+To use ECFonts, you need to know about the following Java classes: <p>
+
+<table border>
+ <tr>
+ <td>ECFont</td>
+ <td>One of our supported fonts. When you create one of these, you pass
+     in the name of the font you want (eg. "verdana13") to the constructor.
+     If that font is available, the returned ECFont object will represent
+     it. If that font isn't available, the returned ECFont object will
+     represent the default font (which happens to be "verdana13").
+     </td>
+ </tr>
+ <tr>
+ <td>ECText</td>
+ <td>A single text string. Text can be outlined, colored, underlined, or
+     have different fonts (these attributes are specified via arcane
+     control characters embedded in the string itself). Once the ECText
+     object is created, you can call getTexture() to create and return a 
+     Texture object (created from the bitmap of the string) or getPoly()
+     to get create and return a WidgetPolygon textured with the bitmap
+     of the string.
+     
+ </tr>
+ <tr>
+ <td>TextBalloonStyle</td>
+ <td>A static class containing handles to the 6 available balloon styles:
+     Speak, Think, Shazam, Square, Sing, and Octagon. You reference
+     the styles via the static class, as in "TextBalloonStyle.singTBS()".
+     
+ </tr>
+ <tr>
+ <td>TextBalloon</td>
+ <td>A "balloon" of text, created using a specified TextBalloonStyle,
+     a specified string, and a specified ECFont or array of ECFonts.
+     As with an ECText object, you can call getPolys() or getTextures()
+     to create and return objects suitable for passing to the renderer.
+     A given TextBalloon will have either 2 or 4 polygons/textures,
+     depending on whether quips were specified. Un-quipped TextBalloons
+     return a translucent background balloon and an opaque foreground
+     balloon. Quipped TextBalloons return two of those pairs, one with
+     quips and one without.
+ </td>
+ </tr>
+</table>
+
+<br>
+The native code handles the grunt work - tasks like the laying out of
+text, computing sizes of strings, handling word wrap, underlining,
+copying bitmaps, drawing the borders of balloons. All of that is done
+natively for speed. <p>
+The available fonts are also represented in native code. Again, for
+speed reasons, we pre-process (once per font) a given TrueType font
+into a format that we can use quickly at runtime. There is a standalone
+utility (FontGenerator, a horrible hack) that lets you choose any
+TrueType font installed on your system, pick a size and style, and 
+create our proprietary intermediate format. This format takes the 
+form of static C data structures (representing 1-bit bitmaps of the 
+glyphs) and is written out into a C source file. Look at any of the
+ECnFontXXXNN.c files, which were generated by this tool. (internally,
+all this tool does is walk the font, rendering each glyph into a 1-bit
+bitmap, and then writes that bitmap into a C byte array as static 
+initializer data). FontGenerator only needs to be run when you want
+to add another font to the system.  The generated source file is 
+then checked into CVS, and Bob's your uncle.
+<p>
+Currently, our supported fonts are as follows. Look in FFLayout.cpp
+to see how they're enabled (and how to add another one).
+<pre>
+    "Verdana13"        small verdana (the default)
+    "Verdana14"        slightly bigger verdana
+    "Verdana16"        large verdana
+    "VerdanaItalic14"  small italic verdana
+    "VerdanaItalic16"  large italic verdana
+    "GLYPH17"          our special font, containing our icons
+    "GLYPH19"          large special font, containing our icons
+</pre>
+
+Let's say you're trying to create a text balloon. The overall path
+would go something like this:
+<pre>
+    You'd create a new TextBalloon, passing it a font, a string, maybe
+    a width, maybe some flags telling it not to make quips, and the
+    colors it should use. There are multiple constructors available,
+    see TextBalloon.java for details.
+    
+    TextBalloon myBalloon = 
+       new TextBalloon(new ECFont("Verdana13"),
+                       "This is a sample string.",
+                       TextBalloonStyle.singTBS(), // make a sing balloon
+                       TextBalloon.TB_NO_QUIPS,    // with no quips
+                       400,                        // 400 pixels wide
+                       Color.white,                // white text
+                       Color.black,                // with black outline
+                       Color.red,                  // on red bordered balloon
+                       Color.blue                  // with a blue background
+                       );
+
+    At this point, you'd have a TextBalloon object. This doesn't really
+    help you if you want to display it on the screen. To do that, you'd
+    need a Texture that you could apply to a Polygon, or even just a 
+    pre-textured Polygon. Fortunately for you, the TextBalloon object
+    can create them for you!
+
+    Note that at this time, very little actual work has been done. For
+    the most part, the TextBalloon object has just done some sanity
+    checking and kept track of your specification but has not done any 
+    actual layout. Thus, creating TextBalloon objects is pretty cheap.
+
+    So, to get a WidgetPolygon suitable for handing to the renderer,
+    you simply call getPolygons():
+
+    WidgetPolygons myPolys = myBalloon.getPolys();
+
+    At this point, a lot happens. TextBalloon drops down into native
+    code, where it goes about walking the text string looking for
+    control characters and so on. It computes how big a bitmap it'll
+    need to lay the string out, malloc's the bitmap, and proceeds to
+    lay the string out. During the layout, it handles word wrapping,
+    underlining, switching of fonts, etc. Once the initial layout is
+    done, it has to outline the text. To do this, it walks each byte
+    in the text bitmap it just created, and figures out where to
+    draw so the outline comes out. 
+
+    At this point, it's got a bitmap of outlined text. If you had
+    created just an ECText object, it would stop here. But, since
+    you're making a balloon, it needs to do some more work.
+
+    First, it looks up the balloon style you handed in. Then it looks
+    at the size of the text bitmap it just created, and figures out
+    how big a balloon it'll need to make to go around the text bitmap.
+    It malloc's that, and proceeds to draw the balloon.  The balloon
+    styles are similar to the fonts in that their specified as static
+    stipples. The code that draws the balloon bitmaps knows how to 
+    create a balloon of any size (modulo stipple size), and also
+    knows how to add quips. 
+
+    There are at least two bitmaps created per balloon. Four, if 
+    quips were also requested. The reason for the multiple bitmaps
+    is that the balloon background is translucent. The renderer
+    doesn't know how to mix translucency and opacity in one texture,
+    so we create two textures. At render time (usually in the Dynamics
+    Engine or in Claire's BalloonKeyHandler), the opaque balloon is
+    drawn on top of the translucent balloon, giving the impresssion 
+    of one balloon with a solid border around a translucent background.
+    When quips are requested, two more bitmaps are created for the same
+    reason - except that they have quips.
+
+    So, the native code finishes creating the bitmaps it wants to
+    create, and stores their handles (addresses) in the TextBalloon
+    class that called the native code. It accesses the Java int's
+    in the class directly via the JNI. This way, the TextBalloon
+    object can be passed around and can always get to it's native
+    memory. Also, when the TextBalloon object is destroyed, its
+    finalize method calls the native code to free the malloc'd bitmaps.
+
+    Once the bitmaps are created, the native code returns and you're
+    back in Java land. The TextBalloon code then creates Textures
+    (via some more native code in the renderer's area) out of the
+    bitmaps. If you called TextBalloon.getTextures(), it will return
+    these Textures. If you called TextBalloon.getPolys(), it will
+    create new WidgetPolygons and apply the Textures to them.
+    Either way, you end up with a Java object suitable for use
+    with the renderer.
+
+</pre>
+
+
+<H4>
+Which directories on our tree does this subsystem cover?</H4>
+<ul>
+<li>cosm1/ui/gui/fonts (both the native and Java code)<br>
+<li>cosm1/ui/gui/fonts/FontGenerator (the tool for creating our fonts from
+    trutype)<br>
+<li>cosm1/ui/gui/fonts/tests (some standalone tests, none of which work
+    anymore)<br>
+</ul>
+
+
+<H4>
+Is it JavaDoc'ed?</H4>
+It's only partially javadoc'd as of 5/22/98.
+<H4>
+Examples</H4>
+See the Dynamic Engine and the SceneWidget code for example of how to use 
+ECFonts.
+
+<H4>
+Testing and Debugging</H4>
+FontMan used to test all balloon styles and speed, but doesn't work anymore. <br>
+MenuMan used to test selectable menus, but doesn't work anymore.<br>
+There is a native app ("generic") that may know how to draw the bitmaps. <br>
+<H2>
+Design Issues</H2>
+
+<H4>
+Resolved Issues</H4>
+The original implementation of the ECFonts stuff was done in Java. This
+proved to be MUCH too slow, since most of the work is byte manipulation 
+and fills. Thus, it was rewritten in C.
+<H4>
+Open Issues</H4>
+Some open issues: 
+<ul>
+<li>There are some hardcoded limits in the code (FF_MAX_LINES_PER_BALLOON, 
+    FF_MAX_FONTS_PER_STRING). The clamping code should be re-checked
+    for robustness.
+<li>Cut+Paste was supposed to be supported, but never got implemented. 
+    There is some preliminary mouse-tracking logic in place, but that's all.
+<li>There is a bad pixel or two in the Sing balloon, just under the music
+    note.
+<li>ECFonts was designed so as not to preclude the ability to choose a
+    font at runtime. However, this piece of the code hasn't been added.
+    It wouldn't be hard to do, though.
+<li>ECFonts does everything with 16-bit characters so as not to preclude
+    plugging in a UNICODE font, but this hasn't been tested.
+<li>The code could use a serious review. Much of it was done fairly
+    quickly, and I'm sure there are a few eyebrow raisers in it. In
+    particular, I think it could use a review with an eye toward failure
+    handling. On the other hand, it's been basically untouched since it
+    went in, so it's pretty stable.
+<li>
+    I just remembered that there are two places where using a memcpy()
+    would possibly help performance. It's in the portion of the native
+    code that copies an unquipped balloon bitmap onto a new bitmap in
+    preparation for adding the quip. Currently, I do all byte copies
+    by walking a pointer - probably memcpy() is better optimized for
+    the sizes of memory we're walking. In any case, it's not a bottleneck,
+    so no big thing.
+</li>
+</ul>
+
+<BR>
+</BODY>
+</HTML>

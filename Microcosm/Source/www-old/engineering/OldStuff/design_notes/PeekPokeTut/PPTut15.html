@@ -1,0 +1,105 @@
+<!--NewPage-->
+<!-- Created by Masa Maeda on 05.14.97  -->
+<!-- Copyright 1997 Electric Communitites. -->
+<!-- All rights reserved worldwide.  -->
+<!-- Proprietary and confidential. -->
+<HTML>
+<HEAD>
+<pre>
+<a href="PPTut14.html">Previous</a>  <a
+href="PPTut16.html">Next</a>  <a
+href="PPTutI.html">Index</a>  <a
+href="PPTut1.html">Home</a></pre>
+<TITLE>The PeekPoke Tutorial</TITLE>
+</HEAD>
+<BODY>
+<P><HR WIDTH="100%" SIZE=2></P>
+<P>&nbsp;</P>
+
+<B><P>Step 10. Runing PeekPokeShip</P></B>
+<P>Two more files are needed to run PeekPokeShip on a Solaris environmet: GNUmakefile
+compiles the code and RunMe executes it. The GNUmakefile is as listed below. <FONT
+FACE="Courier">PACKAGE</FONT> sholud be customized.</P>
+
+
+<P><HR WIDTH="80%" SIZE=2></P>
+<PRE>
+
+	PACKAGE		= ec.pl.examples.PeekPoke
+	MODNAME		= PeekPokeShip
+	FILES.plu = \
+	  PeekPokeKinds.plu \
+	  PeekablePokeable.plu\
+	  PeekerPoker.plu\
+	  Main.plu\
+	FILES.javac = \
+	include $(TOP)/E/makefiles/Defs.gmk
+	all: basics
+	clean: basic_clean
+	include $(TOP)/E/makefiles/Rules.gmk
+	
+</PRE>
+<P><HR WIDTH="80%" SIZE=2></P>
+
+<P>The RunMe file is listed next. <FONT FACE="Courier">PID1</FONT> refers to
+the host and <FONT FACE="Courier">PID2</FONT> refers to the client.</P>
+
+
+<P><HR WIDTH="80%" SIZE=2></P>
+<PRE>
+
+	#!/bin/sh
+	# -v
+	# java -debug ec.e.start.EBoot ec.pl.runtime.Agency 
+		Agent=ec.pl.examples.PeekPoke
+	LSERVER=gracie.communities.com:666
+	PID1=test1.$$
+	PID2=test2.$$
+	PID3=test3.$$
+	ZZZ="RegisterWith=$LSERVER SearchPath=$LSERVER"
+	set -x
+	java ec.e.start.EBoot ec.pl.runtime.Agency 
+		Agent=ec.pl.examples.PeekPoke PublisherId=$PID1 $ZZZ > output &amp
+	sleep 5
+	java ec.e.start.EBoot ec.pl.runtime.Agency 
+	    Agent=ec.pl.examples.PeekPoke 
+		PublisherId=$PID2 $ZZZ url=e://$LSERVER/$PID1/Doohicky
+
+</PRE>
+<P><HR WIDTH="80%" SIZE=2></P>
+
+</FONT><P>To compile in Solaris, once the directory is set to your code, simply type
+make.  In the directory,  .<FONT FACE="Courier">unit</FONT>, .<FONT
+FACE="Courier">unitd</FONT> and .<FONT FACE="Courier">class</FONT> files will be
+generated. To execute, simply type <FONT FACE="Courier">RunMe</FONT>.  The results
+for the host and clients will be stored in the corresponding files, as specified in
+<FONT FACE="Courier">RunMe</FONT>.</P>
+
+<P>You can download the <a href="PPCode1.ZIP">code for PeekPokeShip here</a>.</P>
+
+<P><HR WIDTH="100%" SIZE=2></P>
+<pre>
+<a href="PPTut14.html">Previous</a>  <a
+href="PPTut16.html">Next</a>  <a
+href="PPTutI.html">Index</a>  <a
+href="PPTut1.html">Home</a></pre>
+
+</HTML>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

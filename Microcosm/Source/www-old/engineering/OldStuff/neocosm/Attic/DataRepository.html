@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>Data Repository Design</TITLE>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; U) [Netscape]">
+</HEAD>
+<BODY>
+
+<H1>Data Repository</H1>
+
+<P><B>Last updated:</B><I> [98/06/16 <A HREF="mailto:karl@communities.com">Karl</A>]</I>
+</P>
+
+<H2>Introduction</H2>
+
+<P>The current data repository has many problems, both in implementation
+and interface. The purpose of this document is to capture a simpler, layered
+architecture for managing the resources in the data repository that meets
+the needs of its clients (runtime and production). </P>
+
+<H4>Related Documents</H4>
+
+<P><A HREF="RepositoryDesign.html">General repository information</A> from
+Randy's memory of the original spec through the latest thoughts from the
+Bob&amp;Bill show to a first cut at the new design by <A HREF="mailto:karl@communities.com">Karl</A>.
+<BR>
+<A HREF="RepositoryRequirements.html">Client requirements</A> from a production
+perspective by <A HREF="mailto:tony@communities.com">Tony</A>. <BR>
+<A HREF="mailto:frantz@communities.com">Bill</A> has encapsulated a description
+of the <A HREF="R167Repository.html">r167 data repository</A>. </P>
+
+<H2>Requirements</H2>
+
+<P>The data repository should provide: </P>
+
+<P>1. Efficient retrieval of blobs of data both as byte arrays and streams.
+<BR>
+2. Simple API for adding and retrieving data blobs, and some way of removing
+&quot;stale&quot; data. <BR>
+3. Caching strategies so that single instances of data blobs are loaded
+and managed without intervention by the clients. <BR>
+4. Mapping of name spaces onto data blobs (most likely name to cryptohash
+mapping). </P>
+
+<H2>Architecture</H2>
+
+<P><A HREF="DataRepositoryLayers.gif"><IMG SRC="DataRepositoryLayers.gif" ALT="Data Repository Layers" HEIGHT=355 WIDTH=524></A>
+</P>
+
+<H4>Proposed Architecture Overview</H4>
+
+<P>The services provided by the new repository are a superset of the previous
+version, but they are layered into smaller, more manageable and general
+components. </P>
+
+<H4>Off the shelf alternatives</H4>
+
+<P>Some of the new functions in the <A HREF="http://java.sun.com/products/jdk/1.2/docs/api/java.lang.ClassLoader.html">1.2
+Classloader</A> may be applicable to a generalized resource manager. </P>
+
+<H2>Design Issues</H2>
+
+<H4>Resolved Issues</H4>
+
+<P><I>History of issues raised and resolved during initial design, or during
+design inspections. Can also include alternative designs, with the reasons
+why they were rejected</I> </P>
+
+<H4>Open Issues</H4>
+
+<P>[<I>98/05/29 <A HREF="mailto:cobblers@communities.com" original-href="mailto:cobblers@communities.com">Bob</A></I>]
+I am presuming that the primary resource type will be data stored in the
+repository and that the cryptohash method of lookup is sufficient. In the
+current system, the only place that the name-to-cryptohash translation
+is done is during realm-text parsing. For the production case, where we
+want filename lookup to succeed, initially I am ignoring caching completely,
+since it is a debug mode feature. If we end up with a generalized caching
+mechanism that will support caching the filename case easily, then we should
+use it, but I am unwilling to state it as a requirement given the scope
+of work we still have to do. </P>
+
+<P>[98/06/18 Bill] I get the impression that alpha testers are hacking
+their realm text files. If this is an important part of the user experience,
+then we will probably need to deliver the name to cryptohash binding in
+the customer system. We could also deliver it as an extra cost item depending
+on product development's requirements.</P>
+
+</BODY>
+</HTML>

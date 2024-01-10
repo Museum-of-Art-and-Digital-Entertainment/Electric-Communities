@@ -1,0 +1,73 @@
+<HTML>
+<HEAD>
+   <TITLE>3D Dynamo & VRML Parser</TITLE>
+</HEAD>
+<BODY>
+
+<H1>3D Dynamo & VRML Parser</H1>
+
+<B>Last updated: </B>[8 June 1998 
+<A HREF="mailto:tony@communities.com">Tony</A>]
+
+<P>Author(s): <A HREF="mailto:Tony@communities.com">Tony</A>. 
+
+<H2>Related Documents</H2>
+<A HREF="NewDynamo3DAPI.html">Proposed 3D API</A>. This is the proposed 
+replacement for AgLib.
+<P>
+<A HREF="DynamicsEngine.html">Dynamics Engine Overview</A>
+
+<HR>
+<H2>3D Dynamo</H2>
+This chunk of code is split between Java and native code. Most reports I've 
+heard suggest that it bridges this native boundary in an inefficient manner, 
+and that there are not clear and clean iterfaces defined.
+
+<H3>Requirements</H3>
+There seems to be fairly widespread agreement that the 3D Dynamo shouldn't be 
+too tricky.
+
+<H4>Load geometry</H4>
+It needs to be able to load geometry (either by interfacing with the parser, or 
+by reading a serialized object that the parser spits out.
+
+<H4>Dynamo integration</H4>
+It obviously needs to integrate with the Dynamics Engine architecture and 
+support the appropriate
+methods.
+
+<H4>Renderer integration</H4>
+The 3D dynamo updates the rendered much more frequently than any other piece of 
+the system. It currently talks to the renderer down in native code, which may 
+still be the right thing to do. There is currently a polyset data structure that 
+the 3D dynamo and the renderer use to pass data back and forth. Russ said that 
+this data structure was fairly arbitrary and easy to change, so if we had other
+reasons for switching data structures, that might be a good idea. It seems 
+wasteful to me that a lot of Kirk's code deals with his own internal data 
+structure -- AgMesh -- and then converts to Polysets. It might be smart to use 
+one data structure, and teach the renderer how to deal with it.
+
+<H3>Java vs. Native</H3>
+Depending on the performance characteristics of this piece, it might be worth 
+considering writing it in pure Java.
+
+<H3>Threads</H3>
+Mike has suggested that we might be able to combine the DE thread with the 
+renderer thread and avoid a bunch of deadlocks. This is obviously not a 
+3D-specific issue, but it can't hurt to mention it here.
+
+<HR>
+<H2>VRML Parser</H2>
+The current VRML parser we have was licensed through Kirk, and minimally 
+supported by him. Had we known its state of incompleteness at the time, we would 
+have searched for a more thorough solution, but so it goes...
+<P>
+The parser suffers from two big problems. It is woefully incomplete in its
+node support, drastically decreasing the likelihood that we can grab any
+ol'd VRML of the web and import it into our software. It also is not as
+helpful as it could be in reporting parsing errors. If the parser were
+more complete, this would be less of an issue.
+
+
+</BODY>
+</HTML>

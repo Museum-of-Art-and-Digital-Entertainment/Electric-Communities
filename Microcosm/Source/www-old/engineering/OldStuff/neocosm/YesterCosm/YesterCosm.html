@@ -1,0 +1,206 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.01 [en] (Win95; I) [Netscape]">
+   <TITLE>YesterCosm</TITLE>
+</HEAD>
+<BODY>
+
+<H1>
+YesterCosm</H1>
+
+<H2>
+A collection of memory &amp; performance related info from January 1998</H2>
+<A HREF="MemoryAndPerformanceIdeas.html">Here is a page dedicated to ideas
+for dealing with some of these memory and performance problems</A><p>
+
+<A HREF="PerformanceGoals.html">Here is Dave Leahy's list of performance goals for startup, transitions, UI, etc.</A>
+<H3>
+ec_perf archives</H3>
+There's a wealth of information stored in the ec_perf archives.
+<LI>
+<A HREF="http://www-int.communities.com/archives/ec_perf/index.html">Master
+index of ec_perf threads.</A></LI>
+
+<LI>
+<A HREF="http://www-int.communities.com/archives/ec_perf/0787.html">Java
+object count after many transitions.</A> Russ' note about memory &amp;
+object usage during region transitions. <A HREF="JavaObjectCount.html">Click
+here</A> for a better formatted HTML version of his chart.</LI>
+
+<LI>
+<A HREF="http://www-int.communities.com/archives/ec_perf/0724.html">OpenRepository()
+objects.</A> A note from Russ about the abundance of objects wasted in
+openRepository(). Includes recommendations for eliminating many of the
+big offenders.</LI>
+
+<LI>
+<A HREF="http://www-int.communities.com/archives/ec_perf/0679.html">Guesstimates
+of working set cost of E class bloat</A> A message from Trev about how
+much working set memory we can expect to save by eliminating E class bloat.</LI>
+
+<LI>
+<A HREF="http://www-int.communities.com/archives/ec_perf/0670.html">What
+is the cost of our classes?</A> An analysis by Chip that shows the malloced
+bytes used by all of our classes. Grouped by package.</LI>
+
+<LI>
+<A HREF="http://www-int.communities.com/archives/ec_perf/0691.html">Some
+Java 1.2 Results</A> A message from Mike describing the 1.2MB reduction
+in working set he saw when comparing between Java 1.1.3 and Java 1.2b2.</LI>
+
+<LI>
+<A HREF="http://www-int.communities.com/archives/ec_perf/0668.html">Dash-O.</A>
+This is a product that Wayne was evaluating. It finds unused methods/variables
+and removes them. It also does obfuscation. Now that we're moving to pure
+Java, we should more able to use products like these.</LI>
+
+<LI>
+<A HREF="http://www-int.communities.com/archives/ec_perf/0639.html">java
+-ms<NN>.</A>Our performance was enhanced by using the java -ms flag. The
+best setting we found was 6megs. This will have to be tuned for whatever's
+appropriate when we ship.&lt;?LI></LI>
+
+<H3>
+RAM cost per object</H3>
+
+<H4>
+[Tony]</H4>
+I did some tests involving memory and number of una.
+
+<P>I created a simple realm text with one tiny region and one region of
+varying size. In my tests I land in the small region and never visit the
+other region. This should be measuring the cost of simply hosting una,
+and not presenting them.
+
+<P>Here are the numbers (from the NT Task Manger):
+
+<P>Mem is MemoryUsage (working set)
+<BR>VM is Virtual Memory
+<TABLE BORDER CELLPADDING=7 WIDTH="295" BORDERCOLOR="#000080" >
+<TR>
+<TD VALIGN=TOP WIDTH="16%" BGCOLOR="#000080"><B><FONT COLOR="#FFFFFF"><FONT SIZE=-1>Una&nbsp;</FONT></FONT></B></TD>
+
+<TD VALIGN=TOP WIDTH="18%" BGCOLOR="#000080"><B><FONT COLOR="#FFFFFF"><FONT SIZE=-1>Mem</FONT></FONT></B></TD>
+
+<TD VALIGN=TOP WIDTH="18%" BGCOLOR="#000080"><B><FONT COLOR="#FFFFFF"><FONT SIZE=-1>VM</FONT></FONT></B></TD>
+
+<TD VALIGN=TOP WIDTH="25%" BGCOLOR="#000080"><B><FONT COLOR="#FFFFFF"><FONT SIZE=-1>Mem/una</FONT></FONT></B></TD>
+
+<TD VALIGN=TOP WIDTH="22%" BGCOLOR="#000080"><B><FONT COLOR="#FFFFFF"><FONT SIZE=-1>VM/una</FONT></FONT></B></TD>
+</TR>
+
+<TR>
+<TD VALIGN=TOP WIDTH="16%"><FONT SIZE=-1>10</FONT></TD>
+
+<TD VALIGN=TOP WIDTH="18%"><FONT SIZE=-1>20781</FONT></TD>
+
+<TD VALIGN=TOP WIDTH="18%"><FONT SIZE=-1>21669</FONT></TD>
+
+<TD VALIGN=TOP WIDTH="25%">&nbsp;</TD>
+
+<TD VALIGN=TOP WIDTH="22%">&nbsp;</TD>
+</TR>
+
+<TR>
+<TD VALIGN=TOP WIDTH="16%"><FONT SIZE=-1>100</FONT></TD>
+
+<TD VALIGN=TOP WIDTH="18%"><FONT SIZE=-1>22001</FONT></TD>
+
+<TD VALIGN=TOP WIDTH="18%"><FONT SIZE=-1>22873</FONT></TD>
+
+<TD VALIGN=TOP WIDTH="25%"><FONT SIZE=-1>15.01</FONT></TD>
+
+<TD VALIGN=TOP WIDTH="22%"><FONT SIZE=-1>23.73</FONT></TD>
+</TR>
+
+<TR>
+<TD VALIGN=TOP WIDTH="16%"><FONT SIZE=-1>300</FONT></TD>
+
+<TD VALIGN=TOP WIDTH="18%"><FONT SIZE=-1>25179</FONT></TD>
+
+<TD VALIGN=TOP WIDTH="18%"><FONT SIZE=-1>26355</FONT></TD>
+
+<TD VALIGN=TOP WIDTH="25%"><FONT SIZE=-1>15.60</FONT></TD>
+
+<TD VALIGN=TOP WIDTH="22%"><FONT SIZE=-1>19.52</FONT></TD>
+</TR>
+
+<TR>
+<TD VALIGN=TOP WIDTH="16%"><FONT SIZE=-1>500</FONT></TD>
+
+<TD VALIGN=TOP WIDTH="18%"><FONT SIZE=-1>28795</FONT></TD>
+
+<TD VALIGN=TOP WIDTH="18%"><FONT SIZE=-1>29684</FONT></TD>
+
+<TD VALIGN=TOP WIDTH="25%"><FONT SIZE=-1>16.59</FONT></TD>
+
+<TD VALIGN=TOP WIDTH="22%"><FONT SIZE=-1>18.37</FONT></TD>
+</TR>
+
+<TR>
+<TD VALIGN=TOP WIDTH="16%"><FONT SIZE=-1>1000</FONT></TD>
+
+<TD VALIGN=TOP WIDTH="18%"><FONT SIZE=-1>31448</FONT></TD>
+
+<TD VALIGN=TOP WIDTH="18%"><FONT SIZE=-1>37933</FONT></TD>
+
+<TD VALIGN=TOP WIDTH="25%"><FONT SIZE=-1>10.95</FONT></TD>
+
+<TD VALIGN=TOP WIDTH="22%"><FONT SIZE=-1>17.43</FONT></TD>
+</TR>
+
+<TR>
+<TD VALIGN=TOP WIDTH="16%"><FONT SIZE=-1>1500</FONT></TD>
+
+<TD VALIGN=TOP WIDTH="18%"><FONT SIZE=-1>34359</FONT></TD>
+
+<TD VALIGN=TOP WIDTH="18%"><FONT SIZE=-1>45980</FONT></TD>
+
+<TD VALIGN=TOP WIDTH="25%"><FONT SIZE=-1>9.24</FONT></TD>
+
+<TD VALIGN=TOP WIDTH="22%"><FONT SIZE=-1>16.99</FONT></TD>
+</TR>
+
+<TR>
+<TD VALIGN=TOP WIDTH="16%"><FONT SIZE=-1>2000</FONT></TD>
+
+<TD VALIGN=TOP WIDTH="18%"><FONT SIZE=-1>37803</FONT></TD>
+
+<TD VALIGN=TOP WIDTH="18%"><FONT SIZE=-1>54119</FONT></TD>
+
+<TD VALIGN=TOP WIDTH="25%"><FONT SIZE=-1>8.65</FONT></TD>
+
+<TD VALIGN=TOP WIDTH="22%"><FONT SIZE=-1>16.81</FONT></TD>
+</TR>
+</TABLE>
+Depending on whether you trust Mem Usage (aka working set) or Virtual memory,
+it seems like we're using 15-20k per object. Woof.
+<H3>
+Startup &amp; Usage Times: the memory curve</H3>
+
+<H4>
+[Tony]</H4>
+Paul and I ran a lot of tests back in January, measuring both startup time,
+as well as the time it took to do a number of common in-world operations...
+
+<P>Startup Measured from when you select your avatar to when you arrive
+in the first region
+<BR>Test 1 Teleport from AztecTurf to GreatRoundSquare
+<BR>Test 2 Walk a lap around the GreatRoundSquare
+<BR>Test 3 Open Address Book window, Catalog window, open basic Catalog
+<BR>Test 4 Teleport to Red Room, then The City
+
+<P>The 'Cruise' measurements referenced below are The sum of Test1-Test4.
+
+<P>Note that the important thing about this chart is not so much the absolute
+numbers, but what happens to the curve when the machine has varying amounts
+of memory. The curve appears to flatten somewhere around 40MB, and we get
+very little increase in perfomance as we go higher.
+
+<P>Below 40MB, there's simply not enough physical memory to support the
+software, and virtual memory paging kicks in.
+
+<P><IMG SRC="YesterCosmGraph.gif" >
+</BODY>
+</HTML>

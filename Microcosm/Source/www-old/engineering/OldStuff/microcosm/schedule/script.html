@@ -1,0 +1,178 @@
+<HTML>
+
+
+
+<HEAD>
+
+    <TITLE>Microcosm/PC Forum Demonstration Script</TITLE>
+
+</HEAD>
+
+<BODY>
+
+
+<h1>Microcosm/PC Forum Demonstration Script</h1>
+
+Seventh draft, February 21st, 1997
+
+<p>
+Back to <A HREF="index.html">Microcosm engineering page</A> 
+
+<h2>Crowds and Commerce</h2>
+
+
+Cast of characters:
+<dl>
+<dt>Guide<dd>		The human demonstrator.
+<dt>Avatar<dd>		The avatar controlled by the Guide.
+<dt>Friend<dd>		An avatar controlled by a remote demonstrator.
+<dt>Others<dd>		Avatars controlled by other demonstrators.
+</dl>
+
+<h2>Background:</h2>
+This demo script is intended to emphasize four key attributes of Electric Communities 
+technology and expertise: Extensibility, Socialization, Decentralization, and Commerce 
+(esp. via advertising.)
+
+<h2>START:</h2>
+
+<ul> 
+<li>Guide opens the Microcosm application.
+<li>Guide talks over the EC splash screen.
+<li>Guide selects an identity and enters the password.
+<li>Guide talks over Microcosm splash screen.
+</ul>
+
+ 
+<h2>TURF:</h2>
+<ul>
+<li>Avatar arrives in turf.
+<li>Guide demonstrates cursor object names.
+<li>Guide demonstrates pie menus.
+<li>Guide rearranges furniture with the avatar.
+<li>Guide opens the avatar's pocket window.
+<li>Guide explains that the pocket contents are private, locally hosted.
+<li>Guide pulls painting from pocket.
+<li>Guide places painting using object precision placement
+<li>Friend connects.
+<li>Guide sends telepathy to friend.
+<li>Friend replies with telepathy.
+<li>Friend arrives at turf with texture.
+<li>Friend and Guide show word balloons and gestures.
+<li>Friend gives texture to Avatar.
+<li>Guide applies texture to painting.
+<li>Friend suggests the Whack-a-bot 3D shooting gallery.
+<li>Guide indicates the lack of a gun.
+<li>Friend suggests a gun rental shop.
+<li>Friend suggests 'follow me.'
+<li>Guide locks follow on Friend.
+<li>Friend selects "Teleport to..." and chooses the River City Mall from his list.
+<li>Avatar follows automatically (Teleport transition.)
+</ul>
+
+
+ 
+<h2>MALL:</h2>
+<ul>
+<li>Friend and Avatar arrive at River City Mall.
+<li>Guide points out the crowds and stores/advertising to the customer.
+<li>Guide moves pointer over doors, demonstrating cursor change region arrow.
+<li>After brief discussion, guide indicates readiness to proceed.
+<li>Friend clicks on Gun Shop door.
+<li>Avatar auto-follows to Gun Shop (Door transition.)
+</ul>
+ 
+
+<h2>GUN SHOP:</h2>
+<ul>
+<li>Friend and Avatar arrive at Gun Shop, there are many guns on the wall.
+<li>Avatar selects Describe on several guns and gets text descriptions.
+<li>Friend relays finer points of particular models.
+<li>Avatar selects a gun and chooses 'Try this' (a duplicate is created.)
+<li>Avatar tries to leave shop and gets a TOS violation.
+<li>Friend explains why.
+<li>Avatar shoots at the sample target(s).
+<li>Guide and Customer decide which gun is best.
+<li>Avatar chooses 'rent' from gun's menu.
+<li>Avatar gives gun to Friend.
+<li>Avatar rents another gun for himself.
+<li>Friend points out the park skeet shooting poster.
+<li>Avatar agrees to go.
+<li>Friend clicks on poster to teleport to park entrance.
+<li>Avatar follows automatically (Teleport transition.)
+</ul>
+
+<h2>PARK ENTRANCE:</h2>
+<ul>
+<li>Friend and Avatar arrive at the Park Entrance.
+<li>Friend indicates that they have to walk through the park.
+<li>Friend pockets gun.
+<li>Friend passes through the gate.
+<li>Avatar tries to auto-follow, but gets a TOS violation.
+<li>Guide selects "Put non-compliant items into pocket."
+<li>Avatar successfully follows Friend into the next region (scroll transition.)
+</ul>
+  
+<h2>PARK GAMES:</h2>
+<ul>
+<li>Friend and Avatar arrive at Games, where Others play checkers.
+<li>Friend points out that the main park is a weapons free zone.
+<li>Guide attempts to take gun out of pocket, gets TOS violation again.
+<li>Friend points out the crowd.
+<li>Others continue playing checkers
+<li>Friend leads Avatar through another scrolling region, the last of which has a 'Skeet 
+<li>Shooting' sign pointing left.
+</ul>
+  
+<h2>3D SHOOTING GALLERY:</h2>
+<ul>
+<li>Friend and Avatar walk into a 3D cavern.
+<li>Friend and Avatar arrive at Whack-a-Bot.
+<li>Guide attempts to shoot Friend, for fun, and can't.
+<li>Guide demonstrates the shift in POV from 1st to 3rd person, and arrow key navigation.
+<li>Friend activates the Whack-a-Bot game machine with tokens.
+<li>Guide and Friend can communicate with audio.
+<li>Friend and Guide shoot Bots till they run out of bullets.
+<li>Guns recharge for tokens via the Whack-a-Bot machine.
+<li>After a second load of bullets, the demo formally ends.
+</ul>
+
+<h2>CLEANUP:</h2>
+<ul>
+<li>Avatar and Friend return guns to rental agency using interface.
+<li>Avatar uses the teleport interface to go home.
+<li>Friend walks back to Games area.
+</ul>
+
+<h2>OTHER THINGS TO SHOW:</h2>
+
+Platform independence:
+The demonstrations stations should be: Windows 95 & Windows NT. 
+
+<p>
+Distributed Architecture:
+Demonstrator unplugs the internet connection (modem?) and points out the ramifications 
+on the current situation.
+Demonstrator unplugs the local net. Look ma, no server!
+
+Implementation compromises:
+The Log-in window, Tokens, Teleport Map, and Crowds are all demo versions of those 
+objects. The interfaces and security features are not fully implemented for this 
+demonstration.
+
+<p>
+Notes:
+During large-scale tests, all 'Others' are potential Friends and start in the gaming areas 
+of the park, waiting for the connect messages from one of the available guide avatars. 
+
+<p>
+Once a Friend has been identified for a particular connected guide avatar, that Friend 
+should disconnect from the service, and immediately reconnect. (This should generate a 
+'User has entered Microcosm' message on the Guide's computer.)
+
+<p>
+Back to <A HREF="index.html">Microcosm engineering page</A> 
+
+</BODY>
+
+</HTML>

@@ -1,0 +1,37 @@
+<HTML>
+<HEAD>
+   <TITLE>Art Constraints</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Art Constraints</H1>
+
+<B>Last updated: </B>[28 May 1998 <A HREF="mailto:tony@communities.com">Tony</A>]
+
+<P>Author(s): <A HREF="mailto:tony@communities.com">Tony</A>. 
+
+<H2>Introduction</H2>
+Known constraints of our renderer/dynamics engine that impact art and design.
+
+
+<H3>Swatching yields 24-bit textures</H3>
+All of the 8-bit textures involved get promoted to 24-bit. This triples the 
+memory cost of textures for swatchable objects.
+<P>
+It may be possible to do have the swatching output be 8-bit, but it would be slow:
+<P>
+To do the swatching, there would at least have to be a temporary 24 bit buffer in 
+which we mix the swatch and intensity map values. This has to be in 24-bit color 
+space since there's no way of knowing what color range you'll need up front, and 
+thus no way mixing into a 256 color palette.
+<P>
+Once the mixing operation is done, it's possible to then convert back to an 8-bit
+image and throw away the 24-bit buffer. This would dramataically reduce our memory 
+usage for swatching. The problem is the conversion. Creating an optimal palette for 
+the image and then converting to an 8-bit image that uses that palette is *expensive*.
+For a very rough estimate... I took a quarter size screenshot of Habitats and did the 
+quick 8-bit conversion in PaintShopPro... roughly a second. I'm Sure there's room for 
+improvement, but it's slow.
+
+</BODY>
+</HTML>

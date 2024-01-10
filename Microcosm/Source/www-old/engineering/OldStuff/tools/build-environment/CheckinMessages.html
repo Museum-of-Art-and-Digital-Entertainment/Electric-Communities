@@ -1,0 +1,141 @@
+<HTML>
+<HEAD>
+    <TITLE>Checkin Messages</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Checkin Messages</H1>
+
+<em>This page is maintained by <A HREF="mailto:sullivan@communities.com">John</A>.
+Please let me know of any errors ASAP so I can fix them.
+<br>
+</em>
+<p>
+Every code checkin requires two checkin messages. One is a feature of the
+CVS source-code control system. This is primarily used by engineers trying
+to determine in which revision of a file a particular change had been made.
+The other is a social requirement at EC -- every checkin must be followed
+by an e-mail message sent to the mailing list ec_checkin. This serves
+several purposes, including: notifying testers and other interested parties
+which bugs have been fixed so they can plan testing, notifying other engineers
+which files have changed so they can consider updating/merging, notifying
+other engineers what new code is ready for their followup work, notifying
+demo-ers about new features that can now be exercized, notifying project
+managers (PERT chart keepers) about project progress, and providing enough
+information to ease tracking down problems should they occur. For these
+various purposes, we've refined over time guidelines about what each checkin
+message should include.
+<p><br>
+<h2>E-mail checkin messages</h2>
+
+<p>
+Here's a simple example of a complete e-mail checkin message. The sections
+will be explained below.
+
+<pre>
+	Bugs Fixed:       bug #393: hitting the squidgums button crashes HabiFoo
+	PERT:             squidgums button bug PERT box done
+	UI Ready to Test: squidgums button now displays dancing kangaroo per spec
+	Build buddy:      Gordie
+
+	The bug was a missing pair of curly braces following an if statement
+	in Squidgums.showKangaroo(). If only I had followed the coding conventions!
+
+		cosm1/ui/gui/uipresenter/marsupialPresenters.java
+
+</pre>
+
+
+<ol>
+<li>
+Bugs Fixed section
+<p>
+This section gives the bug number and a brief description of each bug, so any
+reader can know what to expect works now without having to look up the bug
+number in the bug base. The description can be the title of the bug if the
+title is adequately descriptive. If no bugs were fixed this section can be
+omitted.
+<p>
+<li>
+PERT section
+<p>
+This section lists the boxes on the PERT chart that this checkin completes.
+It should not list work towards a PERT goal that doesn't complete a box;
+the purpose of this section is to let the PERT-keeper-uppers know when to
+mark boxes green. If no PERT boxes were completed, this section should still
+be present with content "none" (this lets the reader know that the author
+didn't forget to mention a PERT box completed).
+<p>
+<li>
+UI Ready to Test section
+<p>
+This section can be omitted if the only changes are the fixed bugs described
+in section 1. Otherwise, it should always be present, so any reader can know
+what to expect works now. If no bugs were fixed, and no user-visible changes
+were made, this section should still be present with "none" as the content
+and a brief explanation of the purpose of the checkin. For example:
+
+    <pre>
+    UI Ready to test: none. This is architectural work to support Crowds.</pre>
+
+<p>
+<li>
+Buddy section
+<p>
+This gives the buddy's name. If the buddy wasn't asked to perform the full
+buddying routine as described on the <a href="BuildofRights.html#buildbuddy">Build of Rights</a> web page, this section should include
+a brief explanation of what the buddy did do. For example:
+
+<pre>
+    Buddy: Joe (just built and launched, since there were
+           no user-visible changes)</pre>
+
+In the rare cases where there was no buddy, this section should say "none"
+with a brief explanation of why no buddy was used.
+
+
+<p>
+<li>
+A description of the changes made and the files they were made in
+<p>Ideally the reader should be able to tell which changes were made in which
+files, though this is not always feasible. The description should be complete
+enough that it could be useful in tracking down the source of problems later.
+In a perfect world, the file names would include the CVS revision number, but
+until/unless we find a way to automate this, it isn't practical.
+</ol>
+
+
+<br>
+<h2>CVS checkin messages</h2>
+
+<p>
+Here's a simple example of a complete CVS checkin message:
+
+<pre>
+	fixed bug #393
+
+	The bug was a missing pair of curly braces following an if statement
+	in Squidgums.showKangaroo(). If only I had followed the coding conventions!
+</pre>
+
+CVS checkin messages should include:
+
+<ol>
+<li>
+The bug numbers of any bugs fixed in this checkin (no description necessary)
+<p>
+This enables us to use the cvs log command to determine when a bug was fixed,
+so we know what release to expect the bug fix in. It also allows locating the
+full email checkin message easily.
+<p>
+<li>
+A description of the overall purpose of the changes
+<p>
+This makes reading through the cvs log output for a given file useful. It
+also helps with locating the full email checkin message when there are no
+bug numbers to easily search for (this description, combined with the checkin
+author and date, should be enough to correlate with the e-mail checkin
+message). Copying/pasting the same description in the CVS checkin message
+and e-mail checkin message is encouraged.
+</ol>
+

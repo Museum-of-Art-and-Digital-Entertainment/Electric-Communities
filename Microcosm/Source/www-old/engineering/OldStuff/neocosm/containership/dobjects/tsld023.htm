@@ -1,0 +1,49 @@
+
+<HTML>
+
+<HEAD>
+
+<meta name="GENERATOR" content="Microsoft Internet Assistant for PowerPoint 97">
+ <TITLE>DObjectFacet exchange process</TITLE> 
+</HEAD>
+
+<BODY     >
+
+ <H1>DObjectFacet exchange process</H1> 
+ <P><UL>
+<LI><H2>Requestor:
+</H2>
+<UL>
+<LI>View.requestDObjectCapability(otherID, String requestName, Object data)
+<LI>View creates ‘CapabilityReceipt’ object
+<LI>View sends requestCapability message to otherID, and provides the capability receipt as param
+</UL></UL><UL>
+<LI><H2>Grantor:
+</H2>
+<UL>
+<LI>otherID decides about response (defined by subclass)
+<UL>
+<LI>If yes, stamps receipt with DObjectFacet instance that gives appropriate semantics
+</UL><LI>View.giveDObjectCapability(CapabilityReceipt receipt)
+<LI>View makes sure this is valid capability receipt
+</UL></UL><UL>
+<LI><H2>Requestor:
+</H2>
+<UL>
+<LI>View sends giveCapability message to requestorID
+<LI>DObjectFacet instance provided in giveCapability message</UL></UL></P>
+<P></P> 
+<P>
+<TABLE>
+  <TD HEIGHT=100 WIDTH=100> <A HREF="tsld022.htm">Previous slide</A> </TD>
+  <TD HEIGHT=100 WIDTH=100> <A HREF="tsld024.htm">Next slide</A> </TD>
+  <TD HEIGHT=100 WIDTH=150> <A HREF="tsld001.htm">Back to first slide</A> </TD>
+  <TD HEIGHT=100 WIDTH=150> <A HREF="sld023.htm">View graphic version</A> </TD>
+</TABLE>
+<BR>
+</P>
+
+
+
+</Body>
+</HTML>

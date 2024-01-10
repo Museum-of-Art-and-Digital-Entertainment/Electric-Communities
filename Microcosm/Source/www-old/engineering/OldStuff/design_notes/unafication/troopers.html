@@ -1,0 +1,144 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!--last modified on Monday, January 05, 1998 09:56 PM -->
+<HTML>
+
+<HEAD>
+	<META NAME="GENERATOR" Content="Visual Page 1.0 for Windows">
+	<META NAME="Author" Content="Mark S. Miller">
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html;CHARSET=iso-8859-1">
+	<TITLE>untitled</TITLE>
+</HEAD>
+
+<BODY>
+
+<P><FONT SIZE="2">Date: Thu, 13 Nov 1997 09:28:51 -0800<BR>
+To: &quot;The Universe&quot; &lt;ec_all@communities.com&gt;<BR>
+From: &quot;Mark S. Miller&quot; &lt;markm@caplet.com&gt;<BR>
+Subject: Star Session Troopers<BR>
+</FONT></P>
+<H1 ALIGN="CENTER">Star Session Troopers</H1>
+<P>
+<P>My eyes watered for EC twice this week. Once for the departure of my friend and our rescuer. And again last
+night sleeplessly contemplating the beauty of our solution to the presence spread problem. A solution which also</P>
+<P>
+<PRE>	gives us a star communications topology with
+
+		<I>much</I> better scalability
+
+		fewer race condition worries
+
+		clear distributed failure semantics
+
+		avoids the fatal n-way authentication problem
+
+	gives us Sessions containing Puppets
+
+		with clearly secure bilateral revocability
+
+		other Session/Puppet goodnesses too numerous for this message
+
+	regains the clean simple truths of the original unum model
+
+		presences are again <I>only</I> for spreading an object among vats
+
+		a reference when encoded means the same as when decoded
+
+	enough in common with the amphitheater mechanism that
+
+		ampitheaters fall out by recursive application
+
+but best of all
+
+	passes the half-hour-whiteboard test
+
+	passes the very-little-code-changes test
+</PRE>
+<P>When a design simultaneously solves a dozen hard problems and can still be rather fully explained on a whiteboard
+in half an hour, using a single simple diagram, plausibly a great and beautiful truth has been discovered. In this
+case I believe it has.</P>
+<P>When, besides that, it looks like <B><I>not one line of non-containership ingredient code needs to change</I></B>,
+despite the fact that all this code was written under completely different architectural assumptions, a software
+engineering miracle has occurred. Despite all the bitching I've done about Pluribus and Una, something -- which
+I cannot account for -- must be deeply right about our abstraction boundaries for an architectural change this
+deep to be such a small change to the implementation. I've never seen anything like it.</P>
+<P>&quot;Are we going to do this for 1.0?&quot;, you ask. Yes. There were two not yet solved problems, either of
+which would have been fatal even for beta, 1) presence spread and 2) n-way secure authentication on region entry.
+Both had many proposed solutions, but every known other way of solving both, separately or together, is more work
+than yesterday's breakthrough. Even if you ignore <I>all</I> the other advantages above, it's worth doing now on
+these grounds alone.</P>
+<P>As Christina has observed, I'm a romantic, so I'm gonna wax romantic for a moment. Another astonishing aspect
+of the new structure is that it results from, unifies, and reconciles the apparently conflicting architectural
+perspectives of various players and/or times in this company. When I look at The Diagram, I think on the one hand,
+&quot;it's so simple, there's hardly anything here.&quot; On the other hand, I look at the diagram and see the
+contributions of, and a confirmation of the intuitions of, a good fraction of the company (with apologies for people
+&amp; contributions left out):</P>
+<P>
+<PRE>	Chip &amp; Randy, for the original Unum model with
+
+		the epiphenomenal distributed object, containing
+
+			semantics-free presences distributing state &amp; behavior
+
+		capability everything
+
+		composition by aggregation
+
+	Scott, Jay, &amp; Trevor for Sessions and Puppets
+
+		whose significance exceeds even my current romantic pretensions
+		(see future email)
+	
+	Eric, Bill, DaveL, Trevor, Jay, Scott and others for the star topology
+
+	Eric again, as a reliable source of clarity on many things
+
+	Chip for the amphitheater pattern which enabled the critical generalization
+
+	Tim for realizing the new pattern self-nests to give us back amphitheater
+
+	myself as catalyst, terminology purifier, 
+
+		and inventor of lightweight authenticated multicast
+		(which Jay pushed me into)
+
+	RobJ, Arturo, Trevor, Tim, Eric, and myself
+
+		for the final step
+
+and most of all
+
+	Arturo, RobJ, Gordie, Scott, and Trevor,
+
+		for getting on the wagons parked at the Green Hills of Unum, and setting 
+		out into the long dry unrewarding desert of intermediate points in the 
+		design space.  (Revocable unum routers.  Presence fetchers.  Purposeful 
+		Agency/Session conflation.  Client side whacking.  Server side whacking.
+		Both.  Neither.  Many facet designs.  Many containership designs.  etc...)
+</PRE>
+<P>This journey began in the hopes of lush simplicity on the other side, but we began to despair of finding simplicity
+in the direction we were headed. At least not before the supplies ran out. Just as we were running out of time,
+and preparing ourselves for life in the desert of complexity, we found that our collective instinctive sense of
+direction was right. Out of the blue, we stumble on an oasis of simplicity that still makes my eyes water. We did
+not do it by deviating from our path, but by continuing to push forward, even when despairing. Indeed we found
+our spot not by a grand insightful jump, but by incremental evolution of these intermediate points, with inspiration
+from all the other ideas.</P>
+<P>Suddenly feeling ethnic and romantic at the same time, I'd like to dedicate my part in this journey to the guy
+that stopped our aimless wandering and led us through the desert, but departed only three days short of the land
+of simplicity.</P>
+<P>So having read this far, you probably think I'm going to tell you what this new design is. Not quite -- it does
+require a diagram and a whiteboard. (Also, I'm probably not the best guy to explain it. Though after raising expectations
+this high, I'm not sure I can get anyone else to volunteer. ;]) Instead, I'm going to use this opportunity to revive
+an ancient EC tradition: The Friday design session. (Later known as the Friday design session occurring on Thursday.
+Later known as the Thursday/Friday design session occurring on Friday.) If there's no objection, from now on, it'll
+be on Tuesday at 4. You can guess what the first one is about. (The second one is also scheduled, but the scheduled
+speaker hasn't yet volunteered.)</P>
+<P>Why revive this tradition? In an emergency, a person can do without sleep for a few nights in a row. But if
+the emergency continues, one must sleep anyway or go insane. Organizations don't sleep -- witness our checkin notices.
+However, an organization like ours that doesn't dream for too long will also go insane. EC needs its dream time
+back.</P>
+
+<P>Tuesday at 4, all will be revealed.
+
+</BODY>
+
+</HTML>

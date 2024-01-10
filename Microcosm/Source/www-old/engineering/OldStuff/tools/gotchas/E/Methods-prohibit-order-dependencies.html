@@ -1,0 +1,62 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>Methods prohibit order dependencies</TITLE>
+<META NAME="Template" CONTENT="C:\Program Files\Microsoft Office\Templates\Web Pages\Web Page Wizard.wiz">
+</HEAD>
+<BODY TEXT="#000000" LINK="#0000ff" VLINK="#800080" BACKGROUND="Image1.gif">
+
+<H3>A class design that encourages message order dependencies in its users, with a fix</H3><DIR>
+
+<FONT FACE="Garamond"><P>This code is incorrect:</P><DIR>
+
+</FONT><PRE>eclass Container
+{
+  emethod add(EObject obj) {
+    // add the object to internal storage.
+  }
+
+  emethod remove(EObject obj) {
+    if (object is present in the storage)
+      remove it
+    else
+      signal the error
+    }
+}</PRE></DIR>
+
+<FONT FACE="Garamond"><P>It is incorrect because this code might break:</P><DIR>
+
+</FONT><PRE>container &lt;- add(obj);
+...
+container &lt;- remove(obj);</PRE></DIR>
+
+<FONT FACE="Garamond"><P>Nothing prevents the </FONT><CODE>remove</CODE><FONT FACE="Garamond"> message from arriving before the </FONT><CODE>add</CODE><FONT FACE="Garamond"> message. The code can be fixed by having the </FONT><CODE>add</CODE><FONT FACE="Garamond"> method explicitly enable removal by forwarding a distributor. Here's the code:</P><DIR>
+
+</FONT><PRE>emethod add(EObject obj, <FONT COLOR="#0000ff">EDistributor removeEnabled</FONT>){
+  // code to add
+  <FONT COLOR="#0000ff">removeEnabled &lt;- forward(this);
+</FONT>}
+
+emethod remove(EObject obj){
+  // code to remove
+}</PRE></DIR>
+
+<FONT FACE="Garamond"><P>The code can be invoked like this:</P><DIR>
+
+</FONT><PRE>Container remover;
+container &lt;- add(obj, <FONT COLOR="#0000ff">&amp;remover</FONT>);
+<FONT COLOR="#0000ff">remover</FONT> &lt;- remove(obj); </PRE></DIR>
+
+<FONT FACE="Garamond"><P>Note that </FONT><CODE>remover</CODE><FONT FACE="Garamond"> is just an alias for </FONT><CODE>container</CODE><FONT FACE="Garamond">. Nothing actually prevents you from ignoring </FONT><CODE>remover</CODE><FONT FACE="Garamond"> and invoking </FONT><CODE>remove</CODE><FONT FACE="Garamond"> on the original container. But it's much harder to make that mistake if you're forced to explicitly name a remover object.</P></DIR>
+
+</FONT><H4>A difficulty: </H4><DIR>
+
+<FONT FACE="Garamond"><P>The problem of message order dependencies should be serious only when the messages come from different methods. (E.g, </FONT><CODE>foo</CODE><FONT FACE="Garamond"> sends </FONT><CODE>bar</CODE><FONT FACE="Garamond"> sends </FONT><CODE>baz</CODE><FONT FACE="Garamond"> sends </FONT><CODE>add</CODE><FONT FACE="Garamond">, then </FONT><CODE>foo</CODE><FONT FACE="Garamond"> sends </FONT><CODE>quux</CODE><FONT FACE="Garamond"> sends </FONT><CODE>remove</CODE><FONT FACE="Garamond">.) If they're both sent from the same method, checklist-based code reads ought to catch the problem with reasonable reliability. Will preventing the problem in the more complicated case require blizzards of little variables representing state dependencies getting passed all over the place?</P></DIR>
+
+</FONT><B><I><FONT FACE="Arial"><P><A NAME="UnumNote">Unum programming note</A></P><DIR>
+
+</B></I></FONT><FONT FACE="Garamond"><P>When programming an unum, you are likely to choose to have the </FONT><CODE>add</CODE><FONT FACE="Garamond"> method send back a facet that encapsulates the capability to </FONT><CODE>remove</CODE><FONT FACE="Garamond">. If </FONT><CODE>remove</CODE><FONT FACE="Garamond"> can only be called through such a facet, it can never be mistakenly called.</P>
+</FONT><P>&nbsp;</P></DIR>
+</BODY>
+</HTML>

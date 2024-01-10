@@ -1,0 +1,40 @@
+<HTML>
+<H1> New Dynamo3D API</H1>
+<P>
+<B>Last updated: </B>[10 June 1998 <A HREF="mailto:tony@communities.com">Tony</A>]
+<P>
+<H2>Related Documents</H2>
+<A HREF="Dynamo3D.html">Dynamo3D & VRML Parser</A>. 
+<P>
+<A HREF="DynamicsEngine.html">Dynamics Engine Overview</A>
+<P>
+
+<H2>Overview</H2>
+This, so far, is the first pass at defining an API for the new 3D code. I generated the following
+by seriously hacking Kirk's aglib.h, both trimming and prettifying. It's gone from 1024 lines to
+340 lines! This doesn't address the Dynamo interface-- I'm presuming that the Dynamo interfaces
+will stay the same, and that we'll just be changing and improving the implementation. In particular,
+I've heard several reports that Kirk's interface between Dynamo3D.java and Dynamo3D.cpp is really
+nasty and leaves lots of room for optimization and simplification.
+<P>
+So what's below is a first crack at extracting what's necessary from aglib. All comments are welcome.
+I renamed most prefixes from 'ag' to 'ec.' I haven't yet attempted to make sure all names are 
+consistent. 
+<P>
+The animation structures need the most work. The mesh stuff looks fairly straightforward.
+<HR>
+<A HREF="ec3dlib.h.html">Ec3dlib.h<A>
+<HR>
+</HTML>
+
+
+
+
+
+
+
+
+
+
+
+								

@@ -1,0 +1,366 @@
+<HTML>
+<HEAD>
+<TITLE>Composition Ingredients</TITLE>
+</HEAD>
+<BODY>
+<P>
+<h1><CENTER><B>Composition Ingredients</B></CENTER></h1>
+<P>
+<h1><CENTER><B>Design Review</B></CENTER></h1>
+<P>
+<h1><CENTER><B>and</B></CENTER></h1>
+<P>
+<h1><CENTER><B>Code Walkthrough</B></CENTER></h1>
+<P>
+<B>Author: </B>
+<P>
+Melora Svoboda
+<P>
+Lani Barton
+<P>
+<B>Reviewers: </B>
+<P>
+Rob Jellinghaus
+<P>
+<B>Create Date:</B> March 10,
+1997
+<P>
+<B>Version:</B> 1.0
+<P>
+<B>Revision:</B> 38
+<H1><A NAME="_Toc382802678">Document History</A></H1>
+<HR>
+<P>
+<I><B>To automatically update the bottom row of this
+table, highlight the row and press the &lt;F9&gt; function key.
+<BR>
+</B></I>
+<P>
+<TABLE BORDER=1>
+<TR><TD WIDTH=67>Version #</TD><TD WIDTH=41>Rev #
+</TD><TD WIDTH=60>Pages</TD><TD WIDTH=140>Revision Date
+</TD><TD WIDTH=140>Author of Revisions</TD>
+<TD WIDTH=195>Purpose of Revisions</TD></TR>
+<TR><TD WIDTH=67>0.0</TD><TD WIDTH=41>1
+</TD><TD WIDTH=60>5</TD><TD WIDTH=140>03/10/97 9:46 PM
+</TD><TD WIDTH=140>Lani Barton</TD><TD WIDTH=195>Original document created from Lani's Notepad email attachment.
+</TD></TR>
+<TR><TD WIDTH=67>0.1</TD><TD WIDTH=41>33
+</TD><TD WIDTH=60>10</TD><TD WIDTH=140>03/11/97 4:34 AM
+</TD><TD WIDTH=140>Melora Svoboda</TD><TD WIDTH=195>Added Figures. Edited and formatted document.
+</TD></TR>
+<TR><TD WIDTH=67>1.0</TD><TD WIDTH=41>38
+</TD><TD WIDTH=60>10</TD><TD WIDTH=140>03/11/97 6:40 PM
+</TD><TD WIDTH=140>Melora Svoboda</TD><TD WIDTH=195>Incorporated Rob Jellinghaus' feedback and finalized document. 
+</TD></TR>
+<TR><TD WIDTH=67></TD><TD WIDTH=41></TD><TD WIDTH=60></TD><TD WIDTH=140>
+</TD><TD WIDTH=140></TD><TD WIDTH=195></TD></TR>
+<TR><TD WIDTH=67>Last Saved</TD><TD WIDTH=41>38
+</TD><TD WIDTH=60>10</TD><TD WIDTH=140>03/11/97 6:43 PM
+</TD><TD WIDTH=140>Melora Svoboda</TD><TD WIDTH=195>For each major set of changes, increment the Version # in the next available open row and type the updated info from this row into the other columns of the new row.
+</TD></TR>
+</TABLE>
+<P>
+<H1><A NAME="_Toc382802679">Table of Contents</A></H1>
+<HR>
+<P>
+<A HREF="#Table_of_Figures" >Table of Figures </A>
+<P>
+<A HREF="#Meeting_Notes" >Meeting notes 3/7/97</A>
+<P>
+<A HREF="#Key_Design_Features" >KEY DESIGN FEATURES</A>
+<P>
+<A HREF="#Atttendees" >ATTENDEES</A>
+<P>
+<A HREF="#WHAT_IS_THIS_CODE_FOR" >WHAT IS THIS CODE FOR</A>
+<P>
+<A HREF="#HOW_THE_CODE_WORKS" >HOW THE CODE WORKS</A>
+<P>
+<A HREF="#ASSUMPTIONS" >ASSUMPTIONS</A>
+<P>
+<A HREF="#CAUSALITY_FLOW" >CAUSALITY FLOW</A>
+<P>
+<A HREF="#ISSUES" >ISSUES</A>
+<P>
+<A HREF="#FALSE_PATHS" >FALSE PATHS</A>
+<P>
+<A HREF="#PATTERNS" >PATTERNS: WHERE THE CODE CAN GO WRONG</A>
+<H1><A NAME="Table_of_Figures">Table of Figures</A></H1>
+<HR>
+<P>
+<A HREF="#Figure_1" >Figure 1: Compositor-Presenter-Controller Model</A>
+<P>
+<A HREF="#Figure_2" >Figure 2: Causality Flow</A>
+<P>
+<A HREF="#Figure_3" >Figure 3: Avoiding Presence Drift</A><BR>
+<BR>
+<H1><A NAME="Meeting_Notes">Meeting notes 3/7/97</A></H1>
+<HR>
+<P>
+This was a design review and educational walkthrough
+of Rob's unum composition ingredient and presentation interface
+code, contained in these files:
+<P>
+ing_composition.plu
+<P>
+int_composition.plu
+<HR>
+<H2><A NAME="Key_Design_Features">KEY DESIGN FEATURES</A></H2>
+<P>
+A key feature in Rob's design is using controllers
+and presenters in his code. 
+<UL>
+<LI>Controllers are implemented by Harry's dynamics
+engine. They are Java objects which manage on-screen elements
+displayed by the renderer. They are implemented within our TCB
+(Trusted Code Base) and are accessed by unum code only via a limited
+Presenter interface. Thus, we refer to &quot;presenters&quot;
+which are actually controllers accessed through the protected
+presenter interface.
+<LI>Presenters are what Una use to display themselves.
+The ability to create presenters is <U><I><B>the</B></I></U> key
+point of TOS control with respect to on-screen display. Much of
+this design focuses on supporting secure creation and use of presenters
+via untrusted unum code.
+</UL>
+<HR>
+<H2><A NAME="Atttendees">ATTENDEES:</A></H2>
+<P>
+Pre-Break Moderator - Brian Marick
+<P>
+Post-Break Moderator - Melora Svoboda
+<P>
+Scribe/Editor - Lani Barton
+<P>
+Time Keeper - Mark Miller
+<P>
+Educational Discussion/Walkthrough - Rob Jellinghaus
+<P>
+Reviewers - Chip Morningstar, Claire Griffin, Mark
+Miller, Doug Crockford, Trevor Morris
+<HR>
+<H2><A NAME="WHAT_IS_THIS_CODE_FOR">WHAT IS THIS CODE FOR</A>:
+</H2>
+<P>
+This code deals with prop containment and presentation
+within a region. It dictates how a prop is allowed to be added
+to a region after an avatar has requested it, and the region does
+not know about this object. For example, an avatar might bring
+a gun in its pocket to a region, and want to take the gun out
+of the pocket once inside this region. To maintain consistent
+TOS, the region is responsible for validating presentations of
+an avatar and anything it contains.<BR>
+
+<HR>
+<H2><A NAME="HOW_THE_CODE_WORKS">HOW THE CODE WORKS</A></H2>
+<H2><CENTER><A NAME="_Toc382802691"><IMG SRC="IMG00006.GIF"></A></CENTER>
+</H2>
+<P>
+<CENTER><A NAME="Figure_1"><B>Figure 1: Compositor-Presenter-Controller
+Model</B></A><BR>
+</CENTER>
+<H3><A NAME="ASSUMPTIONS">ASSUMPTIONS</A></H3>
+<P>
+Gun and avatar have already agreed 
+<OL>
+<LI>that the avatar wants this avatar, and 
+<LI>how this gun wants to be presented. 
+</OL>
+<H3><A NAME="CAUSALITY_FLOW">CAUSALITY FLOW</A></H3>
+<P>
+<CENTER><A NAME="_Toc382802692"><IMG SRC="IMG00007.GIF"></A></CENTER>
+<P>
+<CENTER><A NAME="Figure_2"><B>Figure 2: Causality Flow</B></A>
+<BR>
+</CENTER>
+<P>
+Prior to the steps illustrated in Figure 2: Causality
+Flow, region finds out that a gun wants to be presented under
+an avatar. Region has decided that gun is OK and can be contained
+by the avatar within that region. Code then progresses through
+the following steps:
+<OL>
+<LI><A NAME="iAddCompositiableUnderRoot">TOS ingredient
+of region sends </A><TT>iAddCompositiableUnderRoot</TT>
+to neighbor Root Compositor ingredient.
+<LI>Region sends <TT>pAddCompositableUnderRoot
+</TT>(<I> gun, pMaker, avatar, gunkey, slot 0</I><TT>
+)</TT> to itself and &#133;
+<LI>&#133;its clients (fan-out occurs here), passing
+the <I><B>gun</B></I>, <I><B>presenterMaker</B></I>, specified
+<I><B>avatar</B></I>, <I><B>gunkey</B></I> (from avatar), and
+<I><B>slot</B></I> location. 
+<UL>
+<LI>The <I><B>presenterMaker</B></I> is what makes
+a <I><B>presenter</B></I> for the <I><B>gun</B></I>. This unum
+was created by the Root Compositor ingredient in step 0.
+<LI>The <I><B>gunkey</B></I> is an ID that the avatar
+uses as a label and hash key for the gun. The gunkey distinguishes
+the gun from any other prop the avatar might be holding.
+<LI>The <I><B>slot</B></I> is a location address
+(with respect to visual and spatial composition) for the gun.
+</UL>
+<LI><A NAME="uLocalAddCompositable">Region sends
+</A><TT>uLocalAddCompositable</TT> ( <I>gun,
+gunkey, pMaker, slot</I> ) to its avatar presence, passing gun,
+presentation maker, gunkey and slot. Clients do the same to their
+avatar. This method lets the avatar know that it can go ahead
+and tell the gun it can be contained. Based on the value passed
+for the slot, avatar &quot;remembers&quot; the position where
+the gun is going to be added.
+<LI>Avatar sends <TT>uLocalSetCompositor</TT>
+(<I>wrapper, pMaker </I>) to gun, passing the wrapper class and
+presentation maker of that avatar. Clients do same. This method
+tells the gun to &quot;set me, the avatar, as your container -
+I am now your parent&quot;. The wrapper is an important security
+mechanism. Instead of interacting directly with the avatar, the
+gun deals with the avatar wrapper, which in turn deals with the
+avatar. This closes the security hole of the gun having direct
+access to its avatar; with direct access to the avatar, it would
+be easier for the gun to obtain its ID key , letting it present
+itself as anything it wanted.
+<LI>Via the <TT>uLocalMakePresenterAndGetState</TT>
+method, gun uses presentation maker to make a presenter for itself.
+The presenter is the actual object that talks to the gun's controller.
+The presenter acts as a &quot;steward&quot;, handling all presentation
+issues for the gun. This prevents the gun from faking its presentation
+state. The gun, together with its presenter-and-state vector,
+embodies a <I><B>world object</B></I>.
+<LI>Gun uses <TT>uLocalAddCompositable</TT>
+to send its presenter back to the avatar wrapper. 
+<LI>The wrapper then sends the gun's gunkey to the
+avatar. The avatar can now &quot;hold&quot; the gun within the
+region. The gun will be held in the slot which the avatar &quot;remembers&quot;
+from step 3.
+</OL>
+<P>
+<I><B>Main feature is that the client presence of
+the pMaker gets state information from the <U><I><B>host</B></I></U><I><B>
+presence of the pMaker (<U>not</U> from the prop). The prop never
+asks the region directly for permission to be presented. This
+would force the region to retain too much state. </B></I></B></I>
+<P>
+<I><B>Also, the gun would have direct access to its
+key. That would be bad. Even if the gun made its own presenter,
+you could keep the key away from it, but you need to be thinking
+about this problem when implementing.<BR>
+</B></I>
+<HR>
+<H2><A NAME="ISSUES">ISSUES</A></H2>
+<P>
+Rob's main issue here is to balance security of presentation
+and TOS controls, yet minimize the amount of state a region has
+to keep track of. The region should only deal with the things
+it immediately contains. This leads to the following issues.
+<UL>
+<LI><I><B>We want to avoid having the state of one
+machine moving to another just because an avatar does, especially
+if the TOS is the same</B></I>.
+<LI><I><B>What happens when you remove an avatar
+from a region?</B></I> In this situation,
+the entire structure (all the controllers) should also get deleted.
+This means that if avatar moves from region 1 to region 2, region
+1 should delete all presentation of the avatar and its props.
+Deleting stale wrappers and presenters also resolves the issue
+of the prop not wanting to leave a region just because its container
+avatar does. (Don't cache if you want a guarantee that state is
+not stale.)
+<LI><I><B>Chip asked why enumeration was used, rather
+than coding the presentation manager as a &quot;factory object&quot;,
+like the UI controller?</B></I> Rob thinks
+that's a good idea, and will resolve.
+<LI><I><B>What if a containership transfer happens
+during the presentation validation process?</B></I>
+Rob needs to think through and resolve this.
+<LI><I><B>How do you avoid presence drift (that is,
+referencing an unum drags a lot of state info to a region)?</B></I>
+<LI>
+</UL>
+<P>
+<CENTER><IMG SRC="IMG00003.GIF"></CENTER>
+<P>
+<CENTER><A NAME="Figure_3"><B>Figure 3: Avoiding
+Presence Drift</B></A><BR>
+</CENTER>
+<UL>
+<LI><I><B>Recursion.</B></I>
+There are two scenarios: avatar in a region takes gun out of its
+pocket (this is covered by my current code) and avatar enters
+region while carrying gun in hand (this is NOT covered by my current
+code). Basically Rob's current code only supports a single object
+entering a region, whereas we also need to support an object-which-contains-other-objects
+entering a region. Rob knows how to do this but hasn't done it
+yet.
+<LI><I><B>Does this code meet its security claims?</B></I>
+Rob will resolve.
+<LI>Mark had an issue dealing with <I><B>quakes.</B></I>
+Presenter maker, and all Una generally (e.g., gun, avatar, etc.)
+are &quot;sturdy&quot; objects, but others have no persistent
+state. There needs to be steward objects which implement the presenter
+interfaces. These presenter objects connect to the actual controllers.
+When there is a quake, the controllers fall away, and the steward
+presenter objects will need to recreate them during quake recovery.
+>From the standpoint of unum code, the steward presenter objects
+are persistent and unaffected by a quake. Resolution?
+<LI><I><B>Synchronizing animation with containment
+transfer (that is, showing the avatar actually picking up the
+object).</B></I> Rob was concerned about this,
+but Chip says time lag is negligible. No action needed.
+<LI><I><B>How much should presence cache its state
+vs. forwarding the state on to the new region?</B></I>
+Pro for caching is that if there is sufficient &quot;old&quot;
+state data hanging around, a client region can calculate a local
+path for the avatar to pick up a prop based on this old information,
+and can send this to the host for validation. This saves load
+on the region host which doesn't need to do path planning. Con
+for lots of caching is that cached info , especially mutable state,
+can be stale. However, since we don't assume global synchronicity
+with our model anyway, that can be OK.
+<LI><I><B>Another issue related to stale info - what
+if your avatar goes to pick up a prop, and another prop (from
+another client region) suddenly appears in the way and avatar
+walks into it?</B></I> For now, avatar ignores
+new thing.
+</UL>
+<HR>
+<H2><A NAME="FALSE_PATHS">FALSE PATHS</A></H2>
+<UL>
+<LI>Closely held state requiring handoff of responsibility.
+<LI>Remembering recursive children which have been
+admitted.
+<LI>Unum programmers don't need to worry about handling
+quakes - the presenter steward developer handles it. 
+</UL>
+<HR>
+<H2><A NAME="PATTERNS">PATTERNS: WHERE THE CODE CAN GO WRONG</A>
+</H2>
+<UL>
+<LI>For an object to have a trust relationship with
+another object, the first object needs to be told about departures
+(non-locally).
+<LI>Limit checking to &quot;on the way in.&quot;
+<LI>Minimizing top level state and keeping in mind
+what it needs to be told about when changes occur.
+<LI>What happens in the event of local (but not system-wide)
+failure of pMaker? (i.e., the execution doesn't fail semantically,
+just resource-wise - NOTE: Controllers deal with race conditions.)
+<LI>What if while this is going on a containership
+change happens? <U><I><B>Need clean message ordering</B></I></U>.
+<LI>Revocability; singly and in aggregate.
+<LI>Don't cache if you want a guarantee that state
+is not stale.
+<LI>Use acceptable naming conventions.
+<LI>Think about control of presence spread. THIS
+IS A MAJOR SYSTEM-WIDE ISSUE!
+<LI>Avoid unnecessary mechanism. A suggestion for
+an ingredient design tips document (which we should write) is
+to add some unnecessary mechanism to the containership code (which
+currently is free of it), and then use it to show why unnecessary
+mechanism is bad.
+<LI>A suggestion for testing is to bring a simple
+prop (the lamp? flashlight?) into Microcosm, with simple host/client,
+to thoroughly exercise the composition ingredient code.
+</UL>
+<HR>
+</BODY>
+</HTML>

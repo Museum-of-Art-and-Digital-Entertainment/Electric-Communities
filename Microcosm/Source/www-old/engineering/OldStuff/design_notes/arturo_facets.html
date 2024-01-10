@@ -1,0 +1,170 @@
+<HTML>
+<HEAD>
+    <TITLE>Arturo's Facet Mechanism</TITLE>
+</HEAD>
+<BODY>
+<H1>Arturo's Facet Mechanism</H1>
+
+<h1>Introduction</h1>
+
+This design note explains the "facet" objects Arturo designed as part of the
+redesign of the core Microcosm ingredients. 
+
+<p>
+In the long term facets will be a Pluribus feature. If you have a
+facet to an unum you will be able to use only a subset of the unum's
+kinds. So, for example, you might have a facet to a box unum which
+allows you to carry the box around, but doesn't let you open
+it. Facets are "capabilities"; they give you the capability to do a
+set of operations on an object. Without an appropriate facet you can't
+access the object. With the facet you can only use the operations
+allowed by that facet.
+
+<p>
+As Pluribus doesn't implement facets yet, Arturo has implemented a kind
+of facets using E. Arturo's facets are, in fact, what we have been
+calling "revokable forwarders". A revokable forwarder is rather like
+the "proxy" design pattern. A forwarder points to a "subject"
+object. If you have a handle to the forwarder you can use it to
+forward messages to the subject. But the forwarder doesn't expose the
+full abilities of the subject; it only forwards a restricted subset of
+the subject's messages. In addition, the subject has a pointer to a
+secret "revoke" method in the forwarder. The subject can call this
+method to disable the forwarder; once it has been revoked the
+forwarder can no longer reach its subject and is useless.
+
+<p>
+So if your only reference to an object is via a revokable forwarder
+you have strictly controlled access to that object. You can call only
+the operations allowed by the forwarder. And if the object revokes
+your forwarder you can no longer affect (or access) the object at all.
+
+<p>
+As you can see, facets and revokable forwarders are closely
+related. In fact the only difference I can think of between a
+forwarders and facets is that if you have an unum and a facet of the
+same unum you can tell that the unum and the facet are "the same
+thing" (i.e. they are different ways of looking at the same object).
+But if you have a revokable forwarder to an unum and an unum there is
+no way of telling if the forwarder points to that unum.
+
+<p>
+For the rest of this document the term facet will be used to
+mean "revokable forwarder" (this is a bit confusing; but the current
+revokable forwarder implementations are called facets in the code, so
+its a confusion we'll have to live with).
+
+<h2>Presence Facet</h2>
+
+The presence facet is a simple, but ingenious, pattern. An Unum
+presence creates an E object which has access to its presence methods
+(these presence methods are not exposed to other una or presences
+within the una, unless the unum writer decides to expose them). This
+new E object is the presence facet.
+
+<p>
+The presence facet has a pointer to the presence, and it implements
+set of E methods which it forwards to the presence. In addition the
+facet has a Java "revoke" method. The implementation of the revoke
+method nulls out the facet's presence pointer, so it can no longer
+access the presence.
+
+<p>
+The presence retains a pointer to the facet, so it can call "revoke" at
+any time. It can do this because it has a direct Java pointer to the facet.
+As long as it doesn't give this pointer to anyone else, noone else can revoke
+the facet.
+
+<p>
+The presence can give the presence facet to other presences of the same unum.
+As the other presencies are in different agencies (by definition) they don't
+get direct pointers to the facet. Instead, by the normal E mechanisms, they
+get E proxies to the facet. They can use these proxies to send E messages
+to the facet, which will then forward them to the original presence. But
+the other proxies cannot access the Java "revoke" method; that's only
+available if you have a pointer to the actual facet; a proxy won't do.
+And only the original presence has a pointer to the actual facet.
+
+<p>
+So the presence facet has the properties we needed from a revokable
+forwarder.  It only allows access to a restricted set of the original
+presence's operations. And the original presence (and only the original
+presence) can revoke it at will.
+
+
+<h2>Unum Facets</h2>
+
+The unum facets are more complex and more ingenious than the presence
+facets. As you know, for unum A to send a message to unum B there must
+be presences of unum A and unum B in the same agency. The presence of
+unum A sends a message which is routed to the local presence of unum
+B. If B is a client/server unum the presence of B will either forward
+the message to the server or process it and update the clients.
+
+<p>
+When unum A uses an unum facet to talk to unum B the process is a
+little more complex. A talks to the unum facet. The unum facet
+forwards the message to the local presence of B. If the local presence
+of B is a client it then uses a presence facet to talk to the server
+presence of B.
+
+<p>
+So how do you set up an unum facet? It's a two stage process. First
+the server presence of unum B sets up a presence facet to itself. Any
+presence of unum B that gets this facet could use it to send (a
+controlled set of) messages to the server presence of B. But B doesn't
+hand out the facet freely.  Instead it wraps it in an envelope by
+doing something like:
+
+<p><code>
+  envelope <- uLocalSetPresenceFacet(presenceFacet);
+</code><p>
+
+All the other presences of unum B accept the "uLocalSetPresenceFacet"
+message. When they get it they take the "presenceFacet" argument and
+store it, so they can use it to talk to the server presence. But
+remember, they haven't been sent this message yet, so for now they're
+powerless to affect the server presence....
+
+<p>
+Now it's time to make the unum facet. It is given a pointer to unum B
+and the envelope, which it keeps as its state. Like the presence
+facet, the unum facet it mainly a forwarder. It takes the (controlled
+set of) messages it allows and forwards them to the unum.
+
+<p>
+The real magic comes when you pass the unum facet to another agency.
+Though the unum facet is an E object it does not create a proxy to
+itself when it is passed over the wire. Instead it has special encode
+and decode procedures so that it gets copied. The encode procedure
+just encodes the unum and the envelope. The decode procedure first
+decodes the unum (thereby creating a local presence of B, if there
+isn't one there already). Then it sends the envelope to the local
+presence, thus giving the local presence the presence capability
+(which was the argument in the envelope).
+
+<p>
+So passing someone an unum facet ensures that:
+<ul>
+<li>They'll have a presence of the corresponding unum on their agency
+<li>That presence will have the appropriate presence facet for talking
+    to the server presence
+</ul>
+Note that you'll end up with multiple copies of the unum facet on the
+different agencies, all pointing (via their local presences, which
+hold proxies) to the original presence facet.
+
+<p>
+To revoke an unum facet the presence can just revoke the original
+presence facet. This effectively revokes all the unum facet copies
+that point at that presence facet (the unum facets can still forward
+their messages but they'll be forwarding them to a revoked presence
+facet so it doesn't matter).
+
+<p>
+<a href="index.html">Back to design notes index</a>
+<br>
+<a href="../index.html">Back to Microcosm engineering main page</a>
+
+</BODY>
+</HTML>
