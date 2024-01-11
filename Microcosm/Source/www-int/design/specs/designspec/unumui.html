@@ -1,294 +1,294 @@
 <html><head><title>Unum Interface/Command Structure Notes</title></head>
 <body bgcolor=#ffffff>
- 
+
 <a href="infratoc.html">[Top]</a> <a href="3d.html">[Prev]</a> <a href="scenario.html">[Next]</a> <a href="scenario.html">[Bottom]</a>
 <hr><br>
- 
-<a name="996747">
+
+<a id="996747">
 <h1>Unum Interface/Command Structure Notes</h1>
 </a>
-<hr><p><a name="996763">
+<hr><p><a id="996763">
 Blame: Randy<p>
-</a><a name="996780">
+</a><a id="996780">
 <p>
-</a><hr><a name="996787">
+</a><hr><a id="996787">
 <h1> -- Terminology &amp; Definitions --</h1>
-</a><a name="996800">
+</a><a id="996800">
 <p>
-</a><a name="996807">
+</a><a id="996807">
 <strong>Direct Object (DO):</strong>  the primary object effected by an action/verb<p>
-</a><a name="996824">
+</a><a id="996824">
 <strong>Indirect Object (IO):</strong>  the object (if any) acting on the <strong>DO</strong><p>
-</a><a name="996851">
+</a><a id="996851">
 <strong>Actor Object (AO): </strong>    the object initiating an action on a <strong>DO</strong><p>
-</a><a name="996880">
+</a><a id="996880">
 <p>
-</a><a name="996883">
+</a><a id="996883">
 <strong>Direct Verb(DV):</strong>  an action message delivered to the <strong>DO</strong> (i.e. describe)<p>
-</a><a name="996912">
+</a><a id="996912">
 <strong>Indirect Verb(IV):</strong>  an action message delivered to the <strong>IO</strong> (i.e. shoot).  <strong>IV</strong>s are usually available on the <strong>DO</strong> menu.<p>
-</a><a name="996970">
+</a><a id="996970">
 <p>
-</a><a name="996973">
+</a><a id="996973">
 An object's user interface (text or graphical) will be customizable in several dimensions (language, font, size, style, etc.) So the term "Verb", as used in this document refers to an action on an object regardless of interface presentation, it is not the bits of a menu item.<p>
-</a><a name="996978">
+</a><a id="996978">
 <p>
-</a><a name="996981">
+</a><a id="996981">
 Note that the DO is NOT always the Pointed Object (focus),<p>
-</a><a name="996994">
+</a><a id="996994">
           the IO is NOT always the Held Object, and<p>
-</a><a name="997007">
+</a><a id="997007">
           the AO is NOT always the Avatar Body.<p>
-</a><a name="997020">
+</a><a id="997020">
 <p>
-</a><a name="997023">
+</a><a id="997023">
 Una should not be coded with those assumptions. Sometimes the Actor will be an observer (or have no visible body at all!) Sometimes the roles of the objects designated as <strong>AO</strong>, <strong>IO</strong> and <strong>DO</strong> will change during the course of a chain of methods.<p>
-</a><a name="997064">
+</a><a id="997064">
 <p>
-</a><a name="997067">
+</a><a id="997067">
 There are 2 (two) defined 'sentence' constructions that involve these objects: (These will evolve to messages...)<p>
-</a><a name="997072">
+</a><a id="997072">
 <p>
-</a><a name="997075">
+</a><a id="997075">
 Direct Verb:<p>
-</a><pre><a name="997080">Actor Object Direct Verb [on] Direct Object &lt;- delivered to DO
-</a><a name="997093"><strong>   Randy       Describe           Box.      &lt;- to Box</strong>.
-</a></pre><a name="997116">
+</a><pre><a id="997080">Actor Object Direct Verb [on] Direct Object &lt;- delivered to DO
+</a><a id="997093"><strong>   Randy       Describe           Box.      &lt;- to Box</strong>.
+</a></pre><a id="997116">
 <p>
-</a><a name="997119">
+</a><a id="997119">
 Indirect Verb:<p>
-</a><pre><a name="997124">Actor Indirect Verb [on] Direct Object [with] Indirect object &lt;- to IO
-</a><a name="997137">Randy     Shoot               Box       with         Gun.     &lt;- to Gun.
-</a></pre><a name="997150">
+</a><pre><a id="997124">Actor Indirect Verb [on] Direct Object [with] Indirect object &lt;- to IO
+</a><a id="997137">Randy     Shoot               Box       with         Gun.     &lt;- to Gun.
+</a></pre><a id="997150">
 <p>
-</a><a name="997153">
+</a><a id="997153">
 <p>
-</a><a name="997156">
+</a><a id="997156">
 Verbs are context dependent. For example, "shoot" only appears in verb lists when a gun is held by an embodied avatar and the user is pointing at another object.<p>
-</a><a name="997161">
+</a><a id="997161">
 <p>
-</a><hr><a name="997168">
+</a><hr><a id="997168">
 <h1> -- Notes on Verbs, Menus, and Ingredients ---</h1>
-</a><a name="997181">
+</a><a id="997181">
 <p>
-</a><a name="997188">
+</a><a id="997188">
 Menus and Menu Items are one possible way to select an object's verbs and, by extension, their methods. The current Microcosm agency uses graphical pie menus to select object actions.<p>
-</a><a name="997193">
+</a><a id="997193">
 <p>
-</a><a name="997196">
+</a><a id="997196">
 Since the verbs available are limited by the current world context, the pie menus need to change on demand. For example, a Boxes menu changes to include "Put into" when the user's avatar body takes an object out of its pocket. This potentially presents a bit of a problem because a menu it specified to be displayed within 0.3 seconds of the mouse-held-down event and menu display runs in an entirely different thread. There is no time to re-render the menu-item bitmaps for each context changed verb.<p>
-</a><a name="997201">
+</a><a id="997201">
 <p>
-</a><a name="997208">
+</a><a id="997208">
 <h2> A contexting proposal:</h2>
-</a><a name="997221">
+</a><a id="997221">
 <p>
-</a><a name="997228">
+</a><a id="997228">
 First, we don't really need to build the menu-item bitmaps at click-time. Each ingredient would create and cache the bitmaps at initialization time. Then the menu contexting code would only be setting pointers to the caches. (Thanks for the great design that makes this possible, Claire!)<p>
-</a><a name="997233">
+</a><a id="997233">
 <p>
-</a><a name="997236">
+</a><a id="997236">
 To address this problem, we have E and optimistic computation on our side. :-) The menu items could all be channels. Whenever the cursor moves over an object, it would send a iContextualizeVerbs message to the object before a mouse-down is ever sent. Computation could begin to replace any out of context items. This message would contain the menu item channels so that menus which weren't ready in time would be displayed the instant they were ready.<p>
-</a><a name="997241">
+</a><a id="997241">
 <p>
-</a><a name="997244">
+</a><a id="997244">
 There should only be a noticeable delay for users who are randomly click-and-holding around the screen after a context change. I suspect that, most of the time, a menu should be contextualized in about the time it takes for the cursor-object name to display (which happens without clicking). This should be our performance target.<p>
-</a><a name="997249">
+</a><a id="997249">
 <p>
-</a><a name="997252">
+</a><a id="997252">
 Click-and-flick users are defined to 'know what they are doing,' and any contexting delay would only delay the confirmation item display and command execution start timing.<p>
-</a><hr><a name="997257">
+</a><hr><a id="997257">
 <h1> -- How to contextualize a verb list (and menus.) --</h1>
-</a><a name="997274">
+</a><a id="997274">
 <p>
-</a><a name="997281">
+</a><a id="997281">
 The current unum implementation puts all verb to message mapping in a single ingredient. We should change this to clarify and increase modularity and ingredient re-use. The unum interface ingredient should instead ask its neighboring ingredients to generate verb lists for a particular context.<p>
-</a><a name="997286">
+</a><a id="997286">
 <p>
-</a><a name="997289">
+</a><a id="997289">
 This is replaces with the iContextualizeVerbs message, which calls iBuildVerbs (see below) on each ingredient. (An initialization-time registration scheme using envelopes would allow for this ingredient method to be written once, generically, instead of customized for each una's set of ingredients.) iContextualize verbs gets evoked on both the Direct and Indirect Objects (if any), and provides in a verb list handle to be filled in.<p>
-</a><a name="997294">
+</a><a id="997294">
 <p>
-</a><a name="997297">
+</a><a id="997297">
 Each ingredient that wants to present verbs to the user should support the iBuildVerbs(context); message.<p>
-</a><a name="997302">
+</a><a id="997302">
 <p>
-</a><a name="997305">
+</a><a id="997305">
 The "context" is a structure which contains enough *external* information for the methods to decide which verbs to enable in the interface. It contains enough information to access the Direct Object, Indirect Object, Actor Object, Region, the Direct Object's Container &amp; TOS Container, and a timestamp (counter?) indicating the last context change (for short-circuit optimization.)<p>
-</a><a name="997310">
+</a><a id="997310">
 <p>
-</a><a name="997313">
+</a><a id="997313">
 The iBuildVerbs method is called on each ingredient when the object becomes the point of focus. It has two main parts: if this object == the Direct Object, it adds the Direct Verbs and envelopes to the list, else if this object == the Indirect Object, it adds the Indirect Verbs and envelopes to the (Direct Object's) list. Note that ALL of the envelopes added are addressed to *this* object (i.e. If this is a gun, "Shoot"ing another object is handled by this gun object, not the target (Direct) object...)<p>
-</a><a name="997318">
+</a><a id="997318">
 <p>
-</a><a name="997321">
+</a><a id="997321">
 Keep in mind that the provided external context, by itself, is not enough to determine the verb list; internal state may play a large role. (i.e. Portability ingredients use state variables to 'lock' and object into place, and container objects may be 'open' or closed.)<p>
-</a><a name="997326">
+</a><a id="997326">
 <p>
-</a><a name="997329">
+</a><a id="997329">
 Again, verbs are NOT pie menu items. Verbs are an abstraction that can be used for localization of the interface presentation. In the case of Pie Menus, when a verb is added to the list, a pie menu item representation is looked up and attached to an pre-addressed envelope containing the context plus internal-state specific parameters.<p>
-</a><a name="997334">
+</a><a id="997334">
 <p>
-</a><a name="997337">
+</a><a id="997337">
 For example:<p>
-</a><a name="997342">
+</a><a id="997342">
 <p>
-</a><pre><a name="997345">Verb      Menu Item     Bitmap (Kanji)  E-Envelope
-</a><a name="997358">-------   ------------  --------------  --------
-</a><a name="997371">PutInto   ITEM:PUTINTO  3e,2f,fd,45,... iPutInto(context, flags)
-</a></pre><a name="997387">
+</a><pre><a id="997345">Verb      Menu Item     Bitmap (Kanji)  E-Envelope
+</a><a id="997358">-------   ------------  --------------  --------
+</a><a id="997371">PutInto   ITEM:PUTINTO  3e,2f,fd,45,... iPutInto(context, flags)
+</a></pre><a id="997387">
 <p>
-</a><hr><a name="997394">
+</a><hr><a id="997394">
 <h1> -- From Verbs to Menu Items --</h1>
-</a><a name="997407">
+</a><a id="997407">
 <p>
-</a><pre><a name="997410">   1
-</a><a name="997423">  8 2
-</a><a name="997436"> 7 + 3
-</a><a name="997449">  6 4
-</a><a name="997462">   5
-</a></pre><a name="997475">
+</a><pre><a id="997410">   1
+</a><a id="997423">  8 2
+</a><a id="997436"> 7 + 3
+</a><a id="997449">  6 4
+</a><a id="997462">   5
+</a></pre><a id="997475">
 <p>
-</a><a name="997478">
+</a><a id="997478">
 The verbs have a preferred slot(s) when added to pie menus. For example, Describe prefers slot 8, Put At/Into: 5, Pick up: 1, and Indirect Verbs might prefer slots 2, 4 and 6. If the preferred slot is filled, the next one is chosen instead. (This algorithm can get arbitrarily complex, we should start simple.)<p>
-</a><a name="997483">
+</a><a id="997483">
 <p>
-</a><a name="997486">
+</a><a id="997486">
 Also, verbs can be assigned to slots even if they are inactive. In that case, they are greyed out, and have a null envelope attached.<p>
-</a><a name="997491">
+</a><a id="997491">
 <p>
-</a><a name="997494">
+</a><a id="997494">
 Having the Verb separated from the Menu Item provides a clean hook for language localization. When the Menu Item Bitmap is generated, the verb can look up an image in the local machine database to use for the menu, or generate it algorithmically. This allows not only for other languages, but iconic menu items without the ingredients or una even knowing! (An obvious example is a iconic gesture submenu.) The algorithmic fallback means that an object will always be able to present the Latin version of the verb name as a fallback for a failed localization lookup.<p>
-</a><a name="997499">
+</a><a id="997499">
 <p>
-</a><a name="997502">
+</a><a id="997502">
 Don't forget; we'll need to use Unicode for the strings that auto-generate menu items. That way this fallback display will work for most known (and several fictional) languages.<p>
-</a><hr><a name="997507">
+</a><hr><a id="997507">
 <h1> -- Sample behavior chains for typical object verbs ---</h1>
-</a><a name="997524">
+</a><a id="997524">
 <p>
-</a><a name="997531">
+</a><a id="997531">
 First, some sample initial commands...<p>
-</a><a name="997536">
+</a><a id="997536">
 <p>
-</a><pre><a name="997539">AO       dv/IV      on DO      with IO   Params &amp; Notes
-</a><a name="997552">------- --------- ---------- ---------- ---------------
-</a><a name="997565">Avatar  moveto    any*                  * = addressee of message
-</a><a name="997578">Avatar  moveto    Background*
-</a><a name="997591">Any     moveto    Portal*
-</a><a name="997604">Avatar  get       Any*
-</a><a name="997617">Any     describe  Any*
-</a><a name="997630">Any     modify    Any*
-</a><a name="997643">Avatar  moveto    Floor                 cursorPositionDuringHold
-</a><a name="997656">Avatar  PUT       Floor        Any*     cursorPositionDuringHold
-</a><a name="997669">Avatar  open      Container*
-</a><a name="997682">Avatar  close     Container*
-</a><a name="997695">Avatar  get       Container*
-</a><a name="997708">Avatar  getFrom   Container*
-</a><a name="997721">Avatar  PUT       Container    Any*
-</a><a name="997734">Avatar  gesture   Avatar*               gestureName
-</a><a name="997747">Any     Teleport  Avatar*
-</a><a name="997760">Any     PUT       Pocket       Any*     Note: used in place of "Avatar PUT Avatar 
+</a><pre><a id="997539">AO       dv/IV      on DO      with IO   Params &amp; Notes
+</a><a id="997552">------- --------- ---------- ---------- ---------------
+</a><a id="997565">Avatar  moveto    any*                  * = addressee of message
+</a><a id="997578">Avatar  moveto    Background*
+</a><a id="997591">Any     moveto    Portal*
+</a><a id="997604">Avatar  get       Any*
+</a><a id="997617">Any     describe  Any*
+</a><a id="997630">Any     modify    Any*
+</a><a id="997643">Avatar  moveto    Floor                 cursorPositionDuringHold
+</a><a id="997656">Avatar  PUT       Floor        Any*     cursorPositionDuringHold
+</a><a id="997669">Avatar  open      Container*
+</a><a id="997682">Avatar  close     Container*
+</a><a id="997695">Avatar  get       Container*
+</a><a id="997708">Avatar  getFrom   Container*
+</a><a id="997721">Avatar  PUT       Container    Any*
+</a><a id="997734">Avatar  gesture   Avatar*               gestureName
+</a><a id="997747">Any     Teleport  Avatar*
+</a><a id="997760">Any     PUT       Pocket       Any*     Note: used in place of "Avatar PUT Avatar
 *Any"
-</a><a name="997773">Any     open      Pocket*               Note: u.i.p.o. "Avatar open *Avatar"
-</a><a name="997786">Any     close     Pocket*               Note: u.i.p.o. "Avatar close *Avatar"
-</a><a name="997799">Avatar  shoot     Any          Gun*
-</a><a name="997812">Avatar  reload    Gun*
-</a><a name="997825">Avatar  setsafety Gun*
-</a><a name="997838">Avatar  LEND      Other        Any*
-</a><a name="997851">Avatar  GIVE      Other        Any*     Note: uses trade interface.
-</a><a name="997864">Avatar  follow    Other*
-</a><a name="997877">Any     urlfollow Poster*
-</a><a name="997890">Avatar  moveto    Crowd*
-</a><a name="997903">Avatar  find      Crowd*
-</a><a name="997916">Avatar  invite    Crowd*
-</a><a name="997929">Avatar  rent      Vendo*
-</a><a name="997942">Avatar  purchase  Vendo*
-</a><a name="997955">Avatar  stock     Vendo*
-</a><a name="997968">Avatar  rotate    Vendo*
-</a><a name="997981">Avatar  sit       Furniture*
-</a><a name="997994">Avatar  stand     Furniture*
-</a><a name="998007">Avatar  split     Tokens*
-</a><a name="998020">Avatar  appraise  PawnMachine* Any      Note: Has IO, but not an IV.
-</a><a name="998033">Avatar  sell      PawnMachine* Any      Note: Has IO, but not an IV.
-</a></pre><a name="998050">
+</a><a id="997773">Any     open      Pocket*               Note: u.i.p.o. "Avatar open *Avatar"
+</a><a id="997786">Any     close     Pocket*               Note: u.i.p.o. "Avatar close *Avatar"
+</a><a id="997799">Avatar  shoot     Any          Gun*
+</a><a id="997812">Avatar  reload    Gun*
+</a><a id="997825">Avatar  setsafety Gun*
+</a><a id="997838">Avatar  LEND      Other        Any*
+</a><a id="997851">Avatar  GIVE      Other        Any*     Note: uses trade interface.
+</a><a id="997864">Avatar  follow    Other*
+</a><a id="997877">Any     urlfollow Poster*
+</a><a id="997890">Avatar  moveto    Crowd*
+</a><a id="997903">Avatar  find      Crowd*
+</a><a id="997916">Avatar  invite    Crowd*
+</a><a id="997929">Avatar  rent      Vendo*
+</a><a id="997942">Avatar  purchase  Vendo*
+</a><a id="997955">Avatar  stock     Vendo*
+</a><a id="997968">Avatar  rotate    Vendo*
+</a><a id="997981">Avatar  sit       Furniture*
+</a><a id="997994">Avatar  stand     Furniture*
+</a><a id="998007">Avatar  split     Tokens*
+</a><a id="998020">Avatar  appraise  PawnMachine* Any      Note: Has IO, but not an IV.
+</a><a id="998033">Avatar  sell      PawnMachine* Any      Note: Has IO, but not an IV.
+</a></pre><a id="998050">
 <p>
-</a><a name="998061">
+</a><a id="998061">
 A sample complex chain case study: Purchasing an object from a vendo.<p>
-</a><a name="998066">
+</a><a id="998066">
 <p>
-</a><pre><a name="998069">                       AO       dv/IV      on DO     with IO   Parameters &amp; Notes
-</a><a name="998082">                       ------- --------- ---------- ---------- ---------------
-</a><a name="998095">The user selected----- Avatar  purchase  Vendo*
-</a><a name="998108">If not adjacent------- AO      moveto    DO*                   Any of these may 
+</a><pre><a id="998069">                       AO       dv/IV      on DO     with IO   Parameters &amp; Notes
+</a><a id="998082">                       ------- --------- ---------- ---------- ---------------
+</a><a id="998095">The user selected----- Avatar  purchase  Vendo*
+</a><a id="998108">If not adjacent------- AO      moveto    DO*                   Any of these may
 wait for completion...
-</a><a name="998121">DO asks avatar to walk AO      walkto    AO*                   
-</a><a name="998134">If holding something-- AO      PUT       Pocket     *Holding   Pocket isn't in 
+</a><a id="998121">DO asks avatar to walk AO      walkto    AO*
+</a><a id="998134">If holding something-- AO      PUT       Pocket     *Holding   Pocket isn't in
 context, generate.
-</a><a name="998147">Pocket animation------ AO      gesture   AO*                   START_POCKETING_ANIM
-</a><a name="998160">More animation-------- AO      gesture   AO*                   FINISH_POCKETING_ANIM
-</a><a name="998173">Need access to tokens- AO      findUna   Pocket*               type=Token, &amp;TokenRef
-</a><a name="998186">Get the token in hand- AO      get       Token*
-</a><a name="998199">Pocket anim request--- AO      gesture   AO*                   START_UNPOCKETING_ANIM
-</a><a name="998212">(wait for change containers)
-</a><a name="998225">More animation-------- AO      gesture   AO*                   
+</a><a id="998147">Pocket animation------ AO      gesture   AO*                   START_POCKETING_ANIM
+</a><a id="998160">More animation-------- AO      gesture   AO*                   FINISH_POCKETING_ANIM
+</a><a id="998173">Need access to tokens- AO      findUna   Pocket*               type=Token, &amp;TokenRef
+</a><a id="998186">Get the token in hand- AO      get       Token*
+</a><a id="998199">Pocket anim request--- AO      gesture   AO*                   START_UNPOCKETING_ANIM
+</a><a id="998212">(wait for change containers)
+</a><a id="998225">More animation-------- AO      gesture   AO*
 FINISH_UNPOCKETING_ANIM
-</a><a name="998238">Split token----------- AO      split     Token*                desiredDenomination
-</a><a name="998251">Pocket anim request--- AO      gesture   AO*                   START_POCKETING_ANIM
-</a><a name="998264">(wait for change containers)
-</a><a name="998277">More animation-------- AO      gesture   AO*                   FINISH_POCKETING_ANIM
-</a><a name="998290">Vendo anim request---- AO      gesture   AO*                   FIDDLE_WITH_MACHINE
-</a><a name="998303">Vendo wants to spend-- AO      SPEND     vendo      *Token     price
-</a><a name="998316">Token anim request---- AO      gesture   AO*                   DEPOSIT_TOKENS
-</a><a name="998329">(wait for vending)
-</a><a name="998342">(If none of these throw an exception, the vendo dispenses the item for the Token, 
+</a><a id="998238">Split token----------- AO      split     Token*                desiredDenomination
+</a><a id="998251">Pocket anim request--- AO      gesture   AO*                   START_POCKETING_ANIM
+</a><a id="998264">(wait for change containers)
+</a><a id="998277">More animation-------- AO      gesture   AO*                   FINISH_POCKETING_ANIM
+</a><a id="998290">Vendo anim request---- AO      gesture   AO*                   FIDDLE_WITH_MACHINE
+</a><a id="998303">Vendo wants to spend-- AO      SPEND     vendo      *Token     price
+</a><a id="998316">Token anim request---- AO      gesture   AO*                   DEPOSIT_TOKENS
+</a><a id="998329">(wait for vending)
+</a><a id="998342">(If none of these throw an exception, the vendo dispenses the item for the Token,
 causing it's self-destruction.)
-</a><a name="998359">Vendo anim request---- AO      gesture   AO*                   RECEIVE_ITEM
-</a><a name="998376">Or, vend failed------- AO      gesture   AO*                   HAND_TO_SIDE
-</a><a name="998389">----
-</a><a name="998402">Just for fun --------- AO      PUT       Pocket     *Holding   Holding is now 
+</a><a id="998359">Vendo anim request---- AO      gesture   AO*                   RECEIVE_ITEM
+</a><a id="998376">Or, vend failed------- AO      gesture   AO*                   HAND_TO_SIDE
+</a><a id="998389">----
+</a><a id="998402">Just for fun --------- AO      PUT       Pocket     *Holding   Holding is now
 the vended item.
-</a><a name="998415">Pocket anim request--- AO      gesture   AO*                   START_POCKETING_ANIM
-</a><a name="998428">(wait for change containers)
-</a><a name="998441">More animation-------- AO      gesture   AO*                   FINISH_POCKETING_ANIM
-</a></pre><a name="998454">
+</a><a id="998415">Pocket anim request--- AO      gesture   AO*                   START_POCKETING_ANIM
+</a><a id="998428">(wait for change containers)
+</a><a id="998441">More animation-------- AO      gesture   AO*                   FINISH_POCKETING_ANIM
+</a></pre><a id="998454">
 <p>
-</a><a name="998461">
+</a><a id="998461">
 (Excluded from this example are any animation/sound requests of the current Direct Object in an individual verb context. We need to work out how, say the vendo asks *itself* to animate and change state (AKA mood.)<p>
-</a><hr><a name="998466">
+</a><hr><a id="998466">
 <h1> Discussion points:</h1>
-</a><a name="998475">
+</a><a id="998475">
 <p>
-</a><a name="998478">
+</a><a id="998478">
 Token splitting is a long-time Habitat architecture choice, it is used in this example because it is complicated, not because it is a requirement.<p>
-</a><a name="998483">
+</a><a id="998483">
 <p>
-</a><a name="998486">
+</a><a id="998486">
 I'm still unsure that 'put' is an indirect verb. None of the earlier Habitats implemented it that way. We should discuss the tradeoff space. Note the PawnMachine verbs; they are DVs but take an IO as a parameter. This is a third sentence structure:<p>
-</a><a name="998491">
+</a><a id="998491">
 <p>
-</a><pre><a name="998494">AO DV on DO with IO &lt;- delivered to DO.
-</a></pre><a name="998499">
+</a><pre><a id="998494">AO DV on DO with IO &lt;- delivered to DO.
+</a></pre><a id="998499">
 <p>
-</a><a name="998502">
+</a><a id="998502">
 (The other two are, again):<p>
-</a><a name="998507">
+</a><a id="998507">
 <p>
-</a><pre><a name="998510">AO DV on DO     &lt;- to DO.
-</a><a name="998521">AO IV on DO with IO  &lt;- to IO.
-</a><a name="998530">
-</a></pre><a name="998533">
+</a><pre><a id="998510">AO DV on DO     &lt;- to DO.
+</a><a id="998521">AO IV on DO with IO  &lt;- to IO.
+</a><a id="998530">
+</a></pre><a id="998533">
 Will this confuse behavior programmers?<p>
-</a><a name="998538">
+</a><a id="998538">
 <p>
-</a><a name="998541">
+</a><a id="998541">
 <p>
 </a>
 <hr><br>
- 
+
 <a href="infratoc.html">[Top]</a> <a href="3d.html">[Prev]</a> <a href="scenario.html">[Next]</a> <a href="scenario.html">[Bottom]</a>
 <hr><br>
- 
+
 
 
 <address>
