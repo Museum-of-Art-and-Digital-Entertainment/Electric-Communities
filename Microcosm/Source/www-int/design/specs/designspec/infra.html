@@ -1,0 +1,192 @@
+<html><head><title>Infrastructure Services</title></head>
+<body bgcolor=#ffffff>
+ 
+<a href="infratoc.html">[Top]</a> <a href="infratoc.html">[Prev]</a> <a href="avatar.html">[Next]</a> <a href="scenario.html">[Bottom]</a>
+<hr><br>
+ 
+<a name="996747">
+<h1>Infrastructure Services</h1>
+</a>
+<hr><p><a name="996763">
+<p>
+</a><a name="996770">
+In considering the products we're going to ship, it became clear to me that there is more involved than is clearly defined as the end user system (and tools) MicroNet, and the Hub product (and tools.) In considering What Components We Need In Order To Ship MicroNets and Hubs, we need to name the components in a third group: Infrastructure Services.<p>
+</a><a name="996799">
+<p>
+</a><a name="996810">
+Infrastructure services are the programs that are used by just about every kind of host; single machine local turfs, small hubs, or major commercial service farms&Ouml; The internet already provides infrastructure services such as DNS (Domain Name Service,) sendmail, etc. Like with our Infrastructure Services, internet services are not always tightly bundled with/offered by every network node. So, initially considering these services as separate from a Hub or MicroNet product bundle, imagining them running `somewhere in the net' is helpful for defining their modularity and scope of complexity. Then we can consider, separately, which Infrastructure services we initially supply with first product and which we choose to host at EC.<p>
+</a><a name="996863">
+<p>
+</a><a name="996874">
+(Note: These notes override the previous Hub Tools notes, which in some places confused tools with some of these services.)<p>
+</a><a name="996891">
+<p>
+</a><hr><a name="996902">
+<h1> The EC Infrastructure Service Modules:</h1>
+</a><a name="996915">
+<p>
+</a><a name="996922">
+PLS (Process Location Service)<p>
+</a><dl>
+<a name="996935">
+<dt><dd>         Maps object identifier fingerprints to IP addresses.
+</a></dl>
+<a name="996948">
+Object Title Service (Four flavors: Host, Owner, Scarcity, Banks)<p>
+</a><dl>
+<a name="996961">
+<dt><dd>         Trusted 3rd parties for transactions.
+</a></dl>
+<a name="996994">
+Object Directory Service (avatars, telepads, profiles, etc.)<p>
+</a><dl>
+<a name="997007">
+<dt><dd>         Maps common names to object identifiers, resolved by PLS.
+</a></dl>
+<a name="997020">
+Resource Location Services (Images, Models, Sounds, etc.)<p>
+</a><dl>
+<a name="997033">
+<dt><dd>         Where to get resources, in case you can't find them locally.
+</a></dl>
+<a name="997058">
+Facet Transfer Services (PO Boxes)<p>
+</a><dl>
+<a name="997071">
+<dt><dd>         Where to pick up facets granted when you weren't connected.
+</a></dl>
+<a name="997096">
+Certification Services (Issuance/Verification)<p>
+</a><dl>
+<a name="997109">
+<dt><dd>         Some 3rd party providers already exist. (Verisign.)
+</a></dl>
+<a name="997142">
+<p>
+</a><a name="997149">
+---<p>
+</a><hr><a name="997162">
+<h1> Deployment scenarios:</h1>
+</a><a name="997175">
+<p>
+</a><a name="997182">
+<h2> #1 EC initially provides ALL infrastructure services</h2>
+</a><dl>
+<a name="997195">
+<dt><dd>     PRO: Simplifies Hub and MicroNet installation (no IS shipped.)
+</a><dl>
+<a name="997208">
+<dt><dd>          Modules can still have yucky interfaces.
+</a><a name="997221">
+<dt><dd>          Modules can run on single (Sun) platform exclusively.
+</a></dl>
+<a name="997234">
+<dt><dd>     CON: Limits hub capabilities to EC policies/support load.
+</a><dl>
+<a name="997247">
+<dt><dd>          EC provides these services to everyone, potentially a huge load
+</a><a name="997260">
+<dt><dd>          Central services hosting subject to single point of failure.
+</a><dl>
+<a name="997273">
+<dt><dd>             (EC goes down, everyone goes down.)
+</a></dl>
+<a name="997286">
+<dt><dd>          Central services hosting is a human-resource (support) load.
+</a></dl>
+</dl>
+<a name="997299">
+<p>
+</a><a name="997306">
+<h2> #2 EC provides minimal infrastructure services</h2>
+</a><dl>
+<a name="997319">
+<dt><dd>     PRO: Removes EC from dependency chain with Hub providers.
+</a><dl>
+<a name="997332">
+<dt><dd>          Limits EC operational overhead (hardware and personnel)
+</a><a name="997345">
+<dt><dd>          Gets us to ISP realm hosting sooner.
+</a></dl>
+<a name="997362">
+<dt><dd>     CON: Modules must be multi-platform, stable &amp; easy to use.
+</a><dl>
+<a name="997375">
+<dt><dd>          Complicates installation.
+</a><a name="997388">
+<dt><dd>          Complicates Hub operation significantly (support.)
+</a></dl>
+</dl>
+<a name="997401">
+         <p>
+</a><a name="997414">
+<p>
+</a><a name="997421">
+<h2> #3 Hybrid: EC hosts ALL services, but provides a subset in specific</h2>
+</a><a name="997434">
+           products.<p>
+</a><a name="997447">
+<p>
+</a><a name="997454">
+<h2> #3a: Hub includes: PLS, Directory, and Resource Location Services.</h2>
+</a><a name="997467">
+     MicroNet includes: Local Directory (In all packages, always.)<p>
+</a><dl>
+<a name="997480">
+<dt><dd> 	PRO: Provides for `Palace' level hub hosting.
+</a><a name="997523">
+<dt><dd>       CON: Members still use EC for Title, Facets, &amp; certificates
+</a></dl>
+<a name="997536">
+<p>
+</a><a name="997543">
+<h2> #3b: Hub includes: ALL Services</h2>
+</a><a name="997556">
+     MicroNet includes: PLS, Directory, Resource Location Services<p>
+</a><dl>
+<a name="997569">
+<dt><dd>       PRO: Hub-less MicroNets behind fire walls possible
+</a><dl>
+<a name="997582">
+<dt><dd>            Hub is full-fledged service and infrastructure provider
+</a><a name="997595">
+<dt><dd>            Full ISP hosting
+</a></dl>
+<a name="997608">
+<dt><dd>       CON: See scenario #2
+</a></dl>
+<a name="997621">
+<h2> </h2>
+</a><a name="997628">
+<h2> #3c: #3b minus Currency &amp; Scarcity Title Services [Certificate issuing?]</h2>
+</a><dl>
+<a name="997641">
+<dt><dd> 	PRO: Less complicated. Few care about tokens and scarcity.
+</a></dl>
+<a name="997660">
+<p>
+</a>
+<hr><br>
+ 
+<a href="infratoc.html">[Top]</a> <a href="infratoc.html">[Prev]</a> <a href="avatar.html">[Next]</a> <a href="scenario.html">[Bottom]</a>
+<hr><br>
+ 
+
+
+<address>
+<a href="mailto:yourEmail@xyzcorp.com">yourEmail@xyzcorp.com</a>
+</address>
+
+<i>Copyright &#169; 1997, XYZ Corporation.   All rights
+reserved.</i>
+
+<!-- This file was created with Quadralay WebWorks Publisher 3.0.9 -->
+<!-- -->
+<!-- For more information on how this document, and how the rest of -->
+<!-- this server was created, email yourEmail@xyzcorp.com -->
+<!-- -->
+<!-- Last updated: 05/22/97 10:31:08 -->
+
+</body>
+</html>
+

@@ -19,7 +19,7 @@ P.O. Box Mechanism</A>
 Introduction</H2>
 This document describes the ECID architecture and current software design.&nbsp;
 The ECID services are intended to be generic and exstensible in order to
-meet the needs of diverse client programs (e.g. the Palace, <A HREF="http://www-int.communities.com/engineering/OldStuff/com.com/index.html">Comcom</A>,
+meet the needs of diverse client programs (e.g. the Palace, <A HREF="index.html">Comcom</A>,
 etc., etc).&nbsp; The core pieces of ECID are focussed on the meta operations
 of secure capability exchange between unique, persistent, and reachable
 identities.
@@ -61,9 +61,9 @@ reachability with identity can be.
 
 <P>The ECID code reifies these notions of uniqueness, persistence, and
 reachability explicitly in the form of 3 Java interfaces.&nbsp; These interfaces
-are:&nbsp; <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/ID.html">ec.id.ID</A>,
-<A HREF="http://www-int.communities.com/ec5/doc/javadoc/java/io/Serializable.html">java.io.Serializable</A>,
-and <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/ReachableID.html">ec.id.ReachableID</A>
+are:&nbsp; <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/ID.html">ec.id.ID</A>,
+<A HREF="../../../../www-int/ec5/doc/javadoc/java/io/Serializable.html">java.io.Serializable</A>,
+and <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/ReachableID.html">ec.id.ReachableID</A>
 (all classes in the ECID codebase start with ec.id, so I'll omit this from
 all future class names).&nbsp; The ID interface is the primary interface
 defining global uniqueness.&nbsp; This interface defines the two basic
@@ -76,9 +76,9 @@ and equals() and hashCode() will be implemented to allow equality tests
 entity (irrespective of whether the entity came from inside or outside
 of a given machine).
 
-<P>There is one class that implements the <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/ID.html">ID</A>
-interface in the ec.id package.&nbsp; The most important instance is <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/ECID.html">ECID</A>.
-These three classes implement <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/ID.html">ID</A>,
+<P>There is one class that implements the <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/ID.html">ID</A>
+interface in the ec.id package.&nbsp; The most important instance is <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/ECID.html">ECID</A>.
+These three classes implement <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/ID.html">ID</A>,
 and redefine equals() and hashCode() so that instances return true only
 under the right conditions (the two instances refer to the same identity).&nbsp;
 These classes also implement java.io.Serializable, to indicate that instances
@@ -86,21 +86,21 @@ of these classes are to be sent over the wire by copy.&nbsp; They are intended
 to be given out widely (in the same way that the ICQ UIN is given out widely),
 and they do not convey any authority over the ID owner at all.
 
-<P>Note that <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/ECID.html">ECID</A>
+<P>Note that <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/ECID.html">ECID</A>
 class has a protected constructor, and uses a static 'factory' method to
-create new instances of <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/ECID.html">ECID</A>s.&nbsp;
-This factory method is called makeNewID().&nbsp; See <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/ECID.html#makeNewID()">ECID.makeNewID()</A>
+create new instances of <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/ECID.html">ECID</A>s.&nbsp;
+This factory method is called makeNewID().&nbsp; See <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/ECID.html#makeNewID()">ECID.makeNewID()</A>
 for an example.
 <H4>
 Reachability of IDs</H4>
-The <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/ECID.html">ECID</A>
+The <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/ECID.html">ECID</A>
 class implements the ID and Serializable interfaces, and therefore guarantee
 to provide uniqueness and persistence, but what about reachability?&nbsp;
 Instances of these classes don't provide any way for the 'receiver' (or
 client) of the ID instance to communicate with the actual owner of the
-identity.&nbsp; That's where the <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/ReachableID.html">ReachableID</A>
+identity.&nbsp; That's where the <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/ReachableID.html">ReachableID</A>
 interface comes in.&nbsp; This interface is a subclass of the ID interface,
-and defines the one method (<A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/ReachableID.html#resolveTo()">resolveTo</A>),
+and defines the one method (<A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/ReachableID.html#resolveTo()">resolveTo</A>),
 that allows receivers of an ReachableID instance to ask that instance for
 a means to communicate with the actual underlying owner of that ID.&nbsp;
 The resolveTo method uses some communication system to resolve the ID into
@@ -112,19 +112,19 @@ with the resulting proxy will be (i.e. if the resolution is spoofable,
 then the subsequent messaging will be spoofable...if the resolution is
 not spoofable, then the messaging will be guaranteed to be delivered 'properly').
 
-<P>The ECID class also implements the <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/ReachableID.html">ReachableID</A>
-interface.&nbsp; The <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/RMIID.html#resolveTo()">resolveTo</A>
-method is implemented by resolving the string underneath the <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/ECID.html">ECID</A>
-instance to a proxy object.&nbsp; Proxy of what?&nbsp; A proxy to an <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/ECIdentity.html">ECIdentity</A>
-instance.&nbsp; The <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/ECIdentity.html">ECIdentity</A>
+<P>The ECID class also implements the <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/ReachableID.html">ReachableID</A>
+interface.&nbsp; The <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/RMIID.html#resolveTo()">resolveTo</A>
+method is implemented by resolving the string underneath the <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/ECID.html">ECID</A>
+instance to a proxy object.&nbsp; Proxy of what?&nbsp; A proxy to an <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/ECIdentity.html">ECIdentity</A>
+instance.&nbsp; The <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/ECIdentity.html">ECIdentity</A>
 instance represents an owner's public face to the world...i.e. it exposes
 a set of methods which are available to all potential receivers of IDs.&nbsp;
 For example, when a receiver of an ECID calls the resolveTo method, the
-comm system will resolve the name in the <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/ECID.html">ECID</A>
-instance to a proxy <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/ECIdentity.html">ECIdentity</A>,
+comm system will resolve the name in the <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/ECID.html">ECID</A>
+instance to a proxy <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/ECIdentity.html">ECIdentity</A>,
 and the receiver will then be able to send any messages to the underlying
-<A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/ECIdentity.html">ECIdentity</A>
-that the <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/ECIdentity.html">ECIdentity</A>
+<A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/ECIdentity.html">ECIdentity</A>
+that the <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/ECIdentity.html">ECIdentity</A>
 allows to be sent.
 <H3>
 P.O. Box mechanism</H3>
@@ -138,13 +138,13 @@ wish for me to send you telepathy at all).&nbsp; The interfaces exposed
 by the Identity class are designed to allow the secure exchange of <I>arbitrary
 </I>capabilities (given the security demands upon the comm system are satisfied),
 and does not say anything about what those capabilities are.&nbsp; This
-capability exchange mechanism is well documented already by Trevor...<A HREF="http://www-int.communities.com/engineering/OldStuff/design_notes/identity.html">see
-nice description of the P.O. Box mechanism</A> here.&nbsp; The <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/ECIdentity.html">ECIdentity</A>
-and <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/ECIdentityOwner.html">ECIdentityOwner</A>
-classes (along with the <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/CapabilityRequestHandler.html">CapabilityRequestHandler</A>,
-<A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/CapabilityReceipt.html">CapabilityReceipt</A>
-and <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/CapabilityReceiptInterface.html">CapabilityReceiptInterface</A>
-interfaces) are used to provide this very important <A HREF="http://www-int.communities.com/engineering/OldStuff/design_notes/identity.html">P.O.
+capability exchange mechanism is well documented already by Trevor...<A HREF="../../../../www-old/engineering/OldStuff/design_notes/identity.html">see
+nice description of the P.O. Box mechanism</A> here.&nbsp; The <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/ECIdentity.html">ECIdentity</A>
+and <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/ECIdentityOwner.html">ECIdentityOwner</A>
+classes (along with the <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/CapabilityRequestHandler.html">CapabilityRequestHandler</A>,
+<A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/CapabilityReceipt.html">CapabilityReceipt</A>
+and <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/CapabilityReceiptInterface.html">CapabilityReceiptInterface</A>
+interfaces) are used to provide this very important <A HREF="../../../../www-old/engineering/OldStuff/design_notes/identity.html">P.O.
 Box mechanism</A>.&nbsp; This is intended to provide a secure, generic
 mechanism for all identity-based capability exchange (and can serve as
 a general, secure way to exchange arbitrary Java Objects by copy as well...i.e.
@@ -190,25 +190,25 @@ talking to (by exchange of certs or just public keys upon connection establishme
 This applies to all communication that is part of the proxy comm system
 (i.e. both client->PLS and client->client).&nbsp; In terms of implementation,
 RMI provides us the means to define for ourselves the transport-level authentication
-and encryption, by defining a subclass of the <A HREF="http://www-int.communities.com/ec5/doc/javadoc/java/net/Socket.html">java.net.Socket</A>
+and encryption, by defining a subclass of the <A HREF="../../../../www-int/ec5/doc/javadoc/java/net/Socket.html">java.net.Socket</A>
 class, and using our definition of the Socket class in all RMI communication
-by implementing our own <A HREF="http://www-int.communities.com/ec5/doc/javadoc/java/rmi/server/RMISocketFactory.html">RMISocketFactory</A>.&nbsp;
+by implementing our own <A HREF="../../../../www-int/ec5/doc/javadoc/java/rmi/server/RMISocketFactory.html">RMISocketFactory</A>.&nbsp;
 RMI consults the specified RMISocketFactory whenever it creates a connection
 to a remote process, and we can have it use any transport-level subclass
 of Socket to provide whatever authentication/encryption guarantees we wish
 to make for our use of RMI.
 
 <P>The P.O. Box mechanism depends upon these two guarantees, so that when
-<A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/ECID.html">ECID</A>s
+<A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/ECID.html">ECID</A>s
 are exchanged between a requester/owner, both know that if the other tries
-to reach the <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/ECIdentity.html">ECIdentity</A>
-underneath the given <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/ECID.html">ECID</A>,
-that the comm system will resolve the <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/ECID.html">ECID</A>
-to the same underlying <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/ECIdentity.html">ECIdentity</A>.&nbsp;
-The same guarantee is also important for assuring that the <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/CapabilityReceipt.html">CapabilityReceipt</A>
+to reach the <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/ECIdentity.html">ECIdentity</A>
+underneath the given <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/ECID.html">ECID</A>,
+that the comm system will resolve the <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/ECID.html">ECID</A>
+to the same underlying <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/ECIdentity.html">ECIdentity</A>.&nbsp;
+The same guarantee is also important for assuring that the <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/CapabilityReceipt.html">CapabilityReceipt</A>
 instance (the P.O. Box instance itself), that the requester provides the
-owner (in the <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/ECIdentity.html">ECIdentity.requestCapability</A>
-message), and which the owner provides back to the requester (in the <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/ECIdentity.html">ECIdentity.giveCapability</A>
+owner (in the <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/ECIdentity.html">ECIdentity.requestCapability</A>
+message), and which the owner provides back to the requester (in the <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/ECIdentity.html">ECIdentity.giveCapability</A>
 message), both refer to the same object.&nbsp; This way, the requester
 knows that the capability delivered was actually in response to the request
 (i.e. because it was delivered in the same P.O. Box).
@@ -224,15 +224,15 @@ telepathy, perhaps buddy list management and others associated with the
 pieces of messaging functionality needed for ComCom and the Palace</A>.&nbsp;
 Given the P.O. Box mechanism and the support classes in ec.id, it is extremely
 easy to build new capabilities.&nbsp; For example, there is a package called
-<A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/capabilities/package-summary.html">ec.id.capabilities</A>
+<A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/capabilities/package-summary.html">ec.id.capabilities</A>
 for code associated with specific capabilities (and to make a clean separation
 between the ECID core code described above and the code for the individual
-capability implementations).&nbsp; For example, see the <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/tests/">TelepathyCapability</A>
+capability implementations).&nbsp; For example, see the <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/tests/">TelepathyCapability</A>
 as an example of a specific capability that we will/do now support, implemented
 very simply, and provided via the P.O. Box mechanism (for the initial secure
-capability exchange).&nbsp; For example, test code that shows this <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/capabilities/TelepathyCapability.html">TelepathyCapability</A>
-exchange and successful use, see the classes <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/tests/TestCapabilityOwner.html">ec.id.tests.TestCapabilityOwner</A>
-and <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/tests/TestCapabilityRequester.html">ec.id.tests.TestCapabilityRequester</A>,
+capability exchange).&nbsp; For example, test code that shows this <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/capabilities/TelepathyCapability.html">TelepathyCapability</A>
+exchange and successful use, see the classes <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/tests/TestCapabilityOwner.html">ec.id.tests.TestCapabilityOwner</A>
+and <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/tests/TestCapabilityRequester.html">ec.id.tests.TestCapabilityRequester</A>,
 or see the source in /ec5/src/javasrc/ec/id.
 <H3>
 Capability Revocation</H3>
@@ -241,9 +241,9 @@ to revoke the capability so that it can no longer be used.&nbsp; The capability
 owner should have the ability to do this at any time...for example, after
 they've received a nasty telepathy message, when their machine goes down,
 when 1 hour goes by, etc.&nbsp; To support capability revocation, the ec.id
-package provides two classes:&nbsp; <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/BaseCapability.html">ec.id.BaseCapability</A>,
+package provides two classes:&nbsp; <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/BaseCapability.html">ec.id.BaseCapability</A>,
 which is a base class from which all capabilities are intended to inherit
-from, and <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/RevocableCapability.html">ec.id.RevocableCapability</A>,
+from, and <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/RevocableCapability.html">ec.id.RevocableCapability</A>,
 which is a class that allows the owner to call the revoke() method to revoke
 the capability to prevent any future use.&nbsp; Any subclasses of the RevocableCapability
 class will inherit this revocation behavior.&nbsp; When a subclass of RevocableCapability
@@ -265,8 +265,8 @@ goes down, and then after a long boot up process he restarts his copy of
 the Palace, then he will probably want to continue to make his telepathy
 capability available to Chip to use in the future.
 
-<P>To support this, there is a class (8/14/98) called <A HREF="http://www-int.communities.com/ec5/src/javasrc/ec/id/PersistentCapability.html">ec.id.PersistentCapability</A>,
-which is a subclass of <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/RevocableCapability.html">ec.id.RevocableCapability</A>.&nbsp;
+<P>To support this, there is a class (8/14/98) called <A HREF="../../../../www-int/ec5/src/javasrc/ec/id/PersistentCapability.html">ec.id.PersistentCapability</A>,
+which is a subclass of <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/RevocableCapability.html">ec.id.RevocableCapability</A>.&nbsp;
 This subclass will provide support for building capabilities that are persistent
 according to both the requester and the owner.&nbsp; Subclasses will be
 persistafiable by both the owner and the requester, and if revived by a
@@ -278,35 +278,35 @@ The Vat ID, in the form of a string, is an integral part of the ECID namespace.&
 That is, an ECID 'sturdy reference' (name) is made up of a) the VatID in
 which it was originally created; and b) a Swiss number provided for the
 object upon construction.&nbsp; This structure is required (and enforced)
-by the <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/registry/ECRegistry.html">ECRegistry</A>.&nbsp;
-For implementation details see the <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/package-summary.html">ec.id</A>
-package documentation/source and the <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/registry/package-summary.html">ec.registry</A>
+by the <A HREF="../../../../www-int/ec5/doc/javadoc/ec/registry/ECRegistry.html">ECRegistry</A>.&nbsp;
+For implementation details see the <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/package-summary.html">ec.id</A>
+package documentation/source and the <A HREF="../../../../www-int/ec5/doc/javadoc/ec/registry/package-summary.html">ec.registry</A>
 package documentation and source.
 <H2>
 Current Implementation</H2>
-Current implentation is in the <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/package-summary.html">ec.id</A>
-package, with support from the <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/registry/package-summary.html">ec.registry</A>
+Current implentation is in the <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/package-summary.html">ec.id</A>
+package, with support from the <A HREF="../../../../www-int/ec5/doc/javadoc/ec/registry/package-summary.html">ec.registry</A>
 package.
 <H3>
 Testing and Debugging</H3>
 Testing is underway.&nbsp; Test plan and existing test data are available
 from <A HREF="mailto:jeremy@communities.com">Jeremy</A>.&nbsp; Test programs
-exist in <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/tests/TestCapabilityOwner.html">ec.id.tests.TestCapabilityOwner</A>,
-<A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/tests/TestCapabilityRequester.html">ec.id.tests.TestCapabilityRequester</A>,
-<A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/tests/QAOwner.html">ec.id.tests.QAOwner</A>,
-and <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/tests/QARequesterOwner.html">ec.id.tests.QARequester</A>.&nbsp;
-For the ECRegistry, there is a test program in <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/registry/test/TestRegistry.html">ec.registry.test.TestRegistry</A>.
+exist in <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/tests/TestCapabilityOwner.html">ec.id.tests.TestCapabilityOwner</A>,
+<A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/tests/TestCapabilityRequester.html">ec.id.tests.TestCapabilityRequester</A>,
+<A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/tests/QAOwner.html">ec.id.tests.QAOwner</A>,
+and <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/tests/QARequesterOwner.html">ec.id.tests.QARequester</A>.&nbsp;
+For the ECRegistry, there is a test program in <A HREF="../../../../www-int/ec5/doc/javadoc/ec/registry/test/TestRegistry.html">ec.registry.test.TestRegistry</A>.
 <H3>
 Performance</H3>
 Performance data gathering is underway.&nbsp; See <A HREF="mailto:jeremy@communities.com">Jeremy</A>
 for existing data.&nbsp; Architecturally speaking, there is no native code,
-very little java code in general, and no looping within the <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/package-summary.html">ec.id</A>
+very little java code in general, and no looping within the <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/package-summary.html">ec.id</A>
 package at all.
 <H3>
 Exception Handling</H3>
-See the exception descriptions for the methods in <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/ECIdentity.html">ECIdentity</A>,
-<A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/ECID.html">ECID</A>,
-and the <A HREF="http://www-int.communities.com/ec5/doc/javadoc/ec/id/BaseCapability.html">BaseCapability
+See the exception descriptions for the methods in <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/ECIdentity.html">ECIdentity</A>,
+<A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/ECID.html">ECID</A>,
+and the <A HREF="../../../../www-int/ec5/doc/javadoc/ec/id/BaseCapability.html">BaseCapability
 </A>classes.
 <H3>
 Off The Shelf Alternatives</H3>
@@ -315,7 +315,7 @@ as the proxy comm layer is an off-the-shelf alternative.&nbsp; Other possible
 candidates for the proxy comm system are <A HREF="http://www.objectspace.com">Objectspace's
 Voyager</A> product, <A HREF="http://www.microsoft.com">DCOM</A>.&nbsp;
 I know of no existing alternative for the secure capabilities exchange
-mechanism and for the <A HREF="http://www-int.communities.com/ec5/src/javasrc/ec/id/package-summary.html">ec.id</A>
+mechanism and for the <A HREF="../../../../www-int/ec5/src/javasrc/ec/id/package-summary.html">ec.id</A>
 package.
 <H3>
 Interactions and Dependencies with Other Subsystems</H3>

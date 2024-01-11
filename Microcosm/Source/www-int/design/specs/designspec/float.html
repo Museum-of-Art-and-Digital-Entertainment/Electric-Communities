@@ -1,0 +1,258 @@
+<html><head><title>Floating Camera Scenario</title></head>
+<body bgcolor=#ffffff>
+ 
+<a href="infratoc.html">[Top]</a> <a href="avatar.html">[Prev]</a> <a href="turf.html">[Next]</a> <a href="scenario.html">[Bottom]</a>
+<hr><br>
+ 
+<a name="996747">
+<h1>Floating Camera Scenario</h1>
+</a>
+<hr><p><a name="996763">
+F. Randall Farmer, 5/13/97<p>
+</a><a name="996780">
+<p>
+</a><a name="996787">
+<p>
+</a><a name="996790">
+<p>
+</a><hr><a name="996793">
+<h1> Problem Analysis (Making the Problem Simpler)</h1>
+</a><a name="996806">
+<p>
+</a><a name="996813">
+When considering floating camera models for the FCS of the EC home system platform, we must consider several design tradeoff spaces (AKA possible sources of Purple Boxes:)<p>
+</a><a name="996818">
+<p>
+</a><ul><a name="996821">
+<li> User Interface - How will it change? Is it familiar?
+</a><a name="996826">
+<li> Renderer performance - Will it be fast and extensible enough?
+</a><a name="996831">
+<li> Region/Realm design - What are the constraints and visibility rules?
+</a><a name="996836">
+<li> Transitions - Depending on navigation model, this could be tricky.
+</a></ul><a name="996841">
+<p>
+</a><a name="996844">
+The renderer technical issues section of this proposal is being written separately by Russ Pflughaupt. I'll focus on the UI implications in this section&Ouml;<p>
+</a><a name="996855">
+<p>
+</a><pre><a name="996862">           Camera
+</a><a name="996875">             ^
+</a><a name="996888">            / \
+</a><a name="996907">           /   \
+</a><a name="996926">          /     \ 
+</a><a name="996951">         /     Fixed*
+</a><a name="996964">        /      /   \
+</a><a name="996983">       /      /     \        
+</a><a name="997008">      /  Multiple* Pivoting
+</a><a name="997021">     /
+</a><a name="997034">    Floating
+</a><a name="997047">     /    \
+</a><a name="997066">    /      \
+</a><a name="997085">   1st      3rd  (POV)
+</a><a name="997138">            ^
+</a><a name="997151">          / | \
+</a><a name="997170">         /  |  \
+</a><a name="997189">        /   |   \
+</a><a name="997208">       /    |    \
+</a><a name="997227">  Tether  Free  Smart
+</a><a name="997240">   (Operator)   (Social)
+</a></pre><a name="997253">
+<p>
+</a><a name="997256">
+Notes: `Tether' means that the camera is movable by the player on a "tether" around the character's current position (allowing the user to look away from the character with a special control mode). Mario-64 and Tomb Raider both offer Smart-3rd POV and tethered camera modes.<p>
+</a><a name="997293">
+<p>
+</a><a name="997296">
+The pivoting camera is a variant of the fixed camera that tracks avatars as they move within the room.<p>
+</a><a name="997301">
+<p>
+</a><a name="997304">
+<p>
+</a><pre><a name="997307">        Navigation
+</a><a name="997320">         /       \
+</a><a name="997339">        /         \
+</a><a name="997358">     Direct   Indirect (Pointer)
+</a><a name="997371">       ^          /
+</a><a name="997384">      / \        /
+</a><a name="997409">     /   \  (MUTUALLY EXCLUSIVE) 
+</a><a name="997434">    /     \    /
+</a><a name="997463">   /       \  /
+</a><a name="997488">Keyboard   Mouse
+</a><a name="997501">(Arrows) (Joystick)
+</a></pre><a name="997514">
+<p>
+</a><a name="997521">
+The stars (*) represent interfaces/cameras that EC has already committed to provide.<p>
+</a><a name="997530">
+<p>
+</a><a name="997533">
+Notes: Direct navigation is moving the avatar's body continuously. Indirect navigation is moving the avatar's body by selecting objects in the scene.<p>
+</a><a name="997546">
+<p>
+</a><hr><a name="997549">
+<h1> UI Implications of the floating camera choices</h1>
+</a><a name="997562">
+<p>
+</a><a name="997569">
+<h2> 1st person POV</h2>
+</a><a name="997602">
+1st person POV floating camera requires a direct navigation method be supported, either or both of Keyboard and/or Mouse.<p>
+</a><a name="997623">
+<p>
+</a><a name="997626">
+Possible navigation/object selection tradeoffs:<p>
+</a><a name="997631">
+Scenario 1.1: Navigation: Keyboard, Object Selection: Pointer<p>
+</a><a name="997636">
+Scenario 1.2: Nav: Keyboard &amp; Mouse, Select: Fixed Cross-hairs<p>
+</a><a name="997641">
+<p>
+</a><a name="997644">
+Some [purple?] design boxes required for 1st POV floating camera:<p>
+</a><ul><a name="997661">
+<li>Conversational context is difficult with people behind your back.
+</a><a name="997666">
+<li>Word balloons don't work.
+</a><a name="997675">
+<li>How do you select your own avatar? How do you know what you look like?
+</a><a name="997680">
+<li>In scenario 1.2, many objects may not be easily selected.
+</a><a name="997685">
+<li>Direct navigation and portals (bump sensors).
+</a><a name="997690">
+<li>Portal visibility into other regions [an open issue for all POV types]
+</a></ul><a name="997695">
+<p>
+</a><a name="997701">
+<h2> 3rd person POV</h2>
+</a><a name="997734">
+There are three flavors of the 3rd person POV camera: Tether, Free and Smart.<p>
+</a><a name="997755">
+<p>
+</a><a name="997758">
+Since the tethered floating camera is connected to the avatar, it requires a direct manipulation method/mode for the camera itself (separate from the avatar's navigation control.) This typically means either a modifier key/button for the standard nav method, or a special controler. For example:<p>
+</a><a name="997767">
+<p>
+</a><a name="997770">
+Scenario: 2.1: Nav: Keyboard, Camera: Mouse, Select: cross-hairs<p>
+</a><a name="997775">
+Scenario: 2.2: Nav: Mouse, Camera: button+mouse, Select: cross-hairs, etc.<p>
+</a><a name="997780">
+<p>
+</a><a name="997783">
+The design boxes for tethers include ALL of the 1st person design boxes (as the camera does not include the entire scene) along with:<p>
+</a><ul><a name="997800">
+<li>If modifiers are used, how does one get at the pie menus?
+</a><a name="997805">
+<li>How far can the camera travel (how long is the tether?)
+</a><a name="997810">
+<li>What do we do about tilt (as the sprites/heads look funky at &gt; 45o)
+</a></ul><a name="997827">
+<p>
+</a><a name="997830">
+The free camera is what we currently have implemented in the PCForum demo. It has all the problems of the tether camera and more because it is untethered. It can go anywhere. This causes significant region design problems for users (in real life, people can't look in all the nooks and crannies in your house.) Rather than do a complete breakdown on all the new purple boxes this adds, I'm going to eliminate this camera by fiat.<p>
+</a><a name="997853">
+<p>
+</a><a name="997856">
+The Smart 3rd person POV floating camera attempts to capture the conversational context created in the fixed camera regions. Every avatar in a conversational "bubble" is included in the view of the camera. This camera (along with good region design) can be significantly constrained so that view angles account for rendering requirements and critical objects are always in view. One way to think about a simple version of this camera is like a "multiple fixed" camera that is positioned along a continuum instead of at fixed points.<p>
+</a><a name="997893">
+<p>
+</a><a name="997896">
+With this camera, the navigation method can be considered independently of the camera (since the user doesn't move the camera.)<p>
+</a><a name="997905">
+<p>
+</a><a name="997908">
+Design boxes for Smart 3rd Person POV floating camera:<p>
+</a><ul><a name="997925">
+<li>How do we constrain the camera?
+</a><a name="997930">
+<li>How do we make/break conversation bubbles (in large spaces)?
+</a><a name="997935">
+<li>Do we allow zooming?
+</a><a name="997940">
+<li>Should everyone share the same camera?
+</a></ul><a name="997945">
+To be certain all objects can be selected, we need to allow the user to choose [an] alternate view[s]. (Perhaps all regions should provide at least one fixed camera view as well? This would help EVERY floating camera model.)<p>
+</a><a name="997950">
+<p>
+</a><hr><a name="997953">
+<h1> Recommendation </h1>
+</a><a name="997966">
+<p>
+</a><a name="997969">
+Rather than bite off the several hard (100% new design and engineering) tasks on the Smart-3rd person POV camera's list we will instead implement the 1st person POV floating camera model. This will provide the customer and region designer with the widest range of interactive tools on the market, and it's relatively easy (no hard tasks.)<p>
+</a><a name="998006">
+<p>
+</a><a name="998009">
+We'll also implement the pivoting fixed camera model as a prototype of  `stupid' social camera (leaving a clean hook for post 1.0 work on the `smart' camera.)<p>
+</a><a name="998034">
+<p>
+</a><a name="998037">
+Task boxes for this recommendation:<p>
+</a><ul><a name="998042">
+<li>We implement camera as unum.
+</a><a name="998047">
+<li>We implement a pivoting fixed camera, which tracks the 'center of group mass.'
+</a><a name="998052">
+<li>All regions provide at least one 3rd person fixed or pivoting camera.
+</a><a name="998057">
+<li>Some regions may be designed for a floating, 1st person camera.
+</a><a name="998062">
+<li>In those floating camera regions, the user can select between views.
+</a></ul><a name="998067">
+[For all views]<p>
+</a><ul><a name="998072">
+<li>A keyboard option for navigation is provided, and portals get proximity detectors.
+</a><a name="998077">
+<li>The mouse is preserved as a floating pointer for object/verb selection.
+</a><a name="998082">
+<li>In floating camera view, the scene is not rendered under the word balloons, and avatar names are attached to utterances. (Coloring stays, Quips might stay.)
+</a><a name="998087">
+<li>  (Russ says we can put any fat bitmap behind the text, this would allow region creators some flexibility.)
+</a></ul><a name="998092">
+<p>
+</a><a name="998095">
+<h2> Rendering Issues (Proposed region design constraints)</h2>
+</a><a name="998108">
+The renderer we use will work with any floating camera model we choose (see Russ's attached document <em>3D Issues.</em>) Where the floating camera model intersects with the renderer is in region creation. The renderer uses various methods (Z-buffering, BSP tress, and visibility trees) to maximize frame rate.<p>
+</a><a name="998133">
+<p>
+</a><a name="998136">
+The bad news: Unfortunately, the BSP and visibility trees are static take a large amount of time to generate (typically minutes to hours.) <p>
+</a><a name="998141">
+<p>
+</a><a name="998148">
+The good news: Z-buffering alone requires no pre-compilation time, and produces reasonable results for typical single rooms or outside areas, even if there are no optimization trees.<p>
+</a><a name="998157">
+<p>
+</a><a name="998160">
+So, as long as we're not trying to create multi-room regions, the contained objects can be dynamically movable. Indoor regions would be designed to have opaque portals (doors), and outdoor regions would not connect to other outdoor regions (reachable by teleport or doorway only.) These limitations will prevent having to solve any portal visibility problems for version 1.0, as well as limiting the pixel complexity of regions without optimization trees.<p>
+</a><a name="998759">
+<p>
+</a>
+<hr><br>
+ 
+<a href="infratoc.html">[Top]</a> <a href="avatar.html">[Prev]</a> <a href="turf.html">[Next]</a> <a href="scenario.html">[Bottom]</a>
+<hr><br>
+ 
+
+
+<address>
+<a href="mailto:yourEmail@xyzcorp.com">yourEmail@xyzcorp.com</a>
+</address>
+
+<i>Copyright &#169; 1997, XYZ Corporation.   All rights
+reserved.</i>
+
+<!-- This file was created with Quadralay WebWorks Publisher 3.0.9 -->
+<!-- -->
+<!-- For more information on how this document, and how the rest of -->
+<!-- this server was created, email yourEmail@xyzcorp.com -->
+<!-- -->
+<!-- Last updated: 05/22/97 10:31:09 -->
+
+</body>
+</html>
+
