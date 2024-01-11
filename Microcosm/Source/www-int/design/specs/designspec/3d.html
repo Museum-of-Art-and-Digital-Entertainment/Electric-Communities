@@ -1,0 +1,182 @@
+<html><head><title>3D Issues</title></head>
+<body bgcolor=#ffffff>
+ 
+<a href="infratoc.html">[Top]</a> <a href="hub.html">[Prev]</a> <a href="unumui.html">[Next]</a> <a href="scenario.html">[Bottom]</a>
+<hr><br>
+ 
+<a name="996993">
+<h1>3D Issues</h1>
+</a>
+<hr><p><a name="996994">
+<p>
+</a><a name="996995">
+This document attempts to highlight some performance issues with rendering from a floating 3D camera.  We begin with a general description of the renderer's graphics pipeline, then proceed to z-buffering, BSP trees and visibility, and finish with a section on cheap and dirty tricks and some actual data.<p>
+</a><a name="996996">
+<p>
+</a><hr><a name="996997">
+<h1> Typical Graphics Pipeline</h1>
+</a><a name="996998">
+<p>
+</a><a name="996999">
+The renderer's graphics pipeline consists of  multiple stages.  For the purposes of this write-up, we'll look at a few of the key components of the pipeline.  These are:<p>
+</a><a name="997000">
+<p>
+</a><a name="997001">
+	Transformation: <p>
+</a><dl>
+<a name="997080">
+<dt><dd> Multiplies the vertices by a perspective transform to compute the screen coordinates (aka device coordinates) of  the polygon.
+</a></dl>
+<a name="997003">
+	Scan conversion<p>
+</a><dl>
+<a name="997081">
+<dt><dd> Takes each device coordinate edge of the polygon and computes deltas from one scanline to the next as well as deltas across each scanline.  The computed deltas are dx/dy, dz/dy, du/dy, dv/dy, dz/dx, du/dx and dv/dx (where u and v are texture coordinates).
+</a></dl>
+<a name="997005">
+	Z-buffering<p>
+</a><dl>
+<a name="997082">
+<dt><dd> Each span from the scan conversion is thrown at the z-buffer and the parts that come back go on to be rendered.  Note that a span can be entirely hidden, entirely visible, or cut up into an arbitrary number of smaller spans.
+</a></dl>
+<a name="997007">
+	Texturing<p>
+</a><dl>
+<a name="997083">
+<dt><dd> Each span that survives the z-buffer phase gets rendered on the screen.  The texturing operation on an 8-bit window system takes about 6 cycles/pixels, on a 16-bit window system it takes about 7 cycles/pixel, and on 24-bit and 32-bit window systems it takes about 25 cycles/pixel (this is largely due to the fact that the texture maps are stored as 16-bit data [this decision came from the Putty-days, when  keeping the memory footprint small was extremely important], so we have to unpack the 16-bit data to render it on the 24-bit and 32-bit displays).  Certain things increase the cost of texturing.  Items on this list would be blending (have to do math to blend background in frame buffer with current texel), transparency in the texture map (have to perform an if-test per pixel), and perspective correct texture mapping (have to perform occasional floating point divides).
+</a></dl>
+<a name="997008">
+<p>
+</a><hr><a name="997009">
+<h1> Hidden surface elimination via z-buffering</h1>
+</a><a name="997010">
+<p>
+</a><a name="997011">
+The renderer implements a full z-buffer, and this can safely be used to resolve all hidden surface issues.  Solely relying on the z-buffer has the very nice property that all geometry is free to move about in an unconstrained manner.  The bad part about relying only on the z-buffer is that it's not the fastest way to render things.  Texturing pixels tends to take most of the time spent in the renderer, particularly for static geometry where the number of pixels/polygon is large, and the z-buffer will not prevent the same screen pixel from being textured multiple times.  For example, suppose Polygon A is behind Polygon B.  If you draw A first and then B, the area of overlap between A and B will be textured twice.<p>
+</a><a name="997012">
+<p>
+</a><a name="997013">
+To look at how bad the z-buffer is requires looking at the pixel complexity of a scene.  By pixel complexity, I mean the average number of polygons behind all the pixels in the window.  If you have a camera inside of a cube, the pixel complexity is exactly 1.0 (i.e. there is no way that any polygon can be in front of any other polygon).  Pixel complexities for modest scenes tend to be between 1.5 and 2.5.  When using a z-buffer, it is possible through either dumb luck or clever engineering to render polygons in a front to back manner.  This is a good thing.  However, dumb luck could also produce worst case rendering (back to front), and clever engineering can also do surprising bad.  The typical engineering trick is to do a z-sort of the polygons before throwing them at the z-buffer.  However, this only works well when the polygon sizes are fairly uniform and objects are spaced reasonably well away from each other.  If this method is used, care needs to be taken in the construction of the geometry to ensure a reasonable increase in performance.  In short, the z-buffer will always display variance, and almost always will have pixels being overdrawn.  Typical overdraw is roughly halfway between best and worst case, and careful region design with some programming could skew this much closer to best case.<p>
+</a><a name="997014">
+<p>
+</a><hr><a name="997015">
+<h1> Hidden surface elimination via a BSP tree</h1>
+</a><a name="997016">
+<p>
+</a><a name="997017">
+To solve the overdraw problem, many 3D game engines use BSP (Binary Space Partitioning) trees to achieve zero pixel overdraw.  The BSP tree is a geometric data structure that partitions all of space in a very structured way.  Discussing how to go about building a BSP tree is beyond the scope of this document, but suffice it to say that the BSP tree can give us an ordering of geometry that is perfectly front-to-back. Once you have this, you can mark regions of the frame buffer that have already been drawn to, so that subsequent geometry is not allowed to draw in those areas.  Note that this method is only effective is there actually is overdraw!  There would be no performance difference between a pure z-buffer approach and a BSP tree for a camera inside of a cube.<p>
+</a><a name="997018">
+<p>
+</a><a name="997019">
+One of the current limitations with the BSP tree "compiler" in the renderer is that it cannot handle completely arbitrary geometry.  All objects must be completely separable from all other objects by 3D planes.  For those of you that have seen the sub-marine room demo, it's obvious that you can do a heck of a lot even with this constraint.  You just can't do everything.  Interpenetrating objects are obviously a no-no, but even more subtle restrictions apply.  The following diagram demonstrates three simple non-interpenetrating objects that the renderer cannot currently build a BSP tree for.<p>
+</a><a name="997020">
+<p>
+</a><a name="997023">
+<img src="3da.gif"><p>
+</a><a name="997024">
+<p>
+</a><a name="997025">
+The renderer could be extended to chop up the objects as needed until they mutually become separable.  This would be about a week or so of work, and would have the consequence of increasing the polygon count.  This may be a good trade-off though if getting regions out quickly is more important than an extra 5% in frame rate.<p>
+</a><a name="997026">
+<p>
+</a><a name="997027">
+One added benefit of zero-pixel overdraw is that you never have to clear the window.  All the data structures needed to keep track of what part of the screen has been rendered to enables us to quickly check if any portion of the screen has not been written to.  In practice this only happens if the geometry is incomplete or if there are seam lines between polygons (caused by numerical inaccuracies in 3D modelers).<p>
+</a><a name="997028">
+<p>
+</a><a name="997029">
+One other thing about BSP trees is that they take a non-trivial amount of time to compute.  Without object splitting, constructing a BSP tree takes between 1 and 60 seconds on a Pentium, depending on the complexity of the model.  The cave geometry from the PCForum demo I think was around 10 seconds.  Adding the capability of object splitting could possibly double the construction time.<p>
+</a><a name="997030">
+<p>
+</a><a name="997031">
+<p>
+</a><hr><a name="997032">
+<h1> Visibility Information</h1>
+</a><a name="997033">
+<p>
+</a><a name="997034">
+The BSP tree allows us to only texture every pixel once for all the static scene geometry.  However, it does nothing for the higher parts of the graphics pipeline, namely transformations, scan conversion and z-buffering/zero-overdraw.  It would be very helpful to know that some geometry is impossible to see from some areas.  For example, if I'm sitting in the Board Room, I really don't want to spend any cycles scan converting Randy's cubicle.  By pre-computing the visibility for a set of geometry, we can trivially cull away large chunks of geometry very high in the graphics pipeline for any camera viewpoint.<p>
+</a><a name="997035">
+<p>
+</a><a name="997036">
+Like BSP trees, visibility only works on static geometry.  Even worse then BSP trees, computing the visibility of a set of geometry is extremely an time intensive process.  Some Quake levels have been stated as taking literally hours to compute on a 4-processor Alpha.  The up side is that it is a wonderful performance leveler for complicated sets of geometry.  If regions were to be as complex as, say, 10101 De Anza Blvd, then pre-computed visibility would be a must.  As with BSP trees, visibility only helps with certain types of geometry.  If the geometry is fairly simple (like the cube room), little to nothing is gained from pre-computed visibility information.<p>
+</a><a name="997037">
+<p>
+</a><hr><a name="997038">
+<h1> Cheap and dirty frame rate tricks</h1>
+</a><a name="997039">
+<p>
+</a><a name="997040">
+Here's a list of some little hacks for increasing frame rate.<p>
+</a><a name="997041">
+<p>
+</a><ul><a name="997042">
+<li>	Reduce the number of pixels textured by <strong>rendering in a lower resolution</strong> (320x240, 480x360, etc).  Since the FOV remains constant, the same number of polygons are rendered and so the transform and scan conversion costs remain the same.
+</a><a name="997044">
+<li>	Reduce the number of polygons rendered by <strong>using smaller FOVs.</strong>  This tends to keep the number of pixels textured constant, but will reduce the transform and scan conversion costs.
+</a><a name="997046">
+<li>	Render in lower resolutions and <strong>pixel replicate</strong> to fill the screen at a higher resolution.
+</a><a name="997048">
+<li>	<strong>Obscuring parts of the screen</strong> is an excellent way to reduce your costs arbitrarily.  The best thing is to lop off whole chunks of the top/bottom/left/right of the screen so that the FOVs can be reduced (this way transforms, scan conversion, and texturing are all helped).  Failing this, even just pre-registering arbitrary portions of the screen can be used to eliminate all texturing under the defined areas.
+</a></ul><a name="997049">
+<p>
+</a><hr><a name="997050">
+<h1> Data!</h1>
+</a><a name="997051">
+<p>
+</a><a name="997052">
+I ran some sample regions that Parker gave me through the renderer.  Here's what I found:<p>
+</a><a name="997053">
+<p>
+</a><a name="997054">
+	The highest frame rate running in 8-bit color depth was 19 fps on a P133.  The highest frame rate in 16-bit color depth was 16 fps.  This was achieved by sticking the camera right up against a wall that had nothing behind it.  Culling versus the viewing frustum removes most geometry, and the pixel complexity is 1.0.  Rendering in 24-bit and 32-bit color is broken right now, but I'd guess that the frame rate in both these settings is at or below 10 fps.  There's still room for frame rate improvement in the renderer, not a lot, but probably between 10-25%.<p>
+</a><a name="997055">
+<p>
+</a><a name="997056">
+	Turning your view to a set of real geometry, but still with zero pixel overdraw drops the frame rate by about 25% for a modest scene (this was measured looking down Parker's cavets1.obj, a long tube), independent of bit depth.<p>
+</a><a name="997057">
+<p>
+</a><a name="997058">
+	For the file glen.obj, the worst-case pixel complexity I could find was 2.1.  For cavest.obj, the worst-case pixel complexity was 2.9, and for cavet.obj, worst-case pixel complexity was 3.0.  I had to work a bit to find these worst case positions.  It is unlikely that these positions would be encountered in a typical viewing.  It is much more likely for pixel complexities to be between 1.25 and 1.75.<p>
+</a><a name="997059">
+<p>
+</a><a name="997060">
+	None of these tests were run with Java.  I've heard different estimates for how much of the CPU the Java code will require (assuming everything is compiled native except for the Com).  I'd put my money on 10-25%.  Of course, until we measure it, we won't know for sure.<p>
+</a><a name="997061">
+<p>
+</a><a name="997062">
+	This entire document has only addressed the performance trade-offs for static geometry.  All props and avatars will be thrown at the z-buffer for rendering.  This obviously pushes the pixel complexity up, and the frame rate down.<p>
+</a><a name="997063">
+<p>
+</a><a name="997064">
+<p>
+</a><a name="997181">
+Russell Pflughaupt, 5/12/97<p>
+</a><a name="997182">
+<p>
+</a><a name="996946">
+<p>
+</a>
+<hr><br>
+ 
+<a href="infratoc.html">[Top]</a> <a href="hub.html">[Prev]</a> <a href="unumui.html">[Next]</a> <a href="scenario.html">[Bottom]</a>
+<hr><br>
+ 
+
+
+<address>
+<a href="mailto:yourEmail@xyzcorp.com">yourEmail@xyzcorp.com</a>
+</address>
+
+<i>Copyright &#169; 1997, XYZ Corporation.   All rights
+reserved.</i>
+
+<!-- This file was created with Quadralay WebWorks Publisher 3.0.9 -->
+<!-- -->
+<!-- For more information on how this document, and how the rest of -->
+<!-- this server was created, email yourEmail@xyzcorp.com -->
+<!-- -->
+<!-- Last updated: 05/22/97 10:31:10 -->
+
+</body>
+</html>
+
