@@ -12,17 +12,17 @@
 ## Introduction
 Electric Communities was formed to develop a secure, distributed platform for online socialization and commerce. The first demonstration of this was Microcosm (aka EC Habitat). Microcosm was a 3D virtual world, in which people could meet, talk (by typing or speaking), and exchange objects - it created the E programming language and did pioneering research into many modern programming techniques, such as webapps, promises/futures. EC later grew to include the work of The Palace Inc, and Onlive Technologies.
 
-Here's a video of it running in '97: 
-
-[![Randy Demos ECHAbitats](https://img.youtube.com/vi/KNiePoNiyvE/0.jpg)](https://www.youtube.com/watch?v=KNiePoNiyvE)
-
-Thanks to the leadership of The MADE (Museum of Art and Digital Entertainment) working with the [Spritely Networked Communities Institute](http://spritely.institute), we are working to make [EC IP](https://docs.google.com/document/d/19iarmahK9_-Yp9VKF_yQ4vRY78fisViAuCAqsTkUQuo/edit?usp=sharing) open source.
+Thanks to the leadership of The MADE (Museum of Art and Digital Entertainment) working with the [Spritely Networked Communities Institute](http://spritely.institute), we are working to make [EC IP](https://docs.google.com/document/d/19iarmahK9_-Yp9VKF_yQ4vRY78fisViAuCAqsTkUQuo/edit?usp=sharing) open source. This work would not be possible without the permission of Open Text (current rights holder) and is done in compliance with the [Archival Agreement](https://github.com/Museum-of-Art-and-Digital-Entertainment/Electric-Communities/blob/main/Archival-Agreement.pdf).
 
 ## This Hack Day: restoring/opening the first 3D distributed metaverse
-We’ve gathered repositories from far and wide, and today we bite off the first chunk: 
+We’ve gathered repositories from far and wide, and today we bite off the first chunk --
 Restoring the first decentralized metaverse: EC Habitats Beta (WIndows PC) full working condition (peer-to-peer virtual worlds) as well as attempting to recover the source code and documentation for that project.
 
 Future hack days will attack other portions of the extensive EC product portfolio, including The Palace, E, Passport, and Onlive.
+
+Here's a video ECHabitats/Microcosm running in '97: 
+
+[![Randy Demos ECHAbitats](https://img.youtube.com/vi/KNiePoNiyvE/0.jpg)](https://www.youtube.com/watch?v=KNiePoNiyvE)
 
 ## SETUP TASKS 
 * StuBlad has created a [Windows-11 compatible installer executable](https://github.com/Museum-of-Art-and-Digital-Entertainment/Electric-Communities/blob/main/Microcosm/ECHabitatBeta/Restoration/ECHabitatsInstaller_r167.exe) of EC Habitats r167
