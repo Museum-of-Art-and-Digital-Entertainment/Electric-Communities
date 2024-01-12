@@ -2,6 +2,7 @@
 #### January 13th 2024 12 noon until ?? Pacific time
 
 * Physical Location: The MADE in Oakland, CA https://www.themade.org/
+* Meetup Event: https://www.meetup.com/themade/events/298500842/
 * Live Stream: #hack-day on https://discord.gg/eTN9kHBYsZ
 * Ongoing Community: #ec-habitats on https://neohabitat.slack.com
 * Hack Day Coordinator: Randy Farmer randy@spritely.institute
