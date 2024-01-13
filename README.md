@@ -4,6 +4,7 @@
 * Physical Location: The MADE in Oakland, CA https://www.themade.org/
 * Meetup Event: https://www.meetup.com/themade/events/298500842/
 * Live Stream: #hack-day on https://discord.gg/eTN9kHBYsZ
+* Live Stream: https://www.twitch.tv/themadeoakland/
 * Ongoing Community: #ec-habitats on https://neohabitat.slack.com
 * Hack Day Coordinator: Randy Farmer randy@spritely.institute
 * Repository: https://github.com/Museum-of-Art-and-Digital-Entertainment/Electric-Communities
