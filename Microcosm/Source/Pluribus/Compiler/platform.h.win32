@@ -1,0 +1,2 @@
+#define PLDELIMITER    ';'
+#define strcasecmp _stricmp
