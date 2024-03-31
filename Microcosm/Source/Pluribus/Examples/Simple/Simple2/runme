@@ -1,0 +1,3 @@
+#!/bin/sh
+echo To start the second presence, type 'runme who=(earl listed below)'
+java -debug ec.e.start.EBoot ec.pl.runtime.Agency Agent=ec.pl.examples.simple.Simple $*

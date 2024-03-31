@@ -1,0 +1,187 @@
+export unit RefIng {
+
+  package ec.pl.examples.testbed;
+
+  import ec.e.lang.*;
+  import ec.e.net.ERegistrar;
+  import ec.e.net.ERegistration;
+
+  // R1
+  export kind ukUnumReference {
+  uSendCurrentReference(RtEnvelope env);
+  uForwardToCurrentReference(EResult dist);
+  }
+
+  // R2
+  export kind ukSetUnumReference {
+  uSetUnumReference(kind ukSetUnumReference target);
+  }
+
+  // R3 the presence-level interface that a server referent ingredient
+  // offers it's client referent ingredient.  Currently there is
+  // no trust boundary implemented here - any client can set the server
+  // ingredient's reference
+  export kind pkHostReferent {
+  pHostSendCurrentReference(RtEnvelope env);
+  pHostForwardToCurrentReference(EResult dist);
+    pHostSetUnumReference(kind ukSetUnumReference target); 
+  }
+
+  // R4 the presence-level interface that a client referent ingredient
+  // offers it's server Referent, used to update all client Referents
+  // as to the current Reference
+  export kind pkClientReferent {
+  pClientSetUnumReference(kind ukSetUnumReference target);
+  }
+
+  // R5 the structural ingredient kind for the server referent
+  // ingredient - a union of the kinds this ingredient implements
+  // for the unum and the kinds it supports for inter-presence
+  // messaging
+  export kind iskHostReferent {
+    kind ukUnumReference;
+  kind ukSetUnumReference;
+  kind pkHostReferent;
+  }
+ 
+  // R6 the structural ingredient kind for the client referent
+  // ingredient - a union of the kinds this ingredient implements
+  // for the unum.  The client ingredient has no kinds for
+  // inter-presence messaging
+  export kind iskClientReferent {
+    kind ukUnumReference;
+  kind ukSetUnumReference;
+  kind pkClientReferent;
+  }
+ 
+  // R7
+  export ingredient impl iiHostReferent {
+    kind iskHostReferent;
+
+    export kind ukSetUnumReference targetUnum;
+
+  Vector myClientReferents;
+
+  init () {
+      myClientReferents = environment.otherPresences;
+  }
+
+  // Should be handled by runtime
+  function void sendToClients(RtEnvelope env) {
+    BasePresence.sendEnvelopeToOthers(environment.otherPresences, env);
+  }
+
+  method uSetUnumReference(kind ukSetUnumReference target)
+  {
+    targetUnum = target;
+        System.out.println("iskHostReferent: uSetUnumReference: Unum reference set.");
+    
+    RtEnvelope env;
+    env <- (kind pkClientReferent).pClientSetUnumReference(targetUnum);
+    sendToClients(env);
+  }
+
+  method pHostSetUnumReference(kind ukSetUnumReference target)
+  {
+    targetUnum = target;
+        System.out.println("iskHostReferent: pHostSetUnumReference: Unum reference set by msg from client referent.");
+    
+    RtEnvelope env;
+    env <- (kind pkClientReferent).pClientSetUnumReference(targetUnum);
+    sendToClients(env);
+  }
+
+  // send a msg (envelope) on to the current reference (an unum)
+  method uSendCurrentReference(RtEnvelope env) 
+  {
+    targetUnum <- env;
+        System.out.println("iskHostReferent: uSendCurrentReference: Envelope sent.");
+  }
+  
+  // send a msg (envelope) on to the current reference (an unum)
+  method pHostSendCurrentReference(RtEnvelope env) 
+  {
+    targetUnum <- env;
+        System.out.println("iskHostReferent: pHostSendCurrentReference: Envelope sent on msg from client referent.");
+  }
+
+  // hook up a channel to the current unum reference, by
+  // forwarding the current reference to the distributor
+  method uForwardToCurrentReference(EResult dist)
+  {
+    dist <- forward(targetUnum);
+        System.out.println("iskHostReferent: uForwardToCurrentReference: Forwarded reference.");
+  }
+  
+  method pHostForwardToCurrentReference(EResult dist)
+  {
+    dist <- forward(targetUnum);
+        System.out.println("iskHostReferent: pHostForwardToCurrentReference: Forwarded reference on msg from client referent.");
+  }
+
+  }
+  
+  // R8
+  export ingredient impl iiClientReferent {
+    kind iskClientReferent;
+
+        export kind ukSetUnumReference targetUnum;
+
+  kind pkHostReferent myHostReferent;
+
+
+  init (kind ukSetUnumReference target) {
+      targetUnum = target;
+      myHostReferent = (kind pkHostReferent)environment.hostPresence;
+  }
+
+  // neighbor presence ipnHostReferent kind pkHostReferent;
+
+  method uSetUnumReference(kind ukSetUnumReference target)
+  {
+  //  ipnHostReferent <- pHostSetUnumReference(target);
+    // XXX this seems redundant with the init
+    if (myHostReferent == null)  {
+      myHostReferent =
+        (kind pkHostReferent)environment.hostPresence;
+    }
+    myHostReferent <- pHostSetUnumReference(target);
+        System.out.println("iskClientReferent: uSetUnumReference: msging the HostReferent.");
+  }
+
+  // XXX require cookie
+  method pClientSetUnumReference(kind ukSetUnumReference target) {
+    targetUnum = target;
+        System.out.println("iskClientReferent: pClientSetUnumReference: Reference updated by server Referent.");
+  }
+
+  // send a msg (envelope) on to the current reference (an unum)
+  method uSendCurrentReference(RtEnvelope env) 
+  {
+  //  ipnHostReferent <- pHostSendCurrentReference(env);
+    // XXX this seems redundant with the init
+    if (myHostReferent == null)  {
+      myHostReferent =
+        (kind pkHostReferent)environment.hostPresence;
+    }
+    myHostReferent <- pHostSendCurrentReference(env);
+        System.out.println("iskClientReferent: uSendCurrentReference: msging the HostReferent.");
+  }
+
+  // hook up a channel to the current unum reference, by
+  // forwarding the current reference to the distributor
+  method uForwardToCurrentReference(EResult dist)
+  {
+  //  ipnHostReferent <- pHostForwardToCurrentReference(dist);
+    // XXX this seems redundant with the init
+    if (myHostReferent == null)  {
+      myHostReferent =
+        (kind pkHostReferent)environment.hostPresence;
+    }
+    myHostReferent <- pHostForwardToCurrentReference(dist);
+        System.out.println("iskClientReferent: uForwardToCurrentReference: msging the HostReferent.");
+  }
+
+  }
+
+}

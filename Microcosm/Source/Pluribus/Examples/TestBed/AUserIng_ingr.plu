@@ -1,0 +1,103 @@
+export unit AUserIng_ingr {
+  
+  package ec.pl.examples.testbed;
+
+  import ec.e.lang.*;
+    import ec.e.net.ERegistrar;
+    import ec.e.net.ERegistration;
+
+    unit RefIng;
+    unit AUser_kind;
+
+  // I10 
+  export ingredient impl iiAUserHost {
+
+    // this is a promise that this implementation block will
+    // implement all the methods in this kind.
+    kind iskAUserHost;
+
+    // this is a requirement that in any presence in which this 
+    // ingredient impl is used, there must be another ingredient
+    // that implements _at_least_ the kind specificied here
+    // (ukUnumReference).  "iinReferent" is an arbitrary 
+    // name that this ingredient impl uses to refer to it's 
+    // neighbor, and to send messages to it in the method
+    // implementations that follow.
+    neighbor ingredient iinReferent kind ukUnumReference;
+
+    // this is basically a variable declaration
+    Vector myClientPresences;
+                
+    init () {
+      System.out.println("> Entering AUser ingredient host init.");
+      myClientPresences = environment.otherPresences;
+    }
+
+    // this is a synchronous java utility function accessible only
+    // within this ingredient impl.  It's function is to send
+    // messages to all client presences.
+    function void sendToClients(RtEnvelope env) {
+       BasePresence.sendEnvelopeToOthers(environment.otherPresences, env);
+    }
+
+    // from here on is actual E method code - the implementation
+    // for the methods in the kind declared for this ingredient impl.
+
+        // sample messages - replace with your own        
+        
+    method uSomeMessageForYourUnum(boolean cookie) {
+      if (cookie) {
+        System.out.println("A host: I've been poked!");
+      } else {
+        System.out.println("A host: You can't poke me.");
+      }
+    }
+
+    // this method has example usage of the 
+    // neighboring referent ingredient
+    method DoSomething() {
+      RtEnvelope env;
+
+      System.out.println("A host: I've been told to poke B.");
+      env <- (kind ukAUser).uSomeMessageForYourUnum(true);
+      iinReferent <- uSendCurrentReference(env);
+    }
+
+    }
+
+  // I11
+  export ingredient impl iiAUserClient {
+    // see comments from above
+    kind iskAUserClient;
+
+    neighbor ingredient iinReferent kind ukUnumReference;
+
+    kind pkAUserHost myHostPresence;
+
+    init () {
+      System.out.println("> Entering AUser ingredient client init.");
+      myHostPresence = (kind pkAUserHost)environment.hostPresence;
+    }
+
+        // sample messages - replace with your own       
+        
+    method uSomeMessageForYourUnum(boolean cookie) {
+      if (cookie) {
+        System.out.println("A client: I've been poked!");
+      } else {
+        System.out.println("A client: You can't poke me.");
+      }
+    }
+
+    method DoSomething() {
+
+      RtEnvelope env;
+
+      System.out.println("A client: I've been told to poke B.");
+      env <- (kind ukAUser).uSomeMessageForYourUnum(true);
+      iinReferent <- uSendCurrentReference(env);
+
+    }
+
+  }
+}

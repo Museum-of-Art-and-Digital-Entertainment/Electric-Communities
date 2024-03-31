@@ -1,0 +1,23 @@
+export unit ing_Simple {
+
+  package ec.pl.examples.simple;
+
+  import ec.e.lang.*;
+  import ec.e.net.ERegistrar;
+  import ec.e.net.ERegistration;
+
+  export kind ikSimple {
+    acceptMessageAndDoSomething(boolean argument);
+  }
+  
+  export ingredient Impl iiSimple {
+    kind ikSimple;
+    method acceptMessageAndDoSomething(boolean argument) {
+      if (argument) {
+        System.out.println("In ingredientImple iiSimple acceptMessageAndDoSomething(): Argument is true.");
+      } else {
+        System.out.println("In ingredientImple iiSimple acceptMessageAndDoSomething(): Argument is false.");
+      }
+    }
+  }
+}

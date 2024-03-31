@@ -1,0 +1,64 @@
+export unit BUser_kind {
+  
+  package ec.pl.examples.testbed;
+
+  import ec.e.lang.*;
+    import ec.e.net.ERegistrar;
+    import ec.e.net.ERegistration;
+
+    unit RefIng;
+
+  // I1 uk[kind] : "unum kind"
+    // the messages that the unum accepts
+    // that will be handled by your server or client 
+    // ingredient, in the server or client presence
+    // Messages that you implement with the scope 
+    // described above should be added here.
+  export kind ukBUser {
+        // sample messages
+    uSomeMessageForYourUnum(boolean cookie);
+    DoSomething();
+  }
+
+  // I2 pk[kind]Host : Host ingredient's "presence kind"
+    // messages that will be handled by your 
+    // server ingredient, that the server presence accepts from 
+    // client presences
+    // Messages that you implement with the scope 
+    // described above should be added here.
+  export kind pkBUserHost {
+
+  }
+
+  // I3 pk[kind]Client : Client ingredient's "presence kind"
+    // messages that will be handled by your 
+    // client ingredient, that a client presence accepts from the 
+    // server presence
+    // Messages that you implement with the scope 
+    // described above should be added here.
+  export kind pkBUserClient {
+
+  }
+
+  // I4 isk[kind]Host : Host ingredient's "ingredient structure kind"
+    // the kinds your server ingredient implements;
+    // a union of the kinds that the unum as a whole and the server 
+    // presence implement
+    // You will not need to modify this kind to use the TestBed;
+    // this kind is a union of the kinds you add your messages to.
+  export kind iskBUserHost {
+    kind ukBUser;
+    kind pkBUserHost;
+  }
+
+  // I5 isk[kind]Client : Client ingredient's "ingredient structure kind"
+    // the kinds your client ingredient implements;
+    // a union of the kinds that the unum as a whole and the client 
+    // presence implement
+    // You will not need to modify this kind to use the TestBed;
+    // this kind is a union of the kinds you add your messages to.
+  export kind iskBUserClient {
+    kind ukBUser;
+    kind pkBUserClient;
+  }
+}

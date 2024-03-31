@@ -1,0 +1,36 @@
+export unit ing_Simple {
+
+  package ec.pl.examples.simple;
+
+  import ec.e.lang.*;
+  import ec.e.net.ERegistrar;
+  import ec.e.net.ERegistration;
+
+  export kind ikSimple {
+    acceptMessageAndAddSomething(int argument);
+  }
+  
+  export ingredient Impl iiSimple {
+    kind ikSimple;
+
+    init (Integer counter) {
+	sharedCounter = counter;
+    }
+
+    method primePresenceConstructor(EEnvironment env) {
+      System.out.println("\nNow in iiSimple primePresenceConstructor\n");
+      // Set up shared variables here XXX
+      sharedCounter = new Integer(13);
+    }
+      
+    method acceptMessageAndAddSomething(int argument) {
+      System.out.println("\nIn ingredientImpl iiSimple acceptMessageAndAddSomething(): argument is " + argument);
+      System.out.println(" initial value is " + sharedCounter);
+      sharedCounter = new Integer(sharedCounter.intValue() + argument);
+      System.out.println(" final value is " + sharedCounter + "\n");
+    }
+
+    export Integer sharedCounter;
+    Integer localCounter;
+  }
+}

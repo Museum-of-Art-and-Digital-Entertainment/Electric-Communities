@@ -1,0 +1,118 @@
+export unit unum_Simple {
+
+  package ec.pl.examples.simple;
+
+  import ec.e.lang.*;
+  import ec.e.net.ERegistrar;
+  import ec.e.net.ERegistration;
+  import ec.e.net.ENetUtility;
+
+  public eclass Simple implements Agent
+  {
+      emethod go (EEnvironment env) {
+    
+    System.out.println("\nIn Simple.go()\n");
+    kind ikSimple simple = null;
+    
+    // This would be the spot to set up the user interface peer, which
+    // is a java class intended to handle all user interface events.
+    // In this example, we don't care.
+    
+    String who = env.getProperty("who");
+    if (who != null) {
+        
+        System.out.println("Argument: who=" + who);
+        System.out.println("Attempting to connect via EARL...");
+        
+        // If we were instructed to connect to another host presence
+        // (i.e. by an argument 'who=<EARL>') do it now.
+        
+        kind ikSimple simpleChannel;
+        simple = simpleChannel;
+        etry {
+      String errorString = 
+      ENetUtility.lookupWithName(&simpleChannel, env, who);
+      if (errorString != null) {
+          System.out.println(errorString);
+          System.exit(1);
+      }
+        } ecatch (Throwable e) {
+      System.out.println("E Exception on lookup: " + e);
+      System.exit(1);
+        }
+    } else {
+        
+        // We weren't instructed to connect to another host presence, 
+        // so we should create our own.
+        
+        simple = new unum uiSimple(env);
+        ENetUtility.registerWithPropertyName(simple, env, "EARLFile",
+               "Simple: who=");
+    }
+    
+    System.out.println("\nSending message simple<-acceptMessageAndAddSomething()\n");
+    simple<-acceptMessageAndAddSomething(7);
+    
+    System.out.println("\nEnd of Simple.go()\n");
+    
+      }
+  }
+  
+  // FYI, an example EARL argument:
+  // who=e://harpo:36301/harpo:felix:848017628603/#1h2o08u6apl42
+  
+  unit ing_Simple;
+
+  export kind pkSimple {
+  }
+
+  presence Structure psSimple {
+    kind pkSimple;
+    ingredient ingSimple {
+      kind ikSimple;
+      deliver unum default;
+      deliver presence default;
+    }
+  }
+
+  presence Impl piSimple {
+    Structure psSimple;
+    // What the hell does the following mean? XXX
+    presenceBehavior TrackOtherPresences, EncodeOtherPresences;
+
+    ingredient ingSimple template {
+  Impl iiSimple;
+    }
+
+    prime init(EEnvironment env) {
+      System.out.println(
+        "\nNow in presenceImpl piSimple prime init method\n");
+      ingSimple<-primePresenceConstructor(env);
+    }
+
+    init(Integer counter) {
+      System.out.println(
+        "\nNow in presenceImpl piSimple non-prime init method with " +
+  counter + "\n");
+      (ingredient ingSimple).init(counter);
+      // setPresenceDelegate(ingSimple);
+    }
+
+    make pSimple ingSimple.sharedCounter;
+  }
+
+  export kind ukSimple {
+    kind ikSimple;
+  }
+
+  export unum Structure usSimple {
+    kind ukSimple;
+    presence pSimple kind pkSimple makes pSimple;
+    prime pSimple;
+  }
+
+  unum Impl uiSimple {
+    Structure usSimple;
+    presence pSimple Impl piSimple;
+  }
+}

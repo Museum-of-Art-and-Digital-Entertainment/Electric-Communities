@@ -1,0 +1,125 @@
+*****
+* TestBed
+*****
+
+The testbed is a tool for developing Ingredients and testing Inter-
+ingredient messaging across Presence, Unum and machine boundaries.
+
+To use the TestBed, you should at least be able to write trivial
+programs in E, and understand the Pluribus object model, but you
+_do_not_ need to understand how to write an Unum in Pluribus, nor
+do you need be able to read any more than a small subset of the
+Pluribus language.
+
+Unums with Client-Server (aka Host-Client) presence models and all 
+the plumbing already done for you are provided, just add E method 
+code to the ingredients and test away.
+
+*****
+* How it works
+*****
+
+The TestBed instantiates two Unums in two different processes (agencies)
+and gives each Unum a reference (basically a pointer) to the other using 
+E's network support.  This reference is held by a Referent ingredient
+within each Unum; your ingredient can send messages to the remote
+Unum by talking to this Referent ingredient.
+
+The Unums have a Host-Client presence model, so to use the testbed
+you'll need to write both a Client and a Host ingredient to be
+included in each Unum.
+
+*****
+* Usage
+*****
+
+Copy the entire TestBed directory into a new directory of your own.
+
+The source files AUser_kind.plu, AUserIng_ingr.plu, BUser_kind.plu
+and BUserIng_ingr.plu are the only source files you should modify;
+you will add E messages to the kinds in each of the "_kind" files,
+and you will implement those E messages in each of the "_ingr" files.
+As a general rule, things named "User" are things you should modify,
+things named "Test" are immutable parts of the TestBed.
+
+The "A*" files correspond to one client-server pair of Ingredients
+that you will write the kinds and implementation for, the "B*" files
+correspond to the other pair.  The "A" pair of Ingredients will go
+into the "A" Unum of the TestBed and the "B" pair of Ingredients will
+go into the "B" Unum of the TestBed.
+
+A few Pluribus kinds are defined in the "_kind" files, and these kinds 
+are referred to in the Unum source files.  This is basically a namespace
+hack; when you add to the kinds in the "_kind" files and then recompile
+the TestBed, you will have Unums and Presences that can receive the E
+messages you added to the kinds.
+
+For instance, in AUser_kind.plu, you should group under the kind 
+"ukAUser" any messages that an Unum that containing your "A" Ingredients 
+should implement.  Group under "pkATestServer" any kinds and methods
+that the Server presence of the Unum that contains your "A" Host
+Ingredient should implement.
+
+For reuse and modularity reasons, you will probably want to define
+your own kinds, and then include those kinds in the appropriate places
+under the "*User*" kinds.
+
+****
+* Inter-Presence and Inter-Unum Messaging
+****
+
+When you want to send messages to the remote Unum, put them in an
+envelope and send the envelope to the Referent ingredient in your 
+presence, whose name within any of your Ingredients is iinReferent.
+Canonical usage would be:
+
+method uDoSomething() {
+     RtEnvelope env;
+
+      env <- uSomeMessageForAnUnum(someParm);
+      iinReferent <- uSendCurrentReference(env);
+}
+
+Your Client Ingredient can send messages to the Server Ingredient
+in the Server Presence of the Unum by sending messages to "myServerPresence",
+a reference which is set up for you automatically.
+
+myServerPresence <- pServerStateUpdate(value);
+
+Your Server Ingredient can send a message to all of your Client
+Ingredients (in all of the Client Presences of the Unum) by calling
+sendToClients (a java method that is specific to the TestBed) with
+an RtEnvelope as an argument:
+
+method pServerStateUpdate(someType value) {
+   RtEnvelope env;
+   env <- pClientStateUpdate(someType value);
+   sendToClients(env);
+}
+
+****
+* Running the TestBed
+****
+
+Two instances of the TestBed are always run.  The first instance creates
+the "A" Unum and registers itself to receive connections.  The second
+instance creates the "B" Unum, looks up the "A" Unum, and sets up the
+references that each Unum will have to the other.
+
+The first instance writes a file (named "testUrl") in the directory it
+is run from that contains the url the second instance will need in order
+to locate the first instance.  Both instances must be run from the same 
+directory or the file "testUrl" must be copied to the directory where 
+the second instance will be run from.  The latter method will allow the 
+TestBed to run across two different machines.
+
+If you are running under Solaris, the batch file "runme" will run both
+instances of the TestBed.  The first instance runs as a background process
+and writes its output to a file called "output".  After quitting the TestBed
+(eg by hitting Ctrl-C), you will have to explicitly kill the first instance,
+which will still be running in the background.
+
+If you are running under DOS, you can run reg.bat and lookup.bat in that
+order.
+
+Charles Kendrick
