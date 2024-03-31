@@ -50,7 +50,7 @@ YHFILES.o = $(YHFILES.c:%.c=%.o)
 
 INCLDIRS = -I$(YACCHELPER_DIR)
 
-CFLAGS += -Wreturn-type -I. $(INCLDIRS) $(XFLAGS)
+CFLAGS += -Wall -Wreturn-type -I. $(INCLDIRS) $(XFLAGS)
 CLFLAGS += $(XFLAGS)
 
 vpath %.c .

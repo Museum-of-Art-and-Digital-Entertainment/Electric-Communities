@@ -9,6 +9,18 @@
 
 */
 
+#include <stdio.h>
+#include <stdlib.h>
+
+#ifdef WIN32
+#include <windows.h>
+#define random() rand()
+#define srandom(a) srand(a)
+#define getpid() GetCurrentProcessId()
+#else
+#include <unistd.h>
+#endif
+
 static char *bwords[] = {
     "Babysitting",      "Bacchanalia",  "Balkanization", "Bankruptcy",
     "Baptism",          "Barratry",     "Basketry",      "Bastardization",
@@ -135,11 +147,6 @@ static char *uwords[] = {
     "Unum",             "Upgrade",      "Upholstery",   "Utensil",
     "Utility"
 };
-
-#ifdef WIN32
-#define random() rand()
-#define srandom(a) srand(a)
-#endif
 
 #define WSIZE(arr)   (sizeof(arr) / sizeof(char *))
 #define ROLL(limit)  (abs(random()) % (limit))
