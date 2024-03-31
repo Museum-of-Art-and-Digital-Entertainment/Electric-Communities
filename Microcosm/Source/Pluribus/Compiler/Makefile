@@ -62,6 +62,9 @@ pluribus: $(PLFILES.o) $(YHFILES.o)
 y.tab.h: pluribus.y
 	bison -dy pluribus.y
 
+clean:
+	rm -f pluribus $(PLFILES.o) $(YHFILES.o)
+
 $(PLFILES.o): $(PLFILES.h) $(YHFILES.h)
 $(YHFILES.o): $(YHFILES.h)
 
