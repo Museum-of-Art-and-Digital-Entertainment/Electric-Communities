@@ -86,9 +86,9 @@
 #define YH_DEF_START(type)
 #define YH_DEF_START_TAGGED(type)
 #define YH_TAG_FIELD(type)
-#define YH_FLD_ENUM_START(name)         enum {
+#define YH_FLD_ENUM_START(name)         enum e_##name {
 #define YH_FLD_ENUM_CASE(en)                en,
-#define YH_FLD_ENUM_END(name)           __ANSI_hack##name } e_##name;
+#define YH_FLD_ENUM_END(name)           __ANSI_hack##name };
 #define YH_FLD_PRIM(name,type)
 #define YH_FLD_PRIMA(name,type)
 #define YH_FLDI_PRIM(name,type)
