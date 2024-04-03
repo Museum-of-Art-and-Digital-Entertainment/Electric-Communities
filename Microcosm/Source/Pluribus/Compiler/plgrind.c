@@ -265,7 +265,6 @@ YA_FUNC_START(plGrind, t_pl_grindEnv)
                                                 env->attributes);
     });
     PCASE(protoDef,{
-    char prefix[MSGLEN];
         env->protos = YBUILD(protoDefList)(arg, env->protos);
     });
     PCASE(parameterDecl,{
@@ -1215,7 +1214,6 @@ checkMakeSymbolRef(char *prefix, YT(scopedRef) *scoped,
     YT(symbol) *name = NULL;
     YT(symbolRef) *symbol = NULL;
     YT(type) *theType = NULL;
-    YT(variable) *var = NULL;
     bool foundRole = FALSE;
 
     if (scoped && scoped->ref && scoped->scope && scoped->scope->ref &&
@@ -1324,7 +1322,6 @@ doOperation(char *prefix, bool reportErrors, YT(typedValue) *left, int op,
     char *rightString;
     int exprType = checkTypes(left, op, right, &msg);
     long leftVal, rightVal;
-    float leftReal, rightReal;
 
     if (exprType == TV_UND) {
     if (reportErrors)
@@ -1673,7 +1670,6 @@ YA_FUNC_START(plString, t_pl_grindEnv)
         YA_RETURN(total);
     });
     PCASE(tagLit,{
-        YT(typedValue) *val = YBUILD(typedValue)(TV_TAG,YUC(value,TRUE));
         YA_RETURN("**Tag**");
     });
     PCASE(numLit,{

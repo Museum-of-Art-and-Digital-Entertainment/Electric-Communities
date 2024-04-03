@@ -27,7 +27,7 @@ void generateSetNeighbors(YT(presenceImpl) *presImpl, YT(presenceStructure) *pre
   int
 countMatches(char *name, YT(symbolList) *names) 
 {
-    int result = 0, i, count = YCOUNT(names);
+    int result = 0;
     char *compare = NULL;
 
     while (names)
@@ -62,7 +62,6 @@ generateClientIngredientVariables(YT(makeAtt) *makeAtt)
   void
 generateGetSoulStateCalls(YT(ingredientRoleList) *ingrRoles)
 {
-    int numIngrs = 0, numMatches = 0, numRoles = YCOUNT(ingrRoles);
     YT(ingredientRole) *ingrRole = NULL;
     YT(stateBundle) *stateBundle = NULL;
     YT(symbolList) *bundleNames = NULL;
@@ -74,7 +73,8 @@ generateGetSoulStateCalls(YT(ingredientRoleList) *ingrRoles)
                 ingrRole->template->ingredientImpl) {
                 stateBundle = ingrRole->template->ingredientImpl->stateBundle;
                 if (stateBundle) {
-                    numMatches = countMatches(SNAME(stateBundle), bundleNames);
+		    /* TODO: Is countMatches a no-op now? */ 
+                    countMatches(SNAME(stateBundle), bundleNames);
                     bundleNames = YBUILD(symbolList)(stateBundle->typename, bundleNames);
                     P("    (%s)(soulState.get(\"%s.%s\"))%s",
                       stateBundle->typename->name,
@@ -122,7 +122,6 @@ generateIngredientVariables(YT(ingredientRoleList) *ingrRoles)
 generateInitPresenceRouterMethods(char *prefix, YT(unumImpl) *uImpl)
 {
     int numRoles = 0;
-    YT(symbol) *name = NULL;
     YT(symbolList) *names = NULL;
     YT(presenceRole) *presenceRole = NULL;
     YT(presenceRoleList) *presenceRoles = NULL;
@@ -254,7 +253,7 @@ generateMakeStateMethods(char *prefix, YT(unumImpl) *uImpl)
 generateParameterListFromRoles(YT(ingredientRoleList) *ingrRoles,
                                bool withTypes)
 {
-    int numIngrs = 0, numMatches = 0, numRoles = YCOUNT(ingrRoles);
+    int numMatches = 0;
     YT(ingredientRole) *ingrRole = NULL;
     YT(stateBundle) *stateBundle = NULL;
     YT(symbolList) *bundleNames = NULL;
@@ -284,7 +283,6 @@ generateProtoRoutingTable(YT(kind) *kind, YT(protoDef) *proto,
                           YT(presenceStructure) *presStruc, int scope,
                           int *counter)
 {
-    YT(ingredient) *ingr;
     YT(symbol) *ingrName;
     YT(symbol) *msgName;
 
@@ -294,8 +292,7 @@ generateProtoRoutingTable(YT(kind) *kind, YT(protoDef) *proto,
     generateParameterTypeList(proto->params, NULL);
     P("));");
 
-    ingr = findMessageDestination(presStruc, proto, scope, &ingrName,
-                                  &msgName);
+    findMessageDestination(presStruc, proto, scope, &ingrName, &msgName);
     P ("    %sState.targets[%d] =  (RtTether)%s;",
        (scope==UNUM ? "u":"p"), *counter,
        ingrName ? ingrName->name : "UNKNOWN INGREDIENT");
@@ -362,7 +359,7 @@ generateSetNeighbors(YT(presenceImpl) *presImpl,
 generateUnumImpl(YT(unumImpl) *uImpl)
 {
     char prefix[BUFLEN];
-    int numIngredients = 0, counter = 0;
+    int numIngredients = 0;
     YT(presenceImpl) *primePresence = NULL;
     YT(presenceRole) *role = NULL;
     YT(symbolList) *presences = NULL;

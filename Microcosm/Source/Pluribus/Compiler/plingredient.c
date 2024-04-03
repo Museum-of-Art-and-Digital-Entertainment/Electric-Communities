@@ -121,7 +121,6 @@ generateIngredientImpl(YT(ingredientImpl) *impl)
     YT(function) *function = NULL;
     YT(functionList) *functions = impl->functions;
     YT(implementsAttList) *implements = impl->implements;
-    YT(kind) *kind = impl->kind;
     YT(method) *init = NULL;
     YT(methodList) *initBlocks = impl->initBlocks;
     YT(methodList) *methods = impl->methods;

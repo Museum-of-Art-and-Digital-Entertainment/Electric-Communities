@@ -36,7 +36,6 @@ generateAttributeDescriptors(YT(attributeList) *attributes)
                 P(" %s", PBASENAME(attribute->type));
                 P(" %s", typedValueToString(*(attribute->worth)));
             } else {
-                YT(requireAtt) *require=(YT(requireAtt)*)attributes->attribute;
                 //KSS printf("KSS: in plunit.c:generateAttributeDescriptors()\n"); 
                 P(" %s",
                   "//KSS Put 'require' code in generateAttributeDescriptors()");
@@ -79,9 +78,6 @@ generateIngredientImplDescriptor(YT(ingredientImpl) *impl)
     YT(methodList) *methods = impl->methods;
     YT(neighborList) *neighbors = impl->neighbors;
     YT(stateBundle) *stateBundle = impl->stateBundle;
-    YT(variable) *var = NULL;
-    YT(variableList) *vars = impl->vars;
-    int count = 0;
 
     P("@k %s", PBASENAME(impl->kind));
 
@@ -369,7 +365,6 @@ generateScopeName(YT(scope) *scope)
 generateTemplateDescriptor(char *prefix, YT(template) *template,
                YT(presenceImpl) *impl)
 {
-    YT(exprList) *exprs = NULL;
     YT(mapAttList) *mapAtts = template->mapAtts;
     YT(mapAtt) *mapAtt;
 
@@ -509,7 +504,6 @@ generateElementtDescriptors(YT(unit) *unit, char *inputFileName,
     YT(binding) *binding = NULL;
     YT(bindingList) *bindings = NULL;
     YT(nameSpaceList) *nameSpaces = unit->scope->nameSpaces;
-    char buf[BUFLEN];
 
     while (nameSpaces) {
     if (bindingType == nameSpaces->nameSpace->bindingType) {
@@ -576,9 +570,7 @@ generateElementtDescriptors(YT(unit) *unit, char *inputFileName,
   void
 generateUnitDescriptor(YT(unit) *unit, char *inputFileName)
 {
-    YT(nameSpaceList) *nameSpaces = unit->scope->nameSpaces;
     long timeNow = time(NULL);
-    struct tm *timeInfo;
     char buf[BUFLEN];
 
     P(";Produced by %s", VersionString);

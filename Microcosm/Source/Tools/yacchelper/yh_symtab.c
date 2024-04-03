@@ -204,7 +204,6 @@ yh_listOfSymbols(YT(symbol) ***symbols)
 {
     YT(symbol) **chaser;
 
-    int i;
     long count;
 
     count = 0;

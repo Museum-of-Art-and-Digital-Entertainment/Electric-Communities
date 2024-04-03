@@ -16,11 +16,6 @@
 #include "pl.h"
 
 bool inScopedRefList(YT(scopedRef) *ref, YT(scopedRefList) *refs);
-static YT(kind) *kindForRole(YT(unumStructure) *struc, YT(symbol) *roleName);
-static bool presenceIsPrime(YT(unumStructure) *struc, YT(symbol) *roleName);
-static bool presenceIsReceived(YT(unumStructure) *struc, YT(symbol) *roleName);
-static YT(symbol) *presenceSentAs(YT(unumStructure) *struc,
-                                  YT(symbol) *roleName);
 
   YT(scopedRefList) *
 buildScopedVarList(char *prefix, YT(exprList) *inits)
@@ -84,16 +79,6 @@ inScopedRefList(YT(scopedRef) *ref, YT(scopedRefList) *refs)
     return FALSE;
 }
 
-  static YT(kind) *
-kindForRole(YT(unumStructure) *struc, YT(symbol) *roleName)
-{
-    YT(presence) *presence = findPresence(struc, roleName);
-    if (presence)
-        return(presence->kind);
-    else
-        return(NULL);
-}
-
   bool
 matchMethodInKind(YT(kind) *kind, YT(symbol) *message)
 {
@@ -151,37 +136,6 @@ pRouterName(char *tag, YT(unumImpl) *impl, YT(symbol) *roleName)
 pPrName(YT(unumImpl) *impl, YT(symbol) *roleName)
 {
     return(pRouterName("pr", impl, roleName));
-}
-
-  static bool
-presenceIsPrime(YT(unumStructure) *struc, YT(symbol) *roleName)
-{
-    return(struc->prime == roleName);
-}
-
-  static bool
-presenceIsReceived(YT(unumStructure) *struc, YT(symbol) *roleName)
-{
-    YT(presenceList) *presences = struc->presences;
-    YT(presence) *presence = NULL;
-    
-    while (presences) {
-        presence = presences->presence;
-        if (presence->makes == roleName)
-            return(TRUE);
-        presences = presences->next;
-    }
-    return(FALSE);
-}
-
-  static YT(symbol) *
-presenceSentAs(YT(unumStructure) *struc, YT(symbol) *roleName)
-{
-    YT(presence) *presence = findPresence(struc, roleName);
-    if (presence)
-        return(presence->makes);
-    else
-        return(NULL);
 }
 
   char *

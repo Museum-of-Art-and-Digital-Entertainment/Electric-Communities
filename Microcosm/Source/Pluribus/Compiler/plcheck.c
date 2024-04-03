@@ -177,7 +177,6 @@ checkDeliverTarget(char *prefix, YT(ingredient) *ingredient,
                    YT(deliverAtt) *deliver, YT(presenceStructure) *struc,
                    deliverTypeEnum deliverType)
 {
-    YT(kind) *kind = NULL;
     YT(protoDef) *proto = NULL;
     YT(symbol) *target = NULL;
     bool allsWell = TRUE;
@@ -447,9 +446,7 @@ checkImplements(char *prefix, YT(ingredientImpl) *impl, YT(kind) *kind)
   bool
 checkIngredientImpl(char *prefix, YT(ingredientImpl) *impl, YT(kind) *kind)
 {
-    YT(kindList) *extends = kind->kinds;
     bool allsWell = TRUE;
-    char newPrefix[MSGLEN];
 
     if (!validateAttributes(prefix, impl->attributes))
         allsWell = FALSE;
@@ -505,7 +502,6 @@ checkKindDeliveries(char *prefix, long scope, YT(kind) *kind,
     YT(kindList) *kinds = kind->kinds;
     bool allsWell = TRUE;
     char newPrefix[MSGLEN];
-    int num = 0;
 
     /*  Find out if this kind is delivered by this presence structure (return
      * the ingredient which did so through the ingredient parameter).
@@ -830,7 +826,6 @@ checkProtoDelivery(char *prefix, long scope, YT(protoDef) *proto,
     YT(deliverAtt) *deliver = NULL;
     YT(ingredient) *ingredient = NULL;
     bool allsWell = TRUE;
-    int num = 0;
 
     deliver = findDeliver(proto->name, scope, struc->ingredients,
                           &ingredient);
@@ -1313,7 +1308,6 @@ matchAllProtosInKind(char *prefix, YT(kind) *source,
     YT(kindList) *kinds = source->kinds;
     bool allsWell = TRUE;
     char newPrefix[MSGLEN];
-    int num = 0;
 
     while (kinds) {
         sprintf(newPrefix, "%s\n  kind %s in %s: ", prefix,
@@ -1401,7 +1395,7 @@ matchUnumRoles(char *prefix, YT(unumStructure) *struc, YT(unumImpl) *impl)
     YT(presenceList) *presences = struc->presences;
     YT(presence) *presence = NULL;
     YT(presenceRoleList) *roles = impl->roles;
-    YT(presenceRole) *role = NULL, *makeRole = NULL;
+    YT(presenceRole) *role = NULL;
     YT(symbolList) *roleNames = NULL;
     bool allsWell = TRUE;
 

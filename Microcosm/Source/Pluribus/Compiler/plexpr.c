@@ -9,7 +9,7 @@
 
 */
 
-#include<stdlib.h>
+#include <stdlib.h>
 #include "generic.h"
 #include "yh.h"
 #include "yh_build.h"
@@ -126,7 +126,6 @@ YA_FUNC_START(plStringExpr, t_pl_stringEnv)
         YA_RETURN(total);
     });
     PCASE(tagLit,{
-        YT(typedValue) *val = YBUILD(typedValue)(TV_TAG,YUC(value,TRUE));
         YA_RETURN("**Tag**");
     });
     PCASE(numLit,{
@@ -294,7 +293,6 @@ scanExpr(char **line)
     //KSSHack fix this!
     YT(expr) *left = NULL, *right = NULL;
     char *token;
-    int num = 1;
 
     token = scanToken(line);
     if (token) {
@@ -410,7 +408,6 @@ parseVarOrFunction(char *prefix, YT(symbolRef) *symbolRef,
            YT(scopedRef) *scopedRef, YT(presenceImpl) *presImpl,
            exprFormEnum exprForm, bool reportErrors, char Result[])
 {
-    YT(exprList) *exprs = NULL;
     YT(function) *function = NULL;
     YT(ingredientRole) *role = NULL;
     YT(ingredientRoleList) *roles = presImpl->roles;

@@ -739,7 +739,6 @@ typedValueToString (YT(typedValue) val)
 {
     char *msg = "COMPLETELY UNKNOWN typeCode (%d) in typedValueToString";
     char * str;
-    float KSS = 1.0;
     switch (val.typeCode) {
     case TV_TAG:
         return "TAG";
@@ -837,7 +836,6 @@ typeEqual(YT(typedValue) val, YT(parameterDecl) *param)
 typeSpecToString(YT(typeSpec) *typeSpec)
 {
     YT(pluribusType) *plType = NULL;
-    char *result = malloc(40);
 
     if (!typeSpec) {
     yh_error("null pointer for typeSpec in typeSpecToString");

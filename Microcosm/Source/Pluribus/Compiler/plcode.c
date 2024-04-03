@@ -21,11 +21,15 @@ enum {
     MODE_ADD_COMMA_RTEXENV, MODE_A
 };
 
+/* These are conditioned out because they're unused, but if you're
+   debugging this code later they'll make your life easier */
+#if 0
 static char* ModeSymbols[] = {
     "MODE_NORMAL", "MODE_NEW", "MODE_UNUM", "MODE_KIND", "MODE_ING",
     "MODE_ING_SYM", "MODE_ING_SYM_PAREN", "MODE_ING_CHKINIT",
     "MODE_ADD_RTEXENV", "MODE_ADD_COMMA_RTEXENV"
 };
+#endif
 
 static bool UseMyKeeper = TRUE;
 static char savedSymbol[BUFLEN];

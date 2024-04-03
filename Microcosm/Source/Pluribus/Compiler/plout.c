@@ -363,10 +363,7 @@ generateAttributeCode(int attrType, YT(typedValue) val, char *name) {
   void
 generateAttributes(YT(attributeList) *attributes)
 {
-    YT(attributeList) *save = attributes;
     YT(attribute) *attribute;
-    YT(requireAtt) *require;
-    YT(typedValue) val;
     if (attributes) {
         P("        Hashtable attributes = new Hashtable();");
         while (attributes) {
@@ -496,7 +493,6 @@ generateUnitPackage(YT(unit) *unit)
 generateUnitHeader(YT(unit) *unit, char *inputFileName)
 {
     long timeNow = time(NULL);
-    struct tm *timeInfo;
     char buf[BUFLEN];
 
     P("/* Produced by %s", VersionString);

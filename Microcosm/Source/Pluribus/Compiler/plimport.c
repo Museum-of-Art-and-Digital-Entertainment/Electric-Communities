@@ -327,7 +327,7 @@ internFunctionOrMethodDescriptor(char *prefix, bool withNames,
     YT(symbol) *parmName;
     bool isArray = FALSE;
     char *allocSpaceForMethodCode;
-    char methodCode[BUFLEN], line[MSGLEN], pName[MSGLEN], throwName[MSGLEN];
+    char methodCode[BUFLEN], pName[MSGLEN], throwName[MSGLEN];
     char newPrefix[MSGLEN];
     int numLines = 0, numThrows = 0, i = 0;
 
@@ -434,7 +434,6 @@ internIngredientImpl(char *unitName, YT(symbolDef) *name, long modifiers)
 {
     YT(attributeList) *attributes = NULL;
     YT(functionList) *functions = NULL;
-    YT(implementsAttList) *implements = NULL;
     YT(ingredientImpl) *impl;
     YT(kind) *kind = NULL;
     YT(methodList) *initBlocks = NULL;
@@ -477,7 +476,7 @@ internIngredientImpl(char *unitName, YT(symbolDef) *name, long modifiers)
                 methods = internMethods(prefix, FALSE, FALSE);
                 break;
             case 'z':
-                implements = internImplementsAttList(prefix);
+                internImplementsAttList(prefix);
                 break;
             case '\0':
                 impl = YBUILD(ingredientImpl)(name, NULL, attributes, kind,
@@ -658,8 +657,6 @@ internKindList(char *prefix, int bindingType)
   static YT(makeAtt) *
 internMakeAtt(char *prefix)
 {
-    YT(expr) *expr = NULL;
-    YT(exprList) *exprs = NULL;
     YT(symbolList) *roleSymbols = NULL;
     char *bufptr;
     char roleName[BUFLEN], ingrName[BUFLEN], dummy[BUFLEN];
@@ -772,7 +769,6 @@ internNumber()
   static int
 internOneDef(char *unitName)
 {
-    bool isImportUnit;
     long modifiers;
     int result = INTERN_OK;
     int bindingType;
@@ -780,11 +776,7 @@ internOneDef(char *unitName)
     YT(symbolDef) *nameDef;
     char *check;
 
-    if (LineTag == ':')
-        isImportUnit = FALSE;
-    else if (LineTag == '>')
-        isImportUnit = TRUE;
-    else
+    if (LineTag != ':' && LineTag != '>')
         return(INTERR_FORMAT);
 
     if (LineBuf[0] == '+')
@@ -1064,19 +1056,13 @@ internPresenceStructure(char *unitName, YT(symbolDef) *name, long modifiers)
   static YT(protoDef) *
 internProtoDef(char *prefix)
 {
-    bool isArray = FALSE;
     bool isFunction = FALSE, withCode = FALSE, withNames = FALSE;
     char *bufptr, *code;
-    char newPrefix[MSGLEN];
-    char throwName[MSGLEN];
-    int numThrows = 0, i = 0;
     long modifiers = 0;
     YT(symbol) *name;
-    YT(parameterDecl) *decl = NULL;
     YT(parameterDeclList) *params = NULL;
     YT(scopedRefList) *throws = NULL;
     YT(type) *resultType = NULL;
-    YT(typeSpec) *type = NULL;
 
     nextUnitLine();
     bufptr = LineBuf;
@@ -1184,7 +1170,6 @@ internUnit(char *unitName, FILE *fyle, char *filename, char *filePath,
     int errLineNumber = 0;
     YT(scope) *scope = NULL;
     YT(symbolDef) *importName = symbolDefFromSymbolRef(ref);
-    char tag;
     FILE *saveUnitFyle = UnitFyle;
     char *saveUnitFilename = UnitFilename;
     char saveLineTag = LineTag;
@@ -1366,7 +1351,6 @@ internVariable(char *prefix)
     bool isArray = FALSE;
     char *bufptr, typeSig[BUFLEN], name[BUFLEN];
     char newPrefix[MSGLEN];
-    int count = atoi(AttBuf);
     long modifiers = 0;
 
     /* Note that we do not import any assigned values */

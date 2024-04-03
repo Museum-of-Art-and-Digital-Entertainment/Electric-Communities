@@ -198,7 +198,6 @@ findMessageDestination(YT(presenceStructure) *presStruc, YT(protoDef) *proto,
     YT(ingredientList) *ingredients = presStruc->ingredients;
     YT(deliverAttList) *deliverAtts;
     YT(deliverAtt) *deliverAtt = NULL;
-    bool tryDefault = TRUE;
     char prefix[MSGLEN];
     
     sprintf(prefix, "presenceStructure %s: ", SDNAME(presStruc));
