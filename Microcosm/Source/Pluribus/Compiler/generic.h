@@ -9,10 +9,6 @@
 
 */
 
-/* Somebody somewhere in the include path is defining NULL wrong! We'll
-   beat'em to it with the right def. */
-#define NULL 0
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

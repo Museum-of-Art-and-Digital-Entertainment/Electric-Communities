@@ -131,7 +131,7 @@ YA_FUNC_START(plStringExpr, t_pl_stringEnv)
     });
     PCASE(numLit,{
         char *value = malloc(20);
-        sprintf(value, "%d", arg->value);
+        sprintf(value, "%ld", arg->value);
         YA_RETURN(value);
     });
     PCASE(charLit,{

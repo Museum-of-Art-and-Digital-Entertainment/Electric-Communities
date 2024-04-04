@@ -591,7 +591,7 @@ stringFromExprList(char *prefix, YT(exprList) *exprs,
     char *result = NULL, *addOn = NULL;
 
     result = malloc(MSGLEN);
-    sprintf(result, "");
+    result[0] = 0;
     while (exprs) {
     val = evalExpr(prefix, exprs->expr, NULL, NULL, roles, MAKE_EXP, FALSE,
                &anyAttributes, &anyOperators);
@@ -612,7 +612,7 @@ stringFromParameterList(YT(parameterDeclList) *params)
     char *result = NULL, *addOn = NULL;
     
     result = malloc(MSGLEN);
-    sprintf(result, "");
+    result[0] = 0;
     while (params) {
         typeSpec = params->parameterDecl->type;
         addOn = typeSpecToString(typeSpec);

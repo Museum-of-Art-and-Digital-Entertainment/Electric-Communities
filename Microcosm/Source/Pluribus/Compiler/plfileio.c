@@ -60,7 +60,7 @@ fopenAnywhere(char *filename)
 {
     char *slashptr = filename;
 
-    while (slashptr = strchr(slashptr + 1, '/')) {
+    while ((slashptr = strchr(slashptr + 1, '/')) != 0) {
         *slashptr = '\0';
         if (!mkdirIfAbsent(filename))
             break;

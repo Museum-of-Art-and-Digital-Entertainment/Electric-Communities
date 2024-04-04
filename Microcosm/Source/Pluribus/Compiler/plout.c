@@ -418,8 +418,8 @@ generateKind(YT(kind) *kind)
 
     /* Protos */
     while (protos) {
-    if (protos->protoDef->name != initSym)
-        generateProto(protos->protoDef);
+        if (protos->protoDef->name != initSym)
+	    generateProto(protos->protoDef);
         protos = protos->next;
     }
 

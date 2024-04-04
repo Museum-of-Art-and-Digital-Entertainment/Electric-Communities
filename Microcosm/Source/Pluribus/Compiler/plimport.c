@@ -104,7 +104,7 @@ activateUnitImport(YT(anyBinding) *binding, long export)
 
     if (Verbose)
         printf("<activating %s>\n", importBinding->filePath);
-    if (fyle = findUnitFile(filename, importBinding->filePath))
+    if ((fyle = findUnitFile(filename, importBinding->filePath)) != 0)
         return(YC(anyBinding,internUnit(SDNAME(importBinding), fyle, filename,
             importBinding->filePath, YC(symbolRef,importBinding->name),
             export)));
@@ -122,7 +122,7 @@ findUnitFile(char *result, char *filePath)
         printf("<import of %s>\n", filePath);
     while (unitPath) {
         sprintf(result, "%s/%s.unitd", unitPath->string, filePath);
-        if (fyle = fopen(result, "r")) {
+        if ((fyle = fopen(result, "r")) != 0) {
             if (Verbose)
                 printf("<import finds file %s>\n", result);
             return(fyle);
@@ -751,8 +751,8 @@ internNeighbors(char *prefix)
                &presence);
         sprintf(newPrefix,"%s\n  neighbor %s: ", prefix, neighborName); 
         kind = lookupKindRef(newPrefix, scanSymbolRef(kindName), FALSE);
-    if (!kind)
-        yh_error("%s: kind %s not defined", newPrefix, kindName);
+	if (!kind)
+	    yh_error("%s: kind %s not defined", newPrefix, kindName);
         neighbor = YBUILD(neighbor)(yh_handleSymbol(neighborName), kind,
                                     plural, presence);
         result = YBUILD(neighborList)(neighbor, result);

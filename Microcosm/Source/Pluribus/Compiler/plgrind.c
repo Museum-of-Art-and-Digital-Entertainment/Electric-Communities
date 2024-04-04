@@ -1325,10 +1325,11 @@ doOperation(char *prefix, bool reportErrors, YT(typedValue) *left, int op,
     long leftVal, rightVal;
 
     if (exprType == TV_UND) {
-    if (reportErrors)
-        yh_error("%s%s in '%s %s %s'", prefix, msg,
-             typedValueToString(*left), opToString(op),
-             typedValueToString(*right));
+        if (reportErrors) {
+            yh_error("%s%s in '%s %s %s'", prefix, msg,
+		     typedValueToString(*left), opToString(op),
+		     typedValueToString(*right));
+        }
         return UND_VAR;
     }
     switch(left->typeCode) {
