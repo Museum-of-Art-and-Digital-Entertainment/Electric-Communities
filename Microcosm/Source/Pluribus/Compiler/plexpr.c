@@ -16,6 +16,7 @@
 #include "yh_walk.h"
 #include "y.tab.h"
 #include "pl.h"
+#include "plutil.h"
 
 //KSS Globals declared here because gdb can't find them inside of PCASEs
 YT(ingredientRole) *GLBLrole = NULL;

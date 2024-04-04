@@ -14,8 +14,7 @@
 #include "yh_build.h"
 #include "y.tab.h"
 #include "pl.h"
-
-bool inScopedRefList(YT(scopedRef) *ref, YT(scopedRefList) *refs);
+#include "plroute.h"
 
   YT(scopedRefList) *
 buildScopedVarList(char *prefix, YT(exprList) *inits)

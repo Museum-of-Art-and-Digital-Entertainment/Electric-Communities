@@ -14,6 +14,7 @@
 #include "yh_build.h"
 #include "pl.h"
 #include "y.tab.h"
+#include "plutil.h"
 
 enum typeOfDeliverEnum {
     DEL_UNKNOWN, DEL_KIND, DEL_PROTO
@@ -27,10 +28,18 @@ bool checkDeliverTarget(char *prefix, YT(ingredient) *ingredient,
                         deliverTypeEnum deliverType);
 bool checkKindDeliveries(char *prefix, long scope, YT(kind) *kind,
                          YT(presenceStructure) *struc);
+bool checkPresenceStructure(char *prefix, YT(presenceStructure) *struc,
+			    YT(kind) *kind);
+bool checkPresenceStructureKinds(char *prefix, YT(presenceStructure) *struc,
+				 YT(kind) *kind);
 bool checkProtoDelivery(char *prefix, long scope, YT(protoDef) *proto,
                         YT(presenceStructure) *struc);
 bool checkProtosInImpl(char *prefix, YT(ingredientImpl) *impl,
                        YT(kind) *kind);
+bool checkProtoVsKind(char *prefix, YT(protoDef) *proto,
+		      YT(symbol) *target, YT(kind) *kind, bool report);
+bool checkRequirements(char *prefix, YT(attributeList) *reqs,
+		       YT(attributeList) *attributes);
 bool checkStateBundle(char *name, YT(stateBundle) *stateBundle);
 bool checkTemplate(char *prefix, YT(template) *template,
                    YT(ingredientImpl) *impl);
@@ -40,8 +49,13 @@ bool compareParameters(char *prefix, YT(symbol) *firstName,
                        YT(parameterDeclList) *first, YT(symbol) *secondName,
                        YT(parameterDeclList) *second, bool report);
 bool compareProtosInKinds(char *prefix, YT(kind) *kind1, YT(kind) *kind2);
+bool compareTypes(YT(type) *type1, YT(type) *type2);
 bool matchAllProtosInKind(char *prefix, YT(kind) *source,
                           YT(ingredient) *ingredient);
+bool matchPresenceRoles(char *prefix, YT(presenceStructure) *struc,
+			YT(presenceImpl) *impl);
+bool matchUnumRoles(char *prefix, YT(unumStructure) *struc,
+		    YT(unumImpl) *impl);
 char *neighborErrMessage(char *templateName, YT(symbolList) *ingredients);
 
 /**

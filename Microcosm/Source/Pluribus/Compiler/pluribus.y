@@ -21,6 +21,7 @@
 
 #define YYDEBUG 1
 
+void yyerror(char *s);
 %}
 
 %token ABSTRACT ATTRIBUTE BOOLEAN BYTE CASE CHAR CLASS DATA DEFAULT DELIVER

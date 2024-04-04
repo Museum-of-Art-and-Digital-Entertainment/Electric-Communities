@@ -132,6 +132,7 @@ bool  yh_include(char *filename);
 bool  yh_isCNumberStartChar(char c);
 bool  yh_isCSymbolStartChar(char c);
 bool  yh_isCSymbolChar(char c);
+bool  yh_isSymbolStartChar(char c);
 bool  yh_isWhitespace(char c);
 int   yh_lexCCharacter(char c);
 int   yh_lexCCharacterBuf(char c, char *buf);

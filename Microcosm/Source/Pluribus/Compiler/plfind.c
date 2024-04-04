@@ -14,6 +14,8 @@
 #include "yh_build.h"
 #include "pl.h"
 #include "y.tab.h"
+#include "plroute.h"
+#include "plutil.h"
 
   YT(attribute) *
 findAttributeByName(YT(symbol) *name, YT(attributeList) *attributes) {

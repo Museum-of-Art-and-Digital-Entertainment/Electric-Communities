@@ -13,10 +13,11 @@
 #include "generic.h"
 #include "yh.h"
 #include "yh_build.h"
+#include "yh_dump.h"
 #include "yh_walk.h"
 #include "y.tab.h"
 #include "pl.h"
-
+#include "plutil.h"
 
 //KSS Globals declared here because gdb can't find them inside of PCASEs
 YT(attributeType) *GLBLattribute = NULL;

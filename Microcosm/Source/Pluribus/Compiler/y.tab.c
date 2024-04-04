@@ -77,8 +77,9 @@
 
 #define YYDEBUG 1
 
+void yyerror(char *s);
 
-#line 82 "y.tab.c"
+#line 83 "y.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -982,43 +983,43 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,    52,    52,    57,    65,    72,    76,    80,    84,    88,
-      96,   101,   107,   111,   118,   122,   127,   131,   135,   139,
-     143,   150,   154,   158,   162,   166,   170,   174,   178,   182,
-     186,   190,   198,   202,   206,   210,   217,   221,   228,   232,
-     236,   243,   250,   257,   261,   268,   272,   280,   285,   291,
-     295,   299,   306,   310,   318,   323,   329,   333,   337,   341,
-     348,   354,   363,   367,   375,   380,   384,   389,   396,   400,
-     408,   412,   416,   423,   427,   431,   435,   443,   450,   454,
-     461,   465,   472,   476,   489,   493,   506,   511,   517,   521,
-     528,   532,   536,   540,   548,   556,   560,   573,   578,   584,
-     588,   595,   599,   603,   607,   611,   615,   619,   623,   627,
-     631,   635,   642,   646,   653,   661,   661,   666,   672,   677,
-     682,   687,   692,   697,   705,   710,   717,   724,   731,   736,
-     742,   749,   753,   760,   764,   768,   772,   776,   783,   788,
-     793,   798,   803,   808,   813,   821,   826,   834,   834,   841,
-     841,   845,   852,   859,   863,   870,   877,   885,   889,   902,
-     907,   913,   917,   924,   928,   932,   936,   943,   950,   955,
-     961,   965,   972,   976,   983,   987,   993,   997,  1004,  1008,
-    1016,  1023,  1027,  1040,  1045,  1051,  1055,  1062,  1066,  1070,
-    1074,  1078,  1082,  1086,  1093,  1100,  1120,  1124,  1131,  1138,
-    1143,  1149,  1153,  1160,  1164,  1171,  1175,  1182,  1187,  1191,
-    1198,  1202,  1210,  1217,  1221,  1234,  1239,  1245,  1249,  1256,
-    1260,  1264,  1268,  1272,  1279,  1286,  1291,  1299,  1304,  1310,
-    1314,  1322,  1329,  1333,  1338,  1344,  1349,  1356,  1363,  1367,
-    1380,  1385,  1391,  1395,  1402,  1406,  1410,  1417,  1424,  1428,
-    1435,  1439,  1446,  1450,  1457,  1461,  1468,  1472,  1479,  1483,
-    1490,  1494,  1498,  1505,  1509,  1513,  1517,  1521,  1528,  1532,
-    1536,  1540,  1547,  1551,  1555,  1562,  1566,  1570,  1574,  1581,
-    1585,  1589,  1593,  1597,  1604,  1608,  1612,  1616,  1620,  1624,
-    1628,  1632,  1639,  1646,  1653,  1660,  1667,  1671,  1675,  1682,
-    1686,  1696,  1703,  1707,  1717,  1721,  1725,  1729,  1736,  1743,
-    1747,  1754,  1758,  1762,  1766,  1773,  1777,  1781,  1785,  1792,
-    1796,  1803,  1807,  1811,  1818,  1822,  1829,  1833,  1840,  1847,
-    1854,  1858,  1865,  1870,  1874,  1878,  1885,  1892,  1899,  1907,
-    1911,  1918,  1925,  1933,  1937,  1941,  1945,  1949,  1956,  1960,
-    1968,  1976,  1980,  1988,  1992,  1999,  2006,  2013,  2017,  2024,
-    2028,  2035,  2042,  2046,  2053
+       0,    53,    53,    58,    66,    73,    77,    81,    85,    89,
+      97,   102,   108,   112,   119,   123,   128,   132,   136,   140,
+     144,   151,   155,   159,   163,   167,   171,   175,   179,   183,
+     187,   191,   199,   203,   207,   211,   218,   222,   229,   233,
+     237,   244,   251,   258,   262,   269,   273,   281,   286,   292,
+     296,   300,   307,   311,   319,   324,   330,   334,   338,   342,
+     349,   355,   364,   368,   376,   381,   385,   390,   397,   401,
+     409,   413,   417,   424,   428,   432,   436,   444,   451,   455,
+     462,   466,   473,   477,   490,   494,   507,   512,   518,   522,
+     529,   533,   537,   541,   549,   557,   561,   574,   579,   585,
+     589,   596,   600,   604,   608,   612,   616,   620,   624,   628,
+     632,   636,   643,   647,   654,   662,   662,   667,   673,   678,
+     683,   688,   693,   698,   706,   711,   718,   725,   732,   737,
+     743,   750,   754,   761,   765,   769,   773,   777,   784,   789,
+     794,   799,   804,   809,   814,   822,   827,   835,   835,   842,
+     842,   846,   853,   860,   864,   871,   878,   886,   890,   903,
+     908,   914,   918,   925,   929,   933,   937,   944,   951,   956,
+     962,   966,   973,   977,   984,   988,   994,   998,  1005,  1009,
+    1017,  1024,  1028,  1041,  1046,  1052,  1056,  1063,  1067,  1071,
+    1075,  1079,  1083,  1087,  1094,  1101,  1121,  1125,  1132,  1139,
+    1144,  1150,  1154,  1161,  1165,  1172,  1176,  1183,  1188,  1192,
+    1199,  1203,  1211,  1218,  1222,  1235,  1240,  1246,  1250,  1257,
+    1261,  1265,  1269,  1273,  1280,  1287,  1292,  1300,  1305,  1311,
+    1315,  1323,  1330,  1334,  1339,  1345,  1350,  1357,  1364,  1368,
+    1381,  1386,  1392,  1396,  1403,  1407,  1411,  1418,  1425,  1429,
+    1436,  1440,  1447,  1451,  1458,  1462,  1469,  1473,  1480,  1484,
+    1491,  1495,  1499,  1506,  1510,  1514,  1518,  1522,  1529,  1533,
+    1537,  1541,  1548,  1552,  1556,  1563,  1567,  1571,  1575,  1582,
+    1586,  1590,  1594,  1598,  1605,  1609,  1613,  1617,  1621,  1625,
+    1629,  1633,  1640,  1647,  1654,  1661,  1668,  1672,  1676,  1683,
+    1687,  1697,  1704,  1708,  1718,  1722,  1726,  1730,  1737,  1744,
+    1748,  1755,  1759,  1763,  1767,  1774,  1778,  1782,  1786,  1793,
+    1797,  1804,  1808,  1812,  1819,  1823,  1830,  1834,  1841,  1848,
+    1855,  1859,  1866,  1871,  1875,  1879,  1886,  1893,  1900,  1908,
+    1912,  1919,  1926,  1934,  1938,  1942,  1946,  1950,  1957,  1961,
+    1969,  1977,  1981,  1989,  1993,  2000,  2007,  2014,  2018,  2025,
+    2029,  2036,  2043,  2047,  2054
 };
 #endif
 
@@ -2135,660 +2136,660 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* pluribusModule: ':' EXPORT unitDef  */
-#line 53 "pluribus.y"
+#line 54 "pluribus.y"
 {
     setExport(YC(genericDef,yyvsp[0]));
     YRESULT(yyvsp[0]);
 }
-#line 2144 "y.tab.c"
+#line 2145 "y.tab.c"
     break;
 
   case 3: /* pluribusModule: ':'  */
-#line 58 "pluribus.y"
+#line 59 "pluribus.y"
 {
     YRESULT(NULL);
 }
-#line 2152 "y.tab.c"
+#line 2153 "y.tab.c"
     break;
 
   case 4: /* unitDef: UNIT defSymbol '{' unitElems '}'  */
-#line 66 "pluribus.y"
+#line 67 "pluribus.y"
 {
     yyval = YH_BUILD(unitDef)(info(), YC(symbolDef,yyvsp[-3]), YC(elemList,yyvsp[-1]));
 }
-#line 2160 "y.tab.c"
+#line 2161 "y.tab.c"
     break;
 
   case 5: /* unitUse: UNIT scopedRef ';'  */
-#line 73 "pluribus.y"
+#line 74 "pluribus.y"
 {
     yyval = YH_BUILD(unitRef)(YC(symbolRef,yyvsp[-1]), NONE);
 }
-#line 2168 "y.tab.c"
+#line 2169 "y.tab.c"
     break;
 
   case 6: /* unitUse: EXPORT UNIT scopedRef ';'  */
-#line 77 "pluribus.y"
+#line 78 "pluribus.y"
 {
     yyval = YH_BUILD(unitRef)(YC(symbolRef,yyvsp[-1]), EXPORT);
 }
-#line 2176 "y.tab.c"
+#line 2177 "y.tab.c"
     break;
 
   case 7: /* unitUse: ELEVATE UNIT scopedRef ';'  */
-#line 81 "pluribus.y"
+#line 82 "pluribus.y"
 {
     yyval = YH_BUILD(unitRef)(YC(symbolRef,yyvsp[-1]), ELEVATE);
 }
-#line 2184 "y.tab.c"
+#line 2185 "y.tab.c"
     break;
 
   case 8: /* unitUse: UNIT '{' unitElems '}'  */
-#line 85 "pluribus.y"
+#line 86 "pluribus.y"
 {
     yyval = YH_BUILD(unitDef)(genInfo(), defSymbol(gensym()), YC(elemList,yyvsp[-1]));
 }
-#line 2192 "y.tab.c"
+#line 2193 "y.tab.c"
     break;
 
   case 9: /* unitUse: EXPORT UNIT '{' unitElems '}'  */
-#line 89 "pluribus.y"
+#line 90 "pluribus.y"
 {
     yyval = YH_BUILD(unitDef)(genInfo(), defSymbol(gensym()), YC(elemList,yyvsp[-1]));
     setExport(YC(genericDef,yyval));
 }
-#line 2201 "y.tab.c"
+#line 2202 "y.tab.c"
     break;
 
   case 10: /* unitElems: unitElemList  */
-#line 97 "pluribus.y"
+#line 98 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2209 "y.tab.c"
+#line 2210 "y.tab.c"
     break;
 
   case 11: /* unitElems: %empty  */
-#line 101 "pluribus.y"
+#line 102 "pluribus.y"
 {
     yyval = NULL;
 }
-#line 2217 "y.tab.c"
+#line 2218 "y.tab.c"
     break;
 
   case 12: /* unitElemList: unitElem  */
-#line 108 "pluribus.y"
+#line 109 "pluribus.y"
 {
     yyval = YH_BUILD(elemList)(YC(elem,yyvsp[0]), NULL);
 }
-#line 2225 "y.tab.c"
+#line 2226 "y.tab.c"
     break;
 
   case 13: /* unitElemList: unitElemList unitElem  */
-#line 112 "pluribus.y"
+#line 113 "pluribus.y"
 {
     yyval = YH_BUILD(elemList)(YC(elem,yyvsp[0]), YC(elemList,yyvsp[-1]));
 }
-#line 2233 "y.tab.c"
+#line 2234 "y.tab.c"
     break;
 
   case 14: /* unitElem: definitionStatement  */
-#line 119 "pluribus.y"
+#line 120 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2241 "y.tab.c"
+#line 2242 "y.tab.c"
     break;
 
   case 15: /* unitElem: EXPORT definitionStatement  */
-#line 123 "pluribus.y"
+#line 124 "pluribus.y"
 {
     setExport(YC(genericDef,yyvsp[0]));
     yyval = yyvsp[0];
 }
-#line 2250 "y.tab.c"
+#line 2251 "y.tab.c"
     break;
 
   case 16: /* unitElem: codeAtt  */
-#line 128 "pluribus.y"
+#line 129 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2258 "y.tab.c"
+#line 2259 "y.tab.c"
     break;
 
   case 17: /* unitElem: importAtt  */
-#line 132 "pluribus.y"
+#line 133 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2266 "y.tab.c"
+#line 2267 "y.tab.c"
     break;
 
   case 18: /* unitElem: packageAtt  */
-#line 136 "pluribus.y"
+#line 137 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2274 "y.tab.c"
+#line 2275 "y.tab.c"
     break;
 
   case 19: /* unitElem: unitUse  */
-#line 140 "pluribus.y"
+#line 141 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2282 "y.tab.c"
+#line 2283 "y.tab.c"
     break;
 
   case 20: /* unitElem: unumImplUse  */
-#line 144 "pluribus.y"
+#line 145 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2290 "y.tab.c"
+#line 2291 "y.tab.c"
     break;
 
   case 21: /* definitionStatement: attributeDef  */
-#line 151 "pluribus.y"
+#line 152 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2298 "y.tab.c"
+#line 2299 "y.tab.c"
     break;
 
   case 22: /* definitionStatement: ingredientImplDef  */
-#line 155 "pluribus.y"
+#line 156 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2306 "y.tab.c"
+#line 2307 "y.tab.c"
     break;
 
   case 23: /* definitionStatement: kindDef  */
-#line 159 "pluribus.y"
+#line 160 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2314 "y.tab.c"
+#line 2315 "y.tab.c"
     break;
 
   case 24: /* definitionStatement: presenceImplDef  */
-#line 163 "pluribus.y"
+#line 164 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2322 "y.tab.c"
+#line 2323 "y.tab.c"
     break;
 
   case 25: /* definitionStatement: presenceStructureDef  */
-#line 167 "pluribus.y"
+#line 168 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2330 "y.tab.c"
+#line 2331 "y.tab.c"
     break;
 
   case 26: /* definitionStatement: publishDef  */
-#line 171 "pluribus.y"
+#line 172 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2338 "y.tab.c"
+#line 2339 "y.tab.c"
     break;
 
   case 27: /* definitionStatement: remoteDef  */
-#line 175 "pluribus.y"
+#line 176 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2346 "y.tab.c"
+#line 2347 "y.tab.c"
     break;
 
   case 28: /* definitionStatement: typeDef  */
-#line 179 "pluribus.y"
+#line 180 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2354 "y.tab.c"
+#line 2355 "y.tab.c"
     break;
 
   case 29: /* definitionStatement: unitDef  */
-#line 183 "pluribus.y"
+#line 184 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2362 "y.tab.c"
+#line 2363 "y.tab.c"
     break;
 
   case 30: /* definitionStatement: unumImplDef  */
-#line 187 "pluribus.y"
+#line 188 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2370 "y.tab.c"
+#line 2371 "y.tab.c"
     break;
 
   case 31: /* definitionStatement: unumStructureDef  */
-#line 191 "pluribus.y"
+#line 192 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2378 "y.tab.c"
+#line 2379 "y.tab.c"
     break;
 
   case 32: /* attributeType: booleanType  */
-#line 199 "pluribus.y"
+#line 200 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2386 "y.tab.c"
+#line 2387 "y.tab.c"
     break;
 
   case 33: /* attributeType: charType  */
-#line 203 "pluribus.y"
+#line 204 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2394 "y.tab.c"
+#line 2395 "y.tab.c"
     break;
 
   case 34: /* attributeType: LONG  */
-#line 207 "pluribus.y"
+#line 208 "pluribus.y"
 {
     yyval = YH_BUILD(primType)(LONG);
 }
-#line 2402 "y.tab.c"
+#line 2403 "y.tab.c"
     break;
 
   case 35: /* attributeType: stringType  */
-#line 211 "pluribus.y"
+#line 212 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2410 "y.tab.c"
+#line 2411 "y.tab.c"
     break;
 
   case 36: /* attributeDef: ATTRIBUTE defSymbol attributeType ';'  */
-#line 218 "pluribus.y"
+#line 219 "pluribus.y"
 {
     yyval = YH_BUILD(attributeDef)(info(), YC(symbolDef,yyvsp[-2]), YC(typeSpec,yyvsp[-1]));
 }
-#line 2418 "y.tab.c"
+#line 2419 "y.tab.c"
     break;
 
   case 37: /* attributeDef: ATTRIBUTE defSymbol ';'  */
-#line 222 "pluribus.y"
+#line 223 "pluribus.y"
 {
     yyval = YH_BUILD(attributeDef)(info(), YC(symbolDef,yyvsp[-1]), NULL);
 }
-#line 2426 "y.tab.c"
+#line 2427 "y.tab.c"
     break;
 
   case 38: /* assignment: scopedRef '=' expr ';'  */
-#line 229 "pluribus.y"
+#line 230 "pluribus.y"
 {
     yyval = YH_BUILD(attributeRef)(YC(symbolRef,yyvsp[-3]), YC(expr,yyvsp[-1]));
 }
-#line 2434 "y.tab.c"
+#line 2435 "y.tab.c"
     break;
 
   case 39: /* assignment: scopedRef ';'  */
-#line 233 "pluribus.y"
+#line 234 "pluribus.y"
 {
     yyval = YH_BUILD(attributeRef)(YC(symbolRef,yyvsp[-1]), NULL);
 }
-#line 2442 "y.tab.c"
+#line 2443 "y.tab.c"
     break;
 
   case 40: /* assignment: unitUse  */
-#line 237 "pluribus.y"
+#line 238 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2450 "y.tab.c"
+#line 2451 "y.tab.c"
     break;
 
   case 41: /* requireAtt: REQUIRE expr ';'  */
-#line 244 "pluribus.y"
+#line 245 "pluribus.y"
 {
     yyval = YH_BUILD(requireAtt)(YC(expr,yyvsp[-1]), NULL);
 }
-#line 2458 "y.tab.c"
+#line 2459 "y.tab.c"
     break;
 
   case 42: /* codeAtt: codeModifiers codeType defSymbol codeInherits methodCode  */
-#line 251 "pluribus.y"
+#line 252 "pluribus.y"
 {
     yyval = YH_BUILD(codeDef)(info(), YC(symbolDef,yyvsp[-2]), YC(codeModifierList,yyvsp[-4]),
                yyvsp[-3], YC(codeInheritList,yyvsp[-1]), YC(string,yyvsp[0]));
 }
-#line 2467 "y.tab.c"
+#line 2468 "y.tab.c"
     break;
 
   case 43: /* codeInherit: EXTENDS mangledSymbolList  */
-#line 258 "pluribus.y"
+#line 259 "pluribus.y"
 {
     yyval = YH_BUILD(codeInherit)(EXTENDS, YC(pluribusTypeList,yyvsp[0]));
 }
-#line 2475 "y.tab.c"
+#line 2476 "y.tab.c"
     break;
 
   case 44: /* codeInherit: IMPLEMENTS mangledSymbolList  */
-#line 262 "pluribus.y"
+#line 263 "pluribus.y"
 {
     yyval = YH_BUILD(codeInherit)(IMPLEMENTS, YC(pluribusTypeList,yyvsp[0]));
 }
-#line 2483 "y.tab.c"
+#line 2484 "y.tab.c"
     break;
 
   case 45: /* codeInheritList: codeInherit  */
-#line 269 "pluribus.y"
+#line 270 "pluribus.y"
 {
     yyval = YH_BUILD(codeInheritList)(YC(codeInherit,yyvsp[0]), NULL);
 }
-#line 2491 "y.tab.c"
+#line 2492 "y.tab.c"
     break;
 
   case 46: /* codeInheritList: codeInheritList codeInherit  */
-#line 273 "pluribus.y"
+#line 274 "pluribus.y"
 {
     yyval = YH_BUILD(codeInheritList)(YC(codeInherit,yyvsp[0]), YC(codeInheritList,yyvsp[-1]));
 }
-#line 2499 "y.tab.c"
+#line 2500 "y.tab.c"
     break;
 
   case 47: /* codeInherits: codeInheritList  */
-#line 281 "pluribus.y"
+#line 282 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2507 "y.tab.c"
+#line 2508 "y.tab.c"
     break;
 
   case 48: /* codeInherits: %empty  */
-#line 285 "pluribus.y"
+#line 286 "pluribus.y"
 {
     yyval = NULL;
 }
-#line 2515 "y.tab.c"
+#line 2516 "y.tab.c"
     break;
 
   case 49: /* codeModifier: ABSTRACT  */
-#line 292 "pluribus.y"
+#line 293 "pluribus.y"
 {
     yyval = YH_BUILD(codeModifier)(ABSTRACT);
 }
-#line 2523 "y.tab.c"
+#line 2524 "y.tab.c"
     break;
 
   case 50: /* codeModifier: FINAL  */
-#line 296 "pluribus.y"
+#line 297 "pluribus.y"
 {
     yyval = YH_BUILD(codeModifier)(FINAL);
 }
-#line 2531 "y.tab.c"
+#line 2532 "y.tab.c"
     break;
 
   case 51: /* codeModifier: PUBLIC  */
-#line 300 "pluribus.y"
+#line 301 "pluribus.y"
 {
     yyval = YH_BUILD(codeModifier)(PUBLIC);
 }
-#line 2539 "y.tab.c"
+#line 2540 "y.tab.c"
     break;
 
   case 52: /* codeModifierList: codeModifier  */
-#line 307 "pluribus.y"
+#line 308 "pluribus.y"
 {
     yyval = YH_BUILD(codeModifierList)(YC(codeModifier,yyvsp[0]), NULL);
 }
-#line 2547 "y.tab.c"
+#line 2548 "y.tab.c"
     break;
 
   case 53: /* codeModifierList: codeModifierList codeModifier  */
-#line 311 "pluribus.y"
+#line 312 "pluribus.y"
 {
     yyval = YH_BUILD(codeModifierList)(YC(codeModifier,yyvsp[0]),
                     YC(codeModifierList,yyvsp[-1]));
 }
-#line 2556 "y.tab.c"
+#line 2557 "y.tab.c"
     break;
 
   case 54: /* codeModifiers: codeModifierList  */
-#line 319 "pluribus.y"
+#line 320 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2564 "y.tab.c"
+#line 2565 "y.tab.c"
     break;
 
   case 55: /* codeModifiers: %empty  */
-#line 323 "pluribus.y"
+#line 324 "pluribus.y"
 {
     yyval = NULL;
 }
-#line 2572 "y.tab.c"
+#line 2573 "y.tab.c"
     break;
 
   case 56: /* codeType: CLASS  */
-#line 330 "pluribus.y"
+#line 331 "pluribus.y"
 {
     yyval = CLASS;
 }
-#line 2580 "y.tab.c"
+#line 2581 "y.tab.c"
     break;
 
   case 57: /* codeType: INTERFACE  */
-#line 334 "pluribus.y"
+#line 335 "pluribus.y"
 {
     yyval = INTERFACE;
 }
-#line 2588 "y.tab.c"
+#line 2589 "y.tab.c"
     break;
 
   case 58: /* codeType: ECLASS  */
-#line 338 "pluribus.y"
+#line 339 "pluribus.y"
 {
     yyval = ECLASS;
 }
-#line 2596 "y.tab.c"
+#line 2597 "y.tab.c"
     break;
 
   case 59: /* codeType: EINTERFACE  */
-#line 342 "pluribus.y"
+#line 343 "pluribus.y"
 {
     yyval = EINTERFACE;
 }
-#line 2604 "y.tab.c"
+#line 2605 "y.tab.c"
     break;
 
   case 60: /* mangledSymbolElem: Symbol  */
-#line 349 "pluribus.y"
+#line 350 "pluribus.y"
 {
     yyval = YH_BUILD(pluribusType)
              (YC(symbolRef,YH_BUILD(symbolRef) (YC(symbol,yyvsp[0]), NULL)),
           FALSE);
 }
-#line 2614 "y.tab.c"
+#line 2615 "y.tab.c"
     break;
 
   case 61: /* mangledSymbolElem: KIND Symbol  */
-#line 355 "pluribus.y"
+#line 356 "pluribus.y"
 {
     yyval = YH_BUILD(pluribusType)
              (YC(symbolRef,YH_BUILD(symbolRef)(YC(symbol,yyvsp[0]), NULL)),
           KIND);
 }
-#line 2624 "y.tab.c"
+#line 2625 "y.tab.c"
     break;
 
   case 62: /* mangledSymbolList: mangledSymbolElem  */
-#line 364 "pluribus.y"
+#line 365 "pluribus.y"
 {
     yyval = YH_BUILD(pluribusTypeList)(YC(pluribusType,yyvsp[0]), NULL);
 }
-#line 2632 "y.tab.c"
+#line 2633 "y.tab.c"
     break;
 
   case 63: /* mangledSymbolList: mangledSymbolList ',' mangledSymbolElem  */
-#line 368 "pluribus.y"
+#line 369 "pluribus.y"
 {
     yyval = YH_BUILD(pluribusTypeList)(YC(pluribusType,yyvsp[0]),
                     YC(pluribusTypeList,yyvsp[-2]));
 }
-#line 2641 "y.tab.c"
+#line 2642 "y.tab.c"
     break;
 
   case 64: /* prototypeDecl: Symbol '(' parameterDeclList ')' throwsList ';'  */
-#line 376 "pluribus.y"
+#line 377 "pluribus.y"
 {
     yyval = YH_BUILD(protoDef)(YC(symbol,yyvsp[-5]), YC(parameterDeclList,yyvsp[-3]),
                             YC(scopedRefList,yyvsp[-1]));
 }
-#line 2650 "y.tab.c"
+#line 2651 "y.tab.c"
     break;
 
   case 65: /* prototypeDecl: Symbol '(' ')' throwsList ';'  */
-#line 381 "pluribus.y"
+#line 382 "pluribus.y"
 {
     yyval = YH_BUILD(protoDef)(YC(symbol,yyvsp[-4]), NULL, YC(scopedRefList,yyvsp[-1]));
 }
-#line 2658 "y.tab.c"
+#line 2659 "y.tab.c"
     break;
 
   case 66: /* prototypeDecl: INIT '(' parameterDeclList ')' throwsList ';'  */
-#line 385 "pluribus.y"
+#line 386 "pluribus.y"
 {
     yyval = YH_BUILD(protoDef)(initSym, YC(parameterDeclList,yyvsp[-3]),
                             YC(scopedRefList,yyvsp[-1]));
 }
-#line 2667 "y.tab.c"
+#line 2668 "y.tab.c"
     break;
 
   case 67: /* prototypeDecl: INIT '(' ')' throwsList ';'  */
-#line 390 "pluribus.y"
+#line 391 "pluribus.y"
 {
     yyval = YH_BUILD(protoDef)(initSym, NULL, YC(scopedRefList,yyvsp[0]));
 }
-#line 2675 "y.tab.c"
+#line 2676 "y.tab.c"
     break;
 
   case 68: /* parameterDeclList: parameterDecl  */
-#line 397 "pluribus.y"
+#line 398 "pluribus.y"
 {
     yyval = YH_BUILD(parameterDeclList)(YC(parameterDecl,yyvsp[0]), NULL);
 }
-#line 2683 "y.tab.c"
+#line 2684 "y.tab.c"
     break;
 
   case 69: /* parameterDeclList: parameterDeclList ',' parameterDecl  */
-#line 401 "pluribus.y"
+#line 402 "pluribus.y"
 {
     yyval = YH_BUILD(parameterDeclList)(YC(parameterDecl,yyvsp[0]),
                                      YC(parameterDeclList,yyvsp[-2]));
 }
-#line 2692 "y.tab.c"
+#line 2693 "y.tab.c"
     break;
 
   case 71: /* arrayMarkers: arrayMarker  */
-#line 413 "pluribus.y"
+#line 414 "pluribus.y"
 {
     yyval = 1;
 }
-#line 2700 "y.tab.c"
+#line 2701 "y.tab.c"
     break;
 
   case 72: /* arrayMarkers: arrayMarkers arrayMarker  */
-#line 417 "pluribus.y"
+#line 418 "pluribus.y"
 {
     yyval = yyvsp[-1] + 1;
 }
-#line 2708 "y.tab.c"
+#line 2709 "y.tab.c"
     break;
 
   case 73: /* parameterDecl: type arrayMarkers Symbol  */
-#line 424 "pluribus.y"
+#line 425 "pluribus.y"
 {
     yyval = YH_BUILD(parameterDecl)(YC(typeSpec,yyvsp[-2]), YC(symbol,yyvsp[0]), yyvsp[-1]);
 }
-#line 2716 "y.tab.c"
+#line 2717 "y.tab.c"
     break;
 
   case 74: /* parameterDecl: type Symbol arrayMarkers  */
-#line 428 "pluribus.y"
+#line 429 "pluribus.y"
 {
     yyval = YH_BUILD(parameterDecl)(YC(typeSpec,yyvsp[-2]), YC(symbol,yyvsp[-1]), yyvsp[-1]);
 }
-#line 2724 "y.tab.c"
+#line 2725 "y.tab.c"
     break;
 
   case 75: /* parameterDecl: type Symbol  */
-#line 432 "pluribus.y"
+#line 433 "pluribus.y"
 {
     yyval = YH_BUILD(parameterDecl)(YC(typeSpec,yyvsp[-1]), YC(symbol,yyvsp[0]), 0);
 }
-#line 2732 "y.tab.c"
+#line 2733 "y.tab.c"
     break;
 
   case 76: /* parameterDecl: type  */
-#line 436 "pluribus.y"
+#line 437 "pluribus.y"
 {
     yyval = YH_BUILD(parameterDecl)(YC(typeSpec,yyvsp[0]), NULL, 0);
 }
-#line 2740 "y.tab.c"
+#line 2741 "y.tab.c"
     break;
 
   case 77: /* kindDef: KIND defSymbol '{' kindElems '}'  */
-#line 444 "pluribus.y"
+#line 445 "pluribus.y"
 {
     yyval = YH_BUILD(kindDef)(info(), YC(symbolDef,yyvsp[-3]), YC(elemList,yyvsp[-1]));
 }
-#line 2748 "y.tab.c"
+#line 2749 "y.tab.c"
     break;
 
   case 78: /* commaNameList: Symbol  */
-#line 451 "pluribus.y"
+#line 452 "pluribus.y"
 {
     yyval = YH_BUILD(symbolList)(YC(symbol,yyvsp[0]), NULL);
 }
-#line 2756 "y.tab.c"
+#line 2757 "y.tab.c"
     break;
 
   case 79: /* commaNameList: commaNameList ',' Symbol  */
-#line 455 "pluribus.y"
+#line 456 "pluribus.y"
 {
     yyval = YH_BUILD(symbolList)(YC(symbol,yyvsp[0]), YC(symbolList,yyvsp[-2]));
 }
-#line 2764 "y.tab.c"
+#line 2765 "y.tab.c"
     break;
 
   case 80: /* commaScopedRefList: scopedRef  */
-#line 462 "pluribus.y"
+#line 463 "pluribus.y"
 {
     yyval = YH_BUILD(scopedRefList)(YC(scopedRef,yyvsp[0]), NULL);
 }
-#line 2772 "y.tab.c"
+#line 2773 "y.tab.c"
     break;
 
   case 81: /* commaScopedRefList: commaScopedRefList ',' scopedRef  */
-#line 466 "pluribus.y"
+#line 467 "pluribus.y"
 {
     yyval = YH_BUILD(scopedRefList)(YC(scopedRef,yyvsp[0]), YC(scopedRefList,yyvsp[-2]));
 }
-#line 2780 "y.tab.c"
+#line 2781 "y.tab.c"
     break;
 
   case 82: /* kindUse: KIND scopedRef ';'  */
-#line 473 "pluribus.y"
+#line 474 "pluribus.y"
 {
     yyval = YH_BUILD(kindRef)(YC(symbolRef,yyvsp[-1]));
 }
-#line 2788 "y.tab.c"
+#line 2789 "y.tab.c"
     break;
 
   case 83: /* kindUse: KIND '{' kindElems '}'  */
-#line 477 "pluribus.y"
+#line 478 "pluribus.y"
 {
     YT(symbol) *anon = gensym();
     YT(elem) *elem1 = YC(elem,YBUILD(kindDef)(
@@ -2798,19 +2799,19 @@ yyreduce:
                   list = YBUILD(elemList)(elem2, list);
     yyval = YH_BUILD(nestedElem)(list);
 }
-#line 2802 "y.tab.c"
+#line 2803 "y.tab.c"
     break;
 
   case 84: /* kindUseNoSemi: KIND scopedRef  */
-#line 490 "pluribus.y"
+#line 491 "pluribus.y"
 {
     yyval = YH_BUILD(kindRef)(YC(symbolRef,yyvsp[0]));
 }
-#line 2810 "y.tab.c"
+#line 2811 "y.tab.c"
     break;
 
   case 85: /* kindUseNoSemi: KIND '{' kindElems '}'  */
-#line 494 "pluribus.y"
+#line 495 "pluribus.y"
 {
     YT(symbol) *anon = gensym();
     YT(elem) *elem1 = YC(elem,YBUILD(kindDef)(
@@ -2820,92 +2821,92 @@ yyreduce:
                   list = YBUILD(elemList)(elem2, list);
     yyval = YH_BUILD(nestedElem)(list);
 }
-#line 2824 "y.tab.c"
+#line 2825 "y.tab.c"
     break;
 
   case 86: /* kindElems: kindElemList  */
-#line 507 "pluribus.y"
+#line 508 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2832 "y.tab.c"
+#line 2833 "y.tab.c"
     break;
 
   case 87: /* kindElems: %empty  */
-#line 511 "pluribus.y"
+#line 512 "pluribus.y"
 {
     yyval = NULL;
 }
-#line 2840 "y.tab.c"
+#line 2841 "y.tab.c"
     break;
 
   case 88: /* kindElemList: kindElem  */
-#line 518 "pluribus.y"
+#line 519 "pluribus.y"
 {
     yyval = YH_BUILD(elemList)(YC(elem,yyvsp[0]), NULL);
 }
-#line 2848 "y.tab.c"
+#line 2849 "y.tab.c"
     break;
 
   case 89: /* kindElemList: kindElemList kindElem  */
-#line 522 "pluribus.y"
+#line 523 "pluribus.y"
 {
     yyval = YH_BUILD(elemList)(YC(elem,yyvsp[0]), YC(elemList,yyvsp[-1]));
 }
-#line 2856 "y.tab.c"
+#line 2857 "y.tab.c"
     break;
 
   case 90: /* kindElem: prototypeDecl  */
-#line 529 "pluribus.y"
+#line 530 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2864 "y.tab.c"
+#line 2865 "y.tab.c"
     break;
 
   case 91: /* kindElem: requireAtt  */
-#line 533 "pluribus.y"
+#line 534 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2872 "y.tab.c"
+#line 2873 "y.tab.c"
     break;
 
   case 92: /* kindElem: kindUse  */
-#line 537 "pluribus.y"
+#line 538 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2880 "y.tab.c"
+#line 2881 "y.tab.c"
     break;
 
   case 93: /* kindElem: implementsAtt  */
-#line 541 "pluribus.y"
+#line 542 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2888 "y.tab.c"
+#line 2889 "y.tab.c"
     break;
 
   case 94: /* ingredientImplDef: INGREDIENT IMPL defSymbol '{' ingredientImplElems '}'  */
-#line 549 "pluribus.y"
+#line 550 "pluribus.y"
 {
     yyval = YH_BUILD(ingredientImplDef)(info(), YC(symbolDef,yyvsp[-3]),
                                      YC(elemList,yyvsp[-1]));
 }
-#line 2897 "y.tab.c"
+#line 2898 "y.tab.c"
     break;
 
   case 95: /* ingredientImplUse: IMPL scopedRef ';'  */
-#line 557 "pluribus.y"
+#line 558 "pluribus.y"
 {
     yyval = YH_BUILD(ingredientImplRef)(YC(symbolRef,yyvsp[-1]));
 }
-#line 2905 "y.tab.c"
+#line 2906 "y.tab.c"
     break;
 
   case 96: /* ingredientImplUse: IMPL '{' ingredientImplElems '}'  */
-#line 561 "pluribus.y"
+#line 562 "pluribus.y"
 {
     YT(symbol) *anon = gensym();
     YT(elem) *elem1 = YC(elem,YBUILD(ingredientImplDef)(
@@ -2915,513 +2916,513 @@ yyreduce:
                   list = YBUILD(elemList)(elem2, list);
     yyval = YH_BUILD(nestedElem)(list);
 }
-#line 2919 "y.tab.c"
+#line 2920 "y.tab.c"
     break;
 
   case 97: /* ingredientImplElems: ingredientImplElemList  */
-#line 574 "pluribus.y"
+#line 575 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2927 "y.tab.c"
+#line 2928 "y.tab.c"
     break;
 
   case 98: /* ingredientImplElems: %empty  */
-#line 578 "pluribus.y"
+#line 579 "pluribus.y"
 {
     yyval = NULL;
 }
-#line 2935 "y.tab.c"
+#line 2936 "y.tab.c"
     break;
 
   case 99: /* ingredientImplElemList: ingredientImplElem  */
-#line 585 "pluribus.y"
+#line 586 "pluribus.y"
 {
     yyval = YH_BUILD(elemList)(YC(elem,yyvsp[0]), NULL);
 }
-#line 2943 "y.tab.c"
+#line 2944 "y.tab.c"
     break;
 
   case 100: /* ingredientImplElemList: ingredientImplElemList ingredientImplElem  */
-#line 589 "pluribus.y"
+#line 590 "pluribus.y"
 {
     yyval = YH_BUILD(elemList)(YC(elem,yyvsp[0]), YC(elemList,yyvsp[-1]));
 }
-#line 2951 "y.tab.c"
+#line 2952 "y.tab.c"
     break;
 
   case 101: /* ingredientImplElem: assignment  */
-#line 596 "pluribus.y"
+#line 597 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2959 "y.tab.c"
+#line 2960 "y.tab.c"
     break;
 
   case 102: /* ingredientImplElem: kindUse  */
-#line 600 "pluribus.y"
+#line 601 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2967 "y.tab.c"
+#line 2968 "y.tab.c"
     break;
 
   case 103: /* ingredientImplElem: neighborAtt  */
-#line 604 "pluribus.y"
+#line 605 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2975 "y.tab.c"
+#line 2976 "y.tab.c"
     break;
 
   case 104: /* ingredientImplElem: stateBundleAtt  */
-#line 608 "pluribus.y"
+#line 609 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2983 "y.tab.c"
+#line 2984 "y.tab.c"
     break;
 
   case 105: /* ingredientImplElem: variableDecl  */
-#line 612 "pluribus.y"
+#line 613 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2991 "y.tab.c"
+#line 2992 "y.tab.c"
     break;
 
   case 106: /* ingredientImplElem: functionAtt  */
-#line 616 "pluribus.y"
+#line 617 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 2999 "y.tab.c"
+#line 3000 "y.tab.c"
     break;
 
   case 107: /* ingredientImplElem: methodAtt  */
-#line 620 "pluribus.y"
+#line 621 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3007 "y.tab.c"
+#line 3008 "y.tab.c"
     break;
 
   case 108: /* ingredientImplElem: initBlockAtt  */
-#line 624 "pluribus.y"
+#line 625 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3015 "y.tab.c"
+#line 3016 "y.tab.c"
     break;
 
   case 109: /* ingredientImplElem: dataAtt  */
-#line 628 "pluribus.y"
+#line 629 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3023 "y.tab.c"
+#line 3024 "y.tab.c"
     break;
 
   case 110: /* ingredientImplElem: importAtt  */
-#line 632 "pluribus.y"
+#line 633 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3031 "y.tab.c"
+#line 3032 "y.tab.c"
     break;
 
   case 111: /* ingredientImplElem: implementsAtt  */
-#line 636 "pluribus.y"
+#line 637 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3039 "y.tab.c"
+#line 3040 "y.tab.c"
     break;
 
   case 112: /* neighborAtt: NEIGHBOR INGREDIENT Symbol kindUse  */
-#line 643 "pluribus.y"
+#line 644 "pluribus.y"
 {
     yyval = YH_BUILD(neighborAtt)(YC(symbol,yyvsp[-1]), FALSE, FALSE, YC(genericRef,yyvsp[0]));
 }
-#line 3047 "y.tab.c"
+#line 3048 "y.tab.c"
     break;
 
   case 113: /* neighborAtt: NEIGHBOR PRESENCE Symbol plurality kindUse  */
-#line 647 "pluribus.y"
+#line 648 "pluribus.y"
 {
     yyval = YH_BUILD(neighborAtt)(YC(symbol,yyvsp[-2]), yyvsp[-1], TRUE, YC(genericRef,yyvsp[0]));
 }
-#line 3055 "y.tab.c"
+#line 3056 "y.tab.c"
     break;
 
   case 114: /* stateBundleAtt: STATE scopedRef Symbol valueOrNot ';'  */
-#line 654 "pluribus.y"
+#line 655 "pluribus.y"
 {
     yyval = YH_BUILD(stateBundleDef)(YC(scopedRef,yyvsp[-3]), YC(symbol,yyvsp[-2]),
                   YC(string,yyvsp[-1]));
 }
-#line 3064 "y.tab.c"
+#line 3065 "y.tab.c"
     break;
 
   case 115: /* $@1: %empty  */
-#line 661 "pluribus.y"
+#line 662 "pluribus.y"
             { ExpectInitialization = TRUE; }
-#line 3070 "y.tab.c"
+#line 3071 "y.tab.c"
     break;
 
   case 116: /* valueOrNot: '=' $@1 Initialization  */
-#line 662 "pluribus.y"
+#line 663 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3078 "y.tab.c"
+#line 3079 "y.tab.c"
     break;
 
   case 117: /* valueOrNot: %empty  */
-#line 666 "pluribus.y"
+#line 667 "pluribus.y"
 {
     yyval = NULL;
 }
-#line 3086 "y.tab.c"
+#line 3087 "y.tab.c"
     break;
 
   case 118: /* variableDecl: modifiers type Symbol arrayMarkers valueOrNot ';'  */
-#line 673 "pluribus.y"
+#line 674 "pluribus.y"
 {
     yyval = YH_BUILD(variableDecl)
             (YC(typeSpec,yyvsp[-4]), yyvsp[-5], YC(symbol,yyvsp[-3]), yyvsp[-2], YC(string,yyvsp[-1]));
 }
-#line 3095 "y.tab.c"
+#line 3096 "y.tab.c"
     break;
 
   case 119: /* variableDecl: modifiers type arrayMarkers Symbol valueOrNot ';'  */
-#line 678 "pluribus.y"
+#line 679 "pluribus.y"
 {
     yyval = YH_BUILD(variableDecl)
              (YC(typeSpec,yyvsp[-4]), yyvsp[-5], YC(symbol,yyvsp[-2]), yyvsp[-3], YC(string,yyvsp[-1]));
 }
-#line 3104 "y.tab.c"
+#line 3105 "y.tab.c"
     break;
 
   case 120: /* variableDecl: modifiers type Symbol valueOrNot ';'  */
-#line 683 "pluribus.y"
+#line 684 "pluribus.y"
 {
     yyval = YH_BUILD(variableDecl)
              (YC(typeSpec,yyvsp[-3]), yyvsp[-4], YC(symbol,yyvsp[-2]), 0, YC(string,yyvsp[-1]));
 }
-#line 3113 "y.tab.c"
+#line 3114 "y.tab.c"
     break;
 
   case 121: /* variableDecl: type Symbol arrayMarkers valueOrNot ';'  */
-#line 688 "pluribus.y"
+#line 689 "pluribus.y"
 {
     yyval = YH_BUILD(variableDecl)
             (YC(typeSpec,yyvsp[-4]), NULL, YC(symbol,yyvsp[-3]), yyvsp[-2], YC(string,yyvsp[-1]));
 }
-#line 3122 "y.tab.c"
+#line 3123 "y.tab.c"
     break;
 
   case 122: /* variableDecl: type arrayMarkers Symbol valueOrNot ';'  */
-#line 693 "pluribus.y"
+#line 694 "pluribus.y"
 {
     yyval = YH_BUILD(variableDecl)
              (YC(typeSpec,yyvsp[-4]), NULL, YC(symbol,yyvsp[-2]), yyvsp[-3], YC(string,yyvsp[-1]));
 }
-#line 3131 "y.tab.c"
+#line 3132 "y.tab.c"
     break;
 
   case 123: /* variableDecl: type Symbol valueOrNot ';'  */
-#line 698 "pluribus.y"
+#line 699 "pluribus.y"
 {
     yyval = YH_BUILD(variableDecl)
              (YC(typeSpec,yyvsp[-3]), NULL, YC(symbol,yyvsp[-2]), 0, YC(string,yyvsp[-1]));
 }
-#line 3140 "y.tab.c"
+#line 3141 "y.tab.c"
     break;
 
   case 124: /* throwsList: THROWS commaScopedRefList  */
-#line 706 "pluribus.y"
+#line 707 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3148 "y.tab.c"
+#line 3149 "y.tab.c"
     break;
 
   case 125: /* throwsList: %empty  */
-#line 710 "pluribus.y"
+#line 711 "pluribus.y"
 {
     yyval = NULL;
 }
-#line 3156 "y.tab.c"
+#line 3157 "y.tab.c"
     break;
 
   case 126: /* functionAtt: FUNCTION modifiersOrNot type Symbol '(' parameterDeclList ')' throwsList methodCode  */
-#line 719 "pluribus.y"
+#line 720 "pluribus.y"
 {
     yyval = YH_BUILD(functionAtt)(yyvsp[-7], YC(typeSpec,yyvsp[-6]), YC(symbol,yyvsp[-5]),
                    YC(parameterDeclList,yyvsp[-3]), YC(scopedRefList,yyvsp[-1]),
                    YC(string,yyvsp[0]));
 }
-#line 3166 "y.tab.c"
+#line 3167 "y.tab.c"
     break;
 
   case 127: /* functionAtt: FUNCTION modifiersOrNot type Symbol '(' ')' throwsList methodCode  */
-#line 725 "pluribus.y"
+#line 726 "pluribus.y"
 {
     yyval = YH_BUILD(functionAtt)(yyvsp[-6], YC(typeSpec,yyvsp[-5]), YC(symbol,yyvsp[-4]),
                    NULL, YC(scopedRefList,yyvsp[-1]), YC(string,yyvsp[0]));
 }
-#line 3175 "y.tab.c"
+#line 3176 "y.tab.c"
     break;
 
   case 128: /* modifiersOrNot: modifierList  */
-#line 732 "pluribus.y"
+#line 733 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3183 "y.tab.c"
+#line 3184 "y.tab.c"
     break;
 
   case 129: /* modifiersOrNot: %empty  */
-#line 736 "pluribus.y"
+#line 737 "pluribus.y"
 {
     yyval = 0;
 }
-#line 3191 "y.tab.c"
+#line 3192 "y.tab.c"
     break;
 
   case 130: /* modifiers: modifierList  */
-#line 743 "pluribus.y"
+#line 744 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3199 "y.tab.c"
+#line 3200 "y.tab.c"
     break;
 
   case 131: /* modifierList: modifier  */
-#line 750 "pluribus.y"
+#line 751 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3207 "y.tab.c"
+#line 3208 "y.tab.c"
     break;
 
   case 132: /* modifierList: modifierList modifier  */
-#line 754 "pluribus.y"
+#line 755 "pluribus.y"
 {
     yyval = yyvsp[-1] | yyvsp[0];
 }
-#line 3215 "y.tab.c"
+#line 3216 "y.tab.c"
     break;
 
   case 133: /* modifier: PUBLIC  */
-#line 761 "pluribus.y"
+#line 762 "pluribus.y"
 {
     yyval = MOD_PUBLIC;
 }
-#line 3223 "y.tab.c"
+#line 3224 "y.tab.c"
     break;
 
   case 134: /* modifier: PRIVATE  */
-#line 765 "pluribus.y"
+#line 766 "pluribus.y"
 {
     yyval = MOD_PRIVATE;
 }
-#line 3231 "y.tab.c"
+#line 3232 "y.tab.c"
     break;
 
   case 135: /* modifier: PROTECTED  */
-#line 769 "pluribus.y"
+#line 770 "pluribus.y"
 {
     yyval = MOD_PROTECTED;
 }
-#line 3239 "y.tab.c"
+#line 3240 "y.tab.c"
     break;
 
   case 136: /* modifier: STATIC  */
-#line 773 "pluribus.y"
+#line 774 "pluribus.y"
 {
     yyval = MOD_STATIC;
 }
-#line 3247 "y.tab.c"
+#line 3248 "y.tab.c"
     break;
 
   case 137: /* modifier: FINAL  */
-#line 777 "pluribus.y"
+#line 778 "pluribus.y"
 {
     yyval = MOD_FINAL;
 }
-#line 3255 "y.tab.c"
+#line 3256 "y.tab.c"
     break;
 
   case 138: /* initBlockAtt: PRIME INIT '(' parameterDeclList ')' throwsList methodCode  */
-#line 784 "pluribus.y"
+#line 785 "pluribus.y"
 {
     yyval = YH_BUILD(initBlockAtt(PRIME, YC(parameterDeclList,yyvsp[-3]),
                    YC(scopedRefList,yyvsp[-1]), YC(string,yyvsp[0])));
 }
-#line 3264 "y.tab.c"
+#line 3265 "y.tab.c"
     break;
 
   case 139: /* initBlockAtt: PRIME INIT '(' ')' throwsList methodCode  */
-#line 789 "pluribus.y"
+#line 790 "pluribus.y"
 {
     yyval = YH_BUILD(initBlockAtt(PRIME, NULL, YC(scopedRefList,yyvsp[-1]),
                                YC(string,yyvsp[0])));
 }
-#line 3273 "y.tab.c"
+#line 3274 "y.tab.c"
     break;
 
   case 140: /* initBlockAtt: FACET INIT '(' parameterDeclList ')' throwsList methodCode  */
-#line 794 "pluribus.y"
+#line 795 "pluribus.y"
 {
     yyval = YH_BUILD(initBlockAtt(FACET, YC(parameterDeclList,yyvsp[-3]),
                    YC(scopedRefList,yyvsp[-1]), YC(string,yyvsp[0])));
 }
-#line 3282 "y.tab.c"
+#line 3283 "y.tab.c"
     break;
 
   case 141: /* initBlockAtt: FACET INIT '(' ')' throwsList methodCode  */
-#line 799 "pluribus.y"
+#line 800 "pluribus.y"
 {
     yyval = YH_BUILD(initBlockAtt(FACET, NULL, YC(scopedRefList,yyvsp[-1]),
                                YC(string,yyvsp[0])));
 }
-#line 3291 "y.tab.c"
+#line 3292 "y.tab.c"
     break;
 
   case 142: /* initBlockAtt: INIT '(' parameterDeclList ')' throwsList methodCode  */
-#line 804 "pluribus.y"
+#line 805 "pluribus.y"
 {
     yyval = YH_BUILD(initBlockAtt(INIT, YC(parameterDeclList,yyvsp[-3]),
                                YC(scopedRefList,yyvsp[-1]), YC(string,yyvsp[0])));
 }
-#line 3300 "y.tab.c"
+#line 3301 "y.tab.c"
     break;
 
   case 143: /* initBlockAtt: INIT '(' ')' throwsList methodCode  */
-#line 809 "pluribus.y"
+#line 810 "pluribus.y"
 {
     yyval = YH_BUILD(initBlockAtt(INIT, NULL, YC(scopedRefList,yyvsp[-1]),
                                YC(string,yyvsp[0])));
 }
-#line 3309 "y.tab.c"
+#line 3310 "y.tab.c"
     break;
 
   case 144: /* initBlockAtt: INIT throwsList methodCode  */
-#line 814 "pluribus.y"
+#line 815 "pluribus.y"
 {
     yyval = YH_BUILD(initBlockAtt(INIT, NULL, YC(scopedRefList,yyvsp[-1]),
                                YC(string,yyvsp[0])));
 }
-#line 3318 "y.tab.c"
+#line 3319 "y.tab.c"
     break;
 
   case 145: /* methodAtt: METHOD Symbol '(' parameterDeclList ')' throwsList methodCode  */
-#line 822 "pluribus.y"
+#line 823 "pluribus.y"
 {
     yyval = YH_BUILD(emethodAtt)(YC(symbol,yyvsp[-5]), YC(parameterDeclList,yyvsp[-3]),
                   YC(scopedRefList,yyvsp[-1]), YC(string,yyvsp[0]));
 }
-#line 3327 "y.tab.c"
+#line 3328 "y.tab.c"
     break;
 
   case 146: /* methodAtt: METHOD Symbol '(' ')' throwsList methodCode  */
-#line 827 "pluribus.y"
+#line 828 "pluribus.y"
 {
     yyval = YH_BUILD(emethodAtt)(YC(symbol,yyvsp[-4]), NULL, YC(scopedRefList,yyvsp[-1]),
                   YC(string,yyvsp[0]));
 }
-#line 3336 "y.tab.c"
+#line 3337 "y.tab.c"
     break;
 
   case 147: /* $@2: %empty  */
-#line 834 "pluribus.y"
+#line 835 "pluribus.y"
             { ExpectCodeBlock = TRUE; }
-#line 3342 "y.tab.c"
+#line 3343 "y.tab.c"
     break;
 
   case 148: /* methodCode: '{' $@2 CodeBlock  */
-#line 835 "pluribus.y"
+#line 836 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3350 "y.tab.c"
+#line 3351 "y.tab.c"
     break;
 
   case 149: /* $@3: %empty  */
-#line 841 "pluribus.y"
+#line 842 "pluribus.y"
                  { ExpectHexBlock = TRUE; }
-#line 3356 "y.tab.c"
+#line 3357 "y.tab.c"
     break;
 
   case 150: /* dataAtt: DATA '{' $@3 HexBlock  */
-#line 842 "pluribus.y"
+#line 843 "pluribus.y"
 {
     yyval = YH_BUILD(dataAtt)(YC(string,yyvsp[0]));
 }
-#line 3364 "y.tab.c"
+#line 3365 "y.tab.c"
     break;
 
   case 151: /* dataAtt: DATA String ';'  */
-#line 846 "pluribus.y"
+#line 847 "pluribus.y"
 {
     yyval = YH_BUILD(dataAtt)(YC(string,yyvsp[-1]));
 }
-#line 3372 "y.tab.c"
+#line 3373 "y.tab.c"
     break;
 
   case 152: /* packageAtt: PACKAGE scopedRef ';'  */
-#line 853 "pluribus.y"
+#line 854 "pluribus.y"
 {
     yyval = YH_BUILD(packageAtt)(YC(symbolRef,yyvsp[-1]));
 }
-#line 3380 "y.tab.c"
+#line 3381 "y.tab.c"
     break;
 
   case 153: /* importAtt: IMPORT scopedRef ';'  */
-#line 860 "pluribus.y"
+#line 861 "pluribus.y"
 {
     yyval = YH_BUILD(importAtt)(YC(symbolRef,yyvsp[-1]), FALSE);
 }
-#line 3388 "y.tab.c"
+#line 3389 "y.tab.c"
     break;
 
   case 154: /* importAtt: IMPORT scopedRef '.' '*' ';'  */
-#line 864 "pluribus.y"
+#line 865 "pluribus.y"
 {
     yyval = YH_BUILD(importAtt)(YC(symbolRef,yyvsp[-3]), TRUE);
 }
-#line 3396 "y.tab.c"
+#line 3397 "y.tab.c"
     break;
 
   case 155: /* implementsAtt: IMPLEMENTS scopedRef ';'  */
-#line 871 "pluribus.y"
+#line 872 "pluribus.y"
 {
     yyval = YH_BUILD(implementsAtt)(YC(symbolRef,yyvsp[-1]));
 }
-#line 3404 "y.tab.c"
+#line 3405 "y.tab.c"
     break;
 
   case 156: /* presenceStructureDef: PRESENCE STRUCTURE defSymbol '{' presenceStructureElems '}'  */
-#line 878 "pluribus.y"
+#line 879 "pluribus.y"
 {
     yyval = YH_BUILD(presenceStructureDef)(info(), YC(symbolDef,yyvsp[-3]),
                                         YC(elemList,yyvsp[-1]));
 }
-#line 3413 "y.tab.c"
+#line 3414 "y.tab.c"
     break;
 
   case 157: /* presenceStructureUse: STRUCTURE scopedRef ';'  */
-#line 886 "pluribus.y"
+#line 887 "pluribus.y"
 {
     yyval = YH_BUILD(presenceStructureRef)(YC(symbolRef,yyvsp[-1]));
 }
-#line 3421 "y.tab.c"
+#line 3422 "y.tab.c"
     break;
 
   case 158: /* presenceStructureUse: STRUCTURE '{' presenceStructureElems '}'  */
-#line 890 "pluribus.y"
+#line 891 "pluribus.y"
 {
     YT(symbol) *anon = gensym();
     YT(elem) *elem1 = YC(elem,YBUILD(presenceStructureDef)(
@@ -3431,195 +3432,195 @@ yyreduce:
                   list = YBUILD(elemList)(elem2, list);
     yyval = YH_BUILD(nestedElem)(list);
 }
-#line 3435 "y.tab.c"
+#line 3436 "y.tab.c"
     break;
 
   case 159: /* presenceStructureElems: presenceStructureElemList  */
-#line 903 "pluribus.y"
+#line 904 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3443 "y.tab.c"
+#line 3444 "y.tab.c"
     break;
 
   case 160: /* presenceStructureElems: %empty  */
-#line 907 "pluribus.y"
+#line 908 "pluribus.y"
 {
     yyval = NULL;
 }
-#line 3451 "y.tab.c"
+#line 3452 "y.tab.c"
     break;
 
   case 161: /* presenceStructureElemList: presenceStructureElem  */
-#line 914 "pluribus.y"
+#line 915 "pluribus.y"
 {
     yyval = YH_BUILD(elemList)(YC(elem,yyvsp[0]), NULL);
 }
-#line 3459 "y.tab.c"
+#line 3460 "y.tab.c"
     break;
 
   case 162: /* presenceStructureElemList: presenceStructureElemList presenceStructureElem  */
-#line 918 "pluribus.y"
+#line 919 "pluribus.y"
 {
     yyval = YH_BUILD(elemList)(YC(elem,yyvsp[0]), YC(elemList,yyvsp[-1]));
 }
-#line 3467 "y.tab.c"
+#line 3468 "y.tab.c"
     break;
 
   case 163: /* presenceStructureElem: assignment  */
-#line 925 "pluribus.y"
+#line 926 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3475 "y.tab.c"
+#line 3476 "y.tab.c"
     break;
 
   case 164: /* presenceStructureElem: requireAtt  */
-#line 929 "pluribus.y"
+#line 930 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3483 "y.tab.c"
+#line 3484 "y.tab.c"
     break;
 
   case 165: /* presenceStructureElem: kindUse  */
-#line 933 "pluribus.y"
+#line 934 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3491 "y.tab.c"
+#line 3492 "y.tab.c"
     break;
 
   case 166: /* presenceStructureElem: ingredientAtt  */
-#line 937 "pluribus.y"
+#line 938 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3499 "y.tab.c"
+#line 3500 "y.tab.c"
     break;
 
   case 167: /* ingredientAtt: INGREDIENT Symbol '{' ingredientAttElems '}'  */
-#line 944 "pluribus.y"
+#line 945 "pluribus.y"
 {
     yyval = YH_BUILD(ingredientAtt)(YC(symbol,yyvsp[-3]), YC(elemList,yyvsp[-1]));
 }
-#line 3507 "y.tab.c"
+#line 3508 "y.tab.c"
     break;
 
   case 168: /* ingredientAttElems: ingredientAttElemList  */
-#line 951 "pluribus.y"
+#line 952 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3515 "y.tab.c"
+#line 3516 "y.tab.c"
     break;
 
   case 169: /* ingredientAttElems: %empty  */
-#line 955 "pluribus.y"
+#line 956 "pluribus.y"
 {
     yyval = NULL;
 }
-#line 3523 "y.tab.c"
+#line 3524 "y.tab.c"
     break;
 
   case 170: /* ingredientAttElemList: ingredientAttElem  */
-#line 962 "pluribus.y"
+#line 963 "pluribus.y"
 {
     yyval = YH_BUILD(elemList)(YC(elem,yyvsp[0]), NULL);
 }
-#line 3531 "y.tab.c"
+#line 3532 "y.tab.c"
     break;
 
   case 171: /* ingredientAttElemList: ingredientAttElemList ingredientAttElem  */
-#line 966 "pluribus.y"
+#line 967 "pluribus.y"
 {
     yyval = YH_BUILD(elemList)(YC(elem,yyvsp[0]), YC(elemList,yyvsp[-1]));
 }
-#line 3539 "y.tab.c"
+#line 3540 "y.tab.c"
     break;
 
   case 172: /* ingredientAttElem: kindUse  */
-#line 973 "pluribus.y"
+#line 974 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3547 "y.tab.c"
+#line 3548 "y.tab.c"
     break;
 
   case 173: /* ingredientAttElem: deliverAtt  */
-#line 977 "pluribus.y"
+#line 978 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3555 "y.tab.c"
+#line 3556 "y.tab.c"
     break;
 
   case 174: /* deliverSym: Symbol  */
-#line 984 "pluribus.y"
+#line 985 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3563 "y.tab.c"
+#line 3564 "y.tab.c"
     break;
 
   case 175: /* deliverSym: INIT  */
-#line 988 "pluribus.y"
+#line 989 "pluribus.y"
 {
     yyval = (long)initSym; /* KSSHack */
 }
-#line 3571 "y.tab.c"
+#line 3572 "y.tab.c"
     break;
 
   case 176: /* deliverAtt: DELIVER scope deliverSym TO deliverSym ';'  */
-#line 994 "pluribus.y"
+#line 995 "pluribus.y"
 {
     yyval = YH_BUILD(deliverAtt)(yyvsp[-4], YC(symbol,yyvsp[-3]), YC(symbol,yyvsp[-1]), NULL);
 }
-#line 3579 "y.tab.c"
+#line 3580 "y.tab.c"
     break;
 
   case 177: /* deliverAtt: DELIVER scope deliverSym ';'  */
-#line 998 "pluribus.y"
+#line 999 "pluribus.y"
 {
     yyval = YH_BUILD(deliverAtt)(yyvsp[-2], YC(symbol,yyvsp[-1]), NULL, NULL);
 }
-#line 3587 "y.tab.c"
+#line 3588 "y.tab.c"
     break;
 
   case 178: /* scope: PRESENCE  */
-#line 1005 "pluribus.y"
+#line 1006 "pluribus.y"
 {
     yyval = PRESENCE;
 }
-#line 3595 "y.tab.c"
+#line 3596 "y.tab.c"
     break;
 
   case 179: /* scope: UNUM  */
-#line 1009 "pluribus.y"
+#line 1010 "pluribus.y"
 {
     yyval = UNUM;
 }
-#line 3603 "y.tab.c"
+#line 3604 "y.tab.c"
     break;
 
   case 180: /* presenceImplDef: PRESENCE IMPL defSymbol '{' presenceImplElems '}'  */
-#line 1017 "pluribus.y"
+#line 1018 "pluribus.y"
 {
     yyval = YH_BUILD(presenceImplDef)(info(), YC(symbolDef,yyvsp[-3]), YC(elemList,yyvsp[-1]));
 }
-#line 3611 "y.tab.c"
+#line 3612 "y.tab.c"
     break;
 
   case 181: /* presenceImplUse: IMPL scopedRef ';'  */
-#line 1024 "pluribus.y"
+#line 1025 "pluribus.y"
 {
     yyval = YH_BUILD(presenceImplRef)(YC(symbolRef,yyvsp[-1]));
 }
-#line 3619 "y.tab.c"
+#line 3620 "y.tab.c"
     break;
 
   case 182: /* presenceImplUse: IMPL '{' presenceImplElems '}'  */
-#line 1028 "pluribus.y"
+#line 1029 "pluribus.y"
 {
     YT(symbol) *anon = gensym();
     YT(elem) *elem1 = YC(elem,YBUILD(presenceImplDef)(
@@ -3629,259 +3630,259 @@ yyreduce:
                   list = YBUILD(elemList)(elem2, list);
     yyval = YH_BUILD(nestedElem)(list);
 }
-#line 3633 "y.tab.c"
+#line 3634 "y.tab.c"
     break;
 
   case 183: /* presenceImplElems: presenceImplElemList  */
-#line 1041 "pluribus.y"
+#line 1042 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3641 "y.tab.c"
+#line 3642 "y.tab.c"
     break;
 
   case 184: /* presenceImplElems: %empty  */
-#line 1045 "pluribus.y"
+#line 1046 "pluribus.y"
 {
     yyval = NULL;
 }
-#line 3649 "y.tab.c"
+#line 3650 "y.tab.c"
     break;
 
   case 185: /* presenceImplElemList: presenceImplElem  */
-#line 1052 "pluribus.y"
+#line 1053 "pluribus.y"
 {
     yyval = YH_BUILD(elemList)(YC(elem,yyvsp[0]), NULL);
 }
-#line 3657 "y.tab.c"
+#line 3658 "y.tab.c"
     break;
 
   case 186: /* presenceImplElemList: presenceImplElemList presenceImplElem  */
-#line 1056 "pluribus.y"
+#line 1057 "pluribus.y"
 {
     yyval = YH_BUILD(elemList)(YC(elem,yyvsp[0]), YC(elemList,yyvsp[-1]));
 }
-#line 3665 "y.tab.c"
+#line 3666 "y.tab.c"
     break;
 
   case 187: /* presenceImplElem: assignment  */
-#line 1063 "pluribus.y"
+#line 1064 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3673 "y.tab.c"
+#line 3674 "y.tab.c"
     break;
 
   case 188: /* presenceImplElem: presenceBehavior  */
-#line 1067 "pluribus.y"
+#line 1068 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3681 "y.tab.c"
+#line 3682 "y.tab.c"
     break;
 
   case 189: /* presenceImplElem: initBlockAtt  */
-#line 1071 "pluribus.y"
+#line 1072 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3689 "y.tab.c"
+#line 3690 "y.tab.c"
     break;
 
   case 190: /* presenceImplElem: presenceStructureUse  */
-#line 1075 "pluribus.y"
+#line 1076 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3697 "y.tab.c"
+#line 3698 "y.tab.c"
     break;
 
   case 191: /* presenceImplElem: templateAtt  */
-#line 1079 "pluribus.y"
+#line 1080 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3705 "y.tab.c"
+#line 3706 "y.tab.c"
     break;
 
   case 192: /* presenceImplElem: makeAtt  */
-#line 1083 "pluribus.y"
+#line 1084 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3713 "y.tab.c"
+#line 3714 "y.tab.c"
     break;
 
   case 193: /* presenceImplElem: implementsAtt  */
-#line 1087 "pluribus.y"
+#line 1088 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3721 "y.tab.c"
+#line 3722 "y.tab.c"
     break;
 
   case 194: /* presenceBehavior: PRESENCEBEHAVIOR commaNameList ';'  */
-#line 1094 "pluribus.y"
+#line 1095 "pluribus.y"
 {
     yyval = YH_BUILD(presenceBehavior)(YC(symbolList,yyvsp[-1]));
 }
-#line 3729 "y.tab.c"
+#line 3730 "y.tab.c"
     break;
 
   case 195: /* templateAtt: INGREDIENT commaNameList templateDef  */
-#line 1101 "pluribus.y"
+#line 1102 "pluribus.y"
 {
     yyval = YH_BUILD(templateAtt)(YC(symbolList,yyvsp[-1]), YC(templateDef,yyvsp[0]));
 }
-#line 3737 "y.tab.c"
+#line 3738 "y.tab.c"
     break;
 
   case 196: /* makeAtt: MAKE Symbol ';'  */
-#line 1121 "pluribus.y"
+#line 1122 "pluribus.y"
 {
     yyval = YH_BUILD(makeAtt)(YC(symbol,yyvsp[-1]), NULL);
 }
-#line 3745 "y.tab.c"
+#line 3746 "y.tab.c"
     break;
 
   case 197: /* makeAtt: MAKE Symbol commaNameList ';'  */
-#line 1125 "pluribus.y"
+#line 1126 "pluribus.y"
 {
     yyval = YH_BUILD(makeAtt)(YC(symbol,yyvsp[-2]), YC(symbolList,yyvsp[-1]));
 }
-#line 3753 "y.tab.c"
+#line 3754 "y.tab.c"
     break;
 
   case 198: /* templateDef: TEMPLATE '{' templateElems '}'  */
-#line 1132 "pluribus.y"
+#line 1133 "pluribus.y"
 {
     yyval = YH_BUILD(templateDef)(info(), YC(elemList,yyvsp[-1]));
 }
-#line 3761 "y.tab.c"
+#line 3762 "y.tab.c"
     break;
 
   case 199: /* templateElems: templateElemList  */
-#line 1139 "pluribus.y"
+#line 1140 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3769 "y.tab.c"
+#line 3770 "y.tab.c"
     break;
 
   case 200: /* templateElems: %empty  */
-#line 1143 "pluribus.y"
+#line 1144 "pluribus.y"
 {
     yyval = NULL;
 }
-#line 3777 "y.tab.c"
+#line 3778 "y.tab.c"
     break;
 
   case 201: /* templateElemList: templateElem  */
-#line 1150 "pluribus.y"
+#line 1151 "pluribus.y"
 {
     yyval = YH_BUILD(elemList)(YC(elem,yyvsp[0]), NULL);
 }
-#line 3785 "y.tab.c"
+#line 3786 "y.tab.c"
     break;
 
   case 202: /* templateElemList: templateElemList templateElem  */
-#line 1154 "pluribus.y"
+#line 1155 "pluribus.y"
 {
     yyval = YH_BUILD(elemList)(YC(elem,yyvsp[0]), YC(elemList,yyvsp[-1]));
 }
-#line 3793 "y.tab.c"
+#line 3794 "y.tab.c"
     break;
 
   case 203: /* templateElem: ingredientImplUse  */
-#line 1161 "pluribus.y"
+#line 1162 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3801 "y.tab.c"
+#line 3802 "y.tab.c"
     break;
 
   case 204: /* templateElem: mapAtt  */
-#line 1165 "pluribus.y"
+#line 1166 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3809 "y.tab.c"
+#line 3810 "y.tab.c"
     break;
 
   case 205: /* mapScope: NEIGHBOR  */
-#line 1172 "pluribus.y"
+#line 1173 "pluribus.y"
 {
     yyval = NEIGHBOR;
 }
-#line 3817 "y.tab.c"
+#line 3818 "y.tab.c"
     break;
 
   case 206: /* mapScope: STATE  */
-#line 1176 "pluribus.y"
+#line 1177 "pluribus.y"
 {
     yyval = STATE;
 }
-#line 3825 "y.tab.c"
+#line 3826 "y.tab.c"
     break;
 
   case 207: /* mapAtt: MAP mapScope Symbol TO PNULL ';'  */
-#line 1183 "pluribus.y"
+#line 1184 "pluribus.y"
 {
     yyval = YH_BUILD(mapAtt)(yyvsp[-4], YC(symbol,yyvsp[-3]), NULL);
 }
-#line 3833 "y.tab.c"
+#line 3834 "y.tab.c"
     break;
 
   case 208: /* mapAtt: MAP mapScope Symbol TO Symbol ';'  */
-#line 1188 "pluribus.y"
+#line 1189 "pluribus.y"
 {
     yyval = YH_BUILD(mapAtt)(yyvsp[-4], YC(symbol,yyvsp[-3]), YC(symbol,yyvsp[-1]));
 }
-#line 3841 "y.tab.c"
+#line 3842 "y.tab.c"
     break;
 
   case 209: /* mapAtt: MAP mapScope Symbol ';'  */
-#line 1192 "pluribus.y"
+#line 1193 "pluribus.y"
 {
     yyval = YH_BUILD(mapAtt)(yyvsp[-2], NULL, YC(symbol,yyvsp[-1]));
 }
-#line 3849 "y.tab.c"
+#line 3850 "y.tab.c"
     break;
 
   case 210: /* exprList: expr  */
-#line 1199 "pluribus.y"
+#line 1200 "pluribus.y"
 {
     yyval = YH_BUILD(exprList)(YC(expr,yyvsp[0]), NULL);
 }
-#line 3857 "y.tab.c"
+#line 3858 "y.tab.c"
     break;
 
   case 211: /* exprList: exprList ',' expr  */
-#line 1203 "pluribus.y"
+#line 1204 "pluribus.y"
 {
     yyval = YH_BUILD(exprList)(YC(expr,yyvsp[0]), YC(exprList,yyvsp[-2]));
 }
-#line 3865 "y.tab.c"
+#line 3866 "y.tab.c"
     break;
 
   case 212: /* unumStructureDef: UNUM STRUCTURE defSymbol '{' unumStructureElems '}'  */
-#line 1211 "pluribus.y"
+#line 1212 "pluribus.y"
 {
     yyval = YH_BUILD(unumStructureDef)(info(), YC(symbolDef,yyvsp[-3]), YC(elemList,yyvsp[-1]));
 }
-#line 3873 "y.tab.c"
+#line 3874 "y.tab.c"
     break;
 
   case 213: /* unumStructureUse: STRUCTURE scopedRef ';'  */
-#line 1218 "pluribus.y"
+#line 1219 "pluribus.y"
 {
     yyval = YH_BUILD(unumStructureRef)(YC(symbolRef,yyvsp[-1]));
 }
-#line 3881 "y.tab.c"
+#line 3882 "y.tab.c"
     break;
 
   case 214: /* unumStructureUse: STRUCTURE '{' unumStructureElems '}'  */
-#line 1222 "pluribus.y"
+#line 1223 "pluribus.y"
 {
     YT(symbol) *anon = gensym();
     YT(elem) *elem1 = YC(elem,YBUILD(unumStructureDef)(
@@ -3891,206 +3892,206 @@ yyreduce:
                   list = YBUILD(elemList)(elem2, list);
     yyval = YH_BUILD(nestedElem)(list);
 }
-#line 3895 "y.tab.c"
+#line 3896 "y.tab.c"
     break;
 
   case 215: /* unumStructureElems: unumStructureElemList  */
-#line 1235 "pluribus.y"
+#line 1236 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3903 "y.tab.c"
+#line 3904 "y.tab.c"
     break;
 
   case 216: /* unumStructureElems: %empty  */
-#line 1239 "pluribus.y"
+#line 1240 "pluribus.y"
 {
     yyval = NULL;
 }
-#line 3911 "y.tab.c"
+#line 3912 "y.tab.c"
     break;
 
   case 217: /* unumStructureElemList: unumStructureElem  */
-#line 1246 "pluribus.y"
+#line 1247 "pluribus.y"
 {
     yyval = YH_BUILD(elemList)(YC(elem,yyvsp[0]), NULL);
 }
-#line 3919 "y.tab.c"
+#line 3920 "y.tab.c"
     break;
 
   case 218: /* unumStructureElemList: unumStructureElemList unumStructureElem  */
-#line 1250 "pluribus.y"
+#line 1251 "pluribus.y"
 {
     yyval = YH_BUILD(elemList)(YC(elem,yyvsp[0]), YC(elemList,yyvsp[-1]));
 }
-#line 3927 "y.tab.c"
+#line 3928 "y.tab.c"
     break;
 
   case 219: /* unumStructureElem: assignment  */
-#line 1257 "pluribus.y"
+#line 1258 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3935 "y.tab.c"
+#line 3936 "y.tab.c"
     break;
 
   case 220: /* unumStructureElem: requireAtt  */
-#line 1261 "pluribus.y"
+#line 1262 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3943 "y.tab.c"
+#line 3944 "y.tab.c"
     break;
 
   case 221: /* unumStructureElem: kindUse  */
-#line 1265 "pluribus.y"
+#line 1266 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3951 "y.tab.c"
+#line 3952 "y.tab.c"
     break;
 
   case 222: /* unumStructureElem: primeAtt  */
-#line 1269 "pluribus.y"
+#line 1270 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3959 "y.tab.c"
+#line 3960 "y.tab.c"
     break;
 
   case 223: /* unumStructureElem: presenceAtt  */
-#line 1273 "pluribus.y"
+#line 1274 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 3967 "y.tab.c"
+#line 3968 "y.tab.c"
     break;
 
   case 224: /* primeAtt: PRIME Symbol ';'  */
-#line 1280 "pluribus.y"
+#line 1281 "pluribus.y"
 {
     yyval = YH_BUILD(primeAtt)(YC(symbol,yyvsp[-1]));
 }
-#line 3975 "y.tab.c"
+#line 3976 "y.tab.c"
     break;
 
   case 225: /* presenceAtt: PRESENCE Symbol kindUseNoSemi makes ';'  */
-#line 1287 "pluribus.y"
+#line 1288 "pluribus.y"
 {
     yyval = YH_BUILD(presenceAtt)(YC(symbol,yyvsp[-3]), YC(symbol,yyvsp[-1]), NULL,
                                YC(kindRef,yyvsp[-2]), FALSE);
 }
-#line 3984 "y.tab.c"
+#line 3985 "y.tab.c"
     break;
 
   case 226: /* presenceAtt: PRESENCE Symbol kindUseNoSemi MAKES '{' presenceConds '}'  */
-#line 1292 "pluribus.y"
+#line 1293 "pluribus.y"
 {
     yyval = YH_BUILD(presenceAtt)(YC(symbol,yyvsp[-5]), NULL, YC(presenceCondList,yyvsp[-1]),
                                YC(kindRef,yyvsp[-4]), FALSE);
 }
-#line 3993 "y.tab.c"
+#line 3994 "y.tab.c"
     break;
 
   case 227: /* presenceConds: presenceCondList  */
-#line 1300 "pluribus.y"
+#line 1301 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4001 "y.tab.c"
+#line 4002 "y.tab.c"
     break;
 
   case 228: /* presenceConds: %empty  */
-#line 1304 "pluribus.y"
+#line 1305 "pluribus.y"
 {
     yyval = NULL;
 }
-#line 4009 "y.tab.c"
+#line 4010 "y.tab.c"
     break;
 
   case 229: /* presenceCondList: presenceCond  */
-#line 1311 "pluribus.y"
+#line 1312 "pluribus.y"
 {
     yyval = YH_BUILD(presenceCondList)(YC(presenceCond,yyvsp[0]), NULL);
 }
-#line 4017 "y.tab.c"
+#line 4018 "y.tab.c"
     break;
 
   case 230: /* presenceCondList: presenceCondList presenceCond  */
-#line 1315 "pluribus.y"
+#line 1316 "pluribus.y"
 {
     yyval = YH_BUILD(presenceCondList)(YC(presenceCond,yyvsp[0]),
                     YC(presenceCondList,yyvsp[-1]));
 }
-#line 4026 "y.tab.c"
+#line 4027 "y.tab.c"
     break;
 
   case 231: /* presenceCond: expr ':' Symbol ';'  */
-#line 1323 "pluribus.y"
+#line 1324 "pluribus.y"
 {
     yyval = YH_BUILD(presenceCond)(YC(expr,yyvsp[-3]), YC(symbol,yyvsp[-1]));
 }
-#line 4034 "y.tab.c"
+#line 4035 "y.tab.c"
     break;
 
   case 232: /* makes: MAKES Symbol  */
-#line 1330 "pluribus.y"
+#line 1331 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4042 "y.tab.c"
+#line 4043 "y.tab.c"
     break;
 
   case 233: /* makes: MAKES NONE  */
-#line 1334 "pluribus.y"
+#line 1335 "pluribus.y"
 {
     yyval = NULL;
 }
-#line 4050 "y.tab.c"
+#line 4051 "y.tab.c"
     break;
 
   case 234: /* makes: %empty  */
-#line 1338 "pluribus.y"
+#line 1339 "pluribus.y"
 {
     yyval = NULL;
 }
-#line 4058 "y.tab.c"
+#line 4059 "y.tab.c"
     break;
 
   case 235: /* plurality: arrayMarker  */
-#line 1345 "pluribus.y"
+#line 1346 "pluribus.y"
 {
     yyval = TRUE;
 }
-#line 4066 "y.tab.c"
+#line 4067 "y.tab.c"
     break;
 
   case 236: /* plurality: %empty  */
-#line 1349 "pluribus.y"
+#line 1350 "pluribus.y"
 {
     yyval = FALSE;
 }
-#line 4074 "y.tab.c"
+#line 4075 "y.tab.c"
     break;
 
   case 237: /* unumImplDef: UNUM IMPL defSymbol '{' unumImplElems '}'  */
-#line 1357 "pluribus.y"
+#line 1358 "pluribus.y"
 {
     yyval = YH_BUILD(unumImplDef)(info(), YC(symbolDef,yyvsp[-3]), YC(elemList,yyvsp[-1]));
 }
-#line 4082 "y.tab.c"
+#line 4083 "y.tab.c"
     break;
 
   case 238: /* unumImplUse: IMPL scopedRef ';'  */
-#line 1364 "pluribus.y"
+#line 1365 "pluribus.y"
 {
     yyval = YH_BUILD(unumImplRef)(YC(symbolRef,yyvsp[-1]));
 }
-#line 4090 "y.tab.c"
+#line 4091 "y.tab.c"
     break;
 
   case 239: /* unumImplUse: IMPL '{' unumImplElems '}'  */
-#line 1368 "pluribus.y"
+#line 1369 "pluribus.y"
 {
     YT(symbol) *anon = gensym();
     YT(elem) *elem1 = YC(elem,YBUILD(unumImplDef)(
@@ -4100,491 +4101,491 @@ yyreduce:
                   list = YBUILD(elemList)(elem2, list);
     yyval = YH_BUILD(nestedElem)(list);
 }
-#line 4104 "y.tab.c"
+#line 4105 "y.tab.c"
     break;
 
   case 240: /* unumImplElems: unumImplElemList  */
-#line 1381 "pluribus.y"
+#line 1382 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4112 "y.tab.c"
+#line 4113 "y.tab.c"
     break;
 
   case 241: /* unumImplElems: %empty  */
-#line 1385 "pluribus.y"
+#line 1386 "pluribus.y"
 {
     yyval = NULL;
 }
-#line 4120 "y.tab.c"
+#line 4121 "y.tab.c"
     break;
 
   case 242: /* unumImplElemList: unumImplElem  */
-#line 1392 "pluribus.y"
+#line 1393 "pluribus.y"
 {
     yyval = YH_BUILD(elemList)(YC(elem,yyvsp[0]), NULL);
 }
-#line 4128 "y.tab.c"
+#line 4129 "y.tab.c"
     break;
 
   case 243: /* unumImplElemList: unumImplElemList unumImplElem  */
-#line 1396 "pluribus.y"
+#line 1397 "pluribus.y"
 {
     yyval = YH_BUILD(elemList)(YC(elem,yyvsp[0]), YC(elemList,yyvsp[-1]));
 }
-#line 4136 "y.tab.c"
+#line 4137 "y.tab.c"
     break;
 
   case 244: /* unumImplElem: assignment  */
-#line 1403 "pluribus.y"
+#line 1404 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4144 "y.tab.c"
+#line 4145 "y.tab.c"
     break;
 
   case 245: /* unumImplElem: unumStructureUse  */
-#line 1407 "pluribus.y"
+#line 1408 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4152 "y.tab.c"
+#line 4153 "y.tab.c"
     break;
 
   case 246: /* unumImplElem: presenceImplAtt  */
-#line 1411 "pluribus.y"
+#line 1412 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4160 "y.tab.c"
+#line 4161 "y.tab.c"
     break;
 
   case 247: /* presenceImplAtt: PRESENCE commaNameList presenceImplUse  */
-#line 1418 "pluribus.y"
+#line 1419 "pluribus.y"
 {
     yyval = YH_BUILD(presenceImplAtt)(YC(symbolList,yyvsp[-1]), YC(presenceImplRef,yyvsp[0]));
 }
-#line 4168 "y.tab.c"
+#line 4169 "y.tab.c"
     break;
 
   case 248: /* expr: exprA  */
-#line 1425 "pluribus.y"
+#line 1426 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4176 "y.tab.c"
+#line 4177 "y.tab.c"
     break;
 
   case 249: /* expr: expr '?' expr ':' exprA  */
-#line 1429 "pluribus.y"
+#line 1430 "pluribus.y"
 {
     yyval = YH_BUILD(condop)(YC(expr,yyvsp[-4]), YC(expr,yyvsp[-2]), YC(expr,yyvsp[0]));
 }
-#line 4184 "y.tab.c"
+#line 4185 "y.tab.c"
     break;
 
   case 250: /* exprA: expr9  */
-#line 1436 "pluribus.y"
+#line 1437 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4192 "y.tab.c"
+#line 4193 "y.tab.c"
     break;
 
   case 251: /* exprA: exprA Or expr9  */
-#line 1440 "pluribus.y"
+#line 1441 "pluribus.y"
 {
     yyval = YH_BUILD(binop)(YC(expr,yyvsp[-2]), Or, YC(expr,yyvsp[0]));
 }
-#line 4200 "y.tab.c"
+#line 4201 "y.tab.c"
     break;
 
   case 252: /* expr9: expr8  */
-#line 1447 "pluribus.y"
+#line 1448 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4208 "y.tab.c"
+#line 4209 "y.tab.c"
     break;
 
   case 253: /* expr9: expr9 And expr8  */
-#line 1451 "pluribus.y"
+#line 1452 "pluribus.y"
 {
     yyval = YH_BUILD(binop)(YC(expr,yyvsp[-2]), And, YC(expr,yyvsp[0]));
 }
-#line 4216 "y.tab.c"
+#line 4217 "y.tab.c"
     break;
 
   case 254: /* expr8: expr7  */
-#line 1458 "pluribus.y"
+#line 1459 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4224 "y.tab.c"
+#line 4225 "y.tab.c"
     break;
 
   case 255: /* expr8: expr8 '|' expr7  */
-#line 1462 "pluribus.y"
+#line 1463 "pluribus.y"
 {
     yyval = YH_BUILD(binop)(YC(expr,yyvsp[-2]), '|', YC(expr,yyvsp[0]));
 }
-#line 4232 "y.tab.c"
+#line 4233 "y.tab.c"
     break;
 
   case 256: /* expr7: expr6  */
-#line 1469 "pluribus.y"
+#line 1470 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4240 "y.tab.c"
+#line 4241 "y.tab.c"
     break;
 
   case 257: /* expr7: expr7 '^' expr6  */
-#line 1473 "pluribus.y"
+#line 1474 "pluribus.y"
 {
     yyval = YH_BUILD(binop)(YC(expr,yyvsp[-2]), '^', YC(expr,yyvsp[0]));
 }
-#line 4248 "y.tab.c"
+#line 4249 "y.tab.c"
     break;
 
   case 258: /* expr6: expr5  */
-#line 1480 "pluribus.y"
+#line 1481 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4256 "y.tab.c"
+#line 4257 "y.tab.c"
     break;
 
   case 259: /* expr6: expr6 '&' expr5  */
-#line 1484 "pluribus.y"
+#line 1485 "pluribus.y"
 {
     yyval = YH_BUILD(binop)(YC(expr,yyvsp[-2]), '&', YC(expr,yyvsp[0]));
 }
-#line 4264 "y.tab.c"
+#line 4265 "y.tab.c"
     break;
 
   case 260: /* expr5: expr4  */
-#line 1491 "pluribus.y"
+#line 1492 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4272 "y.tab.c"
+#line 4273 "y.tab.c"
     break;
 
   case 261: /* expr5: expr5 Eq expr4  */
-#line 1495 "pluribus.y"
+#line 1496 "pluribus.y"
 {
     yyval = YH_BUILD(binop)(YC(expr,yyvsp[-2]), Eq, YC(expr,yyvsp[0]));
 }
-#line 4280 "y.tab.c"
+#line 4281 "y.tab.c"
     break;
 
   case 262: /* expr5: expr5 Neq expr4  */
-#line 1499 "pluribus.y"
+#line 1500 "pluribus.y"
 {
     yyval = YH_BUILD(binop)(YC(expr,yyvsp[-2]), Neq, YC(expr,yyvsp[0]));
 }
-#line 4288 "y.tab.c"
+#line 4289 "y.tab.c"
     break;
 
   case 263: /* expr4: expr3  */
-#line 1506 "pluribus.y"
+#line 1507 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4296 "y.tab.c"
+#line 4297 "y.tab.c"
     break;
 
   case 264: /* expr4: expr4 '<' expr3  */
-#line 1510 "pluribus.y"
+#line 1511 "pluribus.y"
 {
     yyval = YH_BUILD(binop)(YC(expr,yyvsp[-2]), '<', YC(expr,yyvsp[0]));
 }
-#line 4304 "y.tab.c"
+#line 4305 "y.tab.c"
     break;
 
   case 265: /* expr4: expr4 Leq expr3  */
-#line 1514 "pluribus.y"
+#line 1515 "pluribus.y"
 {
     yyval = YH_BUILD(binop)(YC(expr,yyvsp[-2]), Leq, YC(expr,yyvsp[0]));
 }
-#line 4312 "y.tab.c"
+#line 4313 "y.tab.c"
     break;
 
   case 266: /* expr4: expr4 '>' expr3  */
-#line 1518 "pluribus.y"
+#line 1519 "pluribus.y"
 {
     yyval = YH_BUILD(binop)(YC(expr,yyvsp[-2]), '>', YC(expr,yyvsp[0]));
 }
-#line 4320 "y.tab.c"
+#line 4321 "y.tab.c"
     break;
 
   case 267: /* expr4: expr4 Geq expr3  */
-#line 1522 "pluribus.y"
+#line 1523 "pluribus.y"
 {
     yyval = YH_BUILD(binop)(YC(expr,yyvsp[-2]), Geq, YC(expr,yyvsp[0]));
 }
-#line 4328 "y.tab.c"
+#line 4329 "y.tab.c"
     break;
 
   case 268: /* expr3: expr2  */
-#line 1529 "pluribus.y"
+#line 1530 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4336 "y.tab.c"
+#line 4337 "y.tab.c"
     break;
 
   case 269: /* expr3: expr3 Lsl expr2  */
-#line 1533 "pluribus.y"
+#line 1534 "pluribus.y"
 {
     yyval = YH_BUILD(binop)(YC(expr,yyvsp[-2]), Lsl, YC(expr,yyvsp[0]));
 }
-#line 4344 "y.tab.c"
+#line 4345 "y.tab.c"
     break;
 
   case 270: /* expr3: expr3 Lsr expr2  */
-#line 1537 "pluribus.y"
+#line 1538 "pluribus.y"
 {
     yyval = YH_BUILD(binop)(YC(expr,yyvsp[-2]), Lsr , YC(expr,yyvsp[0]));
 }
-#line 4352 "y.tab.c"
+#line 4353 "y.tab.c"
     break;
 
   case 271: /* expr3: expr3 Asr expr2  */
-#line 1541 "pluribus.y"
+#line 1542 "pluribus.y"
 {
     yyval = YH_BUILD(binop)(YC(expr,yyvsp[-2]), Asr , YC(expr,yyvsp[0]));
 }
-#line 4360 "y.tab.c"
+#line 4361 "y.tab.c"
     break;
 
   case 272: /* expr2: expr1  */
-#line 1548 "pluribus.y"
+#line 1549 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4368 "y.tab.c"
+#line 4369 "y.tab.c"
     break;
 
   case 273: /* expr2: expr2 '+' expr1  */
-#line 1552 "pluribus.y"
+#line 1553 "pluribus.y"
 {
     yyval = YH_BUILD(binop)(YC(expr,yyvsp[-2]), '+', YC(expr,yyvsp[0]));
 }
-#line 4376 "y.tab.c"
+#line 4377 "y.tab.c"
     break;
 
   case 274: /* expr2: expr2 '-' expr1  */
-#line 1556 "pluribus.y"
+#line 1557 "pluribus.y"
 {
     yyval = YH_BUILD(binop)(YC(expr,yyvsp[-2]), '-', YC(expr,yyvsp[0]));
 }
-#line 4384 "y.tab.c"
+#line 4385 "y.tab.c"
     break;
 
   case 275: /* expr1: term  */
-#line 1563 "pluribus.y"
+#line 1564 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4392 "y.tab.c"
+#line 4393 "y.tab.c"
     break;
 
   case 276: /* expr1: expr1 '*' term  */
-#line 1567 "pluribus.y"
+#line 1568 "pluribus.y"
 {
     yyval = YH_BUILD(binop)(YC(expr,yyvsp[-2]), '*', YC(expr,yyvsp[0]));
 }
-#line 4400 "y.tab.c"
+#line 4401 "y.tab.c"
     break;
 
   case 277: /* expr1: expr1 '/' term  */
-#line 1571 "pluribus.y"
+#line 1572 "pluribus.y"
 {
     yyval = YH_BUILD(binop)(YC(expr,yyvsp[-2]), '/', YC(expr,yyvsp[0]));
 }
-#line 4408 "y.tab.c"
+#line 4409 "y.tab.c"
     break;
 
   case 278: /* expr1: expr1 '%' term  */
-#line 1575 "pluribus.y"
+#line 1576 "pluribus.y"
 {
     yyval = YH_BUILD(binop)(YC(expr,yyvsp[-2]), '%', YC(expr,yyvsp[0]));
 }
-#line 4416 "y.tab.c"
+#line 4417 "y.tab.c"
     break;
 
   case 279: /* term: prim  */
-#line 1582 "pluribus.y"
+#line 1583 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4424 "y.tab.c"
+#line 4425 "y.tab.c"
     break;
 
   case 280: /* term: '+' term  */
-#line 1586 "pluribus.y"
+#line 1587 "pluribus.y"
 {
     yyval = YH_BUILD(unop)('+', YC(expr,yyvsp[0]));
 }
-#line 4432 "y.tab.c"
+#line 4433 "y.tab.c"
     break;
 
   case 281: /* term: '-' term  */
-#line 1590 "pluribus.y"
+#line 1591 "pluribus.y"
 {
     yyval = YH_BUILD(unop)('-', YC(expr,yyvsp[0]));
 }
-#line 4440 "y.tab.c"
+#line 4441 "y.tab.c"
     break;
 
   case 282: /* term: '!' term  */
-#line 1594 "pluribus.y"
+#line 1595 "pluribus.y"
 {
     yyval = YH_BUILD(unop)('!', YC(expr,yyvsp[0]));
 }
-#line 4448 "y.tab.c"
+#line 4449 "y.tab.c"
     break;
 
   case 283: /* term: '~' term  */
-#line 1598 "pluribus.y"
+#line 1599 "pluribus.y"
 {
     yyval = YH_BUILD(unop)('~', YC(expr,yyvsp[0]));
 }
-#line 4456 "y.tab.c"
+#line 4457 "y.tab.c"
     break;
 
   case 284: /* prim: Number  */
-#line 1605 "pluribus.y"
+#line 1606 "pluribus.y"
 {
     yyval = YH_BUILD(numLit)(yyvsp[0]);
 }
-#line 4464 "y.tab.c"
+#line 4465 "y.tab.c"
     break;
 
   case 285: /* prim: Character  */
-#line 1609 "pluribus.y"
+#line 1610 "pluribus.y"
 {
     yyval = YH_BUILD(charLit)(yyvsp[0]);
 }
-#line 4472 "y.tab.c"
+#line 4473 "y.tab.c"
     break;
 
   case 286: /* prim: TagType  */
-#line 1613 "pluribus.y"
+#line 1614 "pluribus.y"
 {
     yyval = YH_BUILD(tagLit)(yyvsp[0]);
 }
-#line 4480 "y.tab.c"
+#line 4481 "y.tab.c"
     break;
 
   case 287: /* prim: String  */
-#line 1617 "pluribus.y"
+#line 1618 "pluribus.y"
 {
     yyval = YH_BUILD(stringLit)(YC(string,yyvsp[0]));
 }
-#line 4488 "y.tab.c"
+#line 4489 "y.tab.c"
     break;
 
   case 288: /* prim: '(' expr ')'  */
-#line 1621 "pluribus.y"
+#line 1622 "pluribus.y"
 {
     yyval = yyvsp[-1];
 }
-#line 4496 "y.tab.c"
+#line 4497 "y.tab.c"
     break;
 
   case 289: /* prim: scopedRef  */
-#line 1625 "pluribus.y"
+#line 1626 "pluribus.y"
 {
     yyval = YH_BUILD(refTerm)(YC(symbolRef,yyvsp[0]));
 }
-#line 4504 "y.tab.c"
+#line 4505 "y.tab.c"
     break;
 
   case 290: /* prim: FALSEX  */
-#line 1629 "pluribus.y"
+#line 1630 "pluribus.y"
 {
     yyval = YH_BUILD(boolLit)(FALSE);
 }
-#line 4512 "y.tab.c"
+#line 4513 "y.tab.c"
     break;
 
   case 291: /* prim: TRUEX  */
-#line 1633 "pluribus.y"
+#line 1634 "pluribus.y"
 {
     yyval = YH_BUILD(boolLit)(TRUE);
 }
-#line 4520 "y.tab.c"
+#line 4521 "y.tab.c"
     break;
 
   case 292: /* type: typeSpec  */
-#line 1640 "pluribus.y"
+#line 1641 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4528 "y.tab.c"
+#line 4529 "y.tab.c"
     break;
 
   case 293: /* remoteDef: REMOTE String Symbol ';'  */
-#line 1647 "pluribus.y"
+#line 1648 "pluribus.y"
 {
     yyval = YH_BUILD(remoteDef)(info(), YC(string,yyvsp[-2]), YC(symbol,yyvsp[-1]));
 }
-#line 4536 "y.tab.c"
+#line 4537 "y.tab.c"
     break;
 
   case 294: /* publishDef: PUBLISH Symbol ';'  */
-#line 1654 "pluribus.y"
+#line 1655 "pluribus.y"
 {
     yyval = YH_BUILD(publishDef)(info(), YC(symbol,yyvsp[-1]));
 }
-#line 4544 "y.tab.c"
+#line 4545 "y.tab.c"
     break;
 
   case 295: /* defSymbol: directRef  */
-#line 1661 "pluribus.y"
+#line 1662 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4552 "y.tab.c"
+#line 4553 "y.tab.c"
     break;
 
   case 296: /* directRef: Symbol  */
-#line 1668 "pluribus.y"
+#line 1669 "pluribus.y"
 {
     yyval = YH_BUILD(symbolRef)(YC(symbol,yyvsp[0]), NULL);
 }
-#line 4560 "y.tab.c"
+#line 4561 "y.tab.c"
     break;
 
   case 297: /* directRef: Symbol '(' ')'  */
-#line 1672 "pluribus.y"
+#line 1673 "pluribus.y"
 {
     yyval = YH_BUILD(symbolRef)(YC(symbol,yyvsp[-2]), YC(exprList,NULL));
 }
-#line 4568 "y.tab.c"
+#line 4569 "y.tab.c"
     break;
 
   case 298: /* directRef: Symbol '(' exprList ')'  */
-#line 1676 "pluribus.y"
+#line 1677 "pluribus.y"
 {
     yyval = YH_BUILD(symbolRef)(YC(symbol,yyvsp[-3]), YC(exprList,yyvsp[-1]));
 }
-#line 4576 "y.tab.c"
+#line 4577 "y.tab.c"
     break;
 
   case 299: /* scopedRef: directRef  */
-#line 1683 "pluribus.y"
+#line 1684 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4584 "y.tab.c"
+#line 4585 "y.tab.c"
     break;
 
   case 300: /* scopedRef: scopedRef '.' directRef  */
-#line 1687 "pluribus.y"
+#line 1688 "pluribus.y"
 {
     if (YTAG_OF(YC(symbolRef,yyvsp[-2])) == YTAG(symbolRef))
     yyval = YH_BUILD(scopedRef)(YC(scopedRef,
@@ -4594,528 +4595,528 @@ yyreduce:
     else
     yyval = YH_BUILD(scopedRef)(YC(scopedRef,yyvsp[-2]),YC(symbolRef,yyvsp[0]));
 }
-#line 4598 "y.tab.c"
+#line 4599 "y.tab.c"
     break;
 
   case 301: /* scopedRef: outerScope '.' directRef  */
-#line 1697 "pluribus.y"
+#line 1698 "pluribus.y"
 {
     yyval = YH_BUILD(outerRef)(yyvsp[-2], YC(symbolRef,yyvsp[0]));
 }
-#line 4606 "y.tab.c"
+#line 4607 "y.tab.c"
     break;
 
   case 302: /* outerScope: '^'  */
-#line 1704 "pluribus.y"
+#line 1705 "pluribus.y"
 {
     yyval = 1;
 }
-#line 4614 "y.tab.c"
+#line 4615 "y.tab.c"
     break;
 
   case 303: /* outerScope: outerScope '^'  */
-#line 1708 "pluribus.y"
+#line 1709 "pluribus.y"
 {
     yyval = yyvsp[-1] + 1;
 }
-#line 4622 "y.tab.c"
+#line 4623 "y.tab.c"
     break;
 
   case 304: /* typeDef: TYPEDEF typeDeclarator ';'  */
-#line 1718 "pluribus.y"
+#line 1719 "pluribus.y"
 {
     yyval = YH_BUILD(typeDef)(info(), YC(typeDeclarator,yyvsp[-1]));
 }
-#line 4630 "y.tab.c"
+#line 4631 "y.tab.c"
     break;
 
   case 305: /* typeDef: structType  */
-#line 1722 "pluribus.y"
+#line 1723 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4638 "y.tab.c"
+#line 4639 "y.tab.c"
     break;
 
   case 306: /* typeDef: unionType  */
-#line 1726 "pluribus.y"
+#line 1727 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4646 "y.tab.c"
+#line 4647 "y.tab.c"
     break;
 
   case 307: /* typeDef: enumType  */
-#line 1730 "pluribus.y"
+#line 1731 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4654 "y.tab.c"
+#line 4655 "y.tab.c"
     break;
 
   case 308: /* typeDeclarator: typeSpec declarators  */
-#line 1737 "pluribus.y"
+#line 1738 "pluribus.y"
 {
     yyval = YH_BUILD(typeDeclarator)(YC(typeSpec,yyvsp[-1]), YC(declaratorList,yyvsp[0]));
 }
-#line 4662 "y.tab.c"
+#line 4663 "y.tab.c"
     break;
 
   case 309: /* typeSpec: simpleTypeSpec  */
-#line 1744 "pluribus.y"
+#line 1745 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4670 "y.tab.c"
+#line 4671 "y.tab.c"
     break;
 
   case 310: /* typeSpec: constrTypeSpec  */
-#line 1748 "pluribus.y"
+#line 1749 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4678 "y.tab.c"
+#line 4679 "y.tab.c"
     break;
 
   case 311: /* simpleTypeSpec: baseTypeSpec  */
-#line 1755 "pluribus.y"
+#line 1756 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4686 "y.tab.c"
+#line 4687 "y.tab.c"
     break;
 
   case 312: /* simpleTypeSpec: templateTypeSpec  */
-#line 1759 "pluribus.y"
+#line 1760 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4694 "y.tab.c"
+#line 4695 "y.tab.c"
     break;
 
   case 313: /* simpleTypeSpec: scopedRef  */
-#line 1763 "pluribus.y"
+#line 1764 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4702 "y.tab.c"
+#line 4703 "y.tab.c"
     break;
 
   case 314: /* simpleTypeSpec: KIND scopedRef  */
-#line 1767 "pluribus.y"
+#line 1768 "pluribus.y"
 {
     yyval = YH_BUILD(pluribusType)(YC(symbolRef,yyvsp[0]), KIND);
 }
-#line 4710 "y.tab.c"
+#line 4711 "y.tab.c"
     break;
 
   case 315: /* baseTypeSpec: floatingPtType  */
-#line 1774 "pluribus.y"
+#line 1775 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4718 "y.tab.c"
+#line 4719 "y.tab.c"
     break;
 
   case 316: /* baseTypeSpec: integralType  */
-#line 1778 "pluribus.y"
+#line 1779 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4726 "y.tab.c"
+#line 4727 "y.tab.c"
     break;
 
   case 317: /* baseTypeSpec: charType  */
-#line 1782 "pluribus.y"
+#line 1783 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4734 "y.tab.c"
+#line 4735 "y.tab.c"
     break;
 
   case 318: /* baseTypeSpec: booleanType  */
-#line 1786 "pluribus.y"
+#line 1787 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4742 "y.tab.c"
+#line 4743 "y.tab.c"
     break;
 
   case 319: /* templateTypeSpec: sequenceType  */
-#line 1793 "pluribus.y"
+#line 1794 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4750 "y.tab.c"
+#line 4751 "y.tab.c"
     break;
 
   case 320: /* templateTypeSpec: stringType  */
-#line 1797 "pluribus.y"
+#line 1798 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4758 "y.tab.c"
+#line 4759 "y.tab.c"
     break;
 
   case 321: /* constrTypeSpec: structType  */
-#line 1804 "pluribus.y"
+#line 1805 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4766 "y.tab.c"
+#line 4767 "y.tab.c"
     break;
 
   case 322: /* constrTypeSpec: unionType  */
-#line 1808 "pluribus.y"
+#line 1809 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4774 "y.tab.c"
+#line 4775 "y.tab.c"
     break;
 
   case 323: /* constrTypeSpec: enumType  */
-#line 1812 "pluribus.y"
+#line 1813 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4782 "y.tab.c"
+#line 4783 "y.tab.c"
     break;
 
   case 324: /* declarators: declarator  */
-#line 1819 "pluribus.y"
+#line 1820 "pluribus.y"
 {
     yyval = YH_BUILD(declaratorList)(YC(declarator,yyvsp[0]), NULL);
 }
-#line 4790 "y.tab.c"
+#line 4791 "y.tab.c"
     break;
 
   case 325: /* declarators: declarators ',' declarator  */
-#line 1823 "pluribus.y"
+#line 1824 "pluribus.y"
 {
     yyval = YH_BUILD(declaratorList)(YC(declarator,yyvsp[0]), YC(declaratorList,yyvsp[0]));
 }
-#line 4798 "y.tab.c"
+#line 4799 "y.tab.c"
     break;
 
   case 326: /* declarator: simpleDeclarator  */
-#line 1830 "pluribus.y"
+#line 1831 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4806 "y.tab.c"
+#line 4807 "y.tab.c"
     break;
 
   case 327: /* declarator: complexDeclarator  */
-#line 1834 "pluribus.y"
+#line 1835 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4814 "y.tab.c"
+#line 4815 "y.tab.c"
     break;
 
   case 328: /* simpleDeclarator: Symbol  */
-#line 1841 "pluribus.y"
+#line 1842 "pluribus.y"
 {
     yyval = YH_BUILD(simpleDeclarator)(YC(symbol,yyvsp[0]));
 }
-#line 4822 "y.tab.c"
+#line 4823 "y.tab.c"
     break;
 
   case 329: /* complexDeclarator: arrayDeclarator  */
-#line 1848 "pluribus.y"
+#line 1849 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4830 "y.tab.c"
+#line 4831 "y.tab.c"
     break;
 
   case 330: /* floatingPtType: FLOAT  */
-#line 1855 "pluribus.y"
+#line 1856 "pluribus.y"
 {
     yyval = YH_BUILD(primType)(FLOAT);
 }
-#line 4838 "y.tab.c"
+#line 4839 "y.tab.c"
     break;
 
   case 331: /* floatingPtType: DOUBLE  */
-#line 1859 "pluribus.y"
+#line 1860 "pluribus.y"
 {
     yyval = YH_BUILD(primType)(DOUBLE);
 }
-#line 4846 "y.tab.c"
+#line 4847 "y.tab.c"
     break;
 
   case 332: /* integralType: BYTE  */
-#line 1866 "pluribus.y"
+#line 1867 "pluribus.y"
 {
     yyval = YH_BUILD(primType)(BYTE);
 }
-#line 4854 "y.tab.c"
+#line 4855 "y.tab.c"
     break;
 
   case 333: /* integralType: SHORT  */
-#line 1871 "pluribus.y"
+#line 1872 "pluribus.y"
 {
     yyval = YH_BUILD(primType)(SHORT);
 }
-#line 4862 "y.tab.c"
+#line 4863 "y.tab.c"
     break;
 
   case 334: /* integralType: INT  */
-#line 1875 "pluribus.y"
+#line 1876 "pluribus.y"
 {
     yyval = YH_BUILD(primType)(INT);
 }
-#line 4870 "y.tab.c"
+#line 4871 "y.tab.c"
     break;
 
   case 335: /* integralType: LONG  */
-#line 1879 "pluribus.y"
+#line 1880 "pluribus.y"
 {
     yyval = YH_BUILD(primType)(LONG);
 }
-#line 4878 "y.tab.c"
+#line 4879 "y.tab.c"
     break;
 
   case 336: /* charType: CHAR  */
-#line 1886 "pluribus.y"
+#line 1887 "pluribus.y"
 {
     yyval = YH_BUILD(primType)(CHAR);
 }
-#line 4886 "y.tab.c"
+#line 4887 "y.tab.c"
     break;
 
   case 337: /* booleanType: BOOLEAN  */
-#line 1893 "pluribus.y"
+#line 1894 "pluribus.y"
 {
     yyval = YH_BUILD(primType)(BOOLEAN);
 }
-#line 4894 "y.tab.c"
+#line 4895 "y.tab.c"
     break;
 
   case 338: /* structType: STRUCT Symbol '{' memberList '}'  */
-#line 1900 "pluribus.y"
+#line 1901 "pluribus.y"
 {
     yyval = YH_BUILD(structTypeDecl)(info(), YC(symbol,yyvsp[-3]),
                                   YC(memberDeclList,yyvsp[-1]));
 }
-#line 4903 "y.tab.c"
+#line 4904 "y.tab.c"
     break;
 
   case 339: /* memberList: member  */
-#line 1908 "pluribus.y"
+#line 1909 "pluribus.y"
 {
     yyval = YH_BUILD(memberDeclList)(YC(memberDecl,yyvsp[0]), NULL);
 }
-#line 4911 "y.tab.c"
+#line 4912 "y.tab.c"
     break;
 
   case 340: /* memberList: memberList member  */
-#line 1912 "pluribus.y"
+#line 1913 "pluribus.y"
 {
     yyval = YH_BUILD(memberDeclList)(YC(memberDecl,yyvsp[0]), YC(memberDeclList,yyvsp[-1]));
 }
-#line 4919 "y.tab.c"
+#line 4920 "y.tab.c"
     break;
 
   case 341: /* member: typeSpec declarators ';'  */
-#line 1919 "pluribus.y"
+#line 1920 "pluribus.y"
 {
     yyval = YH_BUILD(memberDecl)(YC(typeSpec,yyvsp[-2]), YC(declaratorList,yyvsp[-1]));
 }
-#line 4927 "y.tab.c"
+#line 4928 "y.tab.c"
     break;
 
   case 342: /* unionType: UNION Symbol SWITCH '(' switchTypeSpec ')' '{' switchBody '}'  */
-#line 1926 "pluribus.y"
+#line 1927 "pluribus.y"
 {
     yyval = YH_BUILD(unionTypeDecl)(info(), YC(symbol,yyvsp[-7]), YC(typeSpec,yyvsp[-4]),
                                  YC(switchCaseDeclList,yyvsp[-1]));
 }
-#line 4936 "y.tab.c"
+#line 4937 "y.tab.c"
     break;
 
   case 343: /* switchTypeSpec: integralType  */
-#line 1934 "pluribus.y"
+#line 1935 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4944 "y.tab.c"
+#line 4945 "y.tab.c"
     break;
 
   case 344: /* switchTypeSpec: charType  */
-#line 1938 "pluribus.y"
+#line 1939 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4952 "y.tab.c"
+#line 4953 "y.tab.c"
     break;
 
   case 345: /* switchTypeSpec: booleanType  */
-#line 1942 "pluribus.y"
+#line 1943 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4960 "y.tab.c"
+#line 4961 "y.tab.c"
     break;
 
   case 346: /* switchTypeSpec: enumType  */
-#line 1946 "pluribus.y"
+#line 1947 "pluribus.y"
 {
     yyval = yyvsp[0];
 }
-#line 4968 "y.tab.c"
+#line 4969 "y.tab.c"
     break;
 
   case 347: /* switchTypeSpec: Symbol  */
-#line 1950 "pluribus.y"
+#line 1951 "pluribus.y"
 {
     yyval = YH_BUILD(simpleDeclarator)(YC(symbol,yyvsp[0]));
 }
-#line 4976 "y.tab.c"
+#line 4977 "y.tab.c"
     break;
 
   case 348: /* switchBody: case  */
-#line 1957 "pluribus.y"
+#line 1958 "pluribus.y"
 {
     yyval = YH_BUILD(switchCaseDeclList)(YC(switchCaseDecl,yyvsp[0]), NULL);
 }
-#line 4984 "y.tab.c"
+#line 4985 "y.tab.c"
     break;
 
   case 349: /* switchBody: switchBody case  */
-#line 1961 "pluribus.y"
+#line 1962 "pluribus.y"
 {
     yyval = YH_BUILD(switchCaseDeclList)(YC(switchCaseDecl,yyvsp[0]),
                                       YC(switchCaseDeclList,yyvsp[-1]));
 }
-#line 4993 "y.tab.c"
+#line 4994 "y.tab.c"
     break;
 
   case 350: /* case: caseLabels elementSpec ';'  */
-#line 1969 "pluribus.y"
+#line 1970 "pluribus.y"
 {
     yyval = YH_BUILD(switchCaseDecl)(YC(caseLabelDeclList,yyvsp[-2]),
                                   YC(elementSpec,yyvsp[-1]));
 }
-#line 5002 "y.tab.c"
+#line 5003 "y.tab.c"
     break;
 
   case 351: /* caseLabels: caseLabel  */
-#line 1977 "pluribus.y"
+#line 1978 "pluribus.y"
 {
     yyval = YH_BUILD(caseLabelDeclList)(YC(caseLabelDecl,yyvsp[0]), NULL);
 }
-#line 5010 "y.tab.c"
+#line 5011 "y.tab.c"
     break;
 
   case 352: /* caseLabels: caseLabels caseLabel  */
-#line 1981 "pluribus.y"
+#line 1982 "pluribus.y"
 {
     yyval = YH_BUILD(caseLabelDeclList)(YC(caseLabelDecl,yyvsp[0]),
                                      YC(caseLabelDeclList,yyvsp[0]));
 }
-#line 5019 "y.tab.c"
+#line 5020 "y.tab.c"
     break;
 
   case 353: /* caseLabel: CASE expr ':'  */
-#line 1989 "pluribus.y"
+#line 1990 "pluribus.y"
 {
     yyval = YH_BUILD(caseLabelDecl)(YC(expr,yyvsp[-1]));
 }
-#line 5027 "y.tab.c"
+#line 5028 "y.tab.c"
     break;
 
   case 354: /* caseLabel: DEFAULT ':'  */
-#line 1993 "pluribus.y"
+#line 1994 "pluribus.y"
 {
     yyval = YH_BUILD(caseLabelDecl)(NULL);
 }
-#line 5035 "y.tab.c"
+#line 5036 "y.tab.c"
     break;
 
   case 355: /* elementSpec: typeSpec declarator  */
-#line 2000 "pluribus.y"
+#line 2001 "pluribus.y"
 {
     yyval = YH_BUILD(elementSpec)(YC(typeSpec,yyvsp[-1]), YC(declarator,yyvsp[0]));
 }
-#line 5043 "y.tab.c"
+#line 5044 "y.tab.c"
     break;
 
   case 356: /* enumType: ENUM Symbol '{' commaNameList '}'  */
-#line 2007 "pluribus.y"
+#line 2008 "pluribus.y"
 {
     yyval = YH_BUILD(enumTypeDecl)(info(), YC(symbol,yyvsp[-3]), YC(symbolList,yyvsp[-1]));
 }
-#line 5051 "y.tab.c"
+#line 5052 "y.tab.c"
     break;
 
   case 357: /* sequenceType: SEQUENCE '<' simpleTypeSpec ',' Number '>'  */
-#line 2014 "pluribus.y"
+#line 2015 "pluribus.y"
 {
     yyval = YH_BUILD(sequenceTypeDecl)(YC(typeSpec,yyvsp[-3]), yyvsp[-1]);
 }
-#line 5059 "y.tab.c"
+#line 5060 "y.tab.c"
     break;
 
   case 358: /* sequenceType: SEQUENCE '<' simpleTypeSpec '>'  */
-#line 2018 "pluribus.y"
+#line 2019 "pluribus.y"
 {
     yyval = YH_BUILD(sequenceTypeDecl)(YC(typeSpec,yyvsp[-1]), -1);
 }
-#line 5067 "y.tab.c"
+#line 5068 "y.tab.c"
     break;
 
   case 359: /* stringType: STRING '<' Number '>'  */
-#line 2025 "pluribus.y"
+#line 2026 "pluribus.y"
 {
     yyval = YH_BUILD(stringType)(yyvsp[-1]);
 }
-#line 5075 "y.tab.c"
+#line 5076 "y.tab.c"
     break;
 
   case 360: /* stringType: STRING  */
-#line 2029 "pluribus.y"
+#line 2030 "pluribus.y"
 {
     yyval = YH_BUILD(stringType)(-1);
 }
-#line 5083 "y.tab.c"
+#line 5084 "y.tab.c"
     break;
 
   case 361: /* arrayDeclarator: Symbol fixedArraySizes  */
-#line 2036 "pluribus.y"
+#line 2037 "pluribus.y"
 {
     yyval = YH_BUILD(arrayDeclarator)(YC(symbol,yyvsp[-1]), YC(arraySizeList,yyvsp[0]));
 }
-#line 5091 "y.tab.c"
+#line 5092 "y.tab.c"
     break;
 
   case 362: /* fixedArraySizes: fixedArraySize  */
-#line 2043 "pluribus.y"
+#line 2044 "pluribus.y"
 {
     yyval = YH_BUILD(arraySizeList)(YC(arraySize,yyvsp[0]), NULL);
 }
-#line 5099 "y.tab.c"
+#line 5100 "y.tab.c"
     break;
 
   case 363: /* fixedArraySizes: fixedArraySizes fixedArraySize  */
-#line 2047 "pluribus.y"
+#line 2048 "pluribus.y"
 {
     yyval = YH_BUILD(arraySizeList)(YC(arraySize,yyvsp[0]), YC(arraySizeList,yyvsp[-1]));
 }
-#line 5107 "y.tab.c"
+#line 5108 "y.tab.c"
     break;
 
   case 364: /* fixedArraySize: '[' Number ']'  */
-#line 2054 "pluribus.y"
+#line 2055 "pluribus.y"
 {
     yyval = YH_BUILD(arraySize)(yyvsp[-1]);
 }
-#line 5115 "y.tab.c"
+#line 5116 "y.tab.c"
     break;
 
 
-#line 5119 "y.tab.c"
+#line 5120 "y.tab.c"
 
       default: break;
     }
@@ -5308,7 +5309,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 2060 "pluribus.y"
+#line 2061 "pluribus.y"
 
 
   void

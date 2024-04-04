@@ -14,6 +14,7 @@
 #include "yh_build.h"
 #include "y.tab.h"
 #include "pl.h"
+#include "plutil.h"
 #include <ctype.h>
 
 static FILE *findUnitFile(char *result, char *filePath);

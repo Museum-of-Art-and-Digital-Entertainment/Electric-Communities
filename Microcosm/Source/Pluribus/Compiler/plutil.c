@@ -9,6 +9,8 @@
 
 */
 
+#include <ctype.h>
+
 #include "generic.h"
 #include "yh.h"
 #include "yh_build.h"

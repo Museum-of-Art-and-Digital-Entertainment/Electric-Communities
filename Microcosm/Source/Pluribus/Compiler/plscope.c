@@ -12,6 +12,7 @@
 #include "generic.h"
 #include "yh.h"
 #include "yh_build.h"
+#include "yh_dump.h"
 #include "y.tab.h"
 #include "pl.h"
 
