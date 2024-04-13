@@ -183,7 +183,7 @@ YA_FUNC_START(plGrind, t_pl_grindEnv)
 {
     PCASE(unitDef,{
         YT(scope) *scope;
-        YT(unit) *unit = YBUILD(unit)(arg->name, NULL, NULL, NULL, NULL, NULL,
+        YT(unit) *unit = YBUILD(unit)(arg->name, 0, NULL, NULL, 0, 0,
                                       NULL);
         char element[MSGLEN];
     if (env->currentElement)
@@ -256,7 +256,7 @@ YA_FUNC_START(plGrind, t_pl_grindEnv)
         }
     });
     PCASE(codeDef,{
-    GLBLcodeAtt = YBUILD(codeAtt)(arg->name, NULL, arg->modifiers,
+    GLBLcodeAtt = YBUILD(codeAtt)(arg->name, 0, arg->modifiers,
                       arg->type, arg->inherits,
                       arg->methodCode);
     defineCodeAtt(arg->name, GLBLcodeAtt, arg->info->modifiers);
@@ -272,7 +272,7 @@ YA_FUNC_START(plGrind, t_pl_grindEnv)
         YA_RETURN(TYPE_WALK(type, type));
     });
     PCASE(kindDef,{
-        YT(kind) *newKind = YBUILD(kind)(arg->name, NULL, NULL, NULL,
+        YT(kind) *newKind = YBUILD(kind)(arg->name, 0, NULL, NULL,
                                          NULL, NULL);
         char element[MSGLEN];
         if (env->currentElement)
@@ -324,7 +324,7 @@ YA_FUNC_START(plGrind, t_pl_grindEnv)
         }
     });
     PCASE(ingredientImplDef,{
-        YT(ingredientImpl) *impl = YBUILD(ingredientImpl)(arg->name, NULL,
+        YT(ingredientImpl) *impl = YBUILD(ingredientImpl)(arg->name, 0,
             NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
         char element[MSGLEN];
     if (env->currentElement)
@@ -542,7 +542,7 @@ YA_FUNC_START(plGrind, t_pl_grindEnv)
     });
     PCASE(presenceStructureDef,{
         YT(presenceStructure) *struc = YBUILD(presenceStructure)(arg->name,
-            NULL, NULL, NULL, NULL, NULL, NULL);
+            0, NULL, NULL, NULL, NULL, NULL);
         char element[MSGLEN];
     if (env->currentElement)
         sprintf(element, "%s: %s", env->currentElement,
@@ -623,7 +623,7 @@ YA_FUNC_START(plGrind, t_pl_grindEnv)
         env->deliverAtts = YBUILD(deliverAttList)(arg, env->deliverAtts);
     });
     PCASE(presenceImplDef,{
-        YT(presenceImpl) *impl = YBUILD(presenceImpl)(arg->name, NULL, NULL,
+        YT(presenceImpl) *impl = YBUILD(presenceImpl)(arg->name, 0, NULL,
                                    NULL, NULL, NULL, NULL, NULL, NULL, NULL,
                                    NULL, NULL);
         char element[MSGLEN];
@@ -725,7 +725,7 @@ YA_FUNC_START(plGrind, t_pl_grindEnv)
         env->presenceImpl->behavior = arg;
     });
     PCASE(templateDef,{
-        YT(template) *template = YBUILD(template)(NULL, NULL, NULL,
+        YT(template) *template = YBUILD(template)(0, NULL, NULL,
                                                   NULL, NULL, NULL);
         PUSH_ENV(template, template);
         PUSH_ENV(attributes, NULL);
@@ -761,7 +761,7 @@ YA_FUNC_START(plGrind, t_pl_grindEnv)
             arg, env->template->mapAtts);
     });
     PCASE(unumStructureDef,{
-        YT(unumStructure) *struc = YBUILD(unumStructure)(arg->name, NULL, NULL,
+        YT(unumStructure) *struc = YBUILD(unumStructure)(arg->name, 0, NULL,
                                                          NULL, NULL, NULL);
         char element[MSGLEN];
     if (env->currentElement)
@@ -854,7 +854,7 @@ YA_FUNC_START(plGrind, t_pl_grindEnv)
              pSymbolRef(YC(symbolRef,arg->name)));
     });
     PCASE(unumImplDef,{
-        YT(unumImpl) *impl = YBUILD(unumImpl)(arg->name, NULL, NULL, NULL,
+        YT(unumImpl) *impl = YBUILD(unumImpl)(arg->name, 0, NULL, NULL,
                                               NULL);
         char element[MSGLEN];
     if (env->currentElement)
@@ -1317,7 +1317,7 @@ checkMakeSymbolRef(char *prefix, YT(scopedRef) *scoped,
 doOperation(char *prefix, bool reportErrors, YT(typedValue) *left, int op,
         YT(typedValue) *right)
 {
-    bool aBoolean = TRUE;
+    long aBoolean = TRUE;
     char *msg = malloc(120);
     char *leftString;
     char *rightString;
@@ -1459,8 +1459,8 @@ evalExpr(char *prefix, YT(expr) *expr, YT(attributeList) *attributes,
     env.anyAttributes = FALSE;
     env.anyOperators = FALSE;
     env.scopedRef = NULL;
-    *anyAttributes = (bool)malloc(sizeof(bool));
-    *anyOperators = (bool)malloc(sizeof(bool));
+    *anyAttributes = !!malloc(sizeof(bool));
+    *anyOperators = !!malloc(sizeof(bool));
     value = ((void*) YH_WALK(expr, expr, YA_FUNC(plEval), &env));
     *anyAttributes = env.anyAttributes;
     *anyOperators = env.anyOperators;
@@ -1530,7 +1530,7 @@ YA_FUNC_START(plEval, t_pl_evalEnv)
     });
     PCASE(boolLit,{
         YT(typedValue) *val = YBUILD(typedValue)(TV_BOOL,
-                                                 YUC(value,arg->value));
+                                                 YUC(value,(long)arg->value));
         YA_RETURN(val);
     });
     PCASE(refTerm,{
@@ -1676,7 +1676,7 @@ YA_FUNC_START(plString, t_pl_grindEnv)
     });
     PCASE(numLit,{
         char *value = malloc(20);
-        sprintf(value, "%d", arg->value);
+        sprintf(value, "%ld", arg->value);
         YA_RETURN(value);
     });
     PCASE(charLit,{

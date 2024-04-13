@@ -984,7 +984,7 @@ YH_DEF_TAGGED(typedValue,
     YH_VAR_CASE(TV_UND, long, value)
     YH_VAR_CASE(TV_DEP, long, value)
     YH_VAR_CASE(TV_TAG, bool, value)
-    YH_VAR_CASE(TV_BOOL, bool, value)
+    YH_VAR_CASE(TV_BOOL, long, value)
     YH_VAR_CASE(TV_CHAR, char, value)
     YH_VAR_CASE(TV_LONG, long, value)
     YH_VAR_CASE(TV_FLOAT, float, value)
