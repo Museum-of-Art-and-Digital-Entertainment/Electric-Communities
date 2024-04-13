@@ -170,7 +170,7 @@ internAttributes(char *prefix)
               result = YBUILD(attributeList)(
                 YBUILD(attribute)(attributeType, YC(expr,thisTag),
                                   YBUILD(typedValue)
-                                        (TV_TAG,YUC(value,thisTag->value))),
+                                        (TV_TAG,YUC(value,(long)thisTag->value))),
                                   result);
               break;
             case BOOLEAN:
@@ -178,7 +178,7 @@ internAttributes(char *prefix)
               result = YBUILD(attributeList)(
                 YBUILD(attribute)(attributeType, YC(expr,thisBool),
                                   YBUILD(typedValue)
-                                        (TV_BOOL,YUC(value,thisBool->value))),
+                                        (TV_BOOL,YUC(value,(long)thisBool->value))),
                                   result);
               break;
             case CHAR:
