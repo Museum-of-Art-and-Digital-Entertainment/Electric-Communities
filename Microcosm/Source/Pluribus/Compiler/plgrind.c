@@ -1349,7 +1349,7 @@ doOperation(char *prefix, bool reportErrors, YT(typedValue) *left, int op,
         case '<': leftVal = leftVal < rightVal; break;
         case '>': leftVal = leftVal > rightVal; break;
         case Leq: leftVal = leftVal <= rightVal; break;
-        case Geq: leftVal = leftVal >= leftVal; break;
+        case Geq: leftVal = leftVal >= rightVal; break;
         case  Eq: leftVal = leftVal == rightVal; break;
         case Neq: leftVal = leftVal != rightVal; break;
         case '&': leftVal = leftVal & rightVal; break;
