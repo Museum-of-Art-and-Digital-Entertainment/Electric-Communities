@@ -371,7 +371,7 @@ internFunctionOrMethodDescriptor(char *prefix, bool withNames,
             while (*bufptr != ' ')
                 ++bufptr;
         }
-        sscanf(bufptr, " %d", modifiers);
+        sscanf(bufptr, " %ld", modifiers);
         /* Move past the ' %d ' */
         while (*bufptr == ' ') { ++bufptr; }
         while (*bufptr != ' ') { ++bufptr; }
@@ -1356,7 +1356,7 @@ internVariable(char *prefix)
 
     /* Note that we do not import any assigned values */
     nextUnitLine();
-    sscanf(LineBuf, " %s %s %d", typeSig, name, &modifiers);
+    sscanf(LineBuf, " %s %s %ld", typeSig, name, &modifiers);
     sprintf(newPrefix, "%s%s:\n  ", prefix, name);
     bufptr = typeSig;
     type = parseTypeSignature(newPrefix, &bufptr, &isArray);

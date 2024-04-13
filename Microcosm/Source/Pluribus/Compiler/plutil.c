@@ -302,7 +302,7 @@ isExport(YT(genericDef) *def)
   bool
 isGenerated(char *name)
 {
-    return (bool)(strstr(name,"gen_$_"));
+    return !!(strstr(name,"gen_$_"));
 }
 
   bool
@@ -655,7 +655,7 @@ symbolRefString(char *buf, YT(symbolRef) *ref)
             mangleName(plType->type->name->name, plType->mangle));
         strcat(buf, myBuf);
     } else {
-        sprintf(myBuf, "invalid symbol ref %d in plutil:symbolRefString",
+        sprintf(myBuf, "invalid symbol ref %ld in plutil:symbolRefString",
             YTAG_OF(ref));
         strcat(buf, myBuf);
     }
@@ -736,6 +736,13 @@ typeOf(YT(type) *type)
     return -1;
 }
 
+/* 202404: This code looks *incredibly* untrustworthy! It appears to be
+ *         casting away levels of indirection. I'm not sure this code
+ *         even gets called in normal operation, though, so it's not
+ *         obvious how critical it would need to be to fix this. Either
+ *         way, probably don't mess with this without a custom battery
+ *         of unit tests. I have refused to do the work necessary to
+ *         remove the final warnings from this routine. --McM */
   char * 
 typedValueToString (YT(typedValue) val)
 {
