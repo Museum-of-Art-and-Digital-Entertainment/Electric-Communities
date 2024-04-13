@@ -242,7 +242,7 @@ bindSymbol(YT(symbol) *name, int bindingType, YT(anyBinding) *def,
   YT(attributeType) *
 defineAttributeType(YT(symbolDef) *name, YT(type) *type, long modifiers)
 {
-    YT(attributeType) *attType = YBUILD(attributeType)(NULL, NULL, type);
+    YT(attributeType) *attType = YBUILD(attributeType)(NULL, 0, type);
     return(YC(attributeType,bindSymbolDef(name, BIND_ATTRIBUTE,
         YC(anyBinding,attType), modifiers, FALSE)));
 }
@@ -287,7 +287,7 @@ defineKind(YT(symbolDef) *name, YT(attributeList) *attributes,
            YT(implementsAttList) *implements, YT(kindList) *extends,
            long modifiers, int what)
 {
-    YT(kind) *kind = YBUILD(kind)(name, NULL, attributes, protos,
+    YT(kind) *kind = YBUILD(kind)(name, 0, attributes, protos,
                                   implements, extends);
     char prefix[MSGLEN];
 
@@ -325,7 +325,7 @@ defineType(YT(symbol) *name, YT(arraySizeList) *dimensions, YT(type) *type,
            long modifiers)
 {
     if (type) {
-        YT(defType) *newType = YBUILD(defType)(NULL, NULL, dimensions, type);
+        YT(defType) *newType = YBUILD(defType)(NULL, 0, dimensions, type);
         return(YC(defType,bindSymbol(name, BIND_TYPE, YC(anyBinding,newType),
                                      modifiers)));
     } else {
@@ -339,7 +339,7 @@ defineUnit(YT(symbolDef) *name, char *filePath, YT(scope) *scope,
 {
     bool isExport = (export != NONE);
 
-    YT(unit) *unit = YBUILD(unit)(NULL, NULL, filePath, scope, export,
+    YT(unit) *unit = YBUILD(unit)(NULL, 0, filePath, scope, export,
                                   isImported, imports);
     return(YC(unit,bindSymbolDef(name, BIND_UNIT, YC(anyBinding,unit),
                                  isExport ? MOD_EXPORT : MOD_NONE, redefine)));

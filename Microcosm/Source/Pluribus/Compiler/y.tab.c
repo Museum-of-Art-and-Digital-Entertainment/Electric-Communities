@@ -2212,7 +2212,7 @@ yyreduce:
   case 11: /* unitElems: %empty  */
 #line 102 "pluribus.y"
 {
-    yyval = NULL;
+    yyval = 0;
 }
 #line 2218 "y.tab.c"
     break;
@@ -2510,7 +2510,7 @@ yyreduce:
   case 48: /* codeInherits: %empty  */
 #line 286 "pluribus.y"
 {
-    yyval = NULL;
+    yyval = 0;
 }
 #line 2516 "y.tab.c"
     break;
@@ -2567,7 +2567,7 @@ yyreduce:
   case 55: /* codeModifiers: %empty  */
 #line 324 "pluribus.y"
 {
-    yyval = NULL;
+    yyval = 0;
 }
 #line 2573 "y.tab.c"
     break;
@@ -2835,7 +2835,7 @@ yyreduce:
   case 87: /* kindElems: %empty  */
 #line 512 "pluribus.y"
 {
-    yyval = NULL;
+    yyval = 0;
 }
 #line 2841 "y.tab.c"
     break;
@@ -2930,7 +2930,7 @@ yyreduce:
   case 98: /* ingredientImplElems: %empty  */
 #line 579 "pluribus.y"
 {
-    yyval = NULL;
+    yyval = 0;
 }
 #line 2936 "y.tab.c"
     break;
@@ -3081,7 +3081,7 @@ yyreduce:
   case 117: /* valueOrNot: %empty  */
 #line 667 "pluribus.y"
 {
-    yyval = NULL;
+    yyval = 0;
 }
 #line 3087 "y.tab.c"
     break;
@@ -3117,7 +3117,7 @@ yyreduce:
 #line 689 "pluribus.y"
 {
     yyval = YH_BUILD(variableDecl)
-            (YC(typeSpec,yyvsp[-4]), NULL, YC(symbol,yyvsp[-3]), yyvsp[-2], YC(string,yyvsp[-1]));
+            (YC(typeSpec,yyvsp[-4]), 0, YC(symbol,yyvsp[-3]), yyvsp[-2], YC(string,yyvsp[-1]));
 }
 #line 3123 "y.tab.c"
     break;
@@ -3126,7 +3126,7 @@ yyreduce:
 #line 694 "pluribus.y"
 {
     yyval = YH_BUILD(variableDecl)
-             (YC(typeSpec,yyvsp[-4]), NULL, YC(symbol,yyvsp[-2]), yyvsp[-3], YC(string,yyvsp[-1]));
+             (YC(typeSpec,yyvsp[-4]), 0, YC(symbol,yyvsp[-2]), yyvsp[-3], YC(string,yyvsp[-1]));
 }
 #line 3132 "y.tab.c"
     break;
@@ -3135,7 +3135,7 @@ yyreduce:
 #line 699 "pluribus.y"
 {
     yyval = YH_BUILD(variableDecl)
-             (YC(typeSpec,yyvsp[-3]), NULL, YC(symbol,yyvsp[-2]), 0, YC(string,yyvsp[-1]));
+             (YC(typeSpec,yyvsp[-3]), 0, YC(symbol,yyvsp[-2]), 0, YC(string,yyvsp[-1]));
 }
 #line 3141 "y.tab.c"
     break;
@@ -3151,7 +3151,7 @@ yyreduce:
   case 125: /* throwsList: %empty  */
 #line 711 "pluribus.y"
 {
-    yyval = NULL;
+    yyval = 0;
 }
 #line 3157 "y.tab.c"
     break;
@@ -3446,7 +3446,7 @@ yyreduce:
   case 160: /* presenceStructureElems: %empty  */
 #line 908 "pluribus.y"
 {
-    yyval = NULL;
+    yyval = 0;
 }
 #line 3452 "y.tab.c"
     break;
@@ -3518,7 +3518,7 @@ yyreduce:
   case 169: /* ingredientAttElems: %empty  */
 #line 956 "pluribus.y"
 {
-    yyval = NULL;
+    yyval = 0;
 }
 #line 3524 "y.tab.c"
     break;
@@ -3644,7 +3644,7 @@ yyreduce:
   case 184: /* presenceImplElems: %empty  */
 #line 1046 "pluribus.y"
 {
-    yyval = NULL;
+    yyval = 0;
 }
 #line 3650 "y.tab.c"
     break;
@@ -3772,7 +3772,7 @@ yyreduce:
   case 200: /* templateElems: %empty  */
 #line 1144 "pluribus.y"
 {
-    yyval = NULL;
+    yyval = 0;
 }
 #line 3778 "y.tab.c"
     break;
@@ -3906,7 +3906,7 @@ yyreduce:
   case 216: /* unumStructureElems: %empty  */
 #line 1240 "pluribus.y"
 {
-    yyval = NULL;
+    yyval = 0;
 }
 #line 3912 "y.tab.c"
     break;
@@ -4004,7 +4004,7 @@ yyreduce:
   case 228: /* presenceConds: %empty  */
 #line 1305 "pluribus.y"
 {
-    yyval = NULL;
+    yyval = 0;
 }
 #line 4010 "y.tab.c"
     break;
@@ -4045,7 +4045,7 @@ yyreduce:
   case 233: /* makes: MAKES NONE  */
 #line 1335 "pluribus.y"
 {
-    yyval = NULL;
+    yyval = 0;
 }
 #line 4051 "y.tab.c"
     break;
@@ -4053,7 +4053,7 @@ yyreduce:
   case 234: /* makes: %empty  */
 #line 1339 "pluribus.y"
 {
-    yyval = NULL;
+    yyval = 0;
 }
 #line 4059 "y.tab.c"
     break;
@@ -4115,7 +4115,7 @@ yyreduce:
   case 241: /* unumImplElems: %empty  */
 #line 1386 "pluribus.y"
 {
-    yyval = NULL;
+    yyval = 0;
 }
 #line 4121 "y.tab.c"
     break;

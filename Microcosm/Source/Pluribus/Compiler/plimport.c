@@ -480,7 +480,7 @@ internIngredientImpl(char *unitName, YT(symbolDef) *name, long modifiers)
                 internImplementsAttList(prefix);
                 break;
             case '\0':
-                impl = YBUILD(ingredientImpl)(name, NULL, attributes, kind,
+                impl = YBUILD(ingredientImpl)(name, 0, attributes, kind,
                     neighbors, stateBundle, vars, functions, initBlocks,
                     methods, NULL, NULL, NULL);
                 if (defineIngredientImpl(name, impl, modifiers)) {
@@ -929,7 +929,7 @@ internPresenceImpl(char *unitName, YT(symbolDef) *name, long modifiers)
                 facetInitBlocks = internMethods(prefix, TRUE, TRUE);
                 break;
             case '\0':
-                impl = YBUILD(presenceImpl)(name, NULL, attributes, struc,
+                impl = YBUILD(presenceImpl)(name, 0, attributes, struc,
                               roles, makeAtt, initBlocks, primeInitBlocks, behavior,
                               NULL, implements, facetInitBlocks);
                 if (definePresenceImpl(name, impl, modifiers))
@@ -1042,7 +1042,7 @@ internPresenceStructure(char *unitName, YT(symbolDef) *name, long modifiers)
                 ingredients = internIngredients(prefix);
                 break;
             case '\0':
-                struc = YBUILD(presenceStructure)(name, NULL, attributes, kind,
+                struc = YBUILD(presenceStructure)(name, 0, attributes, kind,
                     ingredients);
                 if (definePresenceStructure(name, struc, modifiers))
                     return(INTERN_OK);
@@ -1157,7 +1157,7 @@ internTemplate(char *prefix, char *implName, int numMaps, int init)
     if (!impl)
     yh_error("%s: ingredient impl %s not defined", prefix, implName);
     maps = internMapAtts(prefix, numMaps);
-    template = YBUILD(template)(NULL, impl, maps);
+    template = YBUILD(template)(0, impl, maps);
 
     return(template);
 }
@@ -1294,7 +1294,7 @@ internUnumImpl(char *unitName, YT(symbolDef) *name, long modifiers)
                 roles = internPresenceRoles(prefix);
                 break;
             case '\0':
-                impl = YBUILD(unumImpl)(name, NULL, attributes, struc, roles);
+                impl = YBUILD(unumImpl)(name, 0, attributes, struc, roles);
                 if (defineUnumImpl(name, impl, modifiers))
                     return(INTERN_OK);
                 else
@@ -1332,7 +1332,7 @@ internUnumStructure(char *unitName, YT(symbolDef) *name, long modifiers)
                 presences = internPresences(prefix, &prime);
                 break;
             case '\0':
-                struc = YBUILD(unumStructure)(name, NULL, attributes, kind,
+                struc = YBUILD(unumStructure)(name, 0, attributes, kind,
                                               presences, prime->name);
                 if (defineUnumStructure(name, struc, modifiers))
                     return(INTERN_OK);

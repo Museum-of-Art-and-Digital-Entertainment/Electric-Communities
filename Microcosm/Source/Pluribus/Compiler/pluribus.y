@@ -100,7 +100,7 @@ unitElems:
 }
  |
 {
-    $$ = NULL;
+    $$ = 0;
 }
  ;
 
@@ -284,7 +284,7 @@ codeInherits:
 }
  |
 {
-    $$ = NULL;
+    $$ = 0;
 }
  ;
 
@@ -322,7 +322,7 @@ codeModifiers:
 }
  |
 {
-    $$ = NULL;
+    $$ = 0;
 }
  ;
 
@@ -510,7 +510,7 @@ kindElems:
 }
  |
 {
-    $$ = NULL;
+    $$ = 0;
 }
  ;
 
@@ -577,7 +577,7 @@ ingredientImplElems:
 }
  |
 {
-    $$ = NULL;
+    $$ = 0;
 }
  ;
 
@@ -665,7 +665,7 @@ valueOrNot:
 }
  |
 {
-    $$ = NULL;
+    $$ = 0;
 }
  ;
 
@@ -688,17 +688,17 @@ variableDecl:
  |      type Symbol arrayMarkers valueOrNot ';'
 {
     $$ = YH_BUILD(variableDecl)
-            (YC(typeSpec,$1), NULL, YC(symbol,$2), $3, YC(string,$4));
+            (YC(typeSpec,$1), 0, YC(symbol,$2), $3, YC(string,$4));
 }
  |      type arrayMarkers Symbol valueOrNot ';'
 {
     $$ = YH_BUILD(variableDecl)
-             (YC(typeSpec,$1), NULL, YC(symbol,$3), $2, YC(string,$4));
+             (YC(typeSpec,$1), 0, YC(symbol,$3), $2, YC(string,$4));
 }
  |      type Symbol valueOrNot ';'
 {
     $$ = YH_BUILD(variableDecl)
-             (YC(typeSpec,$1), NULL, YC(symbol,$2), 0, YC(string,$3));
+             (YC(typeSpec,$1), 0, YC(symbol,$2), 0, YC(string,$3));
 }
  ;
 
@@ -709,7 +709,7 @@ throwsList:
 }
  |
 {
-    $$ = NULL;
+    $$ = 0;
 }
  ;
 
@@ -906,7 +906,7 @@ presenceStructureElems:
 }
  |
 {
-    $$ = NULL;
+    $$ = 0;
 }
  ;
 
@@ -954,7 +954,7 @@ ingredientAttElems:
 }
  |
 {
-    $$ = NULL;
+    $$ = 0;
 }
  ;
 
@@ -1044,7 +1044,7 @@ presenceImplElems:
 }
  |
 {
-    $$ = NULL;
+    $$ = 0;
 }
  ;
 
@@ -1142,7 +1142,7 @@ templateElems:
 }
  |
 {
-    $$ = NULL;
+    $$ = 0;
 }
  ;
 
@@ -1238,7 +1238,7 @@ unumStructureElems:
 }
  |
 {
-    $$ = NULL;
+    $$ = 0;
 }
  ;
 
@@ -1303,7 +1303,7 @@ presenceConds:
 }
  |
 {
-    $$ = NULL;
+    $$ = 0;
 }
  ;
 
@@ -1333,11 +1333,11 @@ makes:
 }
  |      MAKES NONE
 {
-    $$ = NULL;
+    $$ = 0;
 }
  |
 {
-    $$ = NULL;
+    $$ = 0;
 }
  ;
 
@@ -1384,7 +1384,7 @@ unumImplElems:
 }
  |
 {
-    $$ = NULL;
+    $$ = 0;
 }
  ;
 
