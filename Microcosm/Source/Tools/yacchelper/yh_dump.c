@@ -59,7 +59,7 @@ YH_dump_string(YT(string) *arg, int tabLevel)
 YH_dump_charp(YT(charp) *arg, int tabLevel)
 {
     if (arg)
-	printf("\"%s\"\n", arg);
+	printf("\"%s\"\n", *arg);
     else
 	printf("NULL STRING\n");
 }
@@ -68,7 +68,7 @@ YH_dump_charp(YT(charp) *arg, int tabLevel)
 YH_dump_long(YT(long) *arg, int tabLevel)
 {
     if (arg)
-	printf("%d\n", arg);
+	printf("%ld\n", *arg);
     else
 	printf("NULL LONG PTR\n");
 }
@@ -77,7 +77,7 @@ YH_dump_long(YT(long) *arg, int tabLevel)
 YH_dump_float(YT(float) *arg, int tabLevel)
 {
     if (arg)
-	printf("%f\n", arg);
+	printf("%f\n", *arg);
     else
 	printf("NULL FLOAT PTR\n");
 }
@@ -86,7 +86,7 @@ YH_dump_float(YT(float) *arg, int tabLevel)
 YH_dump_bool(YT(bool) *arg, int tabLevel)
 {
     if (arg)
-	printf("%c\n", arg ? 'T' : 'F');
+	printf("%c\n", *arg ? 'T' : 'F');
     else
 	printf("NULL BOOL PTR\n");
 }
@@ -95,7 +95,7 @@ YH_dump_bool(YT(bool) *arg, int tabLevel)
 YH_dump_char(YT(char) *arg, int tabLevel)
 {
     if (arg)
-	printf("'%c' (0x%02x)\n", arg, arg);
+	printf("'%c' (0x%02x)\n", *arg, *arg);
     else
 	printf("NULL CHAR PTR\n");
 }
