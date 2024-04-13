@@ -518,7 +518,7 @@ internIngredientRole(char *prefix)
                                          roleSymbols);
         bufptr += strlen(roleName)+1;
     }
-    sprintf(newPrefix,"%s\n  role %s: ", prefix, roleName); 
+    snprintf(newPrefix, MSGLEN, "%s\n  role %s: ", prefix, roleName); 
     sscanf(bufptr, "%s %d %d", implName, &numMaps, &init);
     template = internTemplate(newPrefix, implName, numMaps, init);
     result = YBUILD(ingredientRole)(roleSymbols, template);
@@ -553,7 +553,7 @@ internIngredient(char *prefix)
     nextUnitLine();
     sscanf(LineBuf, "%s %s %d", roleName, kindName, &count);
     kindRef = scanSymbolRef(kindName);
-    sprintf(newPrefix,"%s\n  role %s: ", prefix, roleName); 
+    snprintf(newPrefix, MSGLEN, "%s\n  role %s: ", prefix, roleName); 
     kind = lookupKindRef(newPrefix, kindRef, FALSE);
     if (!kind)
     yh_error("%s: kind %s not defined", newPrefix, kindName);
@@ -749,7 +749,7 @@ internNeighbors(char *prefix)
         nextUnitLine();
         sscanf(LineBuf, "%s %s %d %d", neighborName, kindName, &plural,
                &presence);
-        sprintf(newPrefix,"%s\n  neighbor %s: ", prefix, neighborName); 
+        snprintf(newPrefix, MSGLEN, "%s\n  neighbor %s: ", prefix, neighborName); 
         kind = lookupKindRef(newPrefix, scanSymbolRef(kindName), FALSE);
 	if (!kind)
 	    yh_error("%s: kind %s not defined", newPrefix, kindName);
@@ -957,7 +957,7 @@ internPresenceRoles(char *prefix)
     while (count--) {
         nextUnitLine();
         sscanf(LineBuf, "%s %s", roleName, implName);
-        sprintf(newPrefix,"%s\n  role %s: ", prefix, roleName); 
+        snprintf(newPrefix, MSGLEN, "%s\n  role %s: ", prefix, roleName); 
         if (strcmp(implName, previousImplName)) {
             YT(symbolList) *roleSymbols =
                 YBUILD(symbolList)(yh_handleSymbol(roleName), NULL);
@@ -997,7 +997,7 @@ internPresences(char *prefix, YT(presence) **primeptr)
         nextUnitLine();
         sscanf(LineBuf, "%s %s %s %d %d", name, kindName, makes, &prime,
                &conds);
-        sprintf(newPrefix,"%s\n  role %s: ", prefix, name); 
+        snprintf(newPrefix, MSGLEN, "%s\n  role %s: ", prefix, name); 
         kindRef = scanSymbolRef(kindName);
         kind = lookupKindRef(newPrefix, kindRef, FALSE);
         if (kind) {
@@ -1357,7 +1357,7 @@ internVariable(char *prefix)
     /* Note that we do not import any assigned values */
     nextUnitLine();
     sscanf(LineBuf, " %s %s %ld", typeSig, name, &modifiers);
-    sprintf(newPrefix, "%s%s:\n  ", prefix, name);
+    snprintf(newPrefix, MSGLEN, "%s%s:\n  ", prefix, name);
     bufptr = typeSig;
     type = parseTypeSignature(newPrefix, &bufptr, &isArray);
 

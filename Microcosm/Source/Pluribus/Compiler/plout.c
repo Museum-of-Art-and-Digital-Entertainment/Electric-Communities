@@ -594,7 +594,7 @@ generateUnit(YT(unit) *unit, char *inputFileName, char *outputBaseDirName,
         expandScopeName(unit->scope->outer, scopeName, "/");
         sprintf(unitName, "%s%s", scopeName,
                 YC(symbolRef,unit->name)->name->name);
-        sprintf(fileName, "%s/%s.unit", outputBaseDirName, unitName);
+        snprintf(fileName, BUFLEN, "%s/%s.unit", outputBaseDirName, unitName);
         if (pushOutput(fileName, saveFile)) {
             unit->filePath = STRDUP(unitName);
             generateSubUnits(unit, inputFileName, outputBaseDirName, saveFile);

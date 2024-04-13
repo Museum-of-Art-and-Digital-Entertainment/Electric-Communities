@@ -1383,7 +1383,7 @@ matchPresenceRoles(char *prefix, YT(presenceStructure) *struc,
             if (template->ingredientImpl) {
                 sprintf(temp, "template for ingredient role %s",
                         SNAME(ingredient));
-                sprintf(newPrefix,
+                snprintf(newPrefix, MSGLEN,
                         "%s%s:\n  kind %s vs ingredient impl %s:",
                         prefix, temp, 
                         SDNAME(ingredient->kind),
