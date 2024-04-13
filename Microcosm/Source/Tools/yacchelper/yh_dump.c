@@ -27,7 +27,7 @@ void YH_dump_tag_dispatch(void *arg, int tabLevel) {
     switch (taggedArg->_yh_tag) {
 #include "master_yh.h"
         default:
-            printf("Unknown tag %d\n", taggedArg->_yh_tag);
+            printf("Unknown tag %ld\n", taggedArg->_yh_tag);
             break;
     }
 }

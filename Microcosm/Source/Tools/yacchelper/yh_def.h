@@ -551,10 +551,10 @@
                                     YT(type##List) *arg, int tabLevel)        \
                                 {                                             \
                                     int elemCount = 0;                        \
-                                    printf("<%08x> YH_" #type "List {\n",arg);\
+                                    printf("<%p> YH_" #type "List {\n",arg);\
                                     while (arg) {                             \
                                         yh_tab(tabLevel);                     \
-                                        printf("<%08x>" #type "[%d]: ",arg,elemCount++);   \
+                                        printf("<%p>" #type "[%d]: ",arg,elemCount++);   \
                                         YH_dump_##type(arg->type, tabLevel+1);\
                                         arg = arg->next;                      \
                                     }                                         \
@@ -583,7 +583,7 @@
                                                     int tabLevel)             \
                                 {                                             \
                                     if (arg) {                                \
-                                        printf("<%08x> YH_" #type " {\n", arg);
+                                        printf("<%p> YH_" #type " {\n", arg);
 #define YH_DEF_START_TAGGED(type) void YH_dump_##type(YT(type) *arg,          \
                                                     int tabLevel)             \
                                 {                                             \
@@ -593,7 +593,7 @@
                                                                  tabLevel);   \
                                             return;                           \
                                         }                                     \
-                                        printf("<%08x> YH_" #type " {\n", arg);
+                                        printf("<%p> YH_" #type " {\n", arg);
 #endif
 #define YH_TAG_FIELD(type)
 #define YH_FLD_ENUM_START(name)     yh_tab(tabLevel);                         \
@@ -602,12 +602,12 @@
 #define YH_FLD_ENUM_CASE(en)
 #define YH_FLD_ENUM_END(name)
 #define YH_FLD_PRIM(name,type)      yh_tab(tabLevel);                         \
-                                    printf(#name ": %d\n",   arg->name);
+                                    printf(#name ": %ld\n", (long)arg->name);
 #define YH_FLD_PRIMA(name,type)     yh_tab(tabLevel);                         \
                                     printf(#name ": " #type "[] <%08x>\n",    \
                                            arg->name);
 #define YH_FLDI_PRIM(name,type)     yh_tab(tabLevel);                         \
-                                    printf(#name ": %d\n",   arg->name);
+                                    printf(#name ": %ld\n", (long)arg->name);
 #define YH_ARG_PRIM(name,type)
 #define YH_FLD_STR(name,dim)        yh_tab(tabLevel);                         \
                                     printf(#name ": '%s'\n", arg->name);
@@ -623,10 +623,10 @@
                                     printf(#name ": ");                       \
                                     YH_dump_##type(arg->name, tabLevel + 1);
 #define YH_FLD_PTRA(name,type)      yh_tab(tabLevel);                         \
-                                    printf(#name ": YH_" #type "[] <%08x>\n", \
+                                    printf(#name ": YH_" #type "[] <%p>\n", \
                                            arg->name);
 #define YH_FLD_PTRN(name,type)      yh_tab(tabLevel);                         \
-                                    printf(#name ": YH_" #type " <%08x>\n",   \
+                                    printf(#name ": YH_" #type " <%p>\n",   \
                                            arg->name);
 #define YH_FLD_PTRF(name,type,func) yh_tab(tabLevel);                         \
                                     printf(#name ": ");                       \
@@ -636,7 +636,7 @@
                                     YH_dump_##type(arg->name, tabLevel + 1);
 #define YH_ARG_PTR(name, type)
 #define YH_FLD_OBJ(name)            yh_tab(tabLevel);                         \
-                                    printf(#name ": obj <%08x>\n",            \
+                                    printf(#name ": obj <%p>\n",            \
                                            arg->name);
 #define YH_FLD_VAR_START(selector,item)                                       \
                                  yh_tab(tabLevel);                            \
