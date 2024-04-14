@@ -736,13 +736,13 @@ typeOf(YT(type) *type)
     return -1;
 }
 
-/* 202404: This code looks *incredibly* untrustworthy! It appears to be
- *         casting away levels of indirection. I'm not sure this code
- *         even gets called in normal operation, though, so it's not
- *         obvious how critical it would need to be to fix this. Either
- *         way, probably don't mess with this without a custom battery
- *         of unit tests. I have refused to do the work necessary to
- *         remove the final warnings from this routine. --McM */
+/* 202404: The semantics of this code have been significantly changed.
+ *         The original implementation relied on pointer values as if
+ *         they were the core values in the first place, and looking at
+ *         the macros they invoke along the way, this never should have
+ *         worked. This code now dereferences its pointer arguments, and
+ *         since these pointers are created via the & operator, no null
+ *         checks are necessary. -McM */
   char * 
 typedValueToString (YT(typedValue) val)
 {
@@ -752,29 +752,29 @@ typedValueToString (YT(typedValue) val)
     case TV_TAG:
         return "TAG";
     case TV_BOOL:
-        return (YUV(val,TV_BOOL)? "true":"false");
+        return (*YUV(val,TV_BOOL)? "true":"false");
     case TV_CHAR:
         str = malloc(4);
         str[0] = '\'';
-        str[1] = (char)YUV(val,TV_CHAR);
+        str[1] = *YUV(val,TV_CHAR);
         str[2] = '\'';
         str[3] = '\0';
         return str;
     case TV_LONG:
         str = malloc(8);
-        sprintf(str, "%d", YUV(val,TV_LONG));
+        sprintf(str, "%ld", *YUV(val,TV_LONG));
         return str;
     case TV_STRING:
-        str = malloc(strlen((char *)YUV(val,TV_STRING)) + 2);
-        sprintf(str,"\"%s\"", YUV(val,TV_STRING));
+        str = malloc(strlen(*YUV(val,TV_STRING)) + 2);
+        sprintf(str,"\"%s\"", *YUV(val,TV_STRING));
         return str;
     case TV_FLOAT:
         str = malloc(20);
-        sprintf(str, "%f", YUV(val,TV_FLOAT));
+        sprintf(str, "%f", *YUV(val,TV_FLOAT));
         return str;
     case TV_OTHER:
         str = malloc(strlen((char *)YUV(val,TV_OTHER)));
-        sprintf(str,"%s", YUV(val,TV_OTHER));
+        sprintf(str,"%s", *YUV(val,TV_OTHER));
         return str;
     case TV_UND:
         return ("UNDEFINED");

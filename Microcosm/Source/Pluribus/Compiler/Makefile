@@ -50,6 +50,9 @@ YHFILES.o = $(YHFILES.c:%.c=%.o)
 
 INCLDIRS = -I$(YACCHELPER_DIR)
 
+# Suppress "format truncation" errors; apparently gcc thinks it should warn
+# when your snprintf call could be processing endless user strings and
+# trancates as a result.
 CFLAGS += -Wall -Wformat-truncation=0 -Wreturn-type -I. $(INCLDIRS) $(XFLAGS)
 CLFLAGS += $(XFLAGS)
 
