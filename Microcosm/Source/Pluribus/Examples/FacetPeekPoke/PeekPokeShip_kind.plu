@@ -1,0 +1,156 @@
+/*--------------------------------80 columns---------------------------------*/
+/*  
+  PeekPokeKinds.plu  v 0.1  
+  Kind declarations for PeekPoke Una.
+  05.07.1997  Masa Maeda & Arturo Bejar
+  Copyright 1997 Electric Communities. All rights reserved worldwide.
+*/
+
+// PeekPokeKinds.plu
+export unit PeekPokeShip_kind {
+  package ec.pl.examples.PeekPoke;
+  
+  import ec.e.lang.*;
+  import ec.e.net.*;
+
+  // ===========================================================
+  // ===============    For Peekable           ===============
+
+  // unum kind for peekable
+  export kind ukPeekable {
+    uPeek(String whoPeeked);
+  }
+
+  // presence kind for peekable host
+  export kind pkHostPeekable {
+    pHostPeek(String whoPeeked);
+  }
+
+  // presence kind for peekable client
+  export kind pkClientPeekable {
+    pClientPeek(String whoPeeked);
+  }
+
+  // ingredients for peekable
+  export kind iskPeekable  {
+    kind ukPeekable;
+    kind pkHostPeekable;
+    kind pkClientPeekable;
+    //kind ukGivePeekable;                             // @@@ for facets
+  }
+
+  // ===========================================================
+  // ===============    For PeekablePokeable     ===============
+
+  // Init method 
+  interface jiPokeableInit {
+    void facetInit(kind pkHostPokeable hostPokeable,
+      EResult distToPokeableClient,
+      istPokeable pokeableState);
+  }
+  
+  // Hard time defining a prefix for this
+  interface istPokeableGetter {
+    istPokeable istPokeableClient();
+  }
+
+  // unum kind for pokeable
+  export kind ukPokeable {
+    uPoke(String whoPoked);
+  }
+  
+  export kind rfkPokeable {
+    kind ukPokeable;
+    
+    implements jiPokeableInit;
+  }
+
+  // presence kind for pokeable host
+  export kind pkHostPokeable {
+    pHostPoke(String whoPoked);
+  }
+
+  // presence kind for pokeable client
+  export kind pkClientPokeable {
+    pClientPoke(String whoPoked);
+  }
+
+  // ingredients for pokeable
+  export kind iskPokeable  {
+    kind ukPokeable;
+    kind pkHostPokeable;
+    kind pkClientPokeable;
+    
+    implements jiPokeableInit;
+    implements istPokeableGetter;
+    implements jiSetClientVector;
+  }
+  
+
+  // ===========================================================
+  // =================     For PeekPoker     =================
+  // ----- Create Unum structure kind -----
+
+  // unum kind for peeker
+  export kind ukPeeker {
+    uPeekUnum(kind ukPeekable peekable, String toPeek);
+  }
+
+  // unum kind for poker
+  export kind ukPoker {
+    uPokeUnum(kind ukPokeable pokeable, String toPoke);
+  }
+  // unum structure kind for peeker-poker
+  export kind uskPeekPoker  {
+    kind ukPeeker;
+    kind ukPoker;
+  }
+
+
+  // ----- Create Presence structure kind -----
+
+  // presence kind for peeker host
+  export kind pkHostPeeker {
+    pHostPeekUnum(kind ukPeekable peekable, String toPeek);
+  }
+
+  // presence kind for poker host
+  export kind pkHostPoker {
+    pHostPokeUnum(kind ukPokeable pokeable, String toPoke);
+  }
+
+  // presence structure kind for peeker-poker
+  export kind pskHostPeekPoker  {
+    kind pkHostPeeker;
+    kind pkHostPoker;
+  }
+
+  // presence kind for peeker client
+  // presence kind for poker client
+  // Since peeker and poker side effect another unum
+  // only the host presence 
+
+  // ----- Create Ingredients kind -----
+
+  // ingredients for peeker
+  export kind iskPeeker  {
+    kind ukPeeker;
+    kind pkHostPeeker;
+    //kind ukGivePeeker;                                   // @@@ for facets
+  }
+
+  // ingredients for poker
+  export kind iskPoker  {
+    kind ukPoker;
+    kind pkHostPoker;
+    //kind ukGivePoker;                                     // @@@ for facets
+  }
+  // unum structure kind for peekable-pokeable
+  export kind uskPeekPokeable  {
+    kind ukPeekable;
+    kind rfkPokeable;
+  }
+  export kind kEmpty {
+    
+  }
+}

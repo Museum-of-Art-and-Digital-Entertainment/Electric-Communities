@@ -1,0 +1,2 @@
+#!/bin/sh -v
+java -debug ec.e.start.EBoot ec.pl.runtime.Agency UI=ec.pl.examples.web.ConsoleWebFactory Agent=ec.pl.examples.web.Web

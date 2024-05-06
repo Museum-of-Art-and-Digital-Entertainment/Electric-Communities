@@ -1,0 +1,168 @@
+export unit Main {
+
+  package ec.pl.examples.lamp;
+
+  import ec.e.quake.TimeMachine;
+  import ec.e.start.ELaunchable;
+  import ec.e.start.EEnvironment;
+  import ec.e.start.TimeQuake;
+  import ec.e.start.Vat;
+  import ec.e.file.EStdio;
+  import ec.e.lang.EString;
+  import ec.e.net.Registrar;
+  import ec.e.net.RegistrarLookupEException;
+  import ec.e.net.SturdyRef;
+  import ec.e.net.SturdyRefFileExporter;
+  import ec.e.net.SturdyRefFileImporter;
+  import ec.e.net.SturdyRefMaker;
+  import ec.e.net.SturdyRefExporter;
+  import ec.e.net.SturdyRefImporter;
+  import ec.e.timer.Clock;
+  import ec.e.timer.ClockController;
+  import ec.e.timer.ETickHandling;
+  
+  public eclass LampOwnerImpl implements LampOwner, UnumDeathHandler  {
+    private Unum myLamp;
+  
+  emethod noteNewLampUnum (Unum lamp)  {
+      myLamp = lamp;
+      EStdio.out().println("LampOwner: Registering interest in " + lamp);
+      UnumInterest interest = new UnumInterest(lamp, this, null);
+    Unum lampUnumChannel;
+    Lamp lampChannel;
+    &lampUnumChannel <- forward(lamp);
+    &lampChannel <- forward(lampUnumChannel);
+      interest = new UnumInterest(lampUnumChannel, this, null); 
+    interest.unregisterInterestInUnum();  
+      interest = new UnumInterest(lampChannel, this, null);
+    interest.unregisterInterestInUnum();    
+  
+    ewhen lampChannel (Unum responder)  {
+    EStdio.out().println("Returned " + responder + " from ewhen");
+    } 
+  }
+  
+  emethod getLamp (EResult dist)  {
+      EStdio.out().println("LampOwner: Forwarding " + myLamp);
+      dist <- forward(myLamp);
+  } 
+
+    emethod noteUnumDeath (Object unum, Object data) {
+        EStdio.out().println("Host Lamp Unum died...");
+        ////myLamp = null;
+    } 
+  }
+      
+  public eclass Lamp implements Agent, UnumDeathHandler, ETickHandling
+  {
+    private final static String LightBulb = "LightBulb";
+    static LampFramework framework;
+  
+    private EEnvironment myEnv;
+    private boolean host;
+    private SturdyRefMaker refMaker;
+    private SturdyRefFileExporter refExporter;
+      
+    emethod go (EEnvironment env, AgentInfo info) {
+      LampOwner lampOwner = null;
+    
+    myEnv = env;
+      framework = (LampFramework)info.framework;
+      if (framework == null) {
+        EStdio.err().println("Error, can't get UI framework");
+        env.vat().exit(-200);
+      }
+      
+      String client = env.getProperty("client");
+      kind uskLamp lamp = null;
+      if ((client) != null && (client.equals("true"))) {
+            // We're the client
+            host = false;
+            kind uskLamp lampChannel;
+            lamp = lampChannel;
+            LampOwner owner;
+
+            SturdyRefFileImporter importer = info.registrar.getSturdyRefFileImporter(env);
+            SturdyRef ref = null;
+            try {
+                ref = importer.importRef(LightBulb);
+                ref.followRef(&owner);
+                owner <- getLamp(&lampChannel);
+            }
+            catch (Throwable e) {
+                EStdio.err().println("LampMain: caught exception looking up host");
+                EStdio.reportException(e);
+            }
+            EStdio.out().println("Registering interest in " + lamp);
+            UnumInterest interest = new UnumInterest(lamp, this, null);
+      }
+      else {
+          // We're the host
+          host = true;
+          lampOwner = new LampOwnerImpl();
+          try {
+              refMaker = info.registrar.getSturdyRefMaker();
+              refExporter = info.registrar.getSturdyRefFileExporter(env);
+              SturdyRef ref = refMaker.makeSturdyRef(lampOwner);
+              refExporter.exportRef(ref, LightBulb);
+          } catch (Throwable t) {
+              EStdio.err().println("LampMain: caught exception in startup " + t.getMessage());
+              EStdio.reportException(t);
+          } 
+          lamp = new unum uimLamp(false, lampOwner); // New Lamp, turned off initially
+      }
+      lamp <- (kind uskLamp).setTimeMachine(info.timeMachine, env.vat());
+      lamp <- (kind uskLamp).setupUI(framework.getLampController());
+    
+    String tickIntervalString = env.getProperty("KillInterval");
+    if (tickIntervalString != null)  {
+        int tickInterval = ((new Integer(tickIntervalString)).intValue());
+      EStdio.out().println("Setting KillInterval to " + tickInterval);
+    ClockController controller = ClockController.TheQuakeProofClockController();
+    KillInfo killInfo =
+      new KillInfo(lampOwner, framework.getLampController(), info, lamp, env.vat()); 
+        Clock clock = controller.newClock(tickInterval, this, killInfo);
+    clock.start();     
+    }   
+    }
+    
+    emethod noteUnumDeath (Object unum, Object data) {
+        EStdio.out().println("Client Lamp Unum died, exiting");
+        myEnv.vat().exit(0);
+    }
+  
+    emethod handleTick (int tick, Clock clock, Object arg)  {
+      KillInfo killInfo = (KillInfo)arg;
+    if (killInfo.lamp instanceof Unum)  {
+      // We the host
+      UnumSoul soul = killInfo.info.unumMaster.getUnumSoul((Unum)killInfo.lamp);
+      EStdio.out().println("Killing Unum with Soul " + soul + " for Unum " + killInfo.lamp);
+      killInfo.info.unumMaster.killUnum((Unum)killInfo.lamp);
+          killInfo.lamp = new unum uimLamp(false, killInfo.lampOwner); // New Lamp, turned off initially
+          killInfo.lamp <- (kind uskLamp).setTimeMachine(killInfo.info.timeMachine, killInfo.vat);
+          killInfo.lamp <- (kind uskLamp).setupUI(killInfo.controller);
+    } else {
+      EStdio.out().println("Killing Client Unum " + killInfo.lamp);
+      ewhen killInfo.lamp (Unum unum) {
+        killInfo.info.unumMaster.killUnum(unum);
+      }
+    }
+    }
+  }
+  
+  class KillInfo  {
+    public LampOwner lampOwner;
+  public LampController controller;
+  public AgentInfo info;
+  public kind uskLamp lamp;
+  public Vat vat;
+    KillInfo (LampOwner lampOwner, LampController controller, AgentInfo info, kind uskLamp lamp, Vat vat)  {
+      this.lampOwner = lampOwner;
+    this.controller = controller;
+    this.info = info;
+    this.lamp = lamp; 
+    this.vat = vat;
+    }
+  }  
+}
+

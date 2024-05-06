@@ -1,0 +1,190 @@
+export unit Web {
+  
+  package ec.pl.examples.web;
+  
+  import java.net.InetAddress;
+  import ec.e.net.ERegistrar;
+  import ec.e.net.ERegistration;
+  
+  export kind Web_uk {
+    dolink(String link);
+    doSelection(int start, int end);
+    setupUI(WebController controller);
+  }
+  
+  kind Web_pk {
+    relayLink(String link);
+    relaySelection(int start, int end);
+  }
+  
+  kind Web_ik {
+    kind Web_pk;
+    kind Web_uk;
+  }
+  
+  // This declaration explains how the presence is to be constructed
+  // and how unum and presence messages are to routed to ingredients.
+  presence Structure Web_ps {
+    kind Web_pk;
+    ingredient WebIngredient {
+      kind Web_ik;
+      deliver unum Web_uk;
+      deliver presence Web_pk;
+    }
+  }
+  
+  // Most of the protocol is handled by the Web ingredient implementation
+  ingredient Impl Web_ii {
+    kind Web_ik;
+    implements PresenceDelegate;  // Has PresenceDelegate methods
+    implements WebPeer;       // Handles UI
+    
+    // State shared among presences
+    export String currentLink;        // Link web browser looking at
+    export int currentSelectionStart; // Current selection
+    export int currentSelectionEnd;   // Current selection
+    
+    WebController controller; // The UI Controller
+    
+    init (String Link, int Start, int End) {
+      currentLink = Link;
+      currentSelectionStart = Start;
+      currentSelectionEnd = End;
+    }
+    
+    //
+    // Private internal functions
+    //
+    function void showWebLink () {
+      controller.postLink(currentLink);
+    }
+    
+    function void showWebSelection () {
+      controller.postSelection(currentSelectionStart, currentSelectionEnd);
+    }
+    
+    method setupUI(WebController controller) {
+      this.controller = controller;
+      controller.setPeer(this, currentLink, currentSelectionStart, currentSelectionEnd);
+    }
+    
+    //
+    // API callable from Controller via WebPeer interface
+    //
+    method webLink(String link) {
+      dolink(link);
+    }
+    
+    method webSelection(int start, int end) {
+      doSelection(start, end);
+    }
+    
+    //
+    // API callable through Unum Interface
+    //
+    method dolink(String link) {
+      RtEnvelope env;
+      env <- (kind Web_pk).relayLink(link);
+      BasePresence.sendEnvelopeToOthers(environment.otherPresences, env);
+      relayLink(link);
+    }
+    
+    method doSelection(int start, int end) {
+      RtEnvelope env;
+      env <- (kind Web_pk).relaySelection(start, end);
+      BasePresence.sendEnvelopeToOthers(environment.otherPresences, env);
+      relaySelection(start, end);
+    }
+    
+    // 
+    // API callable through Presence Interface
+    //
+    method relayLink(String link) {
+      currentLink = link;
+      currentSelectionStart = 0;
+      currentSelectionEnd = 0;
+      showWebLink();
+    }
+    
+    method relaySelection(int start, int end) {
+      currentSelectionStart = start;
+      currentSelectionEnd = end;
+      showWebSelection();
+    }
+    
+    //
+    // PresenceDelegate methods
+    //
+    method unumDeathNotification() {
+      System.exit(0); // Windows has bugs which prevent clean shutdown
+      ////Agency.getTheAgency().shutdown();
+    }
+    
+    method hostTransferOccured (int type) {
+    }
+    
+    //
+    // Constructor method to generate a prime presence of a Web Unum
+    //
+    method constructWebMain(EEnvironment env) {
+      currentLink = env.getProperty("URL");
+      if (currentLink == null) {
+        currentLink = "http://www.communities.invalid/";
+      }
+      currentSelectionStart = 0;
+      currentSelectionEnd = 0;
+      try {
+//KSSHack       ERegistrar registrar = (ERegistrar)env.get("registrar.root");
+//KSSHack       ERegistration reg = registrar.register(environment.unum);
+        String who = "www-int"; //KSSHack reg.getURL();
+        ////String fileName = env.getProperty("EARLFile");
+        String fileName = InetAddress.getLocalHost().getHostName();
+        int index = fileName.indexOf('.');
+        if (index > 0) fileName = fileName.substring(0, index);
+        if (fileName != null) {
+          RtUtil.writeStringInFile(who, fileName);
+          System.out.println("Wrote URL into file " + fileName);
+        }
+        else {
+          System.out.println("Web URL who=" + who);
+        }
+      } catch (Exception e) {
+        System.out.println("Error registering presence: " + e);
+      }
+    }
+  }
+  
+  presence Impl Web_pi {
+    Structure Web_ps;
+    presenceBehavior TrackOtherPresences, EncodeOtherPresences;
+    
+    ingredient WebIngredient template {
+      Impl Web_ii;
+    }
+    
+    
+    // Initialization of prime and subsidary presences:
+    prime init (EEnvironment env) {
+      setPresenceDelegate(WebIngredient);
+      WebIngredient <- constructWebMain(env);
+    }
+    
+    init (String Link, int Start, int End) {
+      (ingredient WebIngredient).init(Link, Start, End);
+      setPresenceDelegate(WebIngredient);
+    }
+    make WebPresence WebIngredient.currentLink,
+    WebIngredient.currentSelectionStart, WebIngredient.currentSelectionEnd;
+  }
+  
+  unum Structure Web_us {
+    kind Web_uk;
+    presence WebPresence kind Web_pk makes WebPresence;
+    prime WebPresence;
+  }
+  
+  unum Impl Web_ui {
+    Structure Web_us;
+    presence WebPresence Impl Web_pi;
+  }
+}

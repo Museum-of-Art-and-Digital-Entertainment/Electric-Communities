@@ -1,0 +1,56 @@
+export unit Main {
+  package ec.pl.examples.web;
+  
+  import java.io.*;
+  import java.lang.*;
+  import ec.e.start.EEnvironment;
+  import ec.e.net.ERegistrar;
+  import ec.e.cap.ERestrictedException;
+  import ec.e.net.EInvalidUrlException;
+  import ec.e.file.EStdio;
+  
+  public eclass Web implements Agent
+  {
+    static WebFramework framework;
+    
+    emethod go (EEnvironment env, AgentInfo info) {
+      framework = (WebFramework) info.framework;
+
+      if (framework == null) {
+        EStdio.err().println("Error, can't get UI framework");
+        env.vat().exit(-200);
+      }
+      
+      String prop = env.getProperty("who");
+      String who = null;
+//KSSHack     ERegistrar reg = (ERegistrar)env.get("registrar.root");
+      kind Web_uk web = null;
+      if (prop != null) {
+        System.out.println("KSSHack: ERegistrar stuff not implemented 4/23/97");
+        System.out.println("KSSHack: Can't do client portion.");
+/*KSSHack
+        kind Web_uk webChannel;
+        web = webChannel;
+        etry {
+          try {
+            who= RtUtil.readStringFromFile(prop);
+            if (who == null) who = prop;
+            System.out.println("Looking up Web Unum host " + who);
+            System.out.println("KSSHack: Not really: ERegistrar stuff not implemented 4/23/97");
+            reg.lookupURL(who, &webChannel);
+          } catch (EInvalidUrlException e) {
+            System.out.println("Nota valid URL: " + who);
+            System.exit(-200);
+          }
+        } ecatch (Throwable e) {
+          System.out.println("E Exception: " + e);
+          System.exit(-200);
+        }
+KSSHack*/
+      } else {
+        web= new unum Web_ui(env);
+      }
+      web <- (kind Web_uk).setupUI(framework.getWebController());
+    }
+  }
+}

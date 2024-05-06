@@ -1,0 +1,186 @@
+
+/*  
+  Peek & Poke in Pluribus  v 0.1  
+  The peeker and poker that play with peekable and pokeable.
+  04.22.1997  Masa Maeda & Arturo Bejar
+  Copyright 1997 Electric Communities. All rights reserved worldwide.
+*/
+// PeekerPoker.plu
+
+export unit Pokeship_ingr {
+  package ec.pl.examples.PeekPoke;
+
+  import ec.e.cap.EEnvironment;
+  import ec.e.lang.*;
+  import ec.e.net.*;
+  import java.util.*;
+  import java.lang.*; 
+
+  // import units, for any ingr you should only bring
+  // in kinds and state, no struct or unums.
+  unit PeekPokeShip_state;
+  unit PeekPokeShip_kind;
+
+  //////////////////////////////////////////////////////////////////
+  // Poker ingredient implementation
+  //////////////////////////////////////////////////////////////////
+  export ingredient impl iiPoker {
+    kind iskPoker;
+
+    // Presence references
+    kind pkHostPoker myHost;
+    boolean iAmTheHost;
+    
+    // Private state
+    String myUnumNumber; 
+    
+    // Init blocks  
+    init()  {
+      this.init(true);
+    }
+
+    init (boolean isHost) {
+      iAmTheHost = isHost;
+      
+      if (iAmTheHost) {
+        // Make a string from a random to be prepended to messages sent
+        // from this unum for illustration purposes.
+        Integer randomInt = new Integer((new java.util.Random()).nextInt());
+        myUnumNumber = 
+          (new String((randomInt.toString()).substring(0,4))).concat(":");
+        
+      } else { // Not the host
+        if (environment.hostPresence instanceof kind pkHostPoker) {
+          myHost = (kind pkHostPoker)environment.hostPresence;
+        }
+      }
+    }
+
+    // Unum methods
+
+    method uPokeUnum (kind ukPokeable pokeable, String toPoke) {
+      if (iAmTheHost)  {
+        //System.out.println (" Host poker: uPokeUnum " + toPoke);
+        pokeable <- uPoke(myUnumNumber.concat(toPoke));
+      } else {
+        //System.out.println (" Client poker: uPokeUnum " + toPoke);
+        myHost <- pHostPokeUnum(pokeable, toPoke);
+      }
+    }
+
+    // Presence methods
+
+    method pHostPokeUnum (kind ukPokeable pokeable, String toPoke) {
+      //System.out.println (" Host poker: pHostPokeUnum " + toPoke);
+      uPokeUnum (pokeable, toPoke);
+    } 
+  }
+
+  //////////////////////////////////////////////////////////////////
+  // Pokeable ingredient implementation
+  //////////////////////////////////////////////////////////////////
+
+  export ingredient impl iiPokeable {
+    kind iskPokeable;
+
+    implements jiPokeableInit;
+    implements istPokeableGetter;
+    implements jiSetClientVector;
+    
+    // Presence management
+    kind pkHostPokeable myHost;
+    Vector myClients;
+
+    // Should we make the vector management automatic?
+    function public void setClientVector(Vector vector) {
+      myClients = vector;
+    }
+
+    // State and getter
+    istPokeable myState;
+    function public istPokeable istPokeableClient()  {return myState;}
+    
+    init()  {
+      this.myInit(null);
+    }
+    
+    // XXX Init hack because of ecomp and names conflict
+    init(EResult dist) {
+      myInit(dist);
+    }
+    
+    function void myInit (EResult toFacet)  {
+      myState = new istPokeable();
+      myHost = this;
+
+      if (toFacet != null) {
+        erfPokeable runtimeFacet = new erfPokeable(
+            (kind rfkPokeable)environment.unum,
+            this,
+            true, true); // will host, will have clients
+        toFacet <- forward(runtimeFacet); 
+      }
+    }
+    
+    //For presence that holds facet
+    function public void facetInit(kind pkHostPokeable hostPokeable,
+        EResult distToPokeableClient,
+        istPokeable pokeableState) {
+        
+      myHost = hostPokeable;
+      distToPokeableClient <- forward(this);
+      
+      if (pokeableState == null) {
+        myState = new istPokeable();
+      } else  {
+        myState = pokeableState;
+      }
+    }
+    
+    // Unum methods
+    
+    method uPoke (String whoPoked) {
+      System.out.println("[Pokeable]uPoke:I've been poked by:"+whoPoked);
+      if (myHost != null) {
+        etry  {
+          myHost <- pHostPoke(whoPoked);
+        } ecatch (Throwable ex) {
+          System.out.println("[Exception]:uPoke:pHostPoke:"+ex);
+        }
+      } else {
+        ethrow new eeOhNoYouDont("uPoke has to be called from facet");
+      }
+    }
+
+    // Presence methods
+    
+    method pHostPoke (String whoPoked) {
+      // Update local state
+      myState.myPokeCount++;
+      myState.myLastPoker = whoPoked;
+      System.out.println("[Pokeable]pHostPoke:I've been poked by:"+
+        whoPoked);
+      
+      // Fanout to client presences
+      RtEnvelope env;
+      env <- (kind pkClientPokeable).pClientPoke(whoPoked);
+      sendToClients(env);
+    }
+
+    method pClientPoke (String whoPoked) {      
+      // Update local state
+      myState.myPokeCount++;
+      myState.myLastPoker = whoPoked;
+
+      System.out.println ("[Pokeable]:pClientPoke:" + 
+        myState.myLastPoker+ myState.myPokeCount);
+    }
+  
+    // send message to all presences
+    function void sendToClients(RtEnvelope env)  {
+      BasePresence.sendEnvelopeToOthers(myClients, env);
+    }
+  }
+} // End unit
+
+   

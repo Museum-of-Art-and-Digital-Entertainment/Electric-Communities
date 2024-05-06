@@ -1,0 +1,106 @@
+export unit NewMain {
+  package ec.pl.examples.dieroll;
+    
+  import ec.e.quake.TimeMachine;
+  import ec.e.start.ELaunchable;
+  import ec.e.start.EEnvironment;
+  import ec.e.start.TimeQuake;
+  import ec.e.start.Vat;
+  import ec.e.file.EStdio;
+  import ec.e.lang.EString;
+  import ec.e.net.Registrar;
+  import ec.e.net.RegistrarLookupEException;
+  import ec.e.net.SturdyRef;
+  import ec.e.net.SturdyRefMaker;
+  import ec.e.net.SturdyRefFileExporter;
+  import ec.e.net.SturdyRefFileImporter;
+
+  eclass DieRollReceiver implements UnumReceiver {
+    AgentInfo myInfo;
+    static DieRollFramework myFramework;  
+    kind DieRoll_usk myTarget;
+
+    public DieRollReceiver (AgentInfo info, DieRollFramework framework,
+                               kind DieRoll_usk target) {
+      myInfo = info;
+      myFramework = framework;
+      myTarget = target;
+    }
+    // receive an unum with the given sessionkey and objectkey
+    emethod uReceiveUnum (UnumRouter unum, Object sessionKey, Object unumKey) {
+      myTarget = (DieRoll_usk$kind)(unum.getDeflector());
+      myTarget <- (kind DieRoll_usk).setTimeMachine(myInfo.timeMachine);
+      myTarget <- (kind DieRoll_usk).setupUI(myFramework.getDieRollController());
+    }
+
+  }
+
+  public eclass DieRoll implements Agent, UnumDeathHandler {
+    private static String DieRollName = "DieRoll";
+  
+    static DieRollFramework framework;  
+    private EEnvironment myEnv;
+    String unumKey = new String("Woo hoo!");
+    String sessionKey = new String("Desist!");
+    kind DieRoll_usk die = null;
+
+    emethod go (EEnvironment env, AgentInfo info) {
+      myEnv = env;
+      framework = (DieRollFramework)info.framework;
+      
+      if (framework == null) {
+        EStdio.err().println("Error, can't get UI framework");
+        env.vat().exit(-200);
+      }
+      
+      String client = env.getProperty("client");
+      if ((client) != null && (client.equals("true"))) {
+      // We're the client
+        kind DieRoll_usk dieChannel;
+        die = dieChannel;
+
+        SturdyRefFileImporter importer = info.registrar.getSturdyRefFileImporter(env);
+        SturdyRef ref = null;
+        try {
+          ref = importer.importRef(DieRollName);
+          ref.followRef(&dieChannel);
+        }
+        catch (Throwable e) {
+          EStdio.err().println("DieRollMain: caught exception looking up host");
+          EStdio.reportException(e);
+        }
+        ewhen dieChannel (Object theDie) {
+//KSSHack          EStdio.out().println("Registering interest in " + theDie);
+//KSSHack          UnumInterest interest = new UnumInterest((Unum)theDie, this, null);
+          DieRollReceiver myReceiver =
+            new DieRollReceiver(info, framework, die);
+          ((kind DieRoll_usk)theDie) <- uSendUnum (myReceiver, sessionKey, unumKey);
+        }
+      } else {
+        // We're the host
+        SoulState soulState = new SoulState();
+        istDieRoll theState = new istDieRoll(env.vat(), new Integer(0));
+
+        soulState.put(theState);
+        die = new unum DieRoll_ui(unumKey, soulState);
+        try {
+          SturdyRefMaker refMaker = info.registrar.getSturdyRefMaker();
+          SturdyRefFileExporter refExporter = info.registrar.getSturdyRefFileExporter(env);
+          SturdyRef ref = refMaker.makeSturdyRef(die);
+          // spam what we published
+          refExporter.exportRef(ref, DieRollName);
+        } catch (Throwable t) {
+          EStdio.err().println("DieRollMain: caught exception in startup " + t.getMessage());
+          EStdio.reportException(t);
+        }
+        die <- (kind DieRoll_usk).setTimeMachine(info.timeMachine);
+        die <- (kind DieRoll_usk).setupUI(framework.getDieRollController());
+      }
+    }
+
+    emethod noteUnumDeath (Object unum, Object data) {
+      EStdio.out().println("DieRoll Unum died, exiting");
+      myEnv.vat().exit(0);
+    }
+  }
+}

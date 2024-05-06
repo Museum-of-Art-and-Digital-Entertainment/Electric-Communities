@@ -1,0 +1,54 @@
+export unit DieRollPresence {
+  
+  package ec.pl.examples.newdieroll;
+  
+  import java.util.Random;
+  import ec.e.file.EStdio;
+  import ec.e.lang.*;
+  import ec.e.quake.TimeMachine;
+  import ec.e.start.Vat;
+
+  unit DieRollKind;
+  unit DieRollIngr;
+  
+  // Presences respond to notifications from other presences about changes
+  // in the dieValue, as well as the addition of new "switches".
+  
+  // This declaration explains how the presence is to be constructed
+  // and how unum and presence messages are to routed to ingredients.
+  export presence structure DieRoll_ps {
+    kind DieRoll_psk;
+    ingredient DieRoll {
+      kind DieRoll_ik;
+      deliver unum DieRoll_usk;
+      deliver presence DieRoll_psk;
+    }
+  }
+  
+  // Description of the DieRoll's presence implementation:
+  export presence Impl DieRollHost_pi {
+    Structure DieRoll_ps; // Structure of the presence
+    presenceBehavior IsHostPresence;
+    
+  // Template for ingredient specification
+    ingredient DieRoll template { // and our one and only ingredient
+      Impl DieRoll_ii;
+    }
+  
+  // How this presence impl "makes" other presences
+    make DieRollClient DieRoll;
+  }
+  
+  export presence Impl DieRollClient_pi {
+    Structure DieRoll_ps; // Structure of the presence
+    presenceBehavior DieWhenNoOtherPresences;
+
+  // Template for ingredient specification
+    ingredient DieRoll template { // and our one and only ingredient
+      Impl DieRoll_ii;
+    }
+  
+  // How this presence impl "makes" other presences
+    make DieRollClient DieRoll;
+  }
+}

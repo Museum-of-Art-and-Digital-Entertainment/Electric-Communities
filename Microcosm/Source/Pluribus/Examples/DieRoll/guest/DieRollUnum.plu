@@ -1,0 +1,28 @@
+export unit DieRollUnum {
+  
+  package ec.pl.examples.dieroll;
+  
+  import java.util.Random;
+  import ec.e.file.EStdio;
+  import ec.e.lang.*;
+  import ec.e.quake.TimeMachine;
+  import ec.e.start.Vat;
+
+  unit DieRollKind;
+  unit DieRollIngr;
+  unit DieRollPresence;
+  
+  // Finally, we declare the structure and implementation information for our unum:
+  unum Structure DieRoll_us {
+    kind DieRoll_usk;
+    presence DieRollHost kind DieRoll_psk makes DieRollClient;
+    presence DieRollClient kind DieRoll_psk makes DieRollClient;
+    prime DieRollHost;
+  }
+  
+  unum Impl DieRoll_ui {
+    Structure DieRoll_us;
+    presence DieRollHost Impl DieRollHost_pi;
+    presence DieRollClient Impl DieRollClient_pi;
+  }
+}

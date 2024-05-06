@@ -1,0 +1,307 @@
+export unit DieRoll {
+  
+  package ec.pl.examples.dieroll;
+  
+  import java.util.Random;
+  import ec.e.file.EStdio;
+  import ec.e.lang.*;
+  import ec.e.quake.TimeMachine;
+  import ec.e.start.TimeQuake;
+  import ec.e.start.Seismologist;
+  import ec.e.start.Vat;
+  
+  // Presences respond to notifications from other presences about changes
+  // in the dieValue, as well as the addition of new "switches".
+  
+  // Kind declarations for unum, presence, and ingredient.
+  export kind DieRoll_uk {
+    setupUI(DieRollController controller);
+  setTimeMachine(TimeMachine timeMachine);
+  }
+  
+  kind DieRoll_pk {
+    rollWithMe (long product, ELong otherPart, EResult myProduct,
+    EResult myPart);
+    rollon(Vector presences);
+    setup(EResult ready, int theWaitCount);
+  hostroll();
+  }
+  
+  // Since there is only a single ingredient, we must declare it to handle
+  // both unum and presence messages.
+  kind DieRoll_ik {
+    kind DieRoll_uk;
+    kind DieRoll_pk;
+    init (Integer n);
+  }
+  
+  // This declaration explains how the presence is to be constructed
+  // and how unum and presence messages are to routed to ingredients.
+  presence structure DieRoll_ps {
+    kind DieRoll_pk;
+    ingredient DieRoll {
+      kind DieRoll_ik;
+      deliver unum DieRoll_uk;
+      deliver presence DieRoll_pk;
+    }
+  }
+  
+  // Most of the protocol is handled by the DieRoll ingredient implementation
+  ingredient Impl DieRoll_ii {
+    kind DieRoll_ik;
+
+    implements PresenceDelegate;  // Has PresenceDelegate methods
+    implements DieRollPeer;     // Handles UI
+    implements Seismologist;  // Handles quake notification
+    
+    // Variables shared among presences
+    Integer dieValue;
+    
+    // Local instance variables
+    DieRollController controller;
+    Random rand;
+    long rollPart;
+    long rollKey;
+    long total;
+    int count;
+    int waitCount;
+    boolean rolling;
+    TimeMachine timeMachine;
+    EResult timeMachineD;
+   
+  function public Integer getDieValue() {
+    return dieValue;
+  }
+
+    init (Integer n) {
+  dieValue = n;
+  ////XXX EStdio.out().println("Previous value was " + dieValue);
+  EStdio.out().println("Previous value was " + dieValue);
+  initialize();
+    }
+    
+    function void showDieValue () {
+      controller.postEvent(DieRollController.EVENT_DIEROLL_VALUE, dieValue.intValue(), null);
+    if (timeMachine != null) {      
+        EStdio.out().println("Sending TimeMachine <- commit()");
+        timeMachine <- commit(null);
+    }
+    }
+    
+    method setupUI(DieRollController controller) {
+      this.controller = controller;
+      controller.setPeer(this);
+      dieroll();
+    }
+    
+    method setup(EResult ready, int theWaitCount) {
+      if (rolling) {
+  if (ready != null) ready <- forward(etrue);
+      }
+      rolling = true;
+      waitCount = theWaitCount;
+      count = 0;
+      // These should call a method to get primes!
+      long prime1 = rand.nextLong();
+      long prime2 = rand.nextLong();
+      if (prime1 < prime2) {
+  rollPart = prime1;
+  rollKey = prime2;
+      }
+      else {
+  rollPart = prime2;
+  rollKey = prime1;
+      }
+      total = rollPart;
+      if (ready != null) ready <- forward(etrue);
+    }
+    
+    function void startRoll (EBoolean allReady, int size) {
+      ewhen allReady (boolean ignored) {
+  //EStdio.out().println("All rollers are ready");
+  int i, j;
+  for (i = 0; i < size-1; i++) {
+    kind DieRoll_pk obj = (kind DieRoll_pk)environment.otherPresences.elementAt(i);
+    Vector presences = new Vector(size - (i + 1));
+    for (j = i + 1; j < size; j++) {
+      presences.addElement(environment.otherPresences.elementAt(j));
+      //EStdio.out().println("Added otherPresence " + j + ", " + environment.otherPresences.elementAt(j));
+    }
+    obj <- rollon(presences);
+  }
+  rollon(environment.otherPresences);
+      }
+    }
+    
+    function void setupRoll() {
+      int size = environment.otherPresences.size();
+      int i, j;
+      EBoolean allReady;
+      int readyCount = 0;
+      
+      setup(null, size);
+      for (i = 0; i < size; i++) {
+  EBoolean ready;
+  kind DieRoll_pk obj = (kind DieRoll_pk)environment.otherPresences.elementAt(i);
+  obj <- setup(&ready, size);
+  ewhen ready (boolean ignored) {
+    //EStdio.out().println("Presence is ready");
+    readyCount++;
+    if (readyCount == size) &allReady <- forward(etrue);
+  }
+      }
+      startRoll(allReady, size);
+    }
+    
+    function void totalRoll (long part, long product) {
+      // XXX - Verify the part and product match,
+      // part/key are primes - no cheating!
+      count++;
+      //EStdio.out().println("My total for count " + count + " so far is " + total);
+      total ^= part;
+      //EStdio.out().println("And adding " + part + " is " + total);
+      if (count == waitCount) {
+  int it = (int)total;
+  if (it < 0) it = -it;
+  int newValue = (it % 6) + 1;
+  dieValue = new Integer(newValue);
+  //EStdio.out().println("Got them all, newValue is " + newValue);
+  showDieValue();
+  rolling = false;
+      }
+    }
+    
+    method rollon(Vector presences) {
+      int size = presences.size();
+      int i;
+      for (i = 0; i < size; i++) {
+  ELong myPart;
+  ELong yourProduct;
+  ELong yourPart;
+  kind DieRoll_pk obj = (kind DieRoll_pk)presences.elementAt(i);
+  //EStdio.out().println("Initiating roll with element " + i + ", " + obj);
+  obj <- rollWithMe(rollPart * rollKey, myPart, &yourProduct, &yourPart);
+  ewhen yourProduct (long product) {
+    //EStdio.out().println("Got other product: " + product);
+    &myPart <- forward(new ELong(rollPart));
+    ewhen yourPart (long part) {
+      //EStdio.out().println("Got other part: " + part);
+      totalRoll(part, product);
+    }
+  }
+      }
+    }
+    
+    method rollWithMe (long product, ELong otherPart, EResult myProduct, EResult myPart) {
+      //EStdio.out().println("RollWithMe got other product: " + product);
+      myProduct <- forward(new ELong(rollPart * rollKey));
+      myPart <- forward(new ELong(rollPart));
+      ewhen otherPart (long part) {
+  //EStdio.out().println("RollWithMe got other part: " + part);
+  totalRoll(part, product);
+      }
+    }
+    
+    method dieroll() {
+    if ((environment.flags & PresenceEnvironment.IsHostPresence) != 0) {
+      hostroll();
+    }
+    else {
+      (kind DieRoll_pk) environment.hostPresence <- hostroll();
+    }
+  }
+    method hostroll() {
+      if (environment.otherPresences.size() > 0) {
+  setupRoll();
+  return;
+      }
+      int newValue = dieValue.intValue() + 1;
+      if (newValue > 6) newValue = 1;
+      dieValue = new Integer(newValue);
+      showDieValue();
+    }
+    
+    method noticeCommit () {
+    }
+    
+    method noticeQuake (TimeQuake timeQuake) {
+      showDieValue();
+      timeQuake.waitForNext(this);
+    }
+    
+    method unumDeathNotification() {
+      EStdio.out().println("All other Presences are gone");
+    }
+    
+    function void initialize() {
+      TimeMachine timeMachineChannel;
+      rand = new Random();
+      timeMachine = timeMachineChannel;
+      timeMachineD = &timeMachineChannel;
+    }
+    
+    // Set the time machine
+    method setTimeMachine(TimeMachine timeMachine) {
+      timeMachineD <- forward(timeMachine);
+    }
+
+    // Constructor method to generate a prime presence of a DieRoll unum
+    method constructDieRollMain(Vat vat) {
+      dieValue = new Integer(0);
+      initialize();
+      vat.waitForNext(this);
+    }    
+  }
+  
+  // Description of the DieRoll's presence implementation:
+  presence Impl DieRollHost_pi {
+    Structure DieRoll_ps; // Structure of the presence
+    presenceBehavior IsHostPresence;
+    
+    // Initialization of prime and subsidary presences:
+    prime init (Vat vat) {
+      setPresenceDelegate(DieRoll);
+      DieRoll <- constructDieRollMain(vat);
+    }
+    
+  // Template for ingredient specification
+    ingredient DieRoll template { // and our one and only ingredient
+      Impl DieRoll_ii;
+    }
+  
+  // How this presence impl "makes" other presences
+    make DieRollClient DieRoll.getDieValue();
+  }
+  
+  presence Impl DieRollClient_pi {
+    Structure DieRoll_ps; // Structure of the presence
+    presenceBehavior DieWhenNoOtherPresences;
+
+    init (Integer n) {
+      setPresenceDelegate(DieRoll);
+      (ingredient DieRoll).init(n);
+    }
+    
+  // Template for ingredient specification
+    ingredient DieRoll template { // and our one and only ingredient
+      Impl DieRoll_ii;
+    }
+  
+  // How this presence impl "makes" other presences
+    make DieRollClient DieRoll.getDieValue();
+  }
+  
+  // Finally, we declare the structure and implementation information for our unum:
+  unum Structure DieRoll_us {
+    kind DieRoll_uk;
+    presence DieRollHost kind DieRoll_pk makes DieRollClient;
+    presence DieRollClient kind DieRoll_pk makes DieRollClient;
+    prime DieRollHost;
+  }
+  
+  unum Impl DieRoll_ui {
+    Structure DieRoll_us;
+    presence DieRollHost Impl DieRollHost_pi;
+    presence DieRollClient Impl DieRollClient_pi;
+  }
+}
