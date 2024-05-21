@@ -1,0 +1,46 @@
+export unit TicketHolderServerUnit {
+
+  // package ec.plexamples.Tickets;
+
+  import ec.plexamples.Tickets.TicketData;
+  import ec.plexamples.Tickets.EJavaObjectFuture;
+  import java.util.*;
+
+  unit TicketInterfacesUnit;
+
+  export ingredient impl iiTicketHolderServer {
+    kind pkTicketHolderServer;
+
+    state {
+      Hashtable ticketTable;
+    }
+
+    init(TicketData ticketData) {
+      ticketTable = new Hashtable();
+    }
+
+    // Implement unum methods...which will never be called.
+    method uGrantTicket(TicketData ticketData) {
+      System.out.println("in Server uGrantTicket().  This shouldn't happen.");
+    }
+    method uRequestTicket(EResult requestor, long eventID) {
+      System.out.println("in Server uRequestTicket().  This shouldn't happen.");
+    }
+
+    // presence methods
+    method pGrantTicket(TicketData ticketData) {
+      if (ticketTable == null) {
+        ticketTable = new Hashtable();
+      }
+      ticketTable.put(new Long(ticketData.eventID), ticketData);
+    }
+
+    method pRequestTicket(EResult requestor, long eventID) {
+      if (ticketTable == null) {
+        ticketTable = new Hashtable();
+      }
+      TicketData ticketData = (TicketData)ticketTable.get(new Long(eventID));
+      requestor <- forward(new EJavaObjectFuture(ticketData));
+    }
+  }
+}

@@ -1,0 +1,120 @@
+
+/*
+    ing_Tickets.plu
+    Ingredient definitions for basic ticket manager and ticket holder
+
+    Felix Baumgardner
+    Electric Communities.
+*/
+
+// These ingredients implement a simple ticketing system.
+
+export unit TicketIngredients {
+  package ec.plexamples.Tickets;
+  import java.util.*;
+
+  unit InterfacesUnit;
+
+  // ingredient implimentations
+
+  export ingredient Impl imTicketManagerServer {
+    kind ikTicketManagerServer;
+    
+    state {
+      Random random;
+      Hashtable ticketTable;
+    }
+
+    init() {
+      ticketTable = new Hashtable();
+      random = new Random();
+      random.setSeed( (new Date()).getTime() );
+    }
+  
+    method iGrantTicket(kind ukTicketHolder ticketHolderClient, 
+      long eventID, String description, Date expiration) {
+      long ticketNumber = random.nextLong();
+      TicketData ticketData = new TicketData(ticketNumber, eventID, 
+        description, expiration);
+      ticketTable.put(ticketData, ticketData);
+      ticketHolderClient <- uGrantTicket(ticketData);
+    }
+
+    method iRequestTicket(EDistributor requestor, long eventID,
+      kind ukTicketHolder ticketHolderClient) {
+      EJavaObjectFuture eTicketData;
+      ticketHolderClient <- uRequestTicket(&eTicketData, eventID);
+      ewhen eTicketData (Object ticketData) {
+        TicketData td = null;
+        if (ticketData != null) {
+          td = (TicketData)ticketTable.get(ticketData);
+        }
+        if (td != null) {
+          requestor <- forward(etrue);
+          // here, we remove the ticket from ticketTable.
+          ticketTable.remove(td);
+          // or should it just expire?  Need to think about this.  XXX
+        } else {
+          requestor <- forward(efalse);
+        }
+      }
+    }
+  }
+
+  export ingredient Impl imTicketHolderClient {
+    kind ikTicketHolderClient;
+
+    state {
+      // need to include a provision for expiring tickets
+      Hashtable ticketTable;
+    }
+
+    method uGrantTicket(TicketData ticketData) {
+      ticketTable.put(new Long(ticketData.eventID), ticketData);
+      // until we have neighbor statements working, we do the following
+      kind pkTicketHolderServer ticketHolderServer = 
+        (kind pkTicketHolderServer) environment.hostPresence;
+      ticketHolderServer <- pGrantTicket(ticketData);
+    }
+
+    method uRequestTicket(EDistributor requestor, long eventID) {
+      TicketData ticketData = (TicketData)ticketTable.get(new Long(eventID));
+      if (ticketData != null) {
+        requestor <- forward(new EJavaObjectFuture(ticketData));
+      } else {
+        // until we have neighbor statements working, we do the following
+        kind pkTicketHolderServer ticketHolderServer = 
+          (kind pkTicketHolderServer) environment.hostPresence;
+        ticketHolderServer <- pRequestTicket(requestor, eventID);
+      }
+    }
+  }
+
+  export ingredient Impl imTicketHolderServer {
+    kind ikTicketHolderServer;
+
+    state {
+      // need to include a provision for expiring tickets
+      Hashtable ticketTable;
+    }
+
+    method pGrantTicket(TicketData ticketData) {
+      ticketTable.put(new Long(ticketData.eventID), ticketData);
+    }
+
+    method pRequestTicket(EDistributor requestor, long eventID) {
+      TicketData ticketData = (TicketData)ticketTable.get(new Long(eventID));
+      requestor <- forward(new EJavaObjectFuture(ticketData));
+    }
+  }
+}
+
+// Next:  Ticket expiration
+//        Client that can hold many tickets for a single event
+//        Transferrable ticket (ACL, Hooks into ownership)
+//        Authenticated tickets (W/ hash of avatar identity info)
+//        Prevention of ticket-stealing ticketManagers, i.e.  TicketHolder 
+//          will present a hash of the ticket + given random number.
+//        Need better random number generation.  rtRandom?
+//        Procedure by which a person can schedule an event, and have the
+//          ticketManager comply automatically.

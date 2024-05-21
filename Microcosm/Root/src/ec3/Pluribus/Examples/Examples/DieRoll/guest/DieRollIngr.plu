@@ -1,0 +1,281 @@
+export unit DieRollIngr {
+  
+  package ec.pl.examples.dieroll;
+  
+  import java.util.Random;
+  import ec.e.file.EStdio;
+  import ec.e.lang.*;
+  import ec.e.quake.TimeMachine;
+  import ec.e.start.TimeQuake;
+  import ec.e.start.Seismologist;
+  import ec.e.start.Vat;
+  
+  unit DieRollKind;
+
+  // Most of the protocol is handled by the DieRoll ingredient implementation
+  export ingredient Impl DieRoll_ii {
+    kind DieRoll_ik;
+
+    implements IngredientJif;  // Has SSState() method
+    implements PresenceDelegate;  // Has PresenceDelegate methods
+    implements DieRollPeer;     // Handles UI
+    implements Seismologist;  // Handles quake notification
+    
+    // Variables shared among presences
+    state ec.pl.examples.dieroll.istDieRoll myState = null;
+    
+    // Local instance variables
+    DieRollController controller;
+    Random rand;
+    long rollPart;
+    long rollKey;
+    long total;
+    int count;
+    int waitCount;
+    boolean rolling;
+    TimeMachine timeMachine;
+    EResult timeMachineD;
+   
+    public static Trace tr = new Trace("DieRoll_ii");
+
+    function public Object jiGetClientState() {
+      return myState;
+    }
+
+    init (istDieRoll theState) {
+      myState = theState;
+      if (myState != null && myState.myValue != null) {
+        if (tr.debug && Trace.ON) tr.debugm("Initializing with value " + myState.myValue);
+      } else {
+        if (tr.debug && Trace.ON) tr.debugm("DieRoll init() state or value == null");
+      }
+      initialize();
+      if (myState != null && myState.myVat != null) {
+        this <- constructDieRollMain(myState.myVat);
+        myState.myVat = null;
+      }
+    }
+    
+    function void showDieValue () {
+      if (myState != null && myState.myValue != null) {
+        controller.postEvent(DieRollController.EVENT_DIEROLL_VALUE, myState.myValue.intValue(), null);
+      } else {
+        if (tr.debug && Trace.ON) tr.debugm("DieRoll showDieValue() state or value == null");
+      }
+      if (timeMachine != null) {      
+        if (tr.debug && Trace.ON) tr.debugm("Sending TimeMachine <- commit()");
+        timeMachine <- commit(null);
+      }
+    }
+    
+    method setupUI(DieRollController controller) {
+      this.controller = controller;
+      this.controller.setPeer(this);
+      if (tr.debug && Trace.ON) tr.debugm("  In setupUI() with this.controller="+this.controller);
+      dieroll();
+    }
+    
+    method setup(EResult ready, int theWaitCount) {
+      if (tr.debug && Trace.ON) tr.debugm("  In setup() with ready="+ready+", rolling="+rolling);
+      if (rolling) {
+        if (ready != null) ready <- forward(etrue);
+      }
+      rolling = true;
+      waitCount = theWaitCount;
+      count = 0;
+      // These should call a method to get primes!
+      long prime1 = rand.nextLong();
+      long prime2 = rand.nextLong();
+      if (prime1 < prime2) {
+        rollPart = prime1;
+        rollKey = prime2;
+      }
+      else {
+        rollPart = prime2;
+        rollKey = prime1;
+      }
+      total = rollPart;
+      if (ready != null) ready <- forward(etrue);
+      if (tr.debug && Trace.ON) tr.debugm("  Leaving setup()");
+    }
+    
+    function void startRoll (EBoolean allReady, int size) {
+      if (tr.debug && Trace.ON) tr.debugm("  In startRoll()");
+      ewhen allReady (boolean ignored) {
+        if (tr.debug && Trace.ON) tr.debugm("    startRoll:All rollers are ready");
+        int i, j;
+        for (i = 0; i < size-1; i++) {
+          try {
+            kind DieRoll_psk obj =
+              (kind DieRoll_psk)
+                (((PresenceEntry)(environment.otherPresences.elementAt(i))).presence);
+            Vector presences = new Vector(size - (i + 1));
+            for (j = i + 1; j < size; j++) {
+              presences.addElement(environment.otherPresences.elementAt(j));
+              if (tr.debug && Trace.ON) tr.debugm("Added otherPresence " + j + ", " + environment.otherPresences.elementAt(j));
+            }
+            if (tr.debug && Trace.ON) tr.debugm("   startRoll:obj="+obj);
+            obj <- rollon(presences);
+          } catch (java.lang.ClassCastException exc) {
+            if (tr.debug && Trace.ON) tr.debugm("Exception:startRoll:otherPresence is not a DieRoll_psk, but a "+
+                                 environment.otherPresences.elementAt(i).getClass());
+          }
+        }
+        rollon(environment.otherPresences);
+      }
+      if (tr.debug && Trace.ON) tr.debugm("  Leaving startRoll()");
+    }
+    
+    function void setupRoll(int size) {
+      int i, j;
+      EBoolean allReady;
+      int readyCount = 0;
+      
+      if (tr.debug && Trace.ON) tr.debugm("In setupRoll() with size="+size);
+
+      setup(null, size);
+      for (i = 0; i < size; i++) {
+        EBoolean ready;
+        try {
+
+          kind DieRoll_psk obj =
+            (kind DieRoll_psk)
+              (((PresenceEntry)(environment.otherPresences.elementAt(i))).presence);
+          if (tr.debug && Trace.ON) tr.debugm("   setupRoll:obj="+obj);
+          obj <- setup(&ready, size);
+          ewhen ready (boolean ignored) {
+            if (tr.debug && Trace.ON) tr.debugm("  Presence is ready");
+            readyCount++;
+            if (readyCount == size) &allReady <- forward(etrue);
+          }
+        } catch (java.lang.ClassCastException exc) {
+          if (tr.debug && Trace.ON) tr.debugm("Exception:setupRoll:otherPresence is not a DieRoll_psk, but a "+
+                               environment.otherPresences.elementAt(i).getClass());
+        }
+      }
+      startRoll(allReady, size);
+      if (tr.debug && Trace.ON) tr.debugm("Leaving setupRoll()");
+    }
+    
+    function void totalRoll (long part, long product) {
+      // XXX - Verify the part and product match,
+      // part/key are primes - no cheating!
+      if (tr.debug && Trace.ON) tr.debugm("In totalRoll()");
+      count++;
+      //if (tr.debug && Trace.ON) tr.debugm("  My total for count " + count + " so far is " + total);
+      total ^= part;
+      //if (tr.debug && Trace.ON) tr.debugm("  And adding " + part + " is " + total);
+      if (count == waitCount) {
+        int it = (int)total;
+        if (it < 0) it = -it;
+        int newValue = (it % 6) + 1;
+        if (myState != null && myState.myValue != null) {
+          myState.myValue = new Integer(newValue);
+        } else {
+          if (tr.debug && Trace.ON) tr.debugm("  DieRoll totalRoll() state or value == null");
+        }
+        if (tr.debug && Trace.ON) tr.debugm("  Got them all, newValue is " + newValue);
+        showDieValue();
+        rolling = false;
+      }
+      if (tr.debug && Trace.ON) tr.debugm("Leaving totalRoll()");
+    }
+    
+    method rollon(Vector presences) {
+      int size = presences.size();
+      int i;
+      if (tr.debug && Trace.ON) tr.debugm("      In rollon() with size="+size);
+      for (i = 0; i < size; i++) {
+        ELong myPart;
+        ELong yourProduct;
+        ELong yourPart;
+        try {
+          kind DieRoll_psk obj =
+            (kind DieRoll_psk)
+              (((PresenceEntry)(presences.elementAt(i))).presence);
+          if (tr.debug && Trace.ON) tr.debugm("        rollon:Initiating roll with element " + i + ", " + obj);
+          obj <- rollWithMe(rollPart * rollKey, myPart, &yourProduct, &yourPart);
+          ewhen yourProduct (long product) {
+            //if (tr.debug && Trace.ON) tr.debugm("        rollon:Got other product: " + product);
+            &myPart <- forward(new ELong(rollPart));
+            ewhen yourPart (long part) {
+              //if (tr.debug && Trace.ON) tr.debugm("        rollon:Got other part: " + part);
+              totalRoll(part, product);
+            }
+          }
+        } catch (java.lang.ClassCastException exc) {
+          if (tr.debug && Trace.ON) tr.debugm("Exception:rollon:otherPresence is not a DieRoll_psk, but a "+
+                               presences.elementAt(i).getClass());
+        }
+      }
+      if (tr.debug && Trace.ON) tr.debugm("      Leaving rollon()");
+    }
+    
+    method rollWithMe (long product, ELong otherPart, EResult myProduct, EResult myPart) {
+      if (tr.debug && Trace.ON) tr.debugm("RollWithMe got other product: " + product);
+      myProduct <- forward(new ELong(rollPart * rollKey));
+      myPart <- forward(new ELong(rollPart));
+      ewhen otherPart (long part) {
+        if (tr.debug && Trace.ON) tr.debugm("RollWithMe got other part: " + part);
+        totalRoll(part, product);
+      }
+    }
+    
+    method dieroll() {
+      if ((environment.flags & PresenceEnvironment.IsHostPresence) != 0) {
+        hostroll();
+      }
+      else {
+        (kind DieRoll_psk) environment.hostPresenceDeflector <- hostroll();
+      }
+    }
+
+    method hostroll() {
+      if (environment.otherPresences.size() > 0) {
+        setupRoll(environment.otherPresences.size());
+        return;
+      }
+      if (myState != null && myState.myValue != null) {
+        int newValue = myState.myValue.intValue() + 1;
+        if (newValue > 6) newValue = 1;
+        myState.myValue = new Integer(newValue);
+      } else {
+        if (tr.debug && Trace.ON) tr.debugm("DieRoll hostroll() state or value == null");
+      }
+      showDieValue();
+    }
+    
+    method noticeCommit () {
+    }
+    
+    method noticeQuake (TimeQuake timeQuake) {
+      showDieValue();
+      timeQuake.waitForNext(this);
+    }
+    
+    method unumDeathNotification() {
+      if (tr.debug && Trace.ON) tr.debugm("All other Presences are gone");
+    }
+    
+    function void initialize() {
+      TimeMachine timeMachineChannel;
+      rand = new Random();
+      timeMachine = timeMachineChannel;
+      timeMachineD = &timeMachineChannel;
+    }
+    
+    // Set the time machine
+    method setTimeMachine(TimeMachine timeMachine) {
+      timeMachineD <- forward(timeMachine);
+    }
+
+    // Constructor method to generate a prime presence of a DieRoll unum
+    method constructDieRollMain(Vat vat) {
+      if (myState != null && myState.myValue != null) {
+        myState.myValue = new Integer(0);
+      }
+      initialize();
+      vat.waitForNext(this);
+    }    
+  }
+}

@@ -1,0 +1,78 @@
+export unit PP1Unum {
+
+  package ec.plexamples.testbed;
+
+  import ec.e.lang.*;
+  import ec.e.net.ERegistrar;
+  import ec.e.net.ERegistration;
+
+  unit PP1Ing;
+  unit RefIng;
+
+  template tmplTestPeer {
+    impl iiTestPeer;
+  }
+  
+  template tmplReferent {
+    impl iiReferent;
+  }
+
+  export kind pkPeer {
+    kind ikReferent;
+    kind ikAcceptor;
+  }
+
+  presence structure psPeer {
+   
+	kind pkPeer;
+
+	// the referent ingredient embodies a reference to another unum
+	ingredient Referent {
+	  kind ikReferent;
+	  
+	  deliver unum ikReferent;
+	  deliver presence ikReferent;
+    }
+
+	// This is the ingredient that plugged-in code will replace
+	// This ingredient gets all messages to the unum or presence that 
+	// do not have to do with the referent ingredient
+    ingredient TestPeer { 
+      kind ikTestPeer;
+
+	  deliver unum ikAcceptor;
+	  deliver presence ikAcceptor;
+	  deliver unum default;
+	  deliver presence default;
+    }
+
+  }
+
+  presence impl piPeer {
+    structure psPeer;
+    ingredient TestPeer template tmplTestPeer;
+	ingredient Referent template tmplReferent;
+    prime init() {
+      System.out.println("Entering prime init method of Peer1");
+    }
+    init() {
+      System.out.println("Entering non-prime init method of Peer1");
+    }
+  }
+
+  export kind ukPeer {
+    kind ikReferent;
+    kind ikAcceptor;
+  }
+
+  export unum structure usPeer {
+    kind ukPeer;
+    prime pPeer makes pPeer kind pkPeer;
+  }
+
+  unum impl uiPeer {
+    structure usPeer;
+    presence pPeer impl piPeer;
+  }
+
+}  

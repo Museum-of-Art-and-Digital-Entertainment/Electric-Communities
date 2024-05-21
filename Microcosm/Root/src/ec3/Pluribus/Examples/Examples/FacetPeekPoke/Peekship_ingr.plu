@@ -1,0 +1,156 @@
+
+/*--------------------------------80 columns----------------------------------*/
+/*  
+  Peek & Poke in Pluribus  v 0.1  
+  The peeker and poker that play with peekable and pokeable.
+  04.22.1997  Masa Maeda & Arturo Bejar
+  Copyright 1997 Electric Communities. All rights reserved worldwide.
+*/
+// PeekerPoker.plu
+
+export unit Peekship_ingr {
+  package ec.pl.examples.PeekPoke;
+
+  import ec.e.cap.EEnvironment;
+  import ec.e.lang.*;
+  import ec.e.net.*;
+  import java.util.*;
+  import java.lang.*; 
+
+  // import units, for any ingr you should only bring
+  // in kinds and state, no struct or unums.
+  unit PeekPokeShip_state;
+  unit PeekPokeShip_kind;
+  
+  //////////////////////////////////////////////////////////////////
+  // Peeker ingredient implementation
+  //////////////////////////////////////////////////////////////////
+  
+  export ingredient impl iiPeeker {
+    kind iskPeeker;
+
+    // Presence references
+    boolean iAmTheHost;
+    kind pkHostPeeker myHost;
+
+    // Private state
+    String myUnumNumber;    
+
+    // Init blocks
+    
+    init()  {
+      this.init(true);
+    }
+
+    init (boolean theHost) {
+      iAmTheHost = theHost;
+      if (iAmTheHost) {
+        // Make a string from a random to be prepended to messages sent
+        // from this unum for illustration purposes.
+        Integer randomInt = new Integer((new Random()).nextInt());
+        myUnumNumber = 
+          (new String((randomInt.toString()).substring(0,4))).concat(":");
+      } else {
+        if (environment.hostPresence instanceof kind pkHostPeeker) {
+          myHost = (kind pkHostPeeker)environment.hostPresence ;
+        }
+      }
+    }
+    
+    // Unum methods
+
+    method uPeekUnum (kind ukPeekable peekable, String  toPeek) {
+      if (iAmTheHost)  {
+        System.out.println (" Host peeker: uPeekUnum " + toPeek);
+        peekable <- uPeek(myUnumNumber.concat(toPeek));
+      } else { 
+        System.out.println (" Client peeker: uPeekUnum " + toPeek);
+        myHost <- pHostPeekUnum(peekable, toPeek);
+      }
+    } 
+
+    method pHostPeekUnum(kind ukPeekable peekable, String toPeek) {
+      System.out.println (" Host peeker: pHostPeekUnum " + toPeek);
+      uPeekUnum (peekable, toPeek);
+    }
+  
+    method pClientPeekUnum(kind ukPeekable peekable, String toPeek) {
+      System.out.println (" Client peeker: pClientPeekUnum " + toPeek);
+    }
+  }
+
+  //////////////////////////////////////////////////////////////////
+  // Peekable
+  //////////////////////////////////////////////////////////////////
+  export ingredient impl iiPeekable {
+    kind iskPeekable;
+    
+    // Presence references
+    boolean iAmTheHost;
+    kind pkHostPeekable myHost;
+    Vector myClients;
+    
+    // State
+    istPeekable myState;
+    function public istPeekable istPeekableClient()  {return myState;}
+
+    // Init blocks
+    init()  {
+      this.init(true, null);
+    }
+
+    init (boolean isHost, istPeekable externalState)  {
+      iAmTheHost = isHost;
+      if (externalState == null) {
+        myState = new istPeekable();
+      } else  {
+        myState = externalState;
+      }
+      if (!iAmTheHost)  {
+        if (environment.hostPresence instanceof kind pkHostPeekable) {
+          myHost = (kind pkHostPeekable)environment.hostPresence;
+        }
+      } else {
+        myClients = environment.otherPresences;
+      }
+    }
+
+    method uPeek (String whoPeeked) {
+      if (iAmTheHost)  {
+        System.out.println (" Host:  uPeek " + whoPeeked);
+
+        // Update local state
+        myState.myPeekCount++;
+        myState.myLastPeeker = whoPeeked;
+
+        // Fanout to client presences
+        RtEnvelope env;
+        env <- (kind pkClientPeekable).pClientPeek(whoPeeked);
+        sendToClients(env);
+      } else {
+        System.out.println (" Client: uPeek " + whoPeeked);
+        myHost <- pHostPeek(whoPeeked);
+      }
+    } 
+    
+    // Presence methods
+    
+    method pHostPeek (String whoPeeked) {
+      System.out.println (" Host:  pHostPeek " + whoPeeked);
+      uPeek (whoPeeked);
+    }
+  
+    method pClientPeek (String whoPeeked) {
+      System.out.println (" Client pClientPeek " + whoPeeked);
+
+      // Update local state
+      myState.myPeekCount++;
+      myState.myLastPeeker = whoPeeked;
+    }
+
+    // send message to all presences
+    function void sendToClients(RtEnvelope env)  {
+      BasePresence.sendEnvelopeToOthers(myClients, env);
+    }
+  }
+}

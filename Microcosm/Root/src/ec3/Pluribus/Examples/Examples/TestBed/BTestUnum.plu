@@ -1,0 +1,198 @@
+export unit BTestUnum {
+
+  package ec.pl.examples.testbed;
+
+  import ec.e.lang.*;
+  import ec.e.net.ERegistrar;
+  import ec.e.net.ERegistration;
+
+  unit RefIng;
+  unit BUser_kind;
+  unit BUserIng_ingr;
+
+  // U1 the kind for the unum as a whole: a union of the unum kinds
+  // of all the ingredients that presences of the unum contain
+  export kind uskBTestUnum {
+    kind ukBUser;
+  kind ukSetUnumReference;
+  }
+  
+  // U2 the kind for the server presence: a union of the presence kinds
+  // of all the ingredients that the server presence contains 
+  export kind pskBTestHost {
+    kind pkBUserHost;
+  kind pkHostReferent;
+  }
+  
+  // U3 the kind for the client presence: a union of the presence kind
+  // and unum kind that your client ingredient promises to support
+  export kind pskBTestClient {
+  kind pkBUserClient;
+  kind pkClientReferent;
+  }
+
+  // a presence structure is a specification of what ingredients
+  // are within a presence and how messages to the presence should be
+  // delivered to those ingredients.  The ingredients are listed
+  // _by_kind_, and assocations between those kinds and the actual
+  // ingredient implementations are made later, in the presence impl
+  presence structure psBTestHost {
+   
+  kind pskBTestHost;
+
+  // the referent ingredient embodies a reference to another unum
+  // "pinHostReferent" is an arbitrary name by which the presence
+  // refers to this ingredient
+  ingredient pinHostReferent {
+    kind iskHostReferent;
+    
+    // U5 the unum kinds that this ingredient implements
+    deliver unum ukSetUnumReference;
+
+    // U6 the presence kinds that this ingredient implements
+    deliver presence pkHostReferent;
+    }
+
+  // This is the ingredient that TestBed users write
+    ingredient pinUserHost { 
+      kind iskBUserHost;
+
+    // U7 the unum kinds that this ingredient implements
+    deliver unum ukBUser;
+    
+    // U8 the presence kinds that this ingredient implements
+    deliver presence pkBUserHost;
+  }
+
+  }
+
+  presence structure psBTestClient {
+   
+  kind pskBTestClient;
+
+  // the referent ingredient embodies a reference to another unum
+  ingredient pinClientReferent {
+    kind iskClientReferent;
+    
+    // U9
+    deliver unum ukSetUnumReference;
+   
+    // U10
+    deliver presence pkClientReferent;
+    }
+
+  // This is the ingredient that TestBed users write
+    ingredient pinUserClient { 
+      kind iskBUserClient;
+
+    // U11
+    deliver unum ukBUser;
+
+    // U12
+    deliver presence pkBUserClient;
+  }
+
+  }
+
+  // U13 a presence impl assocatiates an ingredient implementation with
+  // each of the ingredients that were declared in the presence structure,
+  // and handles any neighbor requirements in the ingredient impl
+  // with map statements
+  presence impl piBTestHost {
+
+  // this presence impl is an implementation of 
+  // the presence structure referred to here
+    structure psBTestHost;
+
+  // Presence instantiation kludge - ignore completely
+  presenceBehavior IsHostPresence, TrackOtherPresences;
+
+    ingredient pinHostReferent template {
+    impl iiHostReferent;
+    }
+
+    ingredient pinUserHost template {
+    // an implementation is declared for this ingredient
+    impl iiBUserHost;
+  
+    // this ingredient's neighbor requirement is being met by the
+    // "pinHostReferent" ingredient above.  "iinReferent" is the 
+    // name of the neighbor as referred to in the ingredient impl
+    map neighbor iinReferent to pinHostReferent;
+    }
+
+    prime init() {
+      System.out.println("Entering prime init method of Host presence of UnumB");
+      (ingredient pinUserHost).init();
+    }
+
+    init() {
+      System.out.println("Entering non-prime init method of Host presence of UnumB");
+      (ingredient pinUserHost).init();
+    }
+
+    make upnTestClient pinHostReferent.targetUnum;
+
+  }
+  
+  // U14
+  presence impl piBTestClient {
+    structure psBTestClient;
+
+  // Presence instantiation kludge
+  presenceBehavior IsClientPresence;
+
+    ingredient pinUserClient template {
+    impl iiBUserClient;
+
+    map neighbor iinReferent to pinClientReferent;
+    }
+    ingredient pinClientReferent template {
+    impl iiClientReferent;
+
+    // map neighbor ipnHostReferent to upnUserHost;
+    }
+    prime init() {
+      System.out.println("Entering prime init method of Client presence of UnumB");
+      (ingredient pinClientReferent).init(targetUnum);
+      (ingredient pinUserClient).init();
+    }
+    init(kind ukSetUnumReference targetUnum) {
+      System.out.println("Entering non-prime init method of Client presence of UnumB");
+      (ingredient pinClientReferent).init(targetUnum);
+      (ingredient pinUserClient).init();
+    }
+
+    make upnTestClient pinClientReferent.targetUnum;
+  }
+
+  // an unum structure is a specification of what presences are
+  // a part of the unum and how those presences should be created
+  // as the unum traverses agencies (typically machines).  The
+  // presences are listed _by_kind_, and assocations between those
+  // kind and the actual presence implementations are made later,
+  // in the unum impl
+  export unum structure usBTest {
+  // this structure implements the unum kind referred to here
+  kind uskBTestUnum;
+
+  // the prime presence is the first presence to be created - in
+  // this case the server presence.  It then makes client presences
+  // whenever the unum is being instantiated in a new agency
+  presence upnTestHost kind pskBTestHost makes upnTestClient;
+  prime upnTestHost;
+
+  // each client presence of the unum will make another client 
+  // presence when the unum is being instantiated in a new agency
+  presence upnTestClient kind pskBTestClient makes upnTestClient;
+  }
+  
+  // U15 an unum impl assocatiates a presence implementation with each
+  // of the presences that were declared in the unum structure.
+  unum impl uiBTest {
+    structure usBTest;
+    presence upnTestHost impl piBTestHost;
+    presence upnTestClient impl piBTestClient;
+  }
+
+}  

@@ -1,0 +1,3 @@
+RegisterWithURLs=ftp://www.communities.com/pub/pls-location/george.communities.com_1668;ftp://www.communities.com/pub/pls-location/gracie.communities.com_1668;ftp://www.communities.com/pub/pls-location/harpo.communities.com_1668
+SearchPath=george.communities.com:1668;gracie.communities.com:1668;harpo.communities.com:1668
+TraceLog_ec.e.openers.guest.AllowingClassRecipe=error

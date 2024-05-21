@@ -1,0 +1,42 @@
+export unit TicketHolderClientUnit {
+
+  // package ec.plexamples.Tickets;
+
+  import ec.plexamples.Tickets.TicketData;
+  import ec.plexamples.Tickets.EJavaObjectFuture;
+  import java.util.*;
+
+  unit TicketInterfacesUnit;
+
+  export ingredient impl iiTicketHolderClient {
+    kind ukTicketHolder;
+
+    state {
+      Hashtable ticketTable;
+    }
+
+    init(TicketData ticketData) {
+      ticketTable = new Hashtable();
+    }
+
+    method uGrantTicket(TicketData ticketData) {
+      ticketTable.put(new Long(ticketData.eventID), ticketData);
+      // until we have neighbor statements working, we do the following
+      kind pkTicketHolderServer ticketHolderServer =
+        (kind pkTicketHolderServer) environment.hostPresence;
+      ticketHolderServer <- pGrantTicket(ticketData);
+    }
+
+    method uRequestTicket(EResult requestor, long eventID) {
+      TicketData ticketData = (TicketData)ticketTable.get(new Long(eventID));
+      if (ticketData != null) {
+        requestor <- forward(new EJavaObjectFuture(ticketData));
+      } else {
+        // until we have neighbor statements working, we do the following
+        kind pkTicketHolderServer ticketHolderServer =
+          (kind pkTicketHolderServer) environment.hostPresence;
+        ticketHolderServer <- pRequestTicket(requestor, eventID);
+      }
+    }
+  }
+}

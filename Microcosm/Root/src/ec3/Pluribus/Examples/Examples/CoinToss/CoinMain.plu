@@ -1,0 +1,69 @@
+export unit CoinMain {
+  package ec.tutorial.cointoss;
+
+  import ec.e.start.ELaunchable;
+  import ec.e.start.EEnvironment;
+  import ec.e.start.Vat;
+  import ec.e.file.EStdio;
+  import ec.e.net.Registrar;
+  import ec.e.net.RegistrarLookupEException;
+  import ec.e.net.SturdyRef;
+  import ec.e.net.SturdyRefFileExporter;
+  import ec.e.net.SturdyRefFileImporter;
+  import ec.e.net.SturdyRefMaker;
+  import ec.e.net.SturdyRefExporter;
+  import ec.e.net.SturdyRefImporter;
+    
+  // client=true property runs as client, anything else runs as host.
+  // Host will create EARL and stick it in the file "CoinTosser.earl"
+  // in the current directory - client will use that file to get the
+  // EARL to the host to look up.  
+  public eclass CoinTosser implements Agent {
+    static final private String EARL = "CoinToss.earl";
+  
+    emethod go (EEnvironment env, AgentInfo info) {
+    
+      kind ukCoinTosser tosser = null; // Set to null to avoid Channel creation in host case
+      EBoolean didIWin;
+      String client = env.getProperty("client");
+      if ((client) != null && (client.equals("true"))) {
+        // We're the client
+        kind ukCoinTosser tosserChannel;
+        tosser = tosserChannel;
+
+        SturdyRefFileImporter importer = info.registrar.getSturdyRefFileImporter(env);
+        SturdyRef ref = null;
+        try {
+          ref = importer.importRef(EARL);
+          ref.followRef(&tosserChannel);
+        }
+        catch (Throwable e) {
+          EStdio.err().println("CoinToss: caught exception looking up host");
+          EStdio.reportException(e);
+        }
+      }
+      else {
+          // We're the host
+          tosser = new unum uiCoinTosser();
+          try {
+              SturdyRefMaker refMaker = info.registrar.getSturdyRefMaker();
+              SturdyRefFileExporter refExporter = info.registrar.getSturdyRefFileExporter(env);
+              SturdyRef ref = refMaker.makeSturdyRef(tosser);
+              refExporter.exportRef(ref, EARL);
+          } catch (Throwable t) {
+              EStdio.err().println("CoinToss: caught exception in startup " + t.getMessage());
+              EStdio.reportException(t);
+          } 
+      }
+      // we want heads
+      tosser <- uTossCoin(1, &didIWin);
+    
+    eif (didIWin)  {
+      EStdio.out().println("I WON I WON I WON!!!");
+      }
+    else {
+        EStdio.out().println("Boo hoo... I *lost*!");
+      }
+    } // End go()
+  } // End CoinTosser class
+} //  End unit

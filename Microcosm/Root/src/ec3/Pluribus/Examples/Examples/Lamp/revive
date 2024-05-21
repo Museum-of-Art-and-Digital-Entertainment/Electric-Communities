@@ -1,0 +1,2 @@
+#!/bin/sh -v
+java -debug ec.e.quake.Revive $1 UI=ec.pl.examples.lamp.ConsoleLampFactory -ECproperties lamp.props 

@@ -1,0 +1,131 @@
+export unit AIngredients {
+  
+	package ec.pl.examples.testbed;
+
+	import ec.e.lang.*;
+    import ec.e.net.ERegistrar;
+    import ec.e.net.ERegistration;
+
+    unit RefIng;
+
+	// I1 the messages that the unum accepts, that will
+	// be handled by your server or client ingredient,
+	// in the server or client presence
+	export kind ukATest {
+		uSomeMessageForAnUnum(boolean cookie);
+		DoSomething();
+	}
+
+	// I2 messages that will be handled by your server ingredient,
+	// that the server presence accepts from client presences
+	export kind pkATestServer {
+
+	}
+
+	// I3 messages that will be handled by your client ingredient,
+	// that a client presence accepts from the server presence
+	export kind pkATestClient {
+
+	}
+
+	// I4 the kinds your server ingredient implements - a union of
+	// the kinds that the unum as a whole and the server presence
+	// implement
+	export kind iskATestServer {
+		kind ukATest;
+		kind pkATestServer;
+	}
+
+	// I5 the kinds your client ingredient implements - a union of
+	// the kinds that the unum as a whole and the client presence
+	// implement
+	export kind iskATestClient {
+		kind ukATest;
+		kind pkATestClient;
+	}
+
+	// I10 
+	export ingredient impl iiATestServer {
+
+		// this is a promise that this implementation block will
+		// implement all the methods in this kind.
+		kind iskATestServer;
+
+		// this is a requirement that in any presence in which this 
+		// ingredient impl is used, there must be another ingredient
+		// that implements _at_least_ the kind specificied here
+		// (ukUnumReference).  "iinReferent" is an arbitrary 
+		// name that this ingredient impl uses to refer to it's 
+		// neighbor, and to send messages to it in the method
+		// implementations that follow.
+		neighbor ingredient iinReferent kind ukUnumReference;
+
+		// this is basically a variable declaration
+		Vector myClientPresences;
+								
+		init () {
+			myClientPresences = environment.otherPresences;
+		}
+
+		// this is a synchronous java utility function accessible only
+		// within this ingredient impl.  It's function is to send
+		// messages to all client presences, which will later be
+		// handled automagically with neighbor requirements.
+		function void sendToClients(RtEnvelope env) {
+			 BasePresence.sendEnvelopeToOthers(environment.otherPresences, env);
+		}
+
+		// from here on is actual E method code - the implementation
+		// for the methods in the kind declared for this ingredient impl.
+
+		method uSomeMessageForAnUnum(boolean cookie) {
+			if (cookie) {
+				System.out.println("I've been poked!");
+			} else {
+				System.out.println("You can't poke me.");
+			}
+		}
+
+		// this method has example usage of the 
+		// neighboring referent ingredient
+		method DoSomething() {
+			RtEnvelope env;
+
+			env <- (kind ukATest).uSomeMessageForAnUnum(true);
+			iinReferent <- uSendCurrentReference(env);
+		}
+
+  	}
+
+	// I11
+	export ingredient impl iiATestClient {
+		// see comments from above
+		kind iskATestClient;
+
+		neighbor ingredient iinReferent kind ukUnumReference;
+
+		kind pkATestServer myServerPresence;
+
+		init () {
+			myServerPresence = (kind pkATestServer)environment.hostPresence;
+		}
+
+		method uSomeMessageForAnUnum(boolean cookie) {
+			if (cookie) {
+				System.out.println("I've been poked!");
+			} else {
+				System.out.println("You can't poke me.");
+			}
+		}
+
+		method DoSomething() {
+
+			RtEnvelope env;
+
+			env <- (kind ukATest).uSomeMessageForAnUnum(true);
+			iinReferent <- uSendCurrentReference(env);
+
+		}
+
+	}
+}

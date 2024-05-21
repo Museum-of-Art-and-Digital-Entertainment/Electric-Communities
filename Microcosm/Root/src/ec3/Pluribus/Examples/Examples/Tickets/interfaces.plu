@@ -1,0 +1,26 @@
+export unit TicketInterfacesUnit {
+
+  // package ec.plexamples.Tickets;
+
+  import ec.plexamples.Tickets.TicketData;
+  import ec.plexamples.Tickets.EJavaObjectFuture;
+  import java.util.*;
+
+  export kind ukTicketHolder {
+    uGrantTicket(TicketData ticketData);
+    uRequestTicket(EResult requestor, long eventID);
+  }
+
+  export kind pkTicketHolderServer {
+    pGrantTicket(TicketData ticketData);
+    pRequestTicket(EResult requestor, long eventID);
+  }
+
+  export kind ikTicketManagerServer {
+    iGrantTicket(kind ukTicketHolder ticketHolderClient, long eventID, 
+      String description, Date expiration);
+    iRequestTicket(EResult requestor, long eventID,
+      kind ukTicketHolder ticketHolderClient);
+  }
+
+}

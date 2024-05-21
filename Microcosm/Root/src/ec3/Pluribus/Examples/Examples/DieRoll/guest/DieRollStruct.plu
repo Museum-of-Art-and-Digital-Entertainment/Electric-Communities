@@ -1,0 +1,68 @@
+export unit DieRollStruct {
+  
+  package ec.pl.examples.dieroll;
+  
+  import java.util.Random;
+  import ec.e.file.EStdio;
+  import ec.e.lang.*;
+  import ec.e.quake.TimeMachine;
+  import ec.e.start.Vat;
+
+  unit DieRollKind;
+  unit DieRollIngr;
+  
+  // Presences respond to notifications from other presences about changes
+  // in the dieValue, as well as the addition of new "switches".
+  
+  // This declaration explains how the presence is to be constructed
+  // and how unum and presence messages are to routed to ingredients.
+  presence structure DieRoll_ps {
+    kind DieRoll_psk;
+    ingredient DieRoll {
+      kind DieRoll_ik;
+      deliver unum DieRoll_usk;
+      deliver presence DieRoll_psk;
+    }
+  }
+  
+  // Description of the DieRoll's presence implementation:
+  presence Impl DieRollHost_pi {
+    Structure DieRoll_ps; // Structure of the presence
+    presenceBehavior IsHostPresence;
+    
+  // Template for ingredient specification
+    ingredient DieRoll template { // and our one and only ingredient
+      Impl DieRoll_ii;
+    }
+  
+  // How this presence impl "makes" other presences
+    make DieRollClient DieRoll;
+  }
+  
+  presence Impl DieRollClient_pi {
+    Structure DieRoll_ps; // Structure of the presence
+    presenceBehavior DieWhenNoOtherPresences;
+
+  // Template for ingredient specification
+    ingredient DieRoll template { // and our one and only ingredient
+      Impl DieRoll_ii;
+    }
+  
+  // How this presence impl "makes" other presences
+    make DieRollClient DieRoll;
+  }
+  
+  // Finally, we declare the structure and implementation information for our unum:
+  unum Structure DieRoll_us {
+    kind DieRoll_usk;
+    presence DieRollHost kind DieRoll_psk makes DieRollClient;
+    presence DieRollClient kind DieRoll_psk makes DieRollClient;
+    prime DieRollHost;
+  }
+  
+  unum Impl DieRoll_ui {
+    Structure DieRoll_us;
+    presence DieRollHost Impl DieRollHost_pi;
+    presence DieRollClient Impl DieRollClient_pi;
+  }
+}

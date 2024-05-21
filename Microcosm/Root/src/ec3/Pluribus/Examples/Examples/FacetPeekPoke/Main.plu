@@ -1,0 +1,104 @@
+/*  
+  Main   v 0.1  
+  The Main for PeekPokeShip.
+
+  04.22.1997  Masa Maeda & Arturo Bejar
+  Copyright 1997 Electric Communities. All rights reserved worldwide.
+*/
+
+export unit MainPeekPoke {
+
+  package ec.pl.examples.PeekPoke;
+  
+  import ec.e.start.ELaunchable;
+  import ec.e.cap.*;
+  import ec.e.net.*;
+
+  // import units
+  unit PeekPokeShip_state;
+  unit PeekPokeShip_kind;
+  unit Pokeship_facet;
+  unit Peekship_ingr;
+  unit Pokeship_ingr;
+
+  public eclass PeekPokeShip implements Agent {
+
+    emethod go (EEnvironment env, AgentInfo info) {
+
+      System.out.println("Hola!: PeekPokeShip.go()");
+
+      String lookupString = env.getProperty("lookup");
+
+      Registrar registrar = Registrar.summon(env);
+
+      try {
+        registrar.onTheAir();
+      } catch (RegistrarException e) {
+        throw new Error("fatal registar problem going on the air: " + e);
+      }
+      SturdyRef.setRegistrar(registrar);
+
+      SturdyRefMaker refMaker = registrar.getSturdyRefMaker();
+      SturdyRefFileExporter refExporter = registrar.getSturdyRefFileExporter(env);
+      SturdyRefFileImporter refImporter = registrar.getSturdyRefFileImporter(env);
+
+      eUnumRuntimeFacet.setSturdyRefMaker(refMaker);
+
+      // Strings for lookup
+      String doPeekString = "DoPeek";
+      String doPokeString = "DoPoke";
+
+      kind ukPokeable toPokeable;
+
+      SturdyRef doPeekRef;
+      SturdyRef doPokeRef;
+
+      if (lookupString == null) {
+
+        System.out.println("lookupString is null");
+                
+        kind uskPeekPokeable 
+          unumPeekPokeable = new unum uiPeekPokeable(&toPokeable);
+
+        refMaker <- makeSturdyRef(unumPeekPokeable, &doPeekRef);
+        refExporter <- exportRef(doPeekRef, doPeekString);
+
+        refMaker <- makeSturdyRef(toPokeable, &doPokeRef);
+        refExporter <- exportRef(doPokeRef, doPokeString);
+
+        unumPeekPokeable 
+          <- uPeek("The Beagle!");
+        toPokeable
+          <- uPoke("The Beagle!");
+
+      } else {
+        System.out.println("lookupString not null");
+
+        kind uskPeekPokeable toPeekPokeable;
+        kind uskPeekPoker unumPeekPoker = new unum uiPeekPoker();
+
+//        etry {
+          try {
+            refImporter.importRef(doPeekString, &doPeekRef);
+            doPeekRef <- followRef(&toPeekPokeable);
+
+            refImporter.importRef(doPokeString, &doPokeRef);
+            doPokeRef <- followRef(&toPokeable);
+
+          } catch (Exception e) {
+             System.out.println("ImportRef Failed: "+ e);
+          }
+//        } ecatch (Throwable e)   { // What about directory lookup?
+//        System.out.println("Go caught exception on unum lookup for Peekable: " +
+//                 e.getMessage());
+//        }
+
+        unumPeekPoker 
+          <- uPeekUnum(toPeekPokeable, "The remote beagle");
+        unumPeekPoker
+          <- uPokeUnum(toPokeable, "The remote beagle!");
+      }
+      System.out.println("End of PeekPokeShip.go()");
+    }
+  }
+}

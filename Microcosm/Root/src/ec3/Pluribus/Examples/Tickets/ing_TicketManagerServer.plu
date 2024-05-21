@@ -1,0 +1,55 @@
+export unit TicketManagerServerUnit {
+
+  // package ec.plexamples.Tickets;
+
+  import ec.plexamples.Tickets.TicketData;
+  import ec.plexamples.Tickets.EJavaObjectFuture;
+  import java.util.*;
+
+  unit TicketInterfacesUnit;
+
+  export ingredient impl iiTicketManagerServer {
+    kind ikTicketManagerServer;
+
+    state {
+      Random random;
+      Hashtable ticketTable;
+    }
+
+    init() {
+      ticketTable = new Hashtable();
+      random = new Random();
+      random.setSeed( (new Date()).getTime() );
+    }
+
+    method iGrantTicket(kind ukTicketHolder ticketHolderClient,
+      long eventID, String description, Date expiration) {
+      long ticketNumber = random.nextLong();
+      TicketData ticketData = new TicketData(ticketNumber, eventID,
+        description, expiration);
+      ticketTable.put(ticketData, ticketData);
+      ticketHolderClient <- uGrantTicket(ticketData);
+    }
+
+    method iRequestTicket(EResult requestor, long eventID,
+      kind ukTicketHolder ticketHolderClient) {
+      EJavaObjectFuture eTicketData;
+      ticketHolderClient <- uRequestTicket(&eTicketData, eventID);
+      ewhen eTicketData (Object ticketData) {
+        TicketData td = null;
+        if (ticketData != null) {
+          td = (TicketData)ticketTable.get(ticketData);
+        }
+        if (td != null) {
+          requestor <- forward(etrue);
+          // here, we could remove the used ticket from ticketTable.
+          // ticketTable.remove(td);
+          // or should it just expire?  I think it should, but I don't
+          // have any mechanism for this yet.  XXX
+        } else {
+          requestor <- forward(efalse);
+        }
+      }
+    }
+  }
+}

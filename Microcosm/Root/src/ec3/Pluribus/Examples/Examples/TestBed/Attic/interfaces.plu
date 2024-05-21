@@ -1,0 +1,14 @@
+export unit interfaces {
+
+  package ec.plexamples.testbed;
+
+  export interface iiUnumReference {
+	iSendCurrentReference(RtEnvelope env);
+	iForwardToCurrentReference(EDistributor dist);
+  }
+
+  export interface iiSetUnumReference {
+	iSetUnumReference(Unum target);
+  }
+
+}

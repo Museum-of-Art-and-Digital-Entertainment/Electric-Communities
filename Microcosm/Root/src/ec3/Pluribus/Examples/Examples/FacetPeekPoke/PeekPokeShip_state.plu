@@ -1,0 +1,28 @@
+/*  
+  pokeable_state.plu v 0.1  
+  05.07.1997  Masa Maeda
+  State for pokeable ingredient
+  Copyright 1997 Electric Communities. All rights reserved worldwide.
+*/
+
+
+export unit PeekPokeShip_state {
+  package ec.pl.examples.PeekPoke;
+
+  // Notation: istXXXX = ingredient state for protocol XXXX
+
+  // State bundles not supported by pluribus 
+
+  // ingredient state for peekable
+  public class istPeekable {
+    int myPeekCount;
+    public String myLastPeeker;
+  }
+  
+  // ingredient state for pokeable
+  public class istPokeable {
+    int myPokeCount;
+    public String myLastPoker;
+  } 
+}
+

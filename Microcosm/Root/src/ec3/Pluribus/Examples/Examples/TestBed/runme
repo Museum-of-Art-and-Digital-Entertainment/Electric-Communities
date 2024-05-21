@@ -1,0 +1,12 @@
+#!/bin/sh 
+# -v
+# java -debug ec.e.start.EBoot ec.pl.runtime.Agency Agent=ec.pl.examples.testbed.TestBed
+
+LSERVER=gracie.communities.com:666
+
+# ZZZ="RegisterWith=$LSERVER SearchPath=$LSERVER"
+
+set -x
+java ec.e.start.EBoot ec.pl.runtime.Agency Agent=ec.pl.examples.testbed.TestBed reg=testUrl > output &
+sleep 5
+java ec.e.start.EBoot ec.pl.runtime.Agency Agent=ec.pl.examples.testbed.TestBed lookup=testUrl 

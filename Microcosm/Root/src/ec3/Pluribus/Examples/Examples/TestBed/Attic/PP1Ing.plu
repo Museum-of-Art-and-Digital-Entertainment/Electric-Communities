@@ -1,0 +1,27 @@
+export unit PP1Ing {
+
+  package ec.plexamples.testbed;
+
+  import ec.e.lang.*;
+  import ec.e.net.ERegistrar;
+  import ec.e.net.ERegistration;
+
+  export kind ikAcceptor {
+    acceptMessageAndDoSomething(boolean argument);
+  }
+  
+  export kind ikTestPeer {
+    kind ikAcceptor;
+  }
+  
+  export ingredient impl iiTestPeer {
+    kind ikTestPeer;
+    method acceptMessageAndDoSomething(boolean argument) {
+      if (argument) {
+        System.out.println("In ingredientImple iiSimple acceptMessageAndDoSomething(): Argument is true.");
+      } else {
+        System.out.println("In ingredientImple iiSimple acceptMessageAndDoSomething(): Argument is false.");
+      }
+    }
+  }
+}

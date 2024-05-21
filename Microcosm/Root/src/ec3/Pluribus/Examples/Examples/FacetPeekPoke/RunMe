@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# -v
+
+LSERVER=gracie.communities.com:666
+
+set -x
+
+java ec.e.start.EBoot ec.pl.runtime.Agency Agent=ec.pl.examples.PeekPoke.PeekPokeShip > output0 &
+
+sleep 5
+
+java ec.e.start.EBoot ec.pl.runtime.Agency Agent=ec.pl.examples.PeekPoke.PeekPokeShip lookup=yes > output1 &
+

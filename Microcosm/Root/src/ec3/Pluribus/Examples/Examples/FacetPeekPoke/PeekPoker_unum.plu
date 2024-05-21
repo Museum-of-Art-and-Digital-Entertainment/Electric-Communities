@@ -1,0 +1,124 @@
+/*--------------------------------80 columns----------------------------------*/
+/*  
+  Peek & Poke in Pluribus  v 0.1  
+  The peeker and poker that play with peekable and pokeable.
+  04.22.1997  Masa Maeda & Arturo Bejar
+  Copyright 1997 Electric Communities. All rights reserved worldwide.
+*/
+// PeekPoker.plu
+
+export unit PeekPoker_unum {
+  package ec.pl.examples.PeekPoke;
+
+  import ec.e.cap.EEnvironment;
+  import ec.e.lang.*;
+  import ec.e.net.*;
+  import java.util.*;
+  import java.lang.*; //@@@
+
+  // import units
+  unit PeekPokeShip_state;
+  unit PeekPokeShip_kind;
+  unit Peekship_ingr;
+  unit Pokeship_ingr;
+
+  // ---------- Create Unum structure ---------------
+
+  export unum structure usPeekPoker {
+    kind uskPeekPoker;
+    presence upnHostPeekPoker kind pskHostPeekPoker makes upnClientPeekPoker;
+    presence upnClientPeekPoker kind kEmpty makes upnClientPeekPoker;
+    prime upnHostPeekPoker;
+  }
+
+
+  // --------------- Create presence structure ---------------
+
+  // psHostPeekPoker
+  export presence structure psHostPeekPoker {
+    kind pskHostPeekPoker;
+
+    ingredient pinHostPeeker {
+      kind iskPeeker;
+      deliver unum ukPeeker;
+      deliver presence pkHostPeeker;
+    }
+
+    ingredient pinHostPoker {
+      kind iskPoker;
+      deliver unum ukPoker;
+      deliver presence pkHostPoker;
+    }
+  }
+  // psClientPeekPoker
+  export presence structure psClientPeekPoker {
+    kind kEmpty;
+    ingredient pinClientPeeker {
+      kind iskPeeker;
+      deliver unum ukPeeker;
+    }
+    
+    ingredient pinClientPoker {
+      kind iskPoker;
+      deliver unum ukPoker;
+    }
+  }
+
+  // piHostPeekPoker
+  export presence impl piHostPeekPoker {
+    structure psHostPeekPoker;
+    // presence instantiation kludge
+    presenceBehavior IsHostPresence, TrackOtherPresences;
+
+    ingredient pinHostPeeker template {
+      impl iiPeeker;
+    }
+
+    // presence implementation name for poker host
+    ingredient pinHostPoker template {
+      impl iiPoker;
+    }
+    // initialization for host
+    prime init () {
+      (ingredient pinHostPeeker).init();
+      (ingredient pinHostPoker).init();
+    }
+
+    make upnClientPeekPoker;
+  }   
+
+  // piClientPeekPoker
+  export presence impl piClientPeekPoker {
+    structure psClientPeekPoker;
+    // presence instantiation kludge
+    presenceBehavior IsClientPresence, DieWhenNoOtherPresences;
+
+    // presence implementation name for peekable client
+    ingredient pinClientPeeker template {
+      impl iiPeeker;
+    }
+
+    // presence implementatino name for pokeable client
+    ingredient pinClientPoker template {
+      impl iiPoker;
+    }
+    // initialization for clients
+    init () {
+      (ingredient pinClientPeeker).init(false);
+      (ingredient pinClientPoker).init(false);
+    }
+
+    make upnClientPeekPoker;
+  }
+  
+
+  // ----- Build unum implementation -----
+
+  export unum impl uiPeekPoker {
+    structure usPeekPoker;
+    presence upnHostPeekPoker impl piHostPeekPoker;
+    presence upnClientPeekPoker impl piClientPeekPoker;
+  }
+} // End unit
+
+   

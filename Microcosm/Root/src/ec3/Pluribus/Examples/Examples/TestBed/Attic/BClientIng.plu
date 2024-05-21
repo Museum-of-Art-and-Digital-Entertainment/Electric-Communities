@@ -1,0 +1,52 @@
+export unit BClientIng {
+
+  package ec.plexamples.testbed;
+
+  import ec.e.lang.*;
+  import ec.e.net.ERegistrar;
+  import ec.e.net.ERegistration;
+
+  unit RefIng;
+  unit BServerIng;
+
+  // the methods that are added to the testbed unum
+  // are in the Server ingredient's source file
+
+  // this is the interface the Client presence will implement
+  // (in addition to the unum interface)
+  export kind pkBTestClient {
+
+  }
+
+  // the interfaces your ingredient promises to implement - a union
+  // of the methods that the testbed unum and server presence will
+  // accept on your ingredient's behalf
+  export kind pikBTestClient {
+    kind ukBTest;
+	kind pkBTestClient;
+  }
+  
+  export ingredient impl iiBTestClient {
+    kind pikBTestClient;
+
+	neighbor ingredient iinReferent kind ukReferent;
+
+	method poke(boolean cookie) {
+		if (cookie) {
+			System.out.println("I've been poked!");
+		} else {
+			System.out.println("You can't poke me.");
+		}
+	}
+
+	method goForIt() {
+
+		RtEnvelope env;
+
+		env <- poke(true);
+		iinReferent <- iSendCurrentReference(env);
+
+	}
+
+  }
+}
