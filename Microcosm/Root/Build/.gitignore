@@ -1,5 +1,3 @@
- # exclude everything except directory structure all other files and directories are local-transient
-    /*
-    !/Release
-    /Release/*
+# exclude everything except directory structure all other files and directories are local-transient
+*
 
