@@ -27,7 +27,8 @@ FILES.h =	\
  analdump.h	\
  generic.h
 
-CFLAGS += -Wreturn-type -I.
+# Restoration TODO recode to remove warnings suppressed below:
+CFLAGS += -Wreturn-type -Wno-implicit-function-declaration -Wno-format -Wno-builtin-declaration-mismatch -I.
 
 vpath %.c .
 
