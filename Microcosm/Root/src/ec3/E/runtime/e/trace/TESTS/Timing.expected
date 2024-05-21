@@ -1,0 +1,84 @@
+=== 1997/11/20 15:16:52 (TraceController.start:TraceController.java:144) WLD
+trace: Tracing system being started.
+=== 1997/11/20 15:16:52 (TraceController.start:TraceController.java:154) WLD
+trace: TEMPORARY: TraceLog set to standard output for backwards compatibility.
+=== 1997/11/20 15:16:52 (TraceLog.beginLogging:TraceLog.java:338) WLD
+trace: Logging begins on standard output.
+=== 1997/11/20 15:16:53 (Timing.main:Timing.java:21) DBG
+ui: You should see a timing message
+=== 1997/11/20 15:16:53 (Timing.main:Timing.java:22) TIM
+ui: First timing message
+=== 1997/11/20 15:16:53 (Timing.main:Timing.java:24) DBG
+ui: You should not see 'omitted timing message'
+=== 1997/11/20 15:16:53 (Timing.main:Timing.java:34) TIM
+ui: First of three messages.
+=== 1997/11/20 15:16:54 (Timing.main:Timing.java:35) TIM
+ui: Second of three messages.
+=== 1997/11/20 15:16:54 (Timing.main:Timing.java:36) TIM
+ui: Third of three messages.
+=== 1997/11/20 15:16:54 (Timing.main:Timing.java:40) DBG
+ui: Three messages will be omitted following this one.
+=== 1997/11/20 15:16:54 (Timing.main:Timing.java:50) WLD
+ui: Three timing messages will go to the buffer.
+=== 1997/11/20 15:16:54 (Timing.main:Timing.java:59) DBG
+ui: Three timing messages will go nowhere.
+=== 1997/11/20 15:16:54 (Timing.main:Timing.java:66) TIM
+ui: This message will be seen in both.
+=== 1997/11/20 15:16:54 (Timing.main:Timing.java:71) WLD
+other: Timing message for 'other' coming up.
+=== 1997/11/20 15:16:54 (Timing.main:Timing.java:72) TIM
+other: This should be seen.
+=== 1997/11/20 15:16:54 (Timing.main:Timing.java:79) WLD
+ui: Three messages go nowhere.
+=== 1997/11/20 15:16:54 (TraceBuffer.dump:TraceBuffer.java:189) WLD
+trace: Dumping internal trace buffer to ec.e.run.TraceLog@1dc60770
+=== 1997/11/20 15:16:54 (TraceBuffer.dump:TraceBuffer.java:196) ERR
+trace: ======================= BEGIN INTERNAL TRACE BUFFER DUMP =======================
+=== 1997/11/20 15:16:51 (TraceBuffer.<init>:TraceBuffer.java:52) WLD
+trace: Transient buffer begins.
+=== 1997/11/20 15:16:52 (TraceController.start:TraceController.java:144) WLD
+trace: Tracing system being started.
+=== 1997/11/20 15:16:52 (TraceController.start:TraceController.java:154) WLD
+trace: TEMPORARY: TraceLog set to standard output for backwards compatibility.
+=== 1997/11/20 15:16:52 (TraceLog.beginLogging:TraceLog.java:338) WLD
+trace: Logging begins on standard output.
+=== 1997/11/20 15:16:54 (Timing.main:Timing.java:47) USE
+ui: This message will not be seen in the log.
+=== 1997/11/20 15:16:54 (Timing.main:Timing.java:50) WLD
+ui: Three timing messages will go to the buffer.
+=== 1997/11/20 15:16:54 (Timing.main:Timing.java:51) TIM
+ui: First of three messages only in buffer.
+=== 1997/11/20 15:16:54 (Timing.main:Timing.java:52) TIM
+ui: Second of three messages only in buffer.
+=== 1997/11/20 15:16:54 (Timing.main:Timing.java:53) TIM
+ui: Third of three messages only in buffer.
+=== 1997/11/20 15:16:54 (Timing.main:Timing.java:59) DBG
+ui: Three timing messages will go nowhere.
+=== 1997/11/20 15:16:54 (Timing.main:Timing.java:66) TIM
+ui: This message will be seen in both.
+=== 1997/11/20 15:16:54 (Timing.main:Timing.java:71) WLD
+other: Timing message for 'other' coming up.
+=== 1997/11/20 15:16:54 (Timing.main:Timing.java:76) TIM
+ui: This message will be seen only in the buffer.
+=== 1997/11/20 15:16:54 (Timing.main:Timing.java:79) WLD
+ui: Three messages go nowhere.
+=== 1997/11/20 15:16:54 (TraceBuffer.dump:TraceBuffer.java:189) WLD
+trace: Dumping internal trace buffer to ec.e.run.TraceLog@1dc60770
+=== 1997/11/20 15:16:54 (TraceBuffer.dump:TraceBuffer.java:205) ERR
+trace: ======================= END INTERNAL TRACE BUFFER DUMP =======================
+=== 1997/11/20 15:16:55 (TraceLevelTranslator.toInt:TraceLevelTranslator.java:38) ERR
+trace: Incorrect tracing level off
+=== 1997/11/20 15:16:55 (TraceLevelTranslator.toInt:TraceLevelTranslator.java:38) ERR
+trace: Incorrect tracing level timing
+=== 1997/11/20 15:16:55 (TraceLevelTranslator.toInt:TraceLevelTranslator.java:38) ERR
+trace: Incorrect tracing level ui
+=== 1997/11/20 15:16:55 (TraceController.setTiming:TraceController.java:385) WRN
+trace: Unknown timing value given: of
+=== 1997/11/20 15:16:55 (Timing.main:Timing.java:96) TIM
+odd_trace.with_embedded.stuff: Even the oddest can be timed.
+=== 1997/11/20 15:16:55 (Timing.main:Timing.java:102) DBG
+another_odd.name_with.stuff_in: This BETTER be seen.
+=== 1997/11/20 15:16:56 (Timing.main:Timing.java:104) DBG
+odd_trace.with_embedded.stuff: This BETTER be seen as well.
+=== 1997/11/20 15:16:56 (Timing.main:Timing.java:106) WLD
+comm: That's all, folks - end of test.

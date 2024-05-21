@@ -1,0 +1,84 @@
+<!--NewPage-->
+<!-- Created by Masa Maeda on 05.14.97  -->
+<!-- Copyright 1997 Electric Communitites. -->
+<!-- All rights reserved worldwide.  -->
+<!-- Proprietary and confidential. -->
+<HTML>
+<HEAD>
+<pre>
+<a href="PPTut9.html">Previous</a>  <a
+href="PPTut11.html">Next</a>  <a
+href="PPTutI.html">Index</a>  <a
+href="PPTut1.html">Home</a></pre>
+<TITLE>The PeekPoke Tutorial</TITLE>
+</HEAD>
+<BODY>
+<P><HR WIDTH="100%" SIZE=2></P>
+
+<P>&nbsp;</P>
+<B><P>Step 6. Create Presence Structure</P>
+</B>
+<P>In the presence structure all the constituent ingredients of the presence are
+listed. Two presence ingredient names are declared within a presence structure, one
+for Peekable and one for Pokeable.  Each one of them contains <FONT
+FACE="Courier">deliver</FONT> statements to route unum and presence messages to the
+actual ingredient that implements them. Two presence structures are needed here, one
+for the host and one for the client (as shown in Figure 2.) </P>
+
+<P><HR WIDTH="80%" SIZE=2></P>
+<PRE>
+
+	// --------------- Create presence structure ---------------
+	// psHostPeekablePokeable
+	export presence structure psHostPeekablePokeable {
+	  kind pskHostPeekablePokeable;
+	  ingredient pinHostPeekable {
+	    kind iskPeekable;
+	    deliver unum ukPeekable;
+	    deliver presence pkHostPeekable;
+	  }
+	  ingredient pinHostPokeable {
+	    kind iskPokeable;
+	    deliver unum ukPokeable;
+	    deliver presence pkHostPokeable;
+	  }
+	}
+	// psClientPeekablePokeable
+	export presence structure psClientPeekablePokeable {
+	  kind pskClientPeekablePokeable;
+	  ingredient pinClientPeekable {
+	    kind iskPeekable;
+	    deliver unum ukPeekable;
+	    deliver presence pkClientPeekable;
+	  }
+	  ingredient pinClientPokeable {
+	    kind iskPokeable;
+	    deliver unum ukPokeable;
+	    deliver presence pkClientPokeable;
+	  }
+	}
+
+</PRE>
+
+<P><HR WIDTH="100%" SIZE=2></P>
+<pre>
+<a href="PPTut9.html">Previous</a>  <a
+href="PPTut11.html">Next</a>  <a
+href="PPTutI.html">Index</a>  <a
+href="PPTut1.html">Home</a></pre>
+
+</HTML>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

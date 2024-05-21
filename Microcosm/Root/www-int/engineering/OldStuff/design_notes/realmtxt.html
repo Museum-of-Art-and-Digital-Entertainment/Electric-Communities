@@ -1,0 +1,436 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>The Unum Instantiation and Destruction System</TITLE>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY TEXT="#FFFFFF" BGCOLOR="#000000" LINK="#00C0C0" VLINK="#0000D0" ALINK="#00FF00">
+<PRE>
+The Unum Instantiation and Destruction System
+Author: Charles Kendrick (charles@onlive.com)
+Date: 5/1/98
+
+REALMTEXT
+
+RealmText is a text format for specifying data used to instantiate an Unum.
+
+A typical RealmText entry is as follows:
+
+RealmVersion "RealmText Version 0.3, 10 March 1997"
+Create Realm 
+	Name "Beta Turf"
+	ScreenWidth 640
+	ScreenHeight 480
+	Create Region
+		Name "Aztec"
+		DefaultPad "Aztec"
+		Horizon 234
+		Description "This is your turf. The latest in Neo-Aztec design. Click on the radio for more help."
+		URL "http://beta.communities.com"
+		BBS "http://beta.communities.com"
+		Watermark "watermarks/DefaultWatermark.bmp"
+		Create Unum TeleportPad
+			Name "Aztec"
+			Description "Aztec Turf"
+			ImageFile "Misc/TransNoPick.appearance2D"
+			Position 0 0 0
+			Scale .01
+			FinalEntryPosition 0 6 0
+			UnumCreatorClass "ec.cosm.agency.TeleportPadCreator"
+			ForceListing
+		End Unum
+	End Region
+End Realm
+
+In general, a "Create" statement indicates that an object is to be
+instantiated from the data that follows.  In the case of "Create Realm"
+however, this is not true, as the Realm is always created specially.
+
+A "Create" statement that appears within the scope of another "Create"
+statement indicates containership, or in the case of the Realm and Regions,
+the RegionContainment relationship.
+
+RealmText is parsed by the ec.cosm.tools.parser.RealmParser class.  If 
+you have an UnumFactory instance, you can call 
+unumFactory.readUnumData(..) 
+with either a filename or stream to retrieve the parsed form of a 
+RealmText file: a nested structure of Hashtables and Vectors.  Each 
+Hashtable holds the data for a single object, represented in terms of 
+several basic types that the parser understands.  For example, some 
+of the data for the "TeleportPad" object above might be:
+
+key						value
+java.lang.String	"name"			java.lang.String			"aztec"
+java.lang.String	"position"		ec.misc.graphics.Point3D	[0, 0, 0]
+
+The Hashtables of data for the various objects are nested according to 
+containment.  For example, in the Hashtable of data for the "Realm" object,
+under the standard key "regionvector", there will be a Vector of Hashtables
+of data for "Region" objects.  The Hashtables for the Regions in turn have
+a key "unumvector" that maps to a Vector of Hashtables of data of contained
+Unums.
+
+TODO: eliminate fixed Realm/Region/Container/Unum hierarchy, change the 
+standard keys to just "contents".
+
+REALMTEXT "FORGING"
+
+The parsed result of RealmText (a Hashtable of variously typed data indexed by
+java.lang.Strings) is very easy to "forge", ie construct by hand.
+
+Parsed RealmText data used for the initial creation of the AvatarBody is forged
+in the ec.cosm.objects.agent.MCUnumFactory.
+
+INSTANTIATION: THE UNUMFACTORY AND THE UNUMCREATIONCONTEXT
+
+A Hashtable of data for a single object requires context information to actually
+become a functioning Unum: capabilities to the Unum's immediate container, the 
+Unum's realm, and in the case of a portal, the other portals in the realm it needs 
+to link with.  This context information becomes the 
+ec.cosm.objects.agent.UnumCreationContext
+An UnumCreationContext is created with a Realm Unum and various capabilities 
+necessary during instantiation.
+
+TODO: eliminate use of Realm Unum, replace with a capability group
+
+An UnumCreationContext also contains a stack of ContainerContext objects (initially
+empty) that represent levels of containment.  A ContainerContext is created with
+a CapabilityGroup for the container it represents.
+
+TODO: right now a ContainerContext can also be created with just a kind ukAddUnum
+facet, which is probably wrong.
+
+An UnumCreationContext is made ready for instantiation by calling 
+UnumCreationContext.setDataTable(Hashtable data);
+with a Hashtable of data for a single Unum.  The UnumCreationContext provides
+typed access to the data table it holds.
+
+TODO: separate out the creation context from the data table with typed accessors.
+
+An UnumCreationContext primed with the data for a single object can be passed to 
+ec.cosm.objects.agent.UnumFactory.createUnum(UnumCreationContext context);
+to create a single Unum.  Note that UnumFactory is an interface that
+ec.cosm.objects.agent.MCUnumFactory implements.
+
+A hierarchy of RealmText data where the top level Hashtable is the data from
+the Realm object can be passed to
+UnumFactory.createContainerTree(UnumCreationContext context,
+                                Hashtable realmData,
+                                ...)
+to create any number of objects and have them arrange themselves in the 
+containment relationships implied by the scoping in RealmText.  This method
+automatically handles arbitrary levels of recursive containment under the 
+Realm.
+
+The UnumFactory from the outside is a lot like the "Abstract Factory" pattern.
+On the inside, the UnumFactory is a seething pit of Pluribus workarounds and
+unrelated hacks that were attracted by existing hacks.
+
+TODO: Whatever the replacement for RealmText, if any, the UnumFactory should 
+become nothing more than a dispatch center that calls some kind of a per-unum-
+class construction code.  The dispatch should probably be done on classname 
+via class.forName().
+
+TODO: Note that the problem being solved is construction of a composite object,
+and the current solution is to have all composite objects have a single argument 
+constructor where the argument is actually an object that can be queried for
+actual arguments.  The single argument is the UnumCreationContext and the
+"constructor"s are the functions that form the body of the UnumFactory.
+
+TURFS, REALMS AND THE REALM UNUM
+
+From the software's standpoint, a Realm is a set of regions.  A Turf is a 
+Realm created from the Turf catalog.
+
+There is also a Realm Unum.  There is only one Realm Unum, it is created at 
+initial startup and never destroyed (like the Avatar).  When Realms and 
+Turfs are created and destroyed, various Unums within the Realm (for example
+regions and portals) register and unregister with the Realm Unum.
+
+At startup, a Realm is created.  The regions in this Realm can never be 
+destroyed, although the Inventory can be used to destroy almost all other
+objects in this initial Realm.
+
+THE CATALOG
+
+The Catalog is an ingredient in the avatar Unum called "AvatarCatalog".
+Source is in 
+cosm1/object/ingredients/avatar
+
+Two presenters are used for the Catalog: the GUICatalogListPresenter and
+the GUICatalogPresenter.  Source is in 
+cosm1/ui/gui/uipresenter
+
+The GUICatalogListPresenter just scans the "catalog" directory and lists
+all files who's names are of the form "catalog.*.txt", and lists them.
+Note there can be any number of catalogs of any type.
+
+TODO: Create a catalogIndex.txt readable by java.util.Properties, and use 
+it as the list of catalogs.
+
+When the user selects a catalog to open, the Catalog uses the 
+UnumFactory.readUnumData methods to load RealmText files, and does some 
+minor munging of the parsed RealmText to fill a CatalogData object, which
+the Catalog shares with the GUICatalogPresenter.  The CatalogData object 
+just holds the parsed form of RealmText with some intervening structural 
+objects that also have some information cached for the presenter and some
+information only used by the presenter.  
+
+Source for the CatalogData and the structural objects mentioned above is in 
+cosm1/ui/presenter/steward
+
+The GUICatalogPresenter presents the data in the RealmText file as a list 
+of objects divided into "tabs".  Tabs correspond to Create Region statements 
+in RealmText, and an entire GUICatalogPresenter corresponds to the Create 
+Realm scope.  The data from the RealmText file is presented differently
+according to the CatalogData object's type: swatch catalog, item catalog,
+turf catalog or avatar catalog. 
+
+When the user selects an item to instantiate, the Catalog leverages the 
+instantiation logic in the UnumFactory to create Unums on the fly, then 
+uses various capabilities over other objects to bring the new Unums into 
+the world appropriately (according to type).
+
+This is done differently for each catalog type as follows:
+
+Items/Swatches
+--------------
+Objects are instantiated into the pocket, then moved into the avatar's hand.
+If there is a TOS failure (or other, possibly bogus failure) on the move to 
+the hand, the object ends up in the avatar's pocket.
+
+TODO: Instantiate into null container, then move to hand.  Very very easy,
+essentially just a removal of code, was implemented at one point, but 
+breaks the current container of last resort model, where an object's initial
+container is it's container of last resort.
+
+Avatars
+-------
+Although the avatar body created on a normal initial startup is actually 
+made from "forged" RealmText (see above), data for instantiating avatar
+bodies can be specified in RealmText, and this is done for Avatar catalogs.
+
+The Avatar catalog really creates an AvatarBody Unum, not an Avatar Unum.
+The body is created into a NULL container, then swapped with the Avatar's
+current body by way of an interface in AvatarBodyLink in
+src/cosm1/objects/ingredients/avatar
+The Catalog then destroys the old avatar body.
+
+Turfs
+-----
+A Turf Catalog RealmText file does not actually contain data to create Unums.
+Instead, "Create Unum" statements in a Turf Catalog contain a special key 
+"RealmTextFile" that is the name of another RealmText file with the actual
+data for a Turf, that is, data that when parsed can be passed to 
+UnumFactory.createContainerTree();
+
+If the user has previously created a Turf using the Turf Catalog, when a new
+Turf is created the previous turf is destroyed.  Turf destruction consists of
+deleting all regions, portals, props, etc, that were created as part of the
+Turf; this can include things that the user has since moved out of the Turf
+(although a well designed turf should probably have no moveable objects), but
+will not include objects that the user created separately and moved into her
+turf.
+
+SWATCH IMPORT
+
+Everything happens in AvatarCatalog_ingr.plu, uImportItem()
+
+Once the user has chosen a bitmap (.bmp) to import, the catalog loads the 
+bitmap from disk and does various bogosity checks on it.  Those bogosity 
+checks do not currently include a full format check, but should.
+
+The resulting byte array, if valid, is given to the PublishRepository, which
+stores it, sets it up to be externally downloadable, and returns a DataHolder 
+to it (all as the result of one call).
+
+An entry in the current catalog for the Swatch is forged (see forging 
+RealmText above).  
+
+As the swatch is created, it is actually swatched itself with the same 
+texture it swatches with, by applying a TextureStructure (see Robj).  
+
+THE INVENTORY
+
+The Inventory is really the AvatarInventory ingredient in the Avatar Unum.
+Source is in cosm1/objects/ingredients/avatar
+
+When the UnumFactory creates an object, it sends the UnumSoul of that object to 
+the Inventory.  Since the Inventory is created after the UnumFactory, this is
+done with a channel who's distributor is given to the Inventory when the Avatar
+is instantiated.
+
+TODO: somehow make this mechanism synchronous.  Otherwise, messages with Unum's
+being sent to the Inventory can be left undelivered if serialization occurs
+while the message is sitting in the channel.
+
+The Inventory gets the Unum for that UnumSoul and tries to get a description for
+that object from the Composition system, or failing that, the Describer ingredient.
+It stores any retrieved information in an InventoryDescription object, and 
+maintains two parallel Hashtables, one of SoulStates (retrieved from UnumSouls) 
+of Unums, and one of InventoryDescriptions.  The tables are keyed by 
+java.lang.Long objects, created in sequence.
+
+TODO: The Inventory ignores certain types of objects that the user shouldn't
+be able to delete from the Inventory, such as Regions and the current AvatarBody.
+Really, those objects should either be kept but not displayed to the user or
+should be displayed to the user with most operations inactive.  If the Inventory
+can gather every last object, a separate mechanism of tracking all objects for
+serialization can be eliminated (see Arturo).
+
+The table of descriptions is given to the GUIInventoryPresenter.  When the 
+GUIInventoryPresenter needs to do an operation on an Unum in the Inventory it
+refers to the Unum by it's java.lang.Long key.
+
+Remove
+------
+This just leverages the UnumSoul.kill() facility to completely destroy the host
+presence of an Unum.
+
+Modify
+------
+Sends a message to the PropertyManager's Unum-level interface to invoke a Property
+Sheet.
+
+Recover
+-------
+Checks if an Unum is nailed down by looking at the state bundle for the Unum's
+Portability ingredient.  If the object is not nailed down, retrieves a capability
+to arbitrarily change the Unum's container from the CapabilityGroup in the Unum's
+SoulState, and changes the Unum's container to the Pocket.
+
+UNUM DELETION CLEANUP
+
+Killing an Unum means destroying the host presence of the Unum in addition to all
+clients, freeing all resources and garbage collecting all objects.
+
+TODO: No one has looked closely to my knowledge, but UnumKilling probably doesn't
+accomplish all of the above right now.
+
+You can kill an Unum if you have access to its ec.pl.runtime.UnumSoul.  You can 
+gain access to any Unum's UnumSoul if you have the ec.pl.runtime.UnumMaster 
+capability; then you simply call unumSoul.kill()
+
+There are two types of notification of UnumKill.  If you are an ingredient in an
+Unum being killed, you can implement the interface ec.pl.runtime.UnumKillHandler,
+which contains one method, noteUnumKilled(void), that will be called when the Unum
+is killed.
+
+If you have access to an Unum's UnumSoul, you can register to be notified when 
+the Unum is deleted.  The interface you implement is UnumKillInterest, and the
+single method in this interface is noteUnumKilled(SoulState forIdentification). 
+
+Various subsystems use UnumKill notification for cleanup, although many subsystems
+don't do so and need to.
+
+When a containable is deleted, it removes itself from it's container.
+
+When a container is deleted, it ejects its contents, and the contents wind up in
+their container of last resort.
+
+When teleport pads are deleted, they unregister themselves with both the Avatar
+and the Realm.
+
+The Inventory registers interest in UnumKill notification for all Unums it tracks,
+and removes any killed Unums from its list.
+
+FUTURE DIRECTIONS
+
+The Catalog
+-----------
+Really, the Catalog should be either a database or filesystem.
+
+Users should be able to add new items to catalogs, through both external tools 
+and in-world mechanisms (like swatch import).  Users should be able to create
+their own arbitrary groupings of items, and destroy existing ones.  Users should
+be able to merge in other user's catalogs or items, through both in-world and 
+out-of-world mechanisms.
+
+There are two ways to do this: if you make the catalog a database, then there
+are a bunch of items and a bunch of heavily overlapping groupings of items.
+The same item can exist in more than one group.
+
+If you make the catalog a filesystem, then there are groupings of items that
+contain the one and only instance of those items - if you want the same item  
+in two groups, you copy it.  This is less powerful and less space efficient, but 
+easier to understand than a database.  By using tricks like only duplicating an 
+item when the data for its representation in a group is edited (rather than 
+when it is added to new groups) you could implement the UI as a filesystem and 
+the mechanism as a database. 
+
+If everything is editable by default, there will need to be a notion of a read-only
+catalog that EC or a hub might distribute.  Read-only catalogs would be fixed 
+and uneditable, and would receive regular updates that overwrite earlier versions.
+If users want to create custom versions of items in uneditable catalogs, they can 
+create copies that are editable.
+
+Note that there is dormant code in the Catalog for loading RealmText from the
+Repository.  This code was at one point the active and checked in version, but 
+there are a couple of problems: 
+1. The cycle for testing new RealmText becomes tedious, more complicated, and
+error prone.
+2. You can't get names of Catalogs for free by using names of files, so you
+have to create an additional chunk of data that acts as an index of catalogs.
+
+Trimming the Catalog
+--------------------
+Once parsed RealmText data is loaded by the catalog, it is stored in the 
+Catalog's state bundle and serialized.  It could, instead, be reloaded from 
+RealmText after revival the next time the user opens that catalog - the actual
+RealmText parsing time is nearly neglible next to image loading time for most
+catalogs.  If this were done, imported swatches and any other modifiable objects
+in the catalog would require some special handling.  Note that since the 
+Catalog's data is accessed only when the Catalog is instantiating something, 
+this would probably not help the working set.
+
+Alternately, the Catalog could have an external storage format that it saves
+in whenever the user makes changes, and the Catalog could share that format
+with external tools (this is basically the database/filesystem suggestion 
+above).  This is the right thing in the long run.
+
+Certification
+-------------
+I think that the Catalog is the right place to introduce certification to the
+user, although the process is going to be more complicated than pressing a
+button to certify something.  There will probably need to be an entirely
+separate "Certifier" class or set of classes to handle the certification 
+process.  The Certifier needs to do all of:
+
+1) Teach the user about what certification means (probably by pointing to the web)
+2) Retrieve an index of Certifying agencies from somewhere and point to web pages
+for each.  Those pages would describe the criteria on which the agencies certify,
+and explain the fees and terms, if any, for certification.
+3) Submit an object for certification to some agency and be able to notify the
+user when a response is received, and associate the resulting certificate with the
+object it certifies in the Catalog's data.  All editing tools need to be aware of
+certification as well, as certified objects or object in the middle of being
+certified should not be editable.
+4) Contact remote realms and query them for their current policies.
+5) Possibly have facilities for getting new certificates propagated to various hubs,
+ftp sites, etc.
+
+Note that you could do the entire certification process via the web if you were
+willing to complicate the process a bit, requiring the user to take some kind of
+"import" action on the certificate once received.
+
+Avatars, Realms and Hubs
+------------------------
+At various points in the software, both the Avatar and Realm Unums are assumed
+to have full power over a process/hub/agent.  Really, there should be a separation of
+authority where the Realm holds all capabilities over all hosted objects and
+the Avatar holds all capabilities over the UI.  The Avatar's status with respect
+to his home Realm should be as an object that, through whatever mechanism, 
+has a series of closely held capabilities over the Realm.
+
+With this kind of separation it should become possible to start a Realm without
+an Avatar, and to give out admin rights to Avatars and even to adminstrative 
+applications that don't have an Avatar Unum (eg admin from the web).
+
+In particular this means that the Catalog and Inventory should be part of the
+Realm (and/or just be separate objects not directly accessible to the Avatar)
+that any Avatars communicate with via a facet.
+
+</PRE>
+</BODY>
+</HTML>

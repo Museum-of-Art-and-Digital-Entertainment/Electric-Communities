@@ -1,0 +1,52 @@
+#
+# This file is included at the end of Defs.gmk so that various
+# variables can be overridden for building on Windows.
+#
+# The following environment variable _may_ be defined:
+#
+#    ALT_EC       -- overrides EC, the E compiler, currently ecomp
+
+CC = cc
+
+# /G5 - optimize for Pentiums
+# /GD - optimize for dlls
+# /02 - 'make fast code'
+CL = cl /G5 /GD /O2
+CL_g = cl /nologo /DDEBUG /DTRACING /DDBINFO 
+
+# Specifies the name of the make utility to call
+MAKE = make $(MAKEFLAGS)
+RM = rm
+KSH = 
+
+RANLIB = ranlib
+
+# These are used by Defs.gmk for the GENLIBS variable
+LIBFILENAME = $(MODNAME)
+LIBSUFFIX = dll
+
+_EC = /bin/sh ecomp
+EC  = $(_EC$(ALT_EC))$(ALT_EC)
+ifneq ($(ALT_EC_RUNNER),)
+  EC  = $(_EC2$(ALT_EC_RUNNER))$(ALT_EC_RUNNER) $(EJIT) $(ALT_EC)
+endif
+
+JAVAC = /bin/sh espresso
+JAVAC_FLAGS = -nowarn
+
+JAVA_LIB	 = $(BUILD_DRIVE)$(JAVAHOME)/lib/javai.lib
+JAVA_DEBUG_LIB = $(BUILD_DRIVE)$(JAVAHOME)/lib/javai_g.lib
+
+CFLAGS += -D__int64="long long" -D__declspec\(x\)="" 
+CLFLAGS += $(INCLDIRS) -I$(BUILD_DRIVE)$(CHEADERDIR) -DLITTLE_ENDIAN -DWIN32 -Zp8 -Zi
+
+# For building DLLs
+CFILES.obj = $(FILES.c:%.c=$(BUILD)/objs/$(MODNAME)/%.obj)
+CCFILES.obj = $(FILES.cpp:%.cpp=$(BUILD)/objs/$(MODNAME)/%.obj)
+FILES.obj = $(CFILES.obj) $(CCFILES.obj)
+CFILES_g.obj = $(FILES.c:%.c=$(BUILD)/objs/$(MODNAME)_g/%.obj)
+CCFILES_g.obj = $(FILES.cpp:%.cpp=$(BUILD)/objs/$(MODNAME)_g/%.obj)
+FILES_g.obj = $(CFILES_g.obj) $(CCFILES_g.obj)
+
+DIR_SEPARATOR = ;
+FILE_SEPARATOR = \\

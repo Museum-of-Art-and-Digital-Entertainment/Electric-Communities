@@ -1,0 +1,1363 @@
+# 1 "ec/ecomp/defs.java" 
+/* *********************************************************************
+ * Espresso! Abstract syntax tree nodes for definitions
+ * Copyright 1995, 1996, 1997 Martin Odersky. All rights reserved.
+ * 
+ * Author     : Martin Odersky, Michael Philippsen
+ * Last change: 17-December-97
+ **********************************************************************/
+
+
+package ec.ecomp;
+
+
+
+
+import java.util.Hashtable;
+import java.util.Enumeration;
+import java.io.*;
+
+class Block extends AST {
+    int mods;
+    AST[] stats;
+    Env localEnv;
+
+    Block(int pos, ASTS stats) {
+        super(pos, BLOCK);
+        this.mods = 0;
+        this.stats = stats.shrink();
+    }
+
+    boolean isExpr() { return true; }
+
+/** is def is a constructor definition?
+ */
+    private boolean isConstructor(AST def) {
+        return 
+            def != null &&
+            def.tag == FUNDEF &&
+            ((FunDef)def).name.equals(Predef.initS);
+    }
+
+/** does this block contain constructor definitions?
+ */
+    boolean hasConstructors() {
+        int i = 0;
+        while (i < stats.length && !isConstructor(stats[i])) i++;
+        return i < stats.length;
+    }
+
+/** prepend a statement to this block.
+ */
+    void pushStat(AST stat) {
+        AST[] newstats = new AST[stats.length+1];
+        newstats[0] = stat;
+        for (int i = 1; i < newstats.length; i++)
+            newstats[i] = stats[i-1];
+        stats = newstats;
+    }
+  
+
+/** prepend a list of statement to this block.
+ */
+    void prepend(ASTS newstats) {
+        ASTS total = newstats;
+        for (int i = 0; i < stats.length; i++)
+            total.append(stats[i]);
+        stats = total.shrink();
+      }
+
+/** append a statement to this block.
+ */
+    void append(AST stat) {
+        AST[] newstats = new AST[stats.length+1];
+        for (int i = 0; i < stats.length; i++)
+            newstats[i] = stats[i];
+        newstats[stats.length] = stat;
+        stats = newstats;
+    }
+
+
+    Typ attr(Env env, int kind, Typ pt) {
+        if (Attr.checkKind(pos, VAL, kind)) {
+            if ((mods & STATIC) != 0)
+                env = env.enclClass.clinitEnv;
+            localEnv = new Env(env, this, env.scope.duplicate());
+            typ = pt;
+            for (int i = 0; i < stats.length; i++)
+
+                typ = Attr.join(env, stats[i].pos,
+
+
+
+                                typ, 
+                                stats[i].attr(localEnv, VAL, pt));
+            localEnv.scope.leave();
+        } else
+            typ = Typ.errTyp;
+        return typ;
+    }
+
+    Item gen() {
+        if ((mods & STATIC) != 0) {
+            Gen.useCode(localEnv.enclClass.clinitcode);
+            Gen.entryPoint(0);
+        }
+        int first = Gen.nextLocal();
+        for (int i = 0; i < stats.length; i++) {
+          stats[i].genDrop();
+        }
+        Gen.endScopes(first);
+        return Item.voidItem;
+    }
+
+    void print(int prec) {
+        if ((mods & STATIC) != 0) System.out.print("static ");
+        System.out.print("{\n");
+        Pretty.indent();
+        printStats(stats);
+        Pretty.undent();
+        Pretty.align();
+        System.out.print("}");
+    }
+
+
+    void printAsSubstatement() {
+      print();
+      System.out.println();
+    }
+
+    void printAsElse() {
+      print();
+      System.out.println();
+    }
+
+    void printEndStatement() {
+      System.out.println();
+    }
+
+}
+
+class ClassDef extends Def {
+    AST extending;
+    AST[] implementing;
+    Block body;
+
+/** attributed fields:
+ */
+    Code initcode;     // dynamic field initialization code.
+    Code clinitcode;   // static class initialization code.
+    Env clinitEnv;     // static class initialization environment.
+    FunObj clinit;     // static class initialization method.
+    Scope funscope;    // a scope that's shared & reused by all local 
+                       // function definitions to increase efficiency.
+
+    ASTS closures;      // the closures defined in this class;
+  
+//FIX 11/11/96 detect duplicate classes
+    static Hashtable compiled = new Hashtable();
+
+    ClassDef(int pos, Name name, int mods, AST extending, 
+             ASTS implementing, Block body) {
+        super(pos, CLASSDEF, name, mods);
+        this.extending = extending;
+        this.implementing = implementing.shrink();
+        this.body = body;
+    }
+
+
+    ClassDef(int pos, Name name, int mods, AST extending, 
+             AST[] implementing, Block body) {
+      this(pos, name, mods, extending, new ASTS(), body);
+      this.implementing = implementing;
+    }
+
+
+    private static Obj firstUndef(ClassObj client, Scope s) {
+        Obj undef = null;
+        for (ScopeEntry e = s.elements(); e != null; e = e.sibling) {
+            if (e.obj instanceof FunObj && 
+                (e.obj.modifiers & ABSTRACT) != 0) {
+
+              // System.out.println("looking for "+e.obj);
+
+              ScopeEntry e1 = client.scope.lookup(e.obj.name);
+
+              // System.out.println("first found "+e1.obj);
+
+              while (e1.scope != null && 
+                     !(e1.obj instanceof FunObj &&
+                       (e1.obj.modifiers & ABSTRACT) == 0 &&
+
+                       ((FunObj)e1.obj).overrides(e.obj))
+                     && !(((client.modifiers & EFORALL) != 0) &&
+                          (((FunObj)e1.obj).uniqueName != null))) {
+                // System.out.println("check nonIntf "+e1.obj+"/"+e.obj);
+                // System.out.println(e1.obj.typ);
+                // System.out.println(e.obj.typ);
+                if (!E2j.done &&
+                    Attr.is_nonIntf_version((FunTyp)(e.obj.typ),
+                                            (FunTyp)(e1.obj.typ)))
+                  break;
+
+
+
+                e1 = e1.next();
+
+          }
+
+                if (e1.scope == null) return e.obj;
+            }
+        }
+        return null;
+    }
+
+/** return first abstract object in class c that is not also in defined,
+ *  null if there is none.
+ */
+    private static Obj firstUndef(ClassObj client, ClassObj c) {
+        Obj undef = null;
+        if ((c.modifiers & (ABSTRACT | INTERFACE)) != 0) {
+            undef = firstUndef(client, c.scope);
+            if (undef == null && c.superclass != null)
+                undef = firstUndef(client, c.superclass);
+            if (undef == null && c.interfaces.length > 0)
+                undef = firstUndef(client, c.scope.next);
+        }
+        return undef;
+    }
+
+    void enter(Env env) {
+
+      if (obj == null || name != obj.name) {
+        // we don't want to re-enter classes that are already present
+        // from before e2j trafo
+        // System.out.println("entering "+name);
+        // if (obj != null) System.out.println(", was "+obj.name);
+        // System.out.println("in package "+env.packageName);
+
+        ClassObj c = new ClassObj();
+        c.name = name;
+        c.modifiers = Attr.checkMods(pos, mods, ClassMods);
+        c.typ = new Typ(CLASS, c);
+        c.fullname = env.packageName.append(name);
+//FIX 11/11/96 detect duplicate classes
+        if (compiled.get(c.fullname) != null) {
+          Report.error(pos, "duplicate class: " + c.fullname);
+          Name newname = Name.fromString(
+                name + "$$$" + compiled.size());
+          name = newname;
+          c.name = newname;
+          c.fullname = env.packageName.append(newname);
+        }
+        compiled.put(c.fullname, c);
+//ENDFIX
+        c.packagename = env.packageName;
+//        c.scope = new Scope(null, c);
+        c.sourcefile = Name.fromString(env.toplevel.sourcefile);
+        obj = c;
+
+        if (env.scope.lookup(name).scope == env.scope)
+            Report.error(pos, "duplicate definition of class " + 
+                         c.fullname);
+        else {
+
+            // System.out.println("entering "+c.fullname+" into env");
+
+            env.scope.enter(c);
+//FIX 23/10/96 need to enter freshly declared classes in their package
+            if (env.toplevel.packageScope.lookup(name).obj == null)
+              env.toplevel.packageScope.enter(c);
+            ClassFile.loaded.put(c.fullname, c);
+        }
+
+      }
+
+    }
+
+/** return the class object referenced by classid; check that it conforms
+ *  to restrictions.
+ */
+    private ClassObj classRef(Env env, AST classid, boolean extension) {
+        ClassObj c = 
+            Attr.checkObjectTyp(classid.pos, 
+                                classid.attr(env, TYP, Typ.anyTyp)).obj;
+         if (c.typ.tag == CLASS)
+             if (extension && (c.modifiers & INTERFACE) != 0)
+                 Report.error(classid.pos, "no interface allowed here");
+             else if (!extension && (c.modifiers & INTERFACE) == 0)
+                 Report.error(classid.pos, "not an interface");
+             else if ((c.modifiers & FINAL) != 0)
+                 Report.error(classid.pos, "can't inherit from final " 
+                              + c);
+         return c;
+     }
+
+/** ensure that we have at least one constructor definition
+ */
+    private void ensureConstructor() {
+        if ((mods & INTERFACE) == 0 && !body.hasConstructors()) {
+
+           ASTS constrParams = new ASTS();
+           body.pushStat(new eFunDef(pos,
+                                    FUNDEF,
+                                    Predef.initS,
+                                    PUBLIC,
+                                    null,
+                                    constrParams,
+                                    new ASTS(),
+                                    new Block(pos,
+                                              new ASTS())));
+# 325 "ec/ecomp/defs.java"
+
+        }
+    }
+
+/** is this class too flawed to go on checking? That's the case iff
+ *  there was an error in the `extends' or `implements' clauses.
+ */
+
+     boolean fatallyFlawed(ClassObj c) {
+
+
+
+      if (c.superclass != null &&
+          c.superclass.typ.tag == ERRTYP) return true;
+      for (int i = 0; i < c.interfaces.length; i++) {
+          if (c.interfaces[i].typ.tag == ERRTYP) return true;
+      }
+      return false;
+    }
+
+/** enter all fields of this class in local scope.
+ */
+    void enterFields(Env env) {
+        ClassObj c = (ClassObj)obj;
+        c.scope = new Scope(null, c);
+
+        localEnv = new Env(env, this, c.scope);
+        localEnv.enclClass = this;
+
+        if (extending == null)
+            if (c.isRoot()) c.superclass = null;
+            else c.superclass = Predef.objectClass;
+        else c.superclass = classRef(localEnv, extending, true);
+        
+        c.interfaces = new ClassObj[implementing.length];
+        for (int i = 0; i < c.interfaces.length; i++)
+            c.interfaces[i] = classRef(localEnv, implementing[i], false);
+        
+        funscope = new Scope(c.scope, null);
+        ensureConstructor();
+        
+        if (!fatallyFlawed(c))
+          for (int i = 0; i < body.stats.length; i++)
+            body.stats[i].enter(localEnv);
+    }
+    
+    Typ attr (Env env, int kind, Typ pt) {
+        ClassObj c = (ClassObj)obj;
+        if (!fatallyFlawed(c)) {
+          Attr.fixupScope(pos, c);
+          funscope.baseOn(c.scope);
+          clinit = new FunObj((PUBLIC & mods) | STATIC,
+                              Predef.clinitS,
+                              new FunTyp(new Typ[0], Typ.voidTyp, null));
+          clinitEnv = new Env(localEnv, this,
+                              new Scope(localEnv.scope, clinit));
+          clinitEnv.isStatic = true;
+          if ((c.modifiers & (ABSTRACT | INTERFACE)) == 0) {
+            c.modifiers = c.modifiers ^ ABSTRACT;
+            Obj undef = firstUndef(c, c);
+            if (undef != null)
+              Report.error(pos, c + " should be declared abstract; " + 
+                           "it does not define " + undef +
+                           Attr.location(undef));
+            c.modifiers = c.modifiers ^ ABSTRACT;
+          }
+          body.typ = Typ.voidTyp;
+          for (int i = 0; i < body.stats.length; i++)
+            body.stats[i].attr(localEnv, VAL, Typ.voidTyp);
+        }
+        typ = pt;
+        return typ;
+    }
+
+    private void genTry(boolean fatCode) {
+        ClassObj c = (ClassObj)obj;
+        c.pool = Gen.newPool();
+        initcode = Gen.newCode(c, false, fatCode);
+        clinitcode = Gen.newCode(c, true, fatCode);
+
+        for (int i = 0; i < body.stats.length; i++)
+            if (body.stats[i].tag != FUNDEF)
+                body.stats[i].genDrop();
+        for (int i = 0; i < body.stats.length; i++)
+            if (body.stats[i].tag == FUNDEF)
+                body.stats[i].genDrop();
+
+        if (clinitcode.cp != 0) {
+            Gen.useCode(clinitcode);
+            Gen.entryPoint(0);
+            Gen.emitop(return_);
+            clinit.code = clinitcode;
+            localEnv.scope.enter(clinit);
+        }
+        if (!fatCode && (initcode.fatCode || clinitcode.fatCode)) {
+            boolean prevSilent = Report.silent;
+            Report.silent = true; 
+            genTry(true);
+            Report.silent = prevSilent;
+        }
+    }
+                    
+    Item gen() {
+        genTry(false);
+        return Item.voidItem;
+    }   
+
+    void output() {
+      if (Report.nerrors == 0) {
+            ClassObj c = (ClassObj)obj;
+            try {
+                File outfile = ClassFile.openOutput(c);
+                FileOutputStream out = new FileOutputStream(outfile);
+                ClassFile.writeClass(out, c);
+                out.close();
+                if (Switches.verbose)
+                    System.out.println("[wrote " + outfile.getPath() + "]");
+            } catch (IOException e) {
+                Report.error(pos, "error writing " + c.name + 
+                             ".class: " + e);
+            }
+        }
+    }
+
+/** overrides Def.
+ */
+    Name fullName() {
+        return ((ClassObj)obj).fullname;
+    }
+
+
+    static Name lastPrintedClassName;
+
+    
+    void print(int prec) {
+
+      if ((mods & ECLASS) != 0)
+        System.out.print("/* e */");
+      lastPrintedClassName = name;
+
+        if ((mods & INTERFACE) != 0) {
+            System.out.print(Obj.modNames(mods ^ INTERFACE));
+            System.out.print("interface " + name);
+            if (implementing.length > 0) {
+                System.out.print(" extends ");
+               printSeq(implementing);
+            }
+        } else {
+            System.out.print(Obj.modNames(mods));
+            System.out.print("class " + name);
+            if (extending != null) {
+                System.out.print(" extends ");
+                extending.print();
+            }
+            if (implementing.length > 0) {
+              System.out.print(" implements ");
+              printSeq(implementing);
+            }
+        }
+        System.out.print(" ");
+        body.print();
+    }
+}
+
+
+class FunDef extends Def {
+    AST dcltyp;
+    VarDef[] params;
+    AST[] thrown;
+    Block body;
+
+
+    Name closureLabel; // additional closure name for E
+
+
+/** is this is a constructor definition?
+ */
+    boolean isConstructor = false;
+
+/** is this is a constructor definition which does not do a call of
+ *  this(...) as its first action?
+ */
+    boolean isInitializer = false;
+
+    FunDef(int pos, int tag, Name name, int mods, AST dcltyp, ASTS params, 
+           ASTS thrown, Block body) {
+        super(pos, tag, name, mods);
+        this.dcltyp = dcltyp;
+        this.params = new VarDef[params.length];
+        for (int i = 0; i < params.length; i++) 
+            this.params[i] = (VarDef)params.elems[i];
+        this.thrown = thrown.shrink();
+        this.body = body;
+    }
+
+
+    FunDef(int pos, int tag, Name name, int mods, AST dcltyp, VarDef[] params, 
+           AST[] thrown, Block body) {
+      this(pos, tag, name, mods, dcltyp, new ASTS(), new ASTS(), body);
+      this.params = params;
+      this.thrown = thrown;
+    }
+
+  
+/** check that we don't have a double declaration. return true iff OK.
+ */
+//FIX 6/11/96 admit function variable name overlap
+   private boolean checkUnique(Scope s) {
+        ScopeEntry e = s.lookup(obj.name);
+        while (e.scope == s &&
+               (e.obj == obj ||
+                !(e.obj instanceof FunObj &&
+                  Typ.subtypes(((FunTyp)obj.typ).argtyps, 
+                              ((FunTyp)e.obj.typ).argtyps) &&
+                  Typ.subtypes(((FunTyp)e.obj.typ).argtyps, 
+                              ((FunTyp)obj.typ).argtyps))))
+            e = e.next();
+        if (e.scope == s) {
+          if (!Attr.isError(obj.typ) && !Attr.isError(e.obj.typ))
+            Report.error(pos, "duplicate definition of " + 
+                         (e.obj instanceof VarObj ? 
+                          name.toString() : obj.toString()) + 
+                         Attr.location(s));
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+/** the level of access protection given by modifier mods.
+ */
+    private int protection(int mods) {
+        switch (mods & (PRIVATE | PUBLIC | PROTECTED)) {
+        case PRIVATE: return 4;
+        case PRIVATE | PROTECTED: return 3;
+        case 0: return 2;
+        case PROTECTED: return 1;
+        case PUBLIC: return 0;
+        default: throw new CompilerError("protection");
+        }
+    }
+
+/** check that this function conforms with all functions it overrides.
+ */
+    private void checkOverridden(Scope s) {
+        for (ScopeEntry e = s.lookup(name); e.scope != null; e = e.next()) {
+            if (((FunObj)obj).overrides(e.obj)) {
+                Obj other = e.obj;
+                if ((other.modifiers & FINAL) != 0 ||
+                    ((other.modifiers & STATIC) != 0 &&
+                    (obj.modifiers & STATIC) == 0)) {
+                    Report.error(pos, 
+                                 Obj.modName(Obj.firstMod(
+                                     other.modifiers & 
+                                     (STATIC | FINAL))) + 
+                                 " " + other + Attr.location(other) + 
+                                 " cannot be overridden");
+                    return;
+                } else if ((other.modifiers & STATIC) == 0 &&
+                           (obj.modifiers & STATIC) != 0) {
+                    Report.error(pos, "static " + obj + Attr.location(obj) +
+                          " cannot override " + other + Attr.location(other));
+                    return;
+                } else if (protection(obj.modifiers) > 
+                           protection(other.modifiers)) {
+                    int otherAccess = 
+                        other.modifiers & (PRIVATE | PROTECTED | PUBLIC);
+                    Report.error(pos, 
+                                 "cannot override " + other + Attr.location(other) +
+                                 " with weaker access privileges, was " +
+                                 (otherAccess == 0 ? "package" :
+                                  Obj.modName(Obj.firstMod(otherAccess))
+                                    .toString()));
+                    return;
+
+                } else if (   !((FunTyp)obj.typ).restyp.sametype(
+                                         ((FunTyp)other.typ).restyp)
+                           && ((FunTyp)obj.typ).restyp.obj.name !=
+                              ((FunTyp)other.typ).restyp.obj.name.append(E2j.intfS)
+                           && ((FunTyp)other.typ).restyp.obj.name !=
+                              ((FunTyp)obj.typ).restyp.obj.name.append(E2j.intfS)) {
+
+
+
+
+                    Report.error(pos, 
+                                 "cannot override " + other + Attr.location(other) +
+                                 " with different return type, was "
+                                 + ((FunTyp)other.typ).restyp);
+                    return;
+                } else {
+                    Typ unhandled = 
+                        Attr.unHandled(((FunTyp)obj.typ).thrown, 
+                                       ((FunTyp)other.typ).thrown);
+
+                    if (   (unhandled != null) 
+                        && (E2j.done || !name.endsWith(E2j.asyncS))) {
+
+
+
+                        Report.error(pos,
+                                     "overridden method " + 
+                                     other + Attr.location(other) + " does not throw " +
+                                     unhandled);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+/** enter a catch clause
+ */
+    void enterCatch(FunObj f) {
+        if (Switches.checks) Basic.assert(params.length == 1);
+        params[0].attr(localEnv, VAL, Predef.throwableTyp);
+        Typ[] argtyps = { params[0].obj.typ };
+        f.typ = new FunTyp(argtyps, Typ.anyTyp, null);
+        localEnv.scope.leave();
+    }
+  
+/** enter a method or function abstraction
+ */
+    void enterFun(Env env, FunObj f) {
+        Typ[] argtyps = new Typ[params.length];
+        Typ[] trueArgtyps = new Typ[params.length];
+        boolean isExtended = false;
+        for (int i = 0; i < params.length; i++) {
+            params[i].attr(localEnv,  VAL, Typ.anyTyp);
+            argtyps[i] = params[i].dcltyp.typ;
+            trueArgtyps[i] = Simplify.trueType(params[i].dcltyp);
+            isExtended = isExtended || argtyps[i] != trueArgtyps[i];
+        }
+        localEnv.scope.leave();
+        Typ restyp;
+        Typ trueRestyp;
+        if (isConstructor) {
+            restyp = Typ.voidTyp;
+            trueRestyp = restyp;
+        } else if (dcltyp == null) {
+            restyp = Typ.anyTyp;
+            trueRestyp = restyp;
+        } else {
+            restyp = dcltyp.attr(env, TYP, Typ.anyTyp);
+            trueRestyp = Simplify.trueType(dcltyp);
+            isExtended = isExtended || restyp != trueRestyp;
+        }
+        FunTyp ftyp = new FunTyp(argtyps, restyp, null);
+        for (int i = 0; i < thrown.length; i++)
+            ftyp.thrown = 
+                TypSet.incl(ftyp.thrown, 
+                            thrown[i].attr(env, TYP, Typ.anyTyp));
+        f.typ = ftyp;
+        if (isExtended)
+            f.alttyp = new FunTyp(trueArgtyps, trueRestyp, ftyp.thrown);
+        else
+            f.alttyp = null;
+        localEnv.reported = ftyp.thrown;
+        if ((name != null) && checkUnique(env.scope)) {
+            env.scope.enter(f);
+        }
+    }
+  
+    void enter(Env env) {
+        isConstructor = name != null && name.equals(Predef.initS);
+        FunObj f = new FunObj();
+        obj = f;
+        f.name = name;
+        f.modifiers = Attr.completeMods
+            (pos, mods, env, 
+             isConstructor? ConstrMods : MethMods,
+             InterfaceMethMods);
+        f.owner = env.scope.owner;
+
+        switch (tag) {
+        case CATCH:
+            localEnv = new Env(env, this, env.scope.duplicate());
+            break;
+        case LAMBDA:
+            localEnv = new Env(env, this, env.scope.duplicate());
+            localEnv.scope.owner = f;
+            break;
+        case FUNDEF:
+            localEnv = new Env(env, this, 
+                               env.enclClass.funscope.duplicate());
+            /* can't do a env.scope.duplicate() for methods; since
+               accesses via 'this' would be messed up. */           
+            localEnv.scope.owner = f;
+            localEnv.enclMeth = this;
+            break;
+        }
+        localEnv.enclFun = this;
+        localEnv.isStatic = env.isStatic || (f.modifiers & STATIC) != 0;
+        
+        if (tag == CATCH) enterCatch(f);
+        else enterFun(env, f);
+    }
+
+/** is statement stat a call to this or super?
+ */
+    static boolean isSelfCall(AST stat) {
+        return 
+            stat.tag == EXEC &&
+            ((Exec)stat).expr.tag == APPLY &&
+            ((Apply)((Exec)stat).expr).fn instanceof Self;
+    }
+
+/** ensure that we have a constructor call as first statement
+ *  and attribute it.
+ */
+    private void attrConstructorCall() {
+        if (!(body.stats.length > 0 && isSelfCall(body.stats[0])))
+            body.pushStat(
+                new Exec(
+                    pos, 
+                    new Apply(
+                        pos, 
+                        new Self(pos, SUPER),
+                        new ASTS())));
+        isInitializer = 
+            ((Apply)((Exec)body.stats[0]).expr).fn.tag == SUPER;
+        body.stats[0].attr(localEnv, CONSTR, Typ.voidTyp);
+    }
+
+/** attribute a function with a body
+ */
+
+    private void attrFun(Env env) {
+
+
+
+        int firststat = 0;
+        if (isConstructor && !((ClassObj)localEnv.enclClass.obj).isRoot()) {
+            attrConstructorCall();
+            firststat = 1;
+        }
+        FunTyp ftyp = (FunTyp)obj.typ;
+        body.typ = ftyp.restyp;
+        for (int i = firststat; i < body.stats.length; i++)
+
+            body.typ = Attr.join(env, body.stats[i].pos,
+
+
+
+                                 body.typ, 
+                                 body.stats[i].attr(localEnv, VAL, 
+                                                    ftyp.restyp));
+    }
+  
+    Typ attr(Env env, int kind, Typ pt) {
+        if (obj == null) enter(env);
+        for (int i = 0; i < thrown.length; i++)
+
+            Attr.checkTyp(env, thrown[i].pos,
+
+
+
+                          thrown[i].typ, 
+                          Predef.throwableTyp);
+        if (name != null) checkOverridden(env.scope);
+        typ = pt;
+        if (body == null) {
+          if (env.isInterface()) {
+            if (isConstructor)
+                Report.error(
+                  pos, "no constructor allowed in interface");
+          } else if ((mods & (ABSTRACT | NATIVE)) == 0) {
+            Report.error(pos,
+                         "missing function body, or declare as abstract");
+          }
+        } else if (env.isInterface()) {
+            Report.error(pos, "interface methods cannot have body");
+            body = null;
+        } else if ((mods & ABSTRACT) != 0) {
+            Report.error(pos, "abstract methods cannot have body");
+            body = null;
+        } else if ((mods & NATIVE) != 0) {
+            Report.error(pos, "native methods cannot have body");
+            body = null;
+        } else {
+            localEnv.scope.restore();
+            switch (tag) {
+            case CATCH:
+                typ = body.attr(localEnv, VAL, pt);
+                break;
+            case LAMBDA:
+                ((FunObj)obj).freevars = new Hashtable(10);
+
+                attrFun(env);
+
+
+
+                FunTyp ftyp = (FunTyp)obj.typ;
+                ftyp.restyp = 
+                    body.typ.tag == ANYTYP ? Typ.voidTyp : body.typ;
+
+                typ = Attr.checkTyp(env, pos, ftyp, pt);
+
+
+
+                ((ClassObj)localEnv.enclClass.obj).nclosures++;
+                break;    
+            case FUNDEF:
+                /* can't do a env.scope.duplicate() for methods; since
+                   accesses via 'this' would be messed up. */
+
+                attrFun(env);
+
+
+
+                break;
+            }
+            localEnv.scope.leave();
+        }
+        return typ;
+    }
+  
+    private void genTry(boolean fatCode) {
+        FunObj f = (FunObj)obj;
+        FunTyp ftyp = (FunTyp)f.typ;
+        f.code = Gen.newCode(f, false, fatCode);
+        if ((mods & STATIC) == 0)
+            Gen.newLocal(f.owner.typ);
+        for (int i = 0; i < params.length; i++)
+            Gen.adrLocal((VarObj)params[i].obj, 
+                         Gen.newLocal(params[i].obj.typ));
+        Gen.entryPoint(0, new Bits());
+        int firststat = 0;
+        if (isInitializer) {
+            body.stats[0].genDrop();
+            ClassDef cd = localEnv.enclClass;
+            for (int i = 0; i < cd.initcode.cp; i++)
+                Gen.emit1(cd.initcode.code[i] & 0xFF);
+            if (f.code.max_stack < cd.initcode.max_stack)
+                f.code.max_stack = cd.initcode.max_stack;
+            firststat = 1;
+        }
+        for (int i = firststat; i < body.stats.length; i++) {
+            body.stats[i].genDrop();
+        }
+        Gen.endScopes(0);
+        if (Gen.alive) {
+            if (ftyp.restyp.tag != VOID) {
+                Report.error(pos, "missing function return");
+                Gen.alive = false;
+            } else
+                Gen.emitop(return_);
+        }
+        if (!fatCode && f.code.fatCode) {
+            boolean prevSilent = Report.silent;
+            Report.silent = true; 
+            genTry(true);
+            Report.silent = prevSilent;
+        }
+     }
+        
+    Item gen() {
+        FunObj f = (FunObj)obj;
+        FunTyp ftyp = (FunTyp)f.typ;
+        if (tag == CATCH) {
+            Try enclTry = (Try)localEnv.next.parent;
+            Gen.registerCatch(enclTry.startPc, enclTry.endPc, Gen.curPc(),
+                              Gen.mkref(ftyp.argtyps[0]));
+            Gen.entryPoint(1, enclTry.uninits);
+            int first = Gen.nextLocal();
+            Gen.adrLocal((VarObj)params[0].obj, enclTry.excVar.disp);
+            enclTry.excVar.store(ftyp.argtyps[0]);
+            body.genDrop();
+            Gen.endScopes(first);
+        } else if (body != null) {
+            genTry(false);
+        }
+        return Item.voidItem;
+    }
+
+    void print(int prec) {
+        System.out.print(Obj.modNames(mods));
+        if (dcltyp != null) dcltyp.print();
+
+        if ((name == null) && (tag == LAMBDA)) {
+          if (closureLabel != null) {
+            System.out.print(" fun " + closureLabel + "(");
+          } else {
+            System.out.print(" fun(");
+          }
+        } else
+          if ((name == null) && (tag == CATCH))
+            System.out.print(" (");
+          else 
+            if (name != null && name.equals(Predef.initS)) //isConstructor
+              if (obj != null && obj.owner != null) 
+                System.out.print(" " + obj.owner.name + "(");
+              else
+                System.out.print(" " + ClassDef.lastPrintedClassName +
+                                 " /*<init>*/ (");
+            else 
+
+              System.out.print(" " + name + "(");
+        printSeq(params);
+        System.out.print(") ");
+
+        if (thrown.length > 0) {
+          System.out.print("throws ");
+
+          printSeq(thrown);
+
+          System.out.print(" ");
+        }
+
+        if (body != null) body.print();
+        else System.out.print(";");
+    }
+}
+
+class Import extends AST {
+
+    IdRef pid;
+
+    Import(int pos, IdRef pid) {
+        super(pos, IMPORT);
+        this.pid = pid;
+    }
+
+/** enter import handle c in scope, provided it's not 
+ *  already there.
+ */
+//FIX 21/10/96: include... take scope now.
+//#ifdef EEXT  
+//    void includeClass(Scope scope, ClassObj c) {
+//#else      
+    static void includeClass(Scope scope, ClassObj c) {
+//#endif      
+        for (ScopeEntry e = scope.lookup(c.name);
+             e.scope == scope;
+             e = e.next())
+          if (((ClassObj)e.obj).fullname.equals(c.fullname))
+            return;
+        scope.enter(c);
+    }
+
+
+/** enter import handles for all class files in directory dirname
+ *  in scope, provided they are not already there.
+ */
+//#ifdef EEXT    
+//    void includeDir(int pos, Scope scope, Name dirname) {
+//#else      
+    static void includeDir(int pos, Scope scope, Name dirname) {
+//#endif      
+        try {
+            Scope s = ClassFile.directory(dirname);
+            for (ScopeEntry e = s.elements(); e != null; e = e.sibling) {
+                includeClass(scope, (ClassObj)e.obj);
+            }
+        } catch (IOException e) {            
+            Report.error(pos, "error importing " + dirname + ": " + e);
+        }
+    }
+
+    static Name starS = Name.fromString("*");
+    static Name periodS = Name.fromString(".");
+
+/** process import statement.
+ */
+    void enterFields(Env env) {
+        if (Switches.checks) 
+            Basic.assert(pid.tag == IDENT || pid.tag == SELECT);
+        if (pid.tag == SELECT) {
+            Typ ptyp = ((Select)pid).struc.attr(env, PCK, Typ.anyTyp);
+            if (ptyp.tag == PACKAGETYP) {
+                if (pid.name.equals(starS)) {
+                  includeDir(
+                         pos,
+                         env.toplevel.starImportScope,
+                         ptyp.obj.fullname);
+                } else {
+                    ClassObj c = 
+                        new ClassObj(
+                                 ClassObj.formFullName(pid.name, ptyp.obj),
+                                 pid.name);
+
+                    pid.obj = c;
+
+                    includeClass(env.toplevel.namedImportScope, c);
+                }
+            } else if (ptyp.tag != ERRTYP) {
+                Report.error(pid.pos, "not a package: " + 
+                             ((IdRef)((Select)pid).struc).fullName());
+            }
+        } 
+    }
+
+    Typ attr(Env env, int kind, Typ pt) {
+
+      if (!E2j.done && !pid.name.equals(starS)) {
+        Name classname;
+        if (pid.obj != null)
+          classname = ((ClassObj)pid.obj).fullname;
+        else
+          classname = env.packageName.append(pid.name);
+        // System.out.println("Import.attr "+classname);
+        ClassObj c = (ClassObj)(ClassFile.loaded.get(classname));
+        if (c != null && c.typ != null && c.typ.tag != PACKAGETYP) {
+          pid.obj = c;
+        }
+      }
+
+        typ = pt;
+        return typ;
+    }
+
+    Item gen() {
+        return Item.voidItem;
+    }
+
+    void print (int prec) {
+        System.out.print("import ");
+        pid.print();
+
+        System.out.print(";");
+
+    }
+}
+
+class Package extends AST {
+    IdRef pid;
+
+    Package(int pos, IdRef pid) {
+        super(pos, PACKAGE);
+        this.pid = pid;
+    }
+
+    void enter(Env env) {
+//FIX 21/10/96: moved to TopLevel
+    }
+    
+    Typ attr(Env env, int kind, Typ pt) {
+        typ = pt;
+        return typ;
+    }
+
+    void print (int prec) {
+        System.out.print("package ");
+        pid.print();
+
+        System.out.println(";");
+        System.out.print("import ec.e.run.*; // E implicit import");
+
+    }
+
+    Item gen() {
+        return Item.voidItem;
+    }
+}
+
+class VarDef extends Def {
+    AST dcltyp;
+    AST init;
+
+    VarDef(int pos, Name name, int mods, AST dcltyp, AST init) {
+        super(pos, VARDEF, name, mods);
+        this.dcltyp = dcltyp;
+        this.init = init;
+    }
+
+/** check that we don't have a double declaration. return true iff OK.
+ */
+//FIX 6/11/96 admit function variable name overlap 
+    private boolean checkUnique(Scope s) {
+        ScopeEntry e = s.lookup(name);
+        while (e.scope == s) {
+          if (e.obj != obj && e.obj.kind == VAR &&
+              !Attr.isError(e.obj.typ)) {
+            Report.error(pos, "duplicate definition of " + 
+                         obj + Attr.location(e.scope));
+            return false;
+          }
+          e = e.next();
+        } 
+        return true;
+    }
+
+/** check that we don't have a local variable with the same name in some
+ *  enclosing scope. rteturn true iff OK.
+ */
+    private boolean checkUnshadowed(Scope s) {
+        ScopeEntry e = s.lookup(name);
+        while (e.scope != null && 
+               !(e.scope.owner != null &&
+                 e.scope.owner instanceof ClassObj)) {
+            if (e.obj != obj) {
+                Report.error(pos, obj + " already defined" + 
+                             Attr.location(e.scope));
+                return false;
+            }
+            e = e.next();
+        } 
+        return true;
+    }
+
+    void preEnter(Env env) {
+        localEnv = env;
+        int vmodifiers = 
+            Attr.completeMods(pos, mods, env, VarMods, InterfaceVarMods);
+//FIX 6/11/96 language spec no longer supports this
+//      if ((vmodifiers & FINAL) != 0)
+//          vmodifiers = vmodifiers | STATIC;
+        Typ vtyp = Attr.checkNonVoid(dcltyp.pos,
+                                     dcltyp.attr(env, TYP, Typ.anyTyp));
+        VarObj v = new VarObj(vmodifiers, name, vtyp);
+        v.alttyp = Simplify.alternateType(dcltyp);
+        if ((v.modifiers & FINAL) != 0) {
+            if (init == null)
+                Report.error(pos, "final variable needs an initializer");
+            else
+                v.initializer = init;
+        }
+        Env env1 = env;
+        while (env1 != null && 
+               !(env1.scope.owner instanceof FunObj &&
+                 env1.scope.owner.name != null))
+          env1 = env1.next;
+        if (env1 != null) {
+//FIX 12/11/91: really bad closure bug
+            v.vnum = ((FunObj)env1.scope.owner).nlocals++;
+        }
+        obj = v;
+        v.owner = env.scope.owner;
+    }
+ 
+    void postEnter(Env env) {
+        if (checkUnique(env.scope)) {
+            env.scope.enter(obj);
+            checkUnshadowed(env.scope);
+        }
+    }
+ 
+    void enter(Env env) {
+        preEnter(env);
+        postEnter(env);
+    }
+
+    Typ attr(Env env, int kind, Typ pt) {
+        boolean notYetEntered = obj == null; 
+        if (notYetEntered) preEnter(env);
+        VarObj v = (VarObj)obj;
+        if (init != null) {
+            if ((mods & STATIC) != 0) {
+                env = new Env(env, this);
+                env.isStatic = true;
+            }
+            init.attr(env, VAL, v.typ);
+
+            ((VarObj)obj).init_state = VarObj.ASSIGNED_TO;
+
+        }
+        if (notYetEntered) postEnter(env);
+//        if ((mods & FINAL) != 0) {
+//            } else if (env.isInterface() && !init.typ.isConstant()) {
+//                Report.error(init.pos, 
+//      "variable initializer in interface should be a constant expression");
+//          }
+//        }
+        typ = pt;
+        return typ;
+    }
+
+    Item gen() {
+        VarObj v = (VarObj)obj;
+        if (localEnv.parent.tag == CLASSDEF) {
+            ClassDef cd = localEnv.enclClass;
+            if ((v.modifiers & STATIC) != 0) 
+                Gen.useCode(cd.clinitcode);
+            else 
+                Gen.useCode(cd.initcode);
+            Gen.entryPoint(0);
+        }
+        if (init != null) {
+            if (v.isConstant()) {
+                Object dummy = v.constValue(); // to set value field
+            } else {
+                AST vinit = init;
+                Gen.statBegin(pos);
+                Item varItem;
+                if (v.owner instanceof FunObj) {
+                    Gen.adrLocal(v, Gen.newLocal(v.typ));
+                    varItem = new LocalItem(pos, v.adr);
+                } else {
+                    Gen.adrGlobal(v);
+                    varItem = new BasedItem(pos, Item.thisItem, v);
+                }
+                Item initial = vinit.gen().coerce(vinit.typ, v.typ);
+                initial.load(v.typ);
+                varItem.store(v.typ);
+            }
+        } else if (v.owner instanceof FunObj) {
+            Gen.adrLocal(v, Gen.newLocal(v.typ));
+            Gen.letUninit(v.adr);
+        } else {
+            Gen.adrGlobal(v);
+            Gen.letInit(v.adr);
+        }
+        return Item.voidItem;
+    }
+
+    void print(int prec) { 
+        System.out.print(Obj.modNames(mods));
+        dcltyp.print();
+        System.out.print(" " + name);
+        if (init != null) {
+            System.out.print(" = ");
+            init.print();
+        }
+    }
+}
+
+/** the top-level class. there is one per sourcefile.
+ */
+class TopLevel extends AST {
+
+    AST[] defs;
+    String sourcefile;
+    Env env;              // the top-level environment.
+    int pass;
+    ASTS newClasses;
+//FIX 21/10/96 three different scopes -- search for their occurences 
+// elsewhere in this file
+    Scope packageScope;
+    Scope namedImportScope;
+    Scope starImportScope;
+//ENDFIX
+
+    TopLevel(ASTS defs, String sourcefile) {
+        super(0, TOPLEVEL);
+        this.defs = defs.shrink();
+        this.sourcefile = sourcefile;
+        pass = 1;
+    }
+
+    static final Name PeriodS = Name.fromString(".");
+ 
+    void enter() {
+        Report.open(sourcefile);
+        env = new Env(this);
+
+//FIX 21/10/96
+        Name pname;
+        if (defs.length > 0 && defs[0].tag == PACKAGE) {
+            pname = ((Package)defs[0]).pid.fullName();
+            env.packageName = pname.append(PeriodS);
+        } else {
+            pname = Name.fromString("");
+            env.packageName = pname;
+        }
+        try {
+            this.packageScope = ClassFile.directory(pname);
+        } catch (IOException e) {
+            Report.error(pos, "error importing own package: " + e);
+        }
+        this.namedImportScope = new Scope(null, null);
+        this.starImportScope = new Scope(null, null);
+//ENDFIX
+        
+        for (int i = 0; i < defs.length; i++) {
+            defs[i].enter(env);
+        }
+        Report.close();
+    }
+
+    void enterFields() {
+//        if (Switches.verbose)
+//            System.out.println("[preprocessing " + sourcefile + "]");
+        Report.open(sourcefile);
+        if (pass == 1) {
+//FIX 11/11/96: no need for globalScope anymore
+//          env.globalScope.baseOn(Predef.scope);
+
+            new Import(0, null).includeDir(0, env.toplevel.starImportScope,
+
+
+
+                       Name.fromString("java.lang"));
+
+            // E-Extension.
+            new Import(0, null).includeDir(0, env.toplevel.starImportScope,
+                       Name.fromString("ec.e.run"));
+
+        }
+        for (int i = 0; i < defs.length; i++) {
+            if (pass == 1 || defs[i].tag != IMPORT) 
+                defs[i].enterFields(env);
+        }
+        Report.close();
+        pass++;
+    }
+
+    void attr() {
+        if (Switches.verbose)
+            System.out.println("[checking " + sourcefile + "]");
+        Report.open(sourcefile);
+        for (int i = 0; i < defs.length; i++) {
+            defs[i].attr(env, TYP, Typ.anyTyp);
+        }
+        Report.close();
+    }
+
+    Item gen() {
+        if (Report.nerrors == 0) {
+            Report.open(sourcefile);
+            for (int i = 0; i < defs.length; i++) {
+                defs[i].genDrop();
+                defs[i].output();
+            }
+            Report.close();
+        }
+        return Item.voidItem;
+    }
+    
+/*
+    void output() {
+      if (Report.nerrors == 0) {
+          for (int i = 0; i < defs.length; i++) {
+                defs[i].output();
+            }
+      }
+    }
+    */
+
+    void print(int prec) { 
+        for (int i = 0; i < defs.length; i++) {
+            defs[i].print(prec);
+            System.out.println();
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

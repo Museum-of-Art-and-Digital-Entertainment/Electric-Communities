@@ -1,0 +1,17 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>Presence init example</TITLE>
+<META NAME="Template" CONTENT="C:\Program Files\Microsoft Office\Templates\Web Pages\Web Page Wizard.wiz">
+</HEAD>
+<BODY TEXT="#000000" LINK="#0000ff" VLINK="#800080" BACKGROUND="Image4.gif">
+
+<P>If you have to have an unum reference, and you have client and host versions of your ingredient, then make sure only the host keeps an actual reference. The client should request it from the host when it needs it. You can use channels to make this process optimistic, e.g:</P>
+<PRE>
+  // Use code like this in any client ingredient method.
+  // The client init contains no reference to the Unum.
+  Unum blah;
+  environment.basePresence &lt;- pGetReference(&amp;blah);
+  blah &lt;- dosomething();</PRE></BODY>
+</HTML>

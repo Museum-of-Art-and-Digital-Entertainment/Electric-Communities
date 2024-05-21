@@ -1,0 +1,18 @@
+#!/bin/csh -f
+#
+# This copies $EDIR/classes and $EDIR/bin into $BUILD, but only if
+# $BUILD/objs/.ecomp-done doesn't already exist. This prevents make
+# from doing this copy over and over unnecessarily, and also prevents
+# trashing a manually-made ecomp by a premade one.
+
+if (-e $BUILD/objs/.ecomp-done) then
+    echo "(ecomp already made or copied)"
+else
+    echo "(copying ecomp from pre-built version)"
+    mkdir -p $BUILD/classes
+    cp -r $EDIR/classes/* $BUILD/classes
+    mkdir -p $BUILD/bin
+    cp $EDIR/solaris/bin/ecomp $BUILD/bin
+    mkdir -p $BUILD/objs
+    touch $BUILD/objs/.ecomp-done
+endif

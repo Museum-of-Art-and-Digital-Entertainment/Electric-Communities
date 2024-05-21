@@ -1,0 +1,9 @@
+
+from the pls-location directory (/home/eng/pls-location)
+
+$ ftp www
+
+ftp> login as user with write permission on www
+
+ftp> cd /var/ftp/pub/pls-location
+ftp> put gracie.communities.com_1666

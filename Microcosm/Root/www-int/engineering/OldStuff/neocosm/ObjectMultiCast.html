@@ -1,0 +1,144 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.05 [en] (WinNT; I) [Netscape]">
+   <TITLE>Object Multicast</TITLE>
+</HEAD>
+<BODY>
+
+<H1>
+Object-level Multicast Support in Neocosm</H1>
+<B>Last updated:</B><I> [98/05/24 <A HREF="mailto:cobblers@communities.com">Bob</A>]</I>
+Author: <A HREF="mailto:cobblers@communities.com">Bob Schumaker</A>.
+<H2>
+Introduction</H2>
+Many of the interactions between distributed objects in the current version
+of Cosm would be simplified if the collection of "target" objects could
+be specified as a group. This document describes an extension to the current
+"proxy" object model that supports an arbitrary group abstraction and hides
+the details of the underlying multicast implementation (if any).
+<H2>
+Requirements</H2>
+
+<OL>
+<LI>
+Diverse group or "session" semantics should be supported without changing
+the basic interface.</LI>
+
+<LI>
+The API should be "simple" -- the details of exactly how the group is maintained
+should be hidden from its clients, allowing improvements to be made over
+time as we more fully understand the problems involved.</LI>
+
+<LI>
+If possible, the first implementation should provide primitive group semantics
+using the current underlying communication system.</LI>
+
+<LI>
+The API should not tie us to any given underlying multicast support so
+that we can move to new standard technologies as they become available.</LI>
+</OL>
+
+<H2>
+Architecture</H2>
+Object-level multicast is provided by an Object that implements the <TT>Group</TT>
+interface. It is this object that determines the state of the group as
+a whole (membership, primarily, although the group may tell its clients
+that it is no longer effectively a group at any time). In addition, the
+<TT>Group</TT> will provide its clients with a <TT>Sendable</TT> that will
+reach all the members of the group (within the limitations of the group
+itself, an unreliable group may not make any guarantees on message delivery).
+<H4>
+Current Architecture Overview</H4>
+Currently, all multicast semantics are handled at the top levels of object
+in the system, <I>i.e</I>. those objects that deal with group semantics
+maintain their own group state internally -- there is no shared "group
+concept." The purpose of the Multicast Group subsystem is to concentrate
+all of the group membership information and behavior underneath a common
+interface.
+<H4>
+Proposed Architecture Overview</H4>
+The Multicast Group object, upon request, provide a proxy interface to
+the rest of the system, since it is, in effect, a proxy for the group.
+As different strategies for determining group membership become necessary,
+subclasses can be implemented to support those strategies. The initial
+implementation will most likely be a collection of point-to-point connections
+and will maintain a simple status of which endpoints are currently connected.
+Since the Multicast Group object is a first class object, it can eventually
+be a distributed object in its own right, and could conceivably implement
+multicast semantics on its own without any support from the underlying
+comm system.
+<H4>
+Off the shelf alternatives</H4>
+Scott's <A HREF="DObjects.html">DObject</A> '<A HREF="dobjects/dom/docs/dom.session.View.html">dom.session.View</A>'
+class provides some of the same functionality, but with a different abstraction.
+<H4>
+Other Design Objectives, Constraints and Assumptions</H4>
+The main design objective of the Multicast Group subsystem is to wrap session
+and group semantics inside an object with a well defined interface and
+behavior, isolating the entire distributed object system from the underlying
+communication system details necessary to support it. This will allow us
+to develop objects that rely on multicast support well before we have low-level
+comm system support for "true" multicast (and, in fact, we never need to
+implement low-level multicast if it proves infeasible).
+<H2>
+Proposed implementation</H2>
+Groups define the <TT>Group</TT> interface and internally maintain their
+own state. State changes may be reported to interested parties, but the
+group itself is responsible for determining 'significant' changes (<I>i.e.</I>
+details of maintaining group membership are hidden inside the implementation
+of the group). Additions and deletions from the group may also be made
+by external agents (<I>e.g.</I> a region adding avatars to a region).
+
+<P>The messaging interface to a group is provided by an object that implements
+<A HREF="../API_doc/ec4/ec.elib.prim.Sendable.html">Sendable</A>, with
+one change — the <A HREF="../API_doc/ec4/ec.elib.prim.Sendable.html#sendAll(java.lang.String, java.lang.Object[])">SendAll</A>
+method throws and exception (trying to get a result back from a group is
+not a valid operation). From the point of view of client objects, there
+are no other differences between a point-to-point connection and a group
+connection as far as interface.
+<UL>
+<LI>
+Constructor: Take a (possibly empty) list of Sendables</LI>
+
+<LI>
+Group membership: AddGroupMember, RemoveGroupMember, MembershipStatus</LI>
+
+<LI>
+Communication: GetGroupSendable</LI>
+</UL>
+
+<H4>
+Which directories on our tree does this subsystem cover?</H4>
+<I>For example ec4/javasrc/ec/...</I>
+<H4>
+Is it JavaDoc'ed?</H4>
+<I>In many cases, this section can link to JavaDoc output from actual Java
+classes and interfaces. This saves writing documentation twice (the designers
+will have to JavaDoc their interfaces anyway). The JavaDoc should be linked
+into the design document. <A HREF="../tools/javadoc.html">Chip's JavaDoc
+style guidelines</A> explain how to use JavaDoc effectively.</I>
+<H4>
+Examples</H4>
+<I>Are there examples?</I>
+<H4>
+Testing and Debugging</H4>
+<I>(Optional) Lists any tests and debugging utilities which are to be developed
+to help test the design (e.g. test classes, trace categories, etc.)</I>
+<H2>
+Design Issues</H2>
+
+<H4>
+Resolved Issues</H4>
+<I>History of issues raised and resolved during initial design, or during
+design inspections. Can also include alternative designs, with the reasons
+why they were rejected</I>
+<H4>
+Open Issues</H4>
+[5/26/98 Bill] Based on the last white board discussions, the design for
+the Multicast object calls for it to only support the non-status reporting
+version of send. However it uses the status reporting versions to learn
+when clients leave the group. This approach will prevent these objects
+from being cascaded.
+</BODY>
+</HTML>

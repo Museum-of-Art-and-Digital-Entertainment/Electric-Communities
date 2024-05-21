@@ -1,0 +1,14 @@
+CFLAGS += -g
+
+$(APP_PATH): $(INSTALL_DIR) $(OBJDIRS) $(FILES.o)
+	$(CC) -o $@ $(FILES.o)
+	$(RM) -f $(BUILD)/objs/$(MODNAME)/ejversion.o
+
+all: standalone
+
+y.tab.h ejparse.c: egrammar.y
+	@echo "expect 2 shift/reduce conflicts"
+	$(YACC) -vd egrammar.y
+	mv y.tab.c ejparse.c
+	cp ejparse.c win32/
+	cp y.tab.h win32/

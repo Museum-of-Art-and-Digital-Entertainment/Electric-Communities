@@ -1,0 +1,5 @@
+define z := 1
+while (z < 20) {
+	java.lang.System currentTimeMillis println
+	z := z + 1
+}

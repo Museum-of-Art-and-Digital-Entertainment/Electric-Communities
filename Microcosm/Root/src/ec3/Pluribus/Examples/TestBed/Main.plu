@@ -1,0 +1,74 @@
+export unit Main {
+    package ec.pl.examples.testbed;
+    
+    import ec.e.start.ELaunchable;
+    import ec.e.start.Environment;
+  import ec.pl.runtime.AgentInfo;
+  import ec.e.file.EStdio;
+    import ec.e.cap.*;
+    import ec.e.net.*;
+  import ec.e.lang.EString;
+    
+    public eclass TestBed implements Agent
+    {
+        emethod go (EEnvironment env, AgentInfo info) {
+        
+            System.out.println("In TestBed.go()");
+            
+            String reg = env.getProperty("reg");
+            String lookup = env.getProperty("lookup");
+            
+            Registrar registrar = Registrar.summon(env);
+      try {
+        registrar.onTheAir();
+      } catch (RegistrarException e) {
+        throw new Error("fatal registar problem going on the air: " + e);
+      }
+
+            if (reg != null) {
+        // No URL given, this is the publishing process
+        try {
+          kind ukSetUnumReference unumA;
+
+          unumA = new unum uiATest();
+
+          // create a sturdy reference to this agent, which we are publishing
+          SturdyRefMaker refMaker = registrar.getSturdyRefMaker();
+          SturdyRef ref;
+          refMaker <- makeSturdyRef(unumA, &ref);
+
+          // export (publish) this object
+          SturdyRefFileExporter refExporter = registrar.getSturdyRefFileExporter(env); 
+          // SturdyRefExporter refExporter = registrar.getSturdyRefExporter();
+
+          // if a file exporter, the url is written to a file
+          // if a normal exporter, the url is returned in an EString
+          refExporter <- exportRef(ref, reg);
+        } catch (Throwable t) {
+          EStdio.err().println("Publisher caught exception: " + t.getMessage());
+          EStdio.reportException(t);
+        }
+            } else if (lookup != null) {
+        // URL given on command line, use it to look up another
+        // instance of this agent
+
+        // acquire a sturdy reference from the registrar, given a URL
+        SturdyRefFileImporter importer = registrar.getSturdyRefFileImporter(env);
+        SturdyRef ref;
+        try {
+          importer.importRef(lookup, &ref);
+        } catch (IOException e) {
+          throw new Error("Problem importing reference from file: " + lookup);
+        }
+
+                kind ukSetUnumReference unumA;
+                kind ukSetUnumReference unumB = new unum uiBTest();
+        ref <- followRef(&unumA);
+
+                unumB <- (kind ukSetUnumReference).uSetUnumReference(unumA);
+                unumA <- (kind ukSetUnumReference).uSetUnumReference(unumB);
+            }
+            
+        }
+    }
+}

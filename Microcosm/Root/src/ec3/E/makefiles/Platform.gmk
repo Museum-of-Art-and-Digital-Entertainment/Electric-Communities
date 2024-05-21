@@ -1,0 +1,14 @@
+# Determine what platform we're on
+ifeq ($(PLATFORM_OS),)
+  PLATFORM_OS = $(shell if [ "$(OS)" = "Windows_NT" ]; then \
+		echo win32; \
+	elif [ "$(WINDIR)" = "/WINDOWS" ]; then \
+		echo win32; \
+	elif [ "$(WINDIR)" = "C:\WINDOWS" ]; then \
+		echo win32; \
+	elif [ `uname` = "Linux" ]; then \
+		echo linux; \
+	else \
+		echo solaris; \
+	fi;)
+endif

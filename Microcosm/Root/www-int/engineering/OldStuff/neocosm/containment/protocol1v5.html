@@ -1,0 +1,1075 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="Generator" CONTENT="Microsoft Word 97">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.03 [en] (Win95; U) [Netscape]">
+   <META NAME="Author" CONTENT="Rob Jellinghaus">
+   <TITLE>Oldocosm Containership Protocol</TITLE>
+</HEAD>
+<BODY>
+
+<H1>
+<FONT SIZE=-1>Oldocosm Containership Protocol</FONT></H1>
+<FONT SIZE=-1>This document was the best writeup ever of the old cosm's
+containership protocol, which was essentially a full "multi-level approach
+to multi-level containership".&nbsp; This document represents the state
+of the protocol as of approximately last September.&nbsp; Subsequently,
+thanks to ScottL's input, the Pluribus runtime was extended with support
+for scoping the lifetimes of unums and presences.&nbsp; These extensions
+were never documented, however, and this document is completely ignorant
+of presence spread issues.</FONT>
+
+<P><FONT SIZE=-1>Also see the accompanying diagrams (<A HREF="protocol1v4pg1.gif">page
+1, the messages</A> and <A HREF="protocol1v4pg2.gif">page 2, the objects</A>).</FONT>
+<BR>
+<HR WIDTH="100%">
+
+<P><FONT SIZE=-1>FIRST PROTOCOL VERSION 5:</FONT>
+
+<P><FONT SIZE=-1>Change history:</FONT>
+<UL>
+<LI>
+<FONT SIZE=-1>protocol1v3: integrated Paul’s comments, fleshed out uSetRoot
+description for Brian</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>protocol1v4: touched up state diagram for Paul, added location
+information properly throughout, added description of composition protocol
+at end, fixed Brian’s errata</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>protocol1v5: fixed up entries at start (thanks Bill), added
+"throw if Cbintransit" in step 8 (thanks Trev/Arturo), added several other
+fixes from Brian</FONT></LI>
+</UL>
+<FONT SIZE=-1>BRIEF INTRODUCTORY NOTE</FONT>
+
+<P><FONT SIZE=-1>This is a complicated protocol. Here’s why:</FONT>
+
+<P><FONT SIZE=-1>The basic containment problem is as follows. There is
+a region which contains a set of objects. The region is an unum hosted
+on some machine R. There are some other machines X, Y, Z all connected
+to machine R, all with client presences of the region unum.</FONT>
+
+<P><FONT SIZE=-1>When an object (let’s say an avatar hosted on machine
+A) wants to enter the region, it sends a request to the host presence of
+the region unum on machine R, containing information about what the avatar
+wants to look like. The host presence verifies that that appearance is
+suitable under the TOS of the region. If it is, the region tells machines
+X, Y, and Z that the avatar has entered the region, and spreads client
+presences of the avatar to machines X, Y, and Z. In order for the avatar
+to come to be in the shared space of the region, it must gain admittance
+via the region’s host presence.</FONT>
+
+<P><FONT SIZE=-1>Now consider the case where the avatar, hosted on machine
+A, is carrying a tray, hosted on machine T, on which is an obscene object,
+hosted on machine O. The avatar and the tray are both "open containers",
+which is to say that they and all their contents are visible in whatever
+region they enter. Now when the avatar seeks to enter the region hosted
+on R, it needs to present information not just describing itself but also
+describing the appearance of T and of O. And the region needs to decide
+not only whether A passes TOS but also whether R and O do. Only if <U>all</U>
+pass the TOS check should A be admitted.</FONT>
+
+<P><FONT SIZE=-1>(An alternative possible protocol would be for A to enter
+the region R, then to tell T to come along; T could then attempt to enter,
+and if it succeeded, it could ask O to join it; and so on, avoiding the
+need for A to present information upfront about both T <U>and</U> O. The
+problem here is that if O fails to pass TOS, it’s too late for A and T;
+they are already in the new region. A winds up in R holding an empty tray.
+What happened to O? And what if the user decides it was a mistake to try
+to enter R in the first place? You can’t always get back where you came
+from once you leave a region….)</FONT>
+
+<P><FONT SIZE=-1>The protocol below deals with this problem by storing
+in each separate container a copy of the entire state of the open containment
+tree below that container. For example, A contains a tree with the entries
+{A, T, O}; T contains a tree with {T, O}; etc. This means that whenever
+a container seeks to enter another container, it can present all the information
+up front. We decided to think of A’s transition as a transaction wherein
+A attempts to enter on the basis of its current state regarding itself
+and all its contents. The complexity of the protocol below is largely concerned
+with keeping consistent state between containers, their contents, and their
+parents.</FONT>
+
+<P><FONT SIZE=-1>PREFACE</FONT>
+
+<P><FONT SIZE=-1>This document walks through the containment protocol for
+the following configuration of objects. Note that some messages (uFlush,
+uParentAddUnum, uRemove) are only sent to a container’s parent if the container
+is not the root. Since any container may or may not be the root, there
+are cases in this protocol writeup where the message flow would be different
+if, for example, OC was actually a root—i.e. was actually OR. These cases
+are not called out explicitly; it is the case that OC and NC show the behavior
+of non-root containers when receiving these messages, and OR and NR show
+the behavior of root containers when receiving these messages.</FONT>
+
+<P><FONT SIZE=-1>Also, in any instance where a container sends a message
+to its parent, it is the case that if there are additional parents between
+that container and the root, the message will be handled identically by
+each such parent; for example, uFlush, uParentAddUnum, and uRemove requests
+all propagate all the way up the parent chain however long it is.</FONT>
+
+<P><FONT SIZE=-1>Soon this protocol will need review to ensure that all
+message sends are wrapped by catches that properly handle disconnection
+or revocation failures. This has not yet been begun, but the basic story
+is: if a container receives a disconnection/revocation exception from a
+containable, it does the equivalent of "OCfsupCb <FONT FACE="Wingdings">&szlig;</FONT>
+uRemove()"; if a containable gets disconnection/revocation from a container,
+it transfers itself to its container of last resort (which perforce must
+be hosted on its agency or the object’s not guaranteed to be able to reach
+it); and that may be all the mechanism we need. We’ll see.</FONT>
+
+<P><FONT SIZE=-1>CAST OF OBJECTS</FONT>
+<UL>
+<LI>
+<FONT SIZE=-1>OR: old root</FONT></LI>
+
+<BR><FONT SIZE=-1>ORkeyOC: OR’s key for OC as a direct child (i.e. OR’s
+"direct-containment" key for OC)</FONT>
+<BR><FONT SIZE=-1>ORfsupOC: OR’s facet supporting OC as direct child (contains
+ORkeyOC)ORrootkeyOC: OR’s key for OC as a child under this root (i.e. OR’s
+"indirect-open-containment" key for OC)</FONT>
+<BR><FONT SIZE=-1>ORrootkeyCb: OR’s key for Cb as a child under this rootORfsupOC:
+OR’s facet supporting OC as parent (contains ORkeyOC as state)</FONT>
+<BR><FONT SIZE=-1>ORfrootsupOC: OR’s facet supporting OC as root (contains
+ORrootkeyOC as state)</FONT>
+<BR><FONT SIZE=-1>ORfrootsupCb: OR’s facet supporting OC as root (contains
+ORrootkeyCb as state)</FONT>
+<BR><FONT SIZE=-1>(and likewise ORrootkeyCbchild, ORfrootsupCbchild)</FONT>
+<BR><FONT SIZE=-1>ORchildtree: OR’s tree of children</FONT>
+<LI>
+<FONT SIZE=-1>OC: old container</FONT></LI>
+
+<BR><FONT SIZE=-1>OCparent: OC’s channel to its parent (initially ORfsupOC)</FONT>
+<BR><FONT SIZE=-1>OCroot: OC’s channel to its root (initially ORfrootsupOC)</FONT>
+<BR><FONT SIZE=-1>OCunumrouter: OC’s unum router</FONT>
+<BR><FONT SIZE=-1>OCfsupOR: OC’s facet supporting OR (i.e. CbfsupOC is
+to OC as OCfsupOR is to OR)</FONT>
+<BR><FONT SIZE=-1>OCkeyCb: OC’s key for Cb</FONT>
+<BR><FONT SIZE=-1>OCfsupCb: OC’s facet supporting Cb (contains OCkeyCb)</FONT>
+<BR><FONT SIZE=-1>OCpendingrequests: OC’s table of pending flush requests
+from below</FONT>
+<BR><FONT SIZE=-1>OCdirectchildren: OC’s vector of *fsupOC facets for communicating
+with its children (initially just CbfsupOC)</FONT>
+<BR><FONT SIZE=-1>OCchildtree: OC’s tree of children</FONT></UL>
+
+<UL>
+<LI>
+<FONT SIZE=-1>Cb: containable</FONT></LI>
+
+<BR><FONT SIZE=-1>Cbparent: Cb’s channel to its parent (initially OCfsupCb)</FONT>
+<BR><FONT SIZE=-1>Cbroot: Cb’s channel to its root’s facet (initially ORfrootsupCb)</FONT>
+<BR><FONT SIZE=-1>Cbunumrouter: Cb’s unum router</FONT>
+<BR><FONT SIZE=-1>CbfsupOC: Cb’s facet supporting OC</FONT>
+<BR><FONT SIZE=-1>Cbchildtree: Cb’s tree of children</FONT>
+<BR><FONT SIZE=-1>Cbfrozenchildtree: Cb’s tree of children, cloned at uTrySetContainer
+time</FONT>
+<BR><FONT SIZE=-1>Cbintransit: boolean flag, true if in transit</FONT>
+<BR><FONT SIZE=-1>Cbfnewtransfer: facet made by containable when it receives
+a uRequestTransfer message</FONT>
+<BR><FONT SIZE=-1>Cbfnewsetparent: facet made by containable when it receives
+a uTrySetContainer message</FONT></UL>
+
+<UL>
+<LI>
+<FONT SIZE=-1>NC: new container</FONT></LI>
+
+<BR><FONT SIZE=-1>(NCfsetparent, NCunumrouter, as for Cb)</FONT>
+<BR><FONT SIZE=-1>NCparent: NC’s channel to its parent (initially NRfsupNC)</FONT>
+<BR><FONT SIZE=-1>NCroot: NC’s channel to its root (initially NRfrootsupNC)</FONT>
+<BR><FONT SIZE=-1>NCfadd: public add facet for NC (note that this is potentially
+sturdyable!)</FONT>
+<BR><FONT SIZE=-1>NCdirectchildren: NC’s vector of *fsupNC facets for communicating
+with its children</FONT>
+<BR><FONT SIZE=-1>NCchildtree: NC’s tree of children</FONT>
+<BR><FONT SIZE=-1>NCkeyCb: NC’s new key for Cb</FONT>
+<BR><FONT SIZE=-1>NCfsupCb: NC’s facet supporting Cb (contains NCkeyCb)</FONT>
+<LI>
+<FONT SIZE=-1>NR: new root</FONT></LI>
+
+<BR><FONT SIZE=-1>NRkey: new root’s key</FONT>
+<BR><FONT SIZE=-1>NRkeyNC: NR’s key for NC</FONT>
+<BR><FONT SIZE=-1>NRfsupNC: NR’s facet supporting NC as parent (contains
+NRkeyNC)</FONT>
+<BR><FONT SIZE=-1>NRrootkeyCb: NR’s key for CbNRfrootsupCb: NR’s facet
+supporting Cb as root (contains NRrootkeyCb)</FONT>
+<BR><FONT SIZE=-1>(and likewise NRrootkeyCbchild, NRfrootsupCbchild)</FONT>
+<BR><FONT SIZE=-1>NRchildtree: NR’s tree of children</FONT></UL>
+<FONT SIZE=-1>Messages to objects:</FONT>
+<UL>
+<LI>
+<FONT SIZE=-1>Root receives messages:</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>uAddUnum (add an entire branch under a given container contained
+directly by this root)</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>uParentAddUnum (add an entire branch under a given container
+which is a (possibly nested) child of some direct child of this root)</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>uRemove (remove an entire branch directly under this root)</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>uParentRemove (remove an entire branch under some nested
+child of this root)</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>uFlush (if all changes flushed, return a flushAck)</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>Container receives messages:</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>uRequestContainableTransfer (request to transfer a containable
+out of this container)</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>uAddUnum (add a containable into this container)</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>uParentAddUnum (if this container has containers as children,
+one of the children just got an unum added to it)</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>uParentAddFailed (some add to one of our nested-children
+failed and we need to clean up our tree and let them know)</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>uRemove (remove a containable directly under this container)</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>uParentRemove (remove a containable under some nested child
+of this container)</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>uFlush (verify all changes processed)</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>uFlushAck (propagate an acknowledgement on downwards)</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>Containable receives messages:</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>uRequestTransfer (request to transfer this containable to
+another container)</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>uTrySetContainer (commence an add of this containable elsewhere)</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>uAddFailed (add attempt failed)</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>uFlushAck (all parents of this container have processed all
+messages from this containable prior to the flush)</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>uSetParent (add has committed, set the parent of this containable)</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>uSetRoot (this containable or a container above it has moved
+to a new root; recreate unumrouter, etc.)</FONT></LI>
+</UL>
+<FONT SIZE=-1>Notation for protocol flow:</FONT>
+
+<P><FONT SIZE=-1>X on I(a,b):</FONT>
+
+<P><FONT SIZE=-1>action</FONT>
+
+<P><FONT SIZE=-1>action</FONT>
+
+<P><FONT SIZE=-1>Y <FONT FACE="Wingdings">&szlig;</FONT> J(a,b)</FONT>
+
+<P><FONT SIZE=-1>means that on receipt of message I(a,b), X performs two
+actions and then sends message J(a,b) to Y.</FONT>
+
+<P><FONT SIZE=-1>The protocol initiates as follows:</FONT>
+
+<P><FONT SIZE=-1>&nbsp;</FONT>
+<OL>
+<LI>
+<FONT SIZE=-1>initiator:</FONT></LI>
+
+<BR><FONT SIZE=-1>Cb <FONT FACE="Wingdings">&szlig;</FONT> uRequestTransfer(NCfadd,
+toNotifyFail, location)</FONT>
+<BR><FONT SIZE=-1>// toNotifyFail is an object to inform if the transfer
+fails</FONT>
+<LI>
+<FONT SIZE=-1>Cb on uRequestTransfer(NCfadd, toNotifyFail, location):</FONT></LI>
+
+<BR><FONT SIZE=-1>if !Cbintransit {</FONT>
+<BR><FONT SIZE=-1>make new facet Cbfnewtransfer with CbfsupOC, NCfadd,
+toNotifyFail</FONT>
+<BR><FONT SIZE=-1>Cbparent <FONT FACE="Wingdings">&szlig;</FONT> uRequestContainableTransfer(Cbfnewtransfer,
+location)</FONT>
+<BR><FONT SIZE=-1>} else {</FONT>
+<BR><FONT SIZE=-1>toNotifyFail <FONT FACE="Wingdings">&szlig;</FONT> transferFailed("containable
+already in transit")</FONT>
+<BR><FONT SIZE=-1>}</FONT>
+<BR><I><FONT SIZE=-1>Commentary: We do not have to reject the transfer
+request here; we could just let it queue in Cbparent if we are currently
+in transit. Arturo would prefer for now that we reject upfront. We can
+change this later if upfront rejection turns out painful.</FONT></I>
+<LI>
+<FONT SIZE=-1>OCfsupCb on uRequestContainableTransfer(Cbfnewtransfer, location):</FONT></LI>
+
+<BR><FONT SIZE=-1>OC <FONT FACE="Wingdings">&szlig;</FONT> uRequestContainableTransfer(OCkeyCb,
+Cbfnewtransfer, location)</FONT>
+<LI>
+<FONT SIZE=-1>OC on uRequestContainableTransfer(OCkeyCb, Cbfnewtransfer,
+location):</FONT></LI>
+
+<BR><FONT SIZE=-1>validate that transfer is OK</FONT>
+<BR><FONT SIZE=-1>if so {</FONT>
+<BR><FONT SIZE=-1>Cbfnewtransfer <FONT FACE="Wingdings">&szlig;</FONT>
+uTrySetContainer(OCkeyCb, location)</FONT>
+<BR><FONT SIZE=-1>} else {</FONT>
+<BR><FONT SIZE=-1>Cbfnewtransfer <FONT FACE="Wingdings">&szlig;</FONT>
+uTransferFailed("because container wouldn’t let it go")</FONT>
+<BR><FONT SIZE=-1>}</FONT>
+<LI>
+<FONT SIZE=-1>Cbfnewtransfer on uTransferFailed(reasonWhy):</FONT></LI>
+
+<BR><FONT SIZE=-1>toNotifyFail <FONT FACE="Wingdings">&szlig;</FONT> uTransferFailed(reasonWhy)</FONT>
+<BR><FONT SIZE=-1>revoke Cbfnewtransfer <I>// no reason a facet can’t revoke
+itself….</I></FONT>
+<LI>
+<FONT SIZE=-1>toNotifyFail on uTransferFailed(reasonWhy):</FONT></LI>
+
+<BR><FONT SIZE=-1>Notify user of failure and reasonWhy.</FONT>
+<LI>
+<FONT SIZE=-1>Cbfnewtransfer on uTrySetContainer(OCkeyCb, location):</FONT></LI>
+
+<BR><FONT SIZE=-1>CbfsupOC <FONT FACE="Wingdings">&szlig;</FONT> uTrySetContainer(NCfadd,
+toNotifyFail, OCkeyCb, location)</FONT>
+<BR><FONT SIZE=-1>revoke myself</FONT>
+<LI>
+<FONT SIZE=-1>CbfsupOC on uTrySetContainer(NCfadd, toNotifyFail, OCkeyCb,
+location):</FONT></LI>
+
+<BR><FONT SIZE=-1>if CbfsupOCisqueueing { <I>// see step 15; this is how
+explicit queueing is implemented</I></FONT>
+<BR><FONT SIZE=-1>CbfsupOCqueue <FONT FACE="Wingdings">&szlig;</FONT> uTrySetContainer(NCfadd,
+toNotifyFail)</FONT>
+<BR><FONT SIZE=-1>} else {</FONT>
+<BR><FONT SIZE=-1>Cb <FONT FACE="Wingdings">&szlig;</FONT> uTrySetContainer(NCfadd,
+toNotifyFail)</FONT>
+<BR><FONT SIZE=-1>}</FONT>
+<LI>
+<FONT SIZE=-1>Cb on uTrySetContainer(NCfadd, toNotifyFail, OCkeyCb, location):</FONT></LI>
+
+<BR><I><FONT SIZE=-1>// NOTE that this is the only place where we do "optimistic
+channeling". Here is where we will</FONT></I>
+<BR><I><FONT SIZE=-1>// channel-deadlock, if anywhere.</FONT></I>
+<BR><FONT SIZE=-1>if Cbintransit {</FONT>
+<BR><FONT SIZE=-1>toNotifyFail <FONT FACE="Wingdings">&szlig;</FONT> uTransferFailed("Already
+in transit")</FONT>
+<BR><FONT SIZE=-1>return</FONT>
+<BR><FONT SIZE=-1>}</FONT>
+
+<P><FONT SIZE=-1>Cbintransit = true</FONT>
+<BR><FONT SIZE=-1>create new channel Cbnewparent, and its associated distributor
+&amp;Cbnewparent</FONT>
+<BR><FONT SIZE=-1>create new channel Cbqueueparent, and &amp;Cbqueueparent
+<I>// see commentary below</I></FONT>
+<BR><FONT SIZE=-1>create new channel Cbqueueroot, and &amp;Cbqueueroot</FONT>
+<BR><FONT SIZE=-1>Cboldparent = Cbparent</FONT>
+<BR><FONT SIZE=-1>Cboldroot = Cbroot</FONT>
+<BR><FONT SIZE=-1>create new Cbfrozenchildtree as a clone of Cbchildtree
+<I>// if Cb has no kids, Cbchildtree has one entry for Cb</I></FONT>
+<BR><FONT SIZE=-1>if Cb is a container and has any children {</FONT>
+
+<P><FONT SIZE=-1>create new random key Cbflushkey, and store it in CbfsupOC
+(see step 16)</FONT>
+<BR><FONT SIZE=-1>Cbparent <FONT FACE="Wingdings">&szlig;</FONT> uFlush(Cbflushkey)
+<I>// goes to OCfsupCb since Cbparent is initially forwarded to OCfsupCb</I></FONT>
+<BR><FONT SIZE=-1>} else {</FONT>
+<BR><FONT SIZE=-1>go synchronously to step#16, skipping the whole flush
+protocol</FONT>
+<BR><I><FONT SIZE=-1>// we can go synchronously to CbfsupOC since CbfsupOC
+is colocated with Cb</FONT></I>
+<BR><I><FONT SIZE=-1>// i.e. do the equivalent of CbfsupOC<FONT FACE="Wingdings">&szlig;</FONT>
+uFlushAck(…)</FONT></I>
+<BR><FONT SIZE=-1>}</FONT>
+<BR><FONT SIZE=-1>Cbparent = Cbqueueparent</FONT>
+<BR><FONT SIZE=-1>Cbroot = Cbqueueroot</FONT>
+
+<P><I><FONT SIZE=-1>Commentary: As of now, Cb is in transit as far as its
+children are concerned. Cb is syncing with its upwards parents. Note that
+until the uFlushAck is received, Cb may still be subject to messages from
+above, so we do not put CbfsupOC into a queueing state until the uFlushAck
+completes.</FONT></I>
+<BR><I><FONT SIZE=-1>Also note that Cbqueueparent is different from Cbnewparent!
+Cbqueueparent is the channel into which messages from below go until we
+commit or abort. Cbnewparent is the channel that gets hooked up to NCfsupCb
+as soon as NC processes uAddUnum. &amp;Cbqueueparent<FONT FACE="Wingdings">&szlig;</FONT>
+forward(Cbnewparent) will happen if we commit; &amp;Cbqueueparent <FONT FACE="Wingdings">&szlig;</FONT>
+forward(Cboldparent) will happen if we abort (step 20).</FONT></I>
+<BR><I><FONT SIZE=-1>Cbfrozenchildtree is an addition of Arturo’s after
+he noticed the following race. When we get u{Parent}{Add,Remove}Unum messages
+from our children, we immediately update Cbchildtree and then relay the
+messages to Cbparent. If we are in transit (i.e. Cbintransit is true) and
+waiting for an uFlushAck (i.e. we are between this step and step#17), and
+we receive such a message from a kid, then we will be updating Cbchildtree
+in a way that our parents don’t know about yet. Then if we pass that updated
+childtree off to uAddUnum we will be propagating uncommitted state.</FONT></I>
+<BR><I><FONT SIZE=-1>The fix is either to queue all changes to Cbchildtree
+(not just all messages to Cbparent), or to make a snapshot of Cbchildtree
+and send <U>that</U> to uAddUnum when the time comes. We take the latter
+strategy, creating Cbfrozenchildtree, and updating it only with uParentAddFailed
+messages from above.</FONT></I>
+<LI>
+<FONT SIZE=-1>OCfsupCb on uFlush(Cbflushkey):</FONT></LI>
+
+<BR><FONT SIZE=-1>OC <FONT FACE="Wingdings">&szlig;</FONT> uFlush(OCkeyCb,
+Cbflushkey)</FONT>
+<LI>
+<FONT SIZE=-1>OC on uFlush(OCkeyCb, Cbflushkey):</FONT></LI>
+
+<BR><FONT SIZE=-1>create entry in OCpendingrequests for [Cbflushkey, OCkeyCb]</FONT>
+<BR><I><FONT SIZE=-1>// the above entry represents "when we get uFlushAck(Cbflushkey),
+forward it to OCkeyCb (i.e. Cb)"</FONT></I>
+<BR><FONT SIZE=-1>OCparent <FONT FACE="Wingdings">&szlig;</FONT> uFlush(Cbflushkey)</FONT>
+<BR><I><FONT SIZE=-1>// note that if OC is in transit, this uFlush will
+get queued in the unforwarded OCparent channel</FONT></I>
+<LI>
+<FONT SIZE=-1>ORfsupOC on uFlush(Cbflushkey):</FONT></LI>
+
+<BR><FONT SIZE=-1>OR <FONT FACE="Wingdings">&szlig;</FONT> uFlush(ORkeyOC,
+Cbflushkey)</FONT>
+<LI>
+<FONT SIZE=-1>OR on uFlush(ORkeyOC, Cbflushkey)</FONT></LI>
+
+<BR><I><FONT SIZE=-1>// if we receive uFlush at the root, we just ack immediately</FONT></I>
+<BR><FONT SIZE=-1>look up OCfsupOR using ORkeyOC</FONT>
+<BR><FONT SIZE=-1>OCfsupOR <FONT FACE="Wingdings">&szlig;</FONT> uFlushAck(Cbflushkey)</FONT>
+<LI>
+<FONT SIZE=-1>OCfsupOR on uFlushAck(Cbflushkey):</FONT></LI>
+
+<BR><FONT SIZE=-1>OC <FONT FACE="Wingdings">&szlig;</FONT> uFlushAck(Cbflushkey)</FONT>
+<BR><I><FONT SIZE=-1>// pretty boring? yes… but the point is that OCfsupOR
+is revokable when/if OC leaves OR</FONT></I>
+<LI>
+<FONT SIZE=-1>OC on uFlushAck(Cbflushkey):</FONT></LI>
+
+<BR><FONT SIZE=-1>look up and remove Cbflushkey in OCpendingrequests</FONT>
+<BR><FONT SIZE=-1>look up OCkeyCb in OCchildtree, to obtain CbfsupOC</FONT>
+<BR><FONT SIZE=-1>CbfsupOC <FONT FACE="Wingdings">&szlig;</FONT> uFlushAck(Cbflushkey)</FONT>
+
+<P><I><FONT SIZE=-1>Commentary: As of now, OC has "given permission" for
+Cb to leave, but as far as OC is concerned Cb is still its child. However,
+in the next step, CbfsupOC goes into a queueing state until either Cb commits
+(in which case all such messages get dropped—we need a way to make this
+throw exceptions appropriately), or until Cb aborts, in which case those
+queued messages will get forwarded.</FONT></I>
+<LI>
+<FONT SIZE=-1>CbfsupOC on uFlushAck(Cbflushkey):</FONT></LI>
+
+<BR><FONT SIZE=-1>if Cbflushkey is the one we remember {</FONT>
+<BR><FONT SIZE=-1>set flag CbfsupOCisqueueing = true</FONT>
+<BR><FONT SIZE=-1>create channel CbfsupOCqueue &amp; associated distributor
+&amp;CbfsupOCqueue</FONT>
+<BR><FONT SIZE=-1>Cb <FONT FACE="Wingdings">&szlig;</FONT> uFlushAck(Cbflushkey)</FONT>
+<BR><FONT SIZE=-1>} else {</FONT>
+<BR><FONT SIZE=-1>Cb <FONT FACE="Wingdings">&szlig;</FONT> uFlushAck(Cbflushkey)
+<I>// to forward on down</I></FONT>
+<BR><FONT SIZE=-1>}</FONT>
+
+<P><I><FONT SIZE=-1>Commentary: At this stage, Cb is in transit as far
+as OC is concerned. OC doesn’t need to <U>know</U> this, though, since
+now that CbfsupOC is queueing messages from OC, OC can act as though Cb
+is still present—just with longer latency.</FONT></I>
+<LI>
+<FONT SIZE=-1>Cb on uFlushAck(Cbflushkey):</FONT></LI>
+
+<BR><FONT SIZE=-1>verify that Cbflushkey is the key we made</FONT>
+<BR><I><FONT SIZE=-1>// commence tryadd protocol, now that we know that
+Cbchildtree is synced as of our flush</FONT></I>
+<BR><FONT SIZE=-1>create new facet Cbfnewsetparent, containing toNotifyFail
+(for committing)</FONT>
+<BR><FONT SIZE=-1>create new facet CbfsupNC, initially in queueing mode</FONT>
+<BR><FONT SIZE=-1>NCfadd <FONT FACE="Wingdings">&szlig;</FONT> uAddUnum(Cbfrozenchildtree,
+Cbfnewsetparent, CbfsupNC, &amp;Cbnewparent, OCkeyCb, location)</FONT>
+
+<P><I><FONT SIZE=-1>Commentary: As of this point, we have created a facet
+to support our new container, but we don’t yet know whether we are <U>in</U>
+our new container. So we set that facet to queue messages to it until we
+know. This is how we avoid having to lock the new container; we just let
+it optimistically communicate to us, and if we later fail to get added
+to some parent of it, we just drop/throw those messages.</FONT></I>
+<LI>
+<FONT SIZE=-1>NCfadd on uAddUnum(Cbfrozenchildtree, Cbfnewsetparent, CbfsupNC,
+&amp;Cbnewparent, OCkeyCb, location):</FONT></LI>
+
+<BR><FONT SIZE=-1>NC <FONT FACE="Wingdings">&szlig;</FONT> uAddUnum(Cbfrozenchildtree,
+Cbfnewsetparent, CbfsupNC, &amp;Cbnewparent)</FONT>
+<LI>
+<FONT SIZE=-1>NC on uAddUnum(Cbfrozenchildtree, Cbfnewsetparent, CbfsupNC,
+&amp;Cbnewparent, OCkeyCb, location):</FONT></LI>
+
+<BR><FONT SIZE=-1>verify that Cbfrozenchildtree passes NC’s TOS <I>// should
+be doable synchronously with only Cbchildtree as state</I></FONT>
+<BR><FONT SIZE=-1>if it does {</FONT>
+<BR><FONT SIZE=-1>create new key NCkeyCb</FONT>
+<BR><FONT SIZE=-1>insert Cbfrozenchildtree into the root of NCchildtree
+at NCkeyCb</FONT>
+<BR><FONT SIZE=-1>create new facet NCfsupCb containing NCkeyCb</FONT>
+<BR><I><FONT SIZE=-1>// wire up the facets</FONT></I>
+<BR><FONT SIZE=-1>&amp;Cbnewparent <FONT FACE="Wingdings">&szlig;</FONT>
+forward(NCfsupCb)</FONT>
+<BR><FONT SIZE=-1>store CbfsupNC in NCdirectchildren at NCkeyCb</FONT>
+<BR><FONT SIZE=-1>NCparent <FONT FACE="Wingdings">&szlig;</FONT> uAddUnum(Cbfrozenchildtree,
+Cbfnewsetparent, OCkeyCb, NCkeyCb, location)</FONT>
+<BR><FONT SIZE=-1>} else {</FONT>
+<BR><FONT SIZE=-1>construct explanation whyAddFailed</FONT>
+<BR><FONT SIZE=-1>Cbfnewsetparent <FONT FACE="Wingdings">&szlig;</FONT>
+uAddFailed(whyAddFailed)</FONT>
+<BR><FONT SIZE=-1>}</FONT>
+
+<P><I><FONT SIZE=-1>Commentary: As of now, Cb is a child of NC. NC may
+attempt to send it containment messages via CbfsupNC. Cb won’t process
+these messages until CbfsupNC gets changed out of queueing mode, which
+happens below in uSetParent.</FONT></I>
+<BR><I><FONT SIZE=-1>Note that right here is one motivation for Cbfrozenchildtree.
+Consider what would happen if NC were in transit here. If NCintransit,
+then NCchildtree as of right now is being updated with children that may
+not eventually make it in. We do not want to consider those kids—i.e. Cb
+et al.—part of our state when we go to call uAddUnum on NC’s parent-to-be,
+since we haven’t gotten confirmation (via uFlushAck) that the Cbfrozenchildtree
+kids have made it in to NC. So we would pass NCfrozenchildtree to uAddUnum.
+But this is not the scenario we’re evaluating here….</FONT></I>
+<LI>
+<FONT SIZE=-1>Cbfnewsetparent on uAddFailed(whyAddFailed): <I>// explain
+the failure cases inline…</I></FONT></LI>
+
+<BR><FONT SIZE=-1>Cb <FONT FACE="Wingdings">&szlig;</FONT> uAddFailed(whyAddFailed,
+toNotifyFail)</FONT>
+<LI>
+<FONT SIZE=-1>Cb on uAddFailed(whyAddFailed, toNotifyFail):</FONT></LI>
+
+<BR><FONT SIZE=-1>&amp;Cbqueueparent <FONT FACE="Wingdings">&szlig;</FONT>
+forward(Cboldparent) <I>// send all queued messages to old parent/root</I></FONT>
+<BR><FONT SIZE=-1>&amp;Cbqueueroot <FONT FACE="Wingdings">&szlig;</FONT>
+forward(Cboldroot)</FONT>
+<BR><FONT SIZE=-1>Cbintransit = false</FONT>
+<BR><FONT SIZE=-1>discard Cbfrozenchildtree</FONT>
+<BR><FONT SIZE=-1>revoke Cbfnewsetparent and CbfsupNC</FONT>
+<BR><FONT SIZE=-1>discard Cbnewparent, Cbnewroot</FONT>
+<BR><FONT SIZE=-1>do the following synchronously on CbfsupOC: {</FONT>
+<BR><FONT SIZE=-1>CbfsupOCisqueueing = false</FONT>
+<BR><I><FONT SIZE=-1>// this is how messages are unqueued</FONT></I>
+<BR><FONT SIZE=-1>&amp;CbfsupOCqueue <FONT FACE="Wingdings">&szlig;</FONT>
+forward(CbfsupOC)</FONT>
+<BR><FONT SIZE=-1>}</FONT>
+<BR><FONT SIZE=-1>toNotifyFail <FONT FACE="Wingdings">&szlig;</FONT> uTransferFailed(whyAddFailed)</FONT>
+
+<P><I><FONT SIZE=-1>Commentary: As of now, Cb is back under OC as if nothing
+had ever happened.</FONT></I>
+<BR><I><FONT SIZE=-1>Further Commentary: The logic here is also what should
+happen if Cb times out while waiting to receive a uSetParent call. The
+idea is that this step is what’s involved in aborting the transaction with
+respect to Cb, whether because of timeout or because the new container
+or some parent rejected the add. Brian points out that you may obtain speedier
+cleanup if you do "Cbnewparent <FONT FACE="Wingdings">&szlig;</FONT> uRemove()"
+before discarding Cbnewparent in this timeout case. This "abort-the-Cb-transit"
+timeout seems to handle all the malicious-behavior and adding-a-containable-under-itself
+deadlocks we have found. Prove us wrong, please! <FONT FACE="Wingdings">J</FONT></FONT></I>
+<LI>
+<FONT SIZE=-1>NRfsupNC on uParentAddUnum(Cbfrozenchildtree, Cbfnewsetparent,
+OCkeyCb, NCkeyCb, location):</FONT></LI>
+
+<BR><FONT SIZE=-1>NR <FONT FACE="Wingdings">&szlig;</FONT> uParentAddUnum(NRkeyNC,
+Cbfrozenchildtree, Cbfnewsetparent, OCkeyCb, NCkeyCb, location)</FONT>
+<LI>
+<FONT SIZE=-1>NR on uParentAddUnum(NRkeyNC, Cbfrozenchildtree, Cbfnewsetparent,
+OCkeyCb, NCkeyCb, location):</FONT></LI>
+
+<BR><FONT SIZE=-1>if Cbfrozenchildtree’s root key (i.e. OCkeyCb) is already
+in NRchildtree {</FONT>
+<BR><I><FONT SIZE=-1>// NR == OR, so we just move Cbchildtree under this
+root; no need to check TOS since it’s already here</FONT></I>
+<BR><FONT SIZE=-1>move Cbfrozenchildtree to be under NC at NCkeyCb in NRchildtree</FONT>
+<BR><I><FONT SIZE=-1>// … later when we get the remove, OCkeyCb will not
+be present in NR’s tree anymore</FONT></I>
+<BR><I><FONT SIZE=-1>// this is where we can optimize by using the old
+presenters &amp; knowing not to revoke the old frootsup</FONT></I>
+<BR><I><FONT SIZE=-1>// facets; see note at end of step#30</FONT></I>
+<BR><I><FONT SIZE=-1>//</FONT></I>
+<BR><I><FONT SIZE=-1>// following code is what the root does; if NR was
+instead an intermediate parent, it would just now do</FONT></I>
+<BR><I><FONT SIZE=-1>// NRparent <FONT FACE="Wingdings">&szlig;</FONT>
+uParentAddUnum(Cbfrozenchildtree, Cbfnewsetparent, OCkeyCb, NCkeyCb, location).</FONT></I>
+<BR><I><FONT SIZE=-1>// but back to the root code:</FONT></I>
+<BR><FONT SIZE=-1>Cbfnewsetparent <FONT FACE="Wingdings">&szlig;</FONT>
+uSetParent(null, null)</FONT>
+<BR><I><FONT SIZE=-1>// no args needed since Cb and its childrencan use
+their current root facets</FONT></I>
+<BR><FONT SIZE=-1>&lt;all presences of NR> <FONT FACE="Wingdings">&szlig;</FONT>
+pMoveBranch(OCkeyCb, NCkeyCb, location) <I>// see composition writeup</I></FONT>
+<BR><FONT SIZE=-1>return</FONT>
+<BR><FONT SIZE=-1>}</FONT>
+<BR><I><FONT SIZE=-1>// OK, it’s not the same root, so do the whole setparent
+logic</FONT></I>
+<BR><FONT SIZE=-1>verify Cbfrozenchildtree passes NR’s TOS <I>// should
+be doable synchronously with only Cbchildtree as state</I></FONT>
+<BR><FONT SIZE=-1>if it does {</FONT>
+<BR><FONT SIZE=-1>add Cbfrozenchildtree to NR’s entry for NC at NCkeyCb
+in NRchildtree</FONT>
+<BR><FONT SIZE=-1>create new empty trees NRchanneltree and NRdistributortree</FONT>
+<BR><FONT SIZE=-1>for each entry Cbchild in Cbfrozenchildtree (<U>including
+Cb’s entry</U>): {</FONT>
+<BR><FONT SIZE=-1>create a new channel Cbchildchannel and distributor &amp;Cbchildchannel</FONT>
+<BR><FONT SIZE=-1>create a new key NRrootkeyCbchild</FONT>
+<BR><FONT SIZE=-1>create a new root facet NRfrootsupCbchild containing
+NRrootkeyCbchild</FONT>
+<BR><FONT SIZE=-1>put new entry [Cbchildpstate, Cbchildchannel] into NRchanneltree</FONT>
+<BR><FONT SIZE=-1>put new entry [&amp;Cbchildchannel, NRfrootsupCbchild]
+into NRdistributortree</FONT>
+<BR><FONT SIZE=-1>}</FONT>
+<BR><FONT SIZE=-1>Cbfnewsetparent <FONT FACE="Wingdings">&szlig;</FONT>
+uSetParent(NRfsupCb, NRdistributortree)</FONT>
+<BR><FONT SIZE=-1>&lt;all clients of NR> <FONT FACE="Wingdings">&szlig;</FONT>
+pAddBranch(NRchanneltree) <I>// fan out NRchanneltree; see composition
+writeup</I></FONT>
+<BR><FONT SIZE=-1>} else {</FONT>
+<BR><I><FONT SIZE=-1>// doesn’t pass TOS, propagate the removes back down</FONT></I>
+<BR><FONT SIZE=-1>construct explanation whyAddFailed</FONT>
+<BR><FONT SIZE=-1>look up NCfsupNR using NRkeyNC</FONT>
+<BR><FONT SIZE=-1>NCfsupNR <FONT FACE="Wingdings">&szlig;</FONT> uParentAddFailed(NCkeyCb,
+Cbfsetparent, whyAddFailed)</FONT>
+<BR><FONT SIZE=-1>}</FONT>
+<LI>
+<FONT SIZE=-1>NCfsupNR on uParentAddFailed(NCkeyCb, Cbfsetparent, whyAddFailed):
+<I>// again, cover the exception first</I></FONT></LI>
+
+<BR><FONT SIZE=-1>NC <FONT FACE="Wingdings">&szlig;</FONT> uParentAddFailed(NCkeyCb,
+Cbfsetparent, whyAddFailed)</FONT>
+<LI>
+<FONT SIZE=-1>NC on uParentAddFailed(NCkeyCb, Cbfsetparent, whyAddFailed):</FONT></LI>
+
+<BR><FONT SIZE=-1>look up NCkeyCb in NCchildtree, yielding Cbfrozenchildtree</FONT>
+<BR><FONT SIZE=-1>remove Cbfrozenchildtree from NCchildtree</FONT>
+<BR><FONT SIZE=-1>if we have NCfrozenchildtree (i.e. if NCintransit), remove
+Cbfrozenchildtree from that, too</FONT>
+<BR><FONT SIZE=-1>Cbfnewsetparent <FONT FACE="Wingdings">&szlig;</FONT>
+uAddFailed(whyAddFailed) <I>// already described above</I></FONT>
+<LI>
+<FONT SIZE=-1>Cbfnewsetparent on uSetParent (NRfsupCb, NRdistributortree):</FONT></LI>
+
+<BR><I><FONT SIZE=-1>// OK, connect all our plumbing!</FONT></I>
+<BR><FONT SIZE=-1>discard Cbfrozenchildtree</FONT>
+<BR><FONT SIZE=-1>Cbintransit = false</FONT>
+<BR><FONT SIZE=-1>Cboldparent <FONT FACE="Wingdings">&szlig;</FONT> uRemove()
+<I>// Cboldparent is still OCfsupCb</I></FONT>
+<BR><FONT SIZE=-1>&amp;Cbqueueparent <FONT FACE="Wingdings">&szlig;</FONT>
+forward(Cbnewparent) <I>// wire us to our new parent</I></FONT>
+<BR><FONT SIZE=-1>revoke CbfsupOC <I>// and drop any messages inside it</I></FONT>
+<BR><FONT SIZE=-1>if (NRfsupCb == null) {</FONT>
+<BR><I><FONT SIZE=-1>// we are under the same root, so send our root-queued
+messages to old root</FONT></I>
+<BR><FONT SIZE=-1>&amp;Cbqueueroot <FONT FACE="Wingdings">&szlig;</FONT>
+forward(Cboldroot)</FONT>
+<BR><FONT SIZE=-1>} else {</FONT>
+<BR><I><FONT SIZE=-1>// we are NOT under the same root!</FONT></I>
+<BR><FONT SIZE=-1>get NRfrootsupCb out of base entry of NRdistributortree</FONT>
+<BR><FONT SIZE=-1><I>//</I> <I>since Cb’s entry in NRdistributortree is</I></FONT>
+<BR><I><FONT SIZE=-1>// the root entry of the tree, and since we need to
+forward our Cbqueueroot messages to NRfrootsupCb</FONT></I>
+<BR><FONT SIZE=-1>&amp;Cbqueueroot <FONT FACE="Wingdings">&szlig;</FONT>
+forward(NRfrootsupCb)</FONT>
+<BR><FONT SIZE=-1>Cb.uSetRoot(NRdistributortree) <I>// synchronous call,
+otherwise there’s a race window here</I></FONT>
+<BR><FONT SIZE=-1>}</FONT>
+
+<P><I><FONT SIZE=-1>Commentary: As of now, we are all wired up to our parent.
+If we moved roots, though, we still have to start propagating the root-changed
+notification downwards, via our *fsupCb facets. Note that if any of our
+children are in transit, the root-change message will queue in their facet;
+and if they go somewhere else, the root-change message will bounce, which
+is Just Fine.</FONT></I>
+<BR><I><FONT SIZE=-1>Note that we can discard Cbfrozenchildtree since its
+job is done. Actually we could have discarded it as soon as we passed it
+to uAddUnum…..</FONT></I>
+<LI>
+<FONT SIZE=-1>OCfsupCb on uRemove():</FONT></LI>
+
+<BR><FONT SIZE=-1>OC <FONT FACE="Wingdings">&szlig;</FONT> uRemove(OCkeyCb)</FONT>
+<LI>
+<FONT SIZE=-1>OC on uRemove(OCkeyCb):</FONT></LI>
+
+<BR><FONT SIZE=-1>remove OCkeyCb’s entry from OCdirectchildren and OCchildtree</FONT>
+<BR><FONT SIZE=-1>revoke OCfsupCb</FONT>
+<BR><FONT SIZE=-1>ORfsupOC <FONT FACE="Wingdings">&szlig;</FONT> uParentRemove(OCkeyCb)</FONT>
+<LI>
+<FONT SIZE=-1>ORfsupOC on uParentRemove(OCkeyCb):</FONT></LI>
+
+<BR><FONT SIZE=-1>OR <FONT FACE="Wingdings">&szlig;</FONT> uParentRemove(ORkeyOC,
+OCkeyCb)</FONT>
+<LI>
+<FONT SIZE=-1>OR on uParentRemove(ORkeyOC, OCkeyCb):</FONT></LI>
+
+<BR><FONT SIZE=-1>remove entry for Cb from ORchildtree</FONT>
+<BR><FONT SIZE=-1>revoke ORfsupCb</FONT>
+
+<P><I><FONT SIZE=-1>Commentary: It is assumed here that OCkeyCb is the
+key for Cb’s branch in ORchildtree, not just in OCchildtree. That is, OCkeyCb
+is a meaningful key for everyone with a tree containing Cb’s branch. This
+has no security implications since just possessing OCkeyCb is not enough
+to spoof a request-from-Cb to OC or anyone else. Spoofing OCkeyCb for purposes
+of "is this the same branch" is still a <B>SEMI-OPEN ISSUE</B>. ANOTHER
+semi-open issue is when do you revoke the root facets ORfrootsupCb and
+ORfrootsupCbchild? You want to revoke them only when you have not readded
+the children elsewhere in the root. This is not critical for correctness
+though… the likely story will be to check whether the children are <U>already</U>
+elsewhere in the root and if so don’t revoke, otherwise, do. This will
+work because we always causalitywise add before we remove.</FONT></I>
+<LI>
+<FONT SIZE=-1>Cb on uSetRoot (NRdistributortree):</FONT></LI>
+
+<BR><FONT SIZE=-1>revoke Cbunumrouter/presence router/client vector</FONT>
+<BR><FONT SIZE=-1>create Cbnewunumrouter/etc/etc</FONT>
+<BR><FONT SIZE=-1>Cbroot = NRfrootsupCb <I>// root entry of NRdistributortree
+contains &amp;Cbchannel and NRfrootsupCb</I></FONT>
+<BR><I><FONT SIZE=-1>// note that we already did this for Cb itself, but
+since we recurse on uSetRoot, we will need to reset the root</FONT></I>
+<BR><I><FONT SIZE=-1>// pointers of all of Cb’s children on down, so we
+notate it this way here</FONT></I>
+<BR><FONT SIZE=-1>&amp;Cbchannel <FONT FACE="Wingdings">&szlig;</FONT>
+forward(Cbnewunumrouter)</FONT>
+<BR><FONT SIZE=-1>for each of Cbchild’s direct children {</FONT>
+<BR><FONT SIZE=-1>get key CbkeyCbchild</FONT>
+<BR><FONT SIZE=-1>get Cbchildbranch from NRdistributortree</FONT>
+<BR><FONT SIZE=-1>Cbchild <FONT FACE="Wingdings">&szlig;</FONT> uSetRoot(Cbchildbranch)</FONT>
+<BR><FONT SIZE=-1>}</FONT>
+
+<P><I><FONT SIZE=-1>Commentary: The idea here is that we continue propagating
+uSetRoots downwards towards our children, passing each one the sub-branch
+of distributors that it and its kids need to forward. Hopefully I don’t
+need to spell out that Cbchild will do the same thing as Cb; it will set
+its Cbchildroot to NRfrootsupCbchild, it will forward &amp;Cbchildchannel
+to the new unum router it makes for itself, etc.</FONT></I></OL>
+<FONT SIZE=-1>&nbsp;</FONT>
+
+<P><FONT SIZE=-1>COMPOSITION WRITEUP</FONT>
+
+<P><FONT SIZE=-1>(hopefully verbose enough to minimize the need for a meeting
+on this <FONT FACE="Wingdings">J</FONT> )</FONT>
+
+<P><FONT SIZE=-1>The composition protocol adds relatively little to the
+containership protocol. There are two fundamental aspects to composition:</FONT>
+<UL>
+<LI>
+<FONT SIZE=-1>securely granting una access to presenters they can use to
+display themselves, despite the fact that presenters are local objects
+which cannot be sent across the network</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>allowing una that remain under one root to continue using
+their presenters as they move from container to container within that root
+(since presenters are moderately expensive to create, involving loading
+art, etc., etc.)</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>ensuring that updates in presenter location and relative
+parenting are absolutely consistent across machines</FONT></LI>
+</UL>
+<FONT SIZE=-1>The composition ingredients essentially piggyback on the
+containership ingredients, maintaining consistency and security as follows:</FONT>
+<OL>
+<LI>
+<FONT SIZE=-1>Roots (host and clients) create presenters when they are
+informed of a new (i.e. not previously under that root) branch’s arrival.
+They hand these presenters down to the new una via the channels in NRchanneltree.
+Thus a given presence of an unum on machine X can only get its hands on
+a presenter by being handed one from its root presence on machine X. (Also,
+a root presence on machine X itself has to get the capabilities to create
+presenters on that machine; this is done when an avatar, i.e. a user, specifically
+chooses to make that region the current rootcompositor on that machine.
+See the uLocalSetRootCompositor protocol below.)</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>Roots maintain the location information and hierarchy information
+for all presenters handed out by the root. Only the root retains the capability
+to make a presenter relocate itself visually (whether that means just changing
+location, or changing its actual presenter parent). The presenter capabilities
+handed down by the root do not allow una to perform change-location or
+set-parent operations; they must request the root to perform these operations.
+This guarantees that all machines will see a consistent view of the presenters
+in the region, as far as location and hierarchy are concerned.</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>When a containable moves from one container to another under
+the same root, the root recognizes, at the top of the containership protocol,
+that this has happened; the root can rearrange the presenter hierarchy
+suitably without needing to recreate all presenters from scratch.</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>Roots hand down root-supporting facets (i.e. NRfrootsupCb
+et al.) which containers can use to make requests to move their children.
+Containables cannot use their root facet to request that they be relocated;
+only their container can request the root to relocate them. This is because
+containers are the rightful arbiter of where a containable is within them,
+so the root will only accept "please move this containable within me" messages
+from a container’s frootsup facet, rather than "please move me within my
+container" messages from a containable’s frootsup facet.</FONT></LI>
+</OL>
+<FONT SIZE=-1>[DO NOT BE AFRAID! This is broadly similar to what the current
+composition protocol does; this general structure is known to work.]</FONT>
+
+<P><FONT SIZE=-1>There is one more key point: location. The location of
+a containable within a container is a bit of state which sits on the borderline
+of containership itself. Originally we split containership from composition
+thinking that containership had only to do with <U>whether</U> something
+is contained, and composition was a wholly separate protocol on top dealing
+with <U>where</U> that something is.</FONT>
+
+<P><FONT SIZE=-1>This turns out not to be right given the need to support
+containers which can reject add requests because the location is not available;
+i.e. the current containership protocol needs to have location worked into
+it at the NC uAddUnum level, so uAddUnum can react properly if the location
+is invalid.</FONT>
+
+<P><FONT SIZE=-1>So the current story is that:</FONT>
+<OL>
+<LI>
+<FONT SIZE=-1>Containables request to be added to a container at a specific
+location (the location parameter to uAddUnum).</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>That location gets stored in Cb’s entry in NC, NCP, etc.
+all the way up to NR.</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>When Cb wants to change its location in NC, it sends a uRequestMove
+message to NC.</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>NC can do it or not. If NC agrees, NC then sends a uRequestContainableMove
+message to NR via NCroot (i.e. NRfrootsupNC).</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>NR then updates its record of where Cb is located within
+NC, and fans that out to all NR’s presences, all of which move Cb’s presenter
+appropriately.</FONT></LI>
+</OL>
+<FONT SIZE=-1>What this implies is that the location state of any intermediate
+parents (i.e. NCP here) does not get updated after the add; the uRequestContainableMove
+message does not propagate via the parent chain (i.e. via NCparent) but
+goes straight to the root (via NCroot, i.e. NRfrootsupNC). This means that
+the location state of intermediate parents will get stale, but since only
+the root is responsible for the locations visible onscreen, this doesn’t
+matter… except when a branch appears under a new root. Then all containers
+in the branch must tell their new root where their kids are currently located.
+This is done via the uPlaceKids message sent via the root facets.</FONT>
+
+<P><FONT SIZE=-1>To sum up, here are the additional composition messages:</FONT>
+<UL>
+<LI>
+<FONT SIZE=-1>Messages sent to the root (i.e. NR) via root facets (NRfsupCb
+et al.):</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>uRequestContainableMove (NCkeyCb, newLocation) // move my
+kid underneath me</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>uPlaceKids (Hashtable kidLocations) // update the stale location
+state for my kids</FONT></LI>
+</UL>
+
+<UL>
+<LI>
+<FONT SIZE=-1>Messages sent to a local presence of the root (i.e. NRclient)
+from a host avatar:</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>uLocalSetRootCompositor (PresentationCapabilities) // make
+presenters for yourself &amp; everything within you using these capabilities
+I’m granting you; i.e. it’s ultimately the user who allows a region to
+display itself on the user’s machine; these capabilities are only usable
+on this machine</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>uLocalKillRootCompositor () // go away, I don’t want to see
+you any more</FONT></LI>
+</UL>
+
+<UL>
+<LI>
+<FONT SIZE=-1>Messages sent to all presences of NR from NR itself:</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>pAddBranch (NRchanneltree) // this is how fanout is actually
+done</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>pMovePresenter (NCkeyCb, location) // this is how roots fan
+out move requests</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>pMoveBranch (OCkeyCb, NCkeyCb, location) // move an entire
+branch</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>pPlaceKids (NRrootkeyCb, Hashtable kids) // update the locations
+of all the kids of this entry</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>Messages sent to a container (i.e. NC) by a compositable
+(Cb):</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>uRequestMove (newLocation) // request relocation within the
+container</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>Messages sent to a containable (i.e. Cb) by a root (i.e.
+NR):</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>uLocalSetPresenter (presenter) // here’s your presenter;
+you can’t move it or set-parent it</FONT></LI>
+</UL>
+<FONT SIZE=-1>And here is the additional composition state:</FONT>
+<UL>
+<LI>
+<FONT SIZE=-1>Root presences have a presenter entry in each field in NRchildtree,
+and a presenter field for their root presenter</FONT></LI>
+
+<LI>
+<FONT SIZE=-1>Containables have a presenter field for their presenter</FONT></LI>
+</UL>
+<FONT SIZE=-1>So the protocol description here is fairly light on details,
+especially of the data structures. To see some code look at compositable_kind.plu
+for the definitions of PresenterTree (in fact, Brian, you might want to
+look here in general as this is quite similar to what Cbchildtree et al.
+will look like).</FONT>
+
+<P><FONT SIZE=-1>CONTAINABLE MOVE PROTOCOL:</FONT>
+<OL>
+<LI>
+<FONT SIZE=-1>initiator sends</FONT></LI>
+
+<BR><FONT SIZE=-1>Cb <FONT FACE="Wingdings">&szlig;</FONT> uRequestMove(newlocation)</FONT>
+<LI>
+<FONT SIZE=-1>Cb on uRequestMove(newlocation):</FONT></LI>
+
+<BR><FONT SIZE=-1>Cbparent <FONT FACE="Wingdings">&szlig;</FONT> uRequestMove(newlocation)</FONT>
+<LI>
+<FONT SIZE=-1>NCfsupCb on uRequestMove(newlocation):</FONT></LI>
+
+<BR><FONT SIZE=-1>NC <FONT FACE="Wingdings">&szlig;</FONT> uRequestMove(NCkeyCb,
+newlocation)</FONT>
+<LI>
+<FONT SIZE=-1>NC on uRequestMove(NCkeyCb, newlocation):</FONT></LI>
+
+<BR><FONT SIZE=-1>determine whether Cb can validly go to newLocation</FONT>
+<BR><FONT SIZE=-1>if so: {</FONT>
+<BR><FONT SIZE=-1>NCroot <FONT FACE="Wingdings">&szlig;</FONT> uRequestContainableMove(NCkeyCb,
+newlocation)</FONT>
+<BR><FONT SIZE=-1>} else {</FONT>
+<BR><FONT SIZE=-1>ethrow CantMoveThereException(reasonwhy)</FONT>
+<BR><FONT SIZE=-1>}</FONT>
+<LI>
+<FONT SIZE=-1>NRfrootsupNC on uRequestContainableMove(NCkeyCb, newlocation):</FONT></LI>
+
+<BR><FONT SIZE=-1>NR <FONT FACE="Wingdings">&szlig;</FONT> uRequestContainableMove(NRrootkeyNC,
+NCkeyCb, newlocation)</FONT>
+<LI>
+<FONT SIZE=-1>NR on uRequestContainableMove(NRrootkeyNC, NCkeyCb, newlocation):</FONT></LI>
+
+<BR><FONT SIZE=-1>verify that NCkeyCb is the key of a child of NC’s</FONT>
+<BR><FONT SIZE=-1>&lt;all presences of NR> <FONT FACE="Wingdings">&szlig;</FONT>
+pMovePresenter(NCkeyCb, newlocation)</FONT>
+<LI>
+<FONT SIZE=-1>&lt;all presences of NR> on pMovePresenter(NCkeyCb, newlocation):</FONT></LI>
+
+<BR><FONT SIZE=-1>move the presenter whose key is NCkeyCb to newlocation
+(see current composition code for details)</FONT></OL>
+<FONT SIZE=-1>CONTAINABLE ARRIVAL PROTOCOL (picks up from step 23 where
+pAddBranch is sent):</FONT>
+<OL>
+<LI>
+<FONT SIZE=-1>&lt;all presences of NR> on pAddBranch(NRchanneltree):</FONT></LI>
+
+<BR><FONT SIZE=-1>if this presence is currently the rootcompositor on this
+machine, for each entry in NRchanneltree {</FONT>
+<BR><FONT SIZE=-1>make presenter Cbpresenter from Cbpstate</FONT>
+<BR><FONT SIZE=-1>Cbchannel <FONT FACE="Wingdings">&szlig;</FONT> uLocalSetPresenter(Cbpresenter)</FONT>
+<BR><FONT SIZE=-1>}</FONT>
+<LI>
+<FONT SIZE=-1>&lt;local presence of Cb forwarded to Cbchannel> on uLocalSetPresenter
+(Cbpresenter):</FONT></LI>
+
+<BR><FONT SIZE=-1>set up Cbpresenter as our presenter</FONT>
+<LI>
+<FONT SIZE=-1>MEANWHILE, from step 31 above, all containers in NRchanneltree
+are sending uPlaceKids messages up to NR, so using Cb as an example:</FONT></LI>
+
+<BR><FONT SIZE=-1>NRfrootsupCb on uPlaceKids(Hashtable kidLocations):</FONT>
+<BR><FONT SIZE=-1>NR <FONT FACE="Wingdings">&szlig;</FONT> uPlaceKids(NRrootkeyCb,
+kidLocations)</FONT>
+<LI>
+<FONT SIZE=-1>NR on uPlaceKids(NRrootkeyCb, kidLocations):</FONT></LI>
+
+<BR><FONT SIZE=-1>&lt;all presences of NR> <FONT FACE="Wingdings">&szlig;</FONT>
+pPlaceKids(NRrootkeyCb, kidLocations)</FONT>
+<LI>
+<FONT SIZE=-1>&lt;all presences of NR> on pPlaceKids(NRrootkeyCb, kidLocations):</FONT></LI>
+
+<BR><FONT SIZE=-1>look up NRrootkeyCb in NRchildtree</FONT>
+<BR><FONT SIZE=-1>if this presence is currently the rootcompositor on this
+machine, update all the presenters that are children of Cb</FONT></OL>
+<FONT SIZE=-1>CONTAINABLE RELOCATE-UNDER-SAME-ROOT PROTOCOL:</FONT>
+<OL>
+<LI>
+<FONT SIZE=-1>&lt;all presences of NR> on pMoveBranch(OCkeyCb, NCkeyCb,
+newlocation):</FONT></LI>
+
+<BR><FONT SIZE=-1>move presenter branch at OCkeyCb to be under NCkeyCb
+at newlocation</FONT>
+
+<P><FONT SIZE=-1>COMPOSITOR SET-ROOT PROTOCOL:</FONT>
+<LI>
+<FONT SIZE=-1>&lt;local presence of NR> <FONT FACE="Wingdings">&szlig;</FONT>
+uLocalSetRootCompositor (PresenterCapabilities):</FONT></LI>
+
+<BR><FONT SIZE=-1>for each entry Cb in NRchildtree {</FONT>
+<BR><FONT SIZE=-1>make presenter Cbpresenter from Cbpstate</FONT>
+<BR><FONT SIZE=-1>save Cbpresenter in Cb’s entry in NRchildtree</FONT>
+<BR><FONT SIZE=-1>Cbchannel <FONT FACE="Wingdings">&szlig;</FONT> uLocalSetPresenter(Cbpresenter)</FONT>
+<BR><FONT SIZE=-1>}</FONT>
+<LI>
+<FONT SIZE=-1>&lt;local presence of NR> <FONT FACE="Wingdings">&szlig;</FONT>
+uLocalKillRootCompositor ():</FONT></LI>
+
+<BR><FONT SIZE=-1>for each entry Cb in NRchanneltree {</FONT>
+<BR><FONT SIZE=-1>revoke presenter Cbpresenter</FONT>
+<BR><FONT SIZE=-1>remove Cbpresenter from Cb’s entry</FONT>
+<BR><FONT SIZE=-1>}</FONT></OL>
+<FONT SIZE=-1>AND THAT’S ALL, FOLKS!</FONT>
+
+<P><FONT SIZE=-1>I believe this is consistent as none of these messages
+can affect the structure of the tree, just the location information, and
+all location information that the user can see is centralized via the host
+root. The worst that can happen is if a root presence makes an entire presenter
+tree using the stale information it was passed (i.e. NCP transfers under
+NR2, bringing along stale location information for NC); this will get updated
+very quickly when NC’s uPlaceKids message gets fanned out to the overeager
+root presence.</FONT>
+
+<P><FONT SIZE=-1>The other problem with all this is it necessitates two
+network messages (containable->container, container->root) to make something
+start moving onscreen. We cannot do better if we really wish to have containment
+location mediated by the container but presentation consistency centralized
+at the root. However, we can optimize by having the local presence of the
+container forward a uLocalHintRequestContainableMove message to the local
+presence of the root; this allows the user’s machine to react immediately,
+lowering percieved latency for user actions. The current composition code
+does this quite effectively.</FONT>
+</BODY>
+</HTML>

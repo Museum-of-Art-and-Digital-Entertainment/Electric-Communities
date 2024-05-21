@@ -1,0 +1,496 @@
+<HTML>
+
+<HEAD>
+	<TITLE>IFC and Microcosm</TITLE>
+</HEAD>
+
+<BODY>
+
+<H1>IFC and Microcosm</H1>
+
+<P>This page discusses the relationship between the Internet Foundation Classes 
+(IFC) and Microcosm. <A HREF="mailto:sullivan@communities.com">John</A> 
+wrote this page, so aim your questions and comments at him.</P>
+
+<P>This page last updated on 3/29/98</P>
+
+<CENTER>
+<TABLE border cellpadding=10>
+<CAPTION align=bottom valign=bottom>Click a section heading to go straight to that section,
+or just scroll down through all sections.</CAPTION>
+<TR>
+	<TD><A HREF="#IFCbackground">IFC background</A></TD>
+	<TD><A HREF="#JFCandIFC">JFC and IFC</A></TD>
+	<TD><A HREF="#MicrocosmAndIFC">Microcosm and IFC</A></TD>
+	<TD><A HREF="#IFCvsThreads">IFC vs threads</A></TD>
+</TR>
+<TR>
+	<TD><A HREF="#IFCvsWindows">IFC vs windows</A></TD>
+	<TD><A HREF="#layoutManagers">Using IFC LayoutManagers</A></TD>
+	<TD><A HREF="#GUIPresenters">GUIStandardPresenter and relatives</A></TD>
+	<TD><A HREF="#minimizingIFC">Minimizing IFC</A></TD>
+</TR>
+</TABLE>
+</CENTER>
+
+
+<A name="IFCbackground">
+<H2>IFC background</H2>
+</A>
+
+<P>Internet Foundation Classes (IFC) is a user interface class library 
+written entirely in Java by Netscape. It is built on top of the AWT 
+(Advanced/Abstract/Awkward Windowing Toolkit) library that's part of Sun's 
+Java distribution. The IFC designers intended you to be able to do all of
+your user interface stuff without directly accessing AWT classes. They did
+a pretty good job at this, and you can do a lot of work in IFC without
+really understanding Peers and other AWT concepts that aren't in IFC. 
+It's usually possible, though frequently awkward, to get at the rare bits
+of AWT functionality that you might need using some calls in IFC's 
+AWTCompatibility class.</P>
+
+<P>IFC consists of three main packages: 
+<ul>
+<li><code>netscape.application</code><br>
+This contains all the UI components and supporting interfaces, and the
+Application class which gets the whole shebang going.</li><P> 
+<li><code>netscape.util</code><br>
+This contains mostly classes needed to support IFC's archiving mechanism,
+which we don't use. It includes IFC's Hashtable and Vector classes, variants
+of the like-named classes in java.util that support archiving (which, as I
+said, we don't use).</li><P>
+<li><code>netscape.constructor</code><br>
+This contains classes used in IFC's graphical application builder, which
+we don't use. It might be decent, but we had written a lot of IFC code
+before it existed and it never seemed worthwhile to go back and redo it
+using constructor.</li>
+</ul>
+
+<P>We're currently using IFC 1.1.1. There's a 1.1.2 which has a few trivial
+changes, but we haven't ever bothered to get it. 1.1.2 is extremely likely
+to be the last version of IFC ever.</P>
+
+<P>The IFC distribution includes all the source code as well as javadoc 
+documentation for every class. There's also a "developer's guide", which is 
+more of a tutorial. There are a couple of books out about IFC, but I don't
+know if they're any good. There's a full copy of the IFC distribution in 
+Alexandria//home/eng. The people at EC who've used IFC the most are
+probably me (<A HREF="mailto:sullivan@communities.com">John</A>),
+<A HREF="mailto:amckale@communities.com">Alex</A>, and
+<A HREF="mailto:dima@communities.com">Dima</A>.</P>
+
+<A name="JFCandIFC">
+<H2>JFC and IFC</H2>
+</A>
+
+<P>Somewhere along the line, Netscape and Sun decided to merge their
+Java user-interface-toolkit development paths. The result is JFC/Swing.
+Swing is a user-interface components class library. JFC (Java Foundation
+Classes) is the name for Swing + some 2D graphics libraries + some other
+stuff. Swing is more or less the same kind of thing as IFC -- they both have
+rich collections of "lightweight" (== "Peerless", in AWT terminology) 
+UI components. IFC might have more application-level stuff; Swing is 
+definitely bigger and has a richer assortment of components. Probably the
+most important difference is that all development on IFC has stopped
+forever, whereas Swing (and the rest of the JFC) will be part of Sun's 
+Java 1.2 release, and so presumably will be supported and improved over
+time. (Swing, but not the rest of JFC, is actually available in the form
+of a Java 1.1.x package so you don't have to wait until Java 1.2 is out
+before using it.) So if you're starting a project now, it would be foolish to 
+choose IFC over Swing. However, Microcosm was started before Swing was a 
+twinkle in Sun and Netscape's collective eye.</P>
+
+<A name="MicrocosmAndIFC">
+<H2>Microcosm and IFC</H2>
+</A>
+
+<P>Microcosm's UI is built on IFC. All the windows in Microcosm, even
+the main window, are subclassed from 
+<code>netscape.application.ExternalWindow</code>. 
+We use IFC user interface classes for buttons, 
+scroll bars, check boxes, etc in all windows *except* the main Microcosm 
+window. The main Microcosm window uses a rendering engine we're licensing 
+from a little company called AnyChannel. The rendering engine (usually 
+referred to as "the renderer") needs to control all the bits in its window, 
+so we can't put IFC stuff inside windows that use the renderer. This means 
+that we have to implement all the appearance and behavior of stuff in the 
+main window from scratch, including the buttons at the top and bottom. Of
+the people at EC now, <A HREF="mailto:mike@communities.com">Mike</A> and
+<A HREF="mailto:claire@communities.com">Claire</A> know the most about the
+renderer. (Former contractor <A HREF="mailto:russp@communities.com">Russ</A> 
+is/was the expert; he may or may not still be helping us from time to time 
+when you read this.) Claire is also the expert on UI interactions in the 
+main window</P>
+
+<P>Microcosm's source contains two packages that are primarily subclasses of
+IFC classes: <code>ec.ifc.app</code> and <code>ec.ifc.stonelook</code>.
+
+<ul>
+<li><code>ec.ifc.app</code><br>
+This package is intended to contain IFC subclasses and helper interfaces that
+provide new or modified behavior from what's delivered in IFC. In some cases
+this means working around bugs in IFC, though mostly it's adding new 
+features.</li><P> 
+
+<li><code>ec.ifc.stonelook</code><br>
+This package is intended to contain IFC (and <code>ec.ifc.app</code>) 
+subclasses that change the appearance but not behavior from what's delivered
+in IFC. We've very deliberately kept the behavior and appearance changes
+separate, though lately we've been rethinking that decision (see 
+<a href="#minimizingIFC">below</a>). It's called "stonelook" for historical 
+reasons only; early Microcosm UI design looked like sandstone and marble, 
+though the current UI design bears no trace of that earlier look.</li>
+</ul>
+
+<A name="IFCvsThreads">
+<H2>IFC vs threads</H2>
+</A>
+
+<P>Despite the general multi-threadedness of Java, IFC was designed such that 
+drawing and component layout code (and maybe more?) must pass through IFC's 
+event loop. This means that you should treat IFC for all intents and
+purposes as single-threaded. If you call arbitrary IFC methods from a thread
+other than the thread containing the IFC event loop, bad things are likely
+to happen, usually involving the contents of IFC windows being drawn terribly 
+wrong. You may or may not get an exception whose backtrace will conspicuously 
+lack evidence of the IFC event loop.</P>
+
+<P>Since Microcosm is multi-threaded and IFC is single-threaded, we need a
+technique to funnel IFC requests originating on arbitrary threads into the
+one IFC thread. The technique we've developed is as follows:</P>
+
+<ol>
+<li><P>For every public class that deals directly with IFC objects, decide 
+which methods might be called from another thread. In Microcosm the typical 
+case is a class in <code>ec.cosm.gui.uipresenter</code> that implements an 
+interface defined in <code>ec.cosm.ui.presenter</code>. This interface defines 
+the methods that might be called from another thread.</P></li>
+<li><P>In each of the methods thus defined, delay the guts of the routine
+such that they are processed in the IFC event loop. There are two ways to do 
+this. The simpler, which is sufficient if at most one parameter is required 
+for each of these methods, is to call 
+<code>netscape.application.Application.application().performCommandLater()</code>.
+This lets you pass a command string, optional parameter object, and an object
+that will process the command after it has made a trip through IFC's event loop.
+Typically this processor object is the same presenter object that's delaying
+the command. Classes that currently use this technique include
+<code>ec.cosm.gui.windows.ProgressDialog</code> and 
+<code>ec.cosm.gui.windows.PreferencesWindow</code>.</P>
+
+<P>If more than one parameter is required for at least one of these methods, 
+you should use the Event technique, which is both more complicated and more
+common. With this technique, you create an Event subclass that carries
+along any number of parameters as instance variables, then put the newly
+created event into IFC's event loop directly by calling
+<code>netscape.application.Application.application().eventLoop().addEvent()</code>. 
+Classes that currently use this technique include
+<code>ec.cosm.gui.uipresenter.GUIStandardPresenter</code>, 
+<code>ec.cosm.gui.uipresenter.GUITeleportListPresenter</code>, and
+<code>ec.cosm.gui.uipresenter.GUIAlertPresenter</code>.</P>
+</li>
+</ol>
+
+<P>It's not the case that every IFC method call from another thread will screw 
+things up, but this just makes the bad cases harder to debug. The safest 
+approach is to write your code as if the only IFC calls that are legal from
+another thread are the ones mentioned above -- the ones that you use to funnel 
+messages from other threads into the IFC event loop.</P>
+
+<P>If you find a bug that you suspect may be caused by IFC code being called 
+directly from the wrong thread, see if you can narrow it down to a single 
+IFC-using method that might have been called from the wrong thread. Then add 
+to this method a line of code that prints the stack trace whenever it is 
+called. One way to do this is:</P>
+
+<pre>
+    System.out.println(ec.trace.Trace.getStackTrace());
+</pre>
+
+<P>Then run the software, and check to see if this stack trace always includes 
+IFC's event loop. Lines similar to the following, near the top of the stack, 
+are evidence  that the code is being called from the IFC thread:</P>
+
+<pre>
+    at netscape.application.EventLoop.processEvent(EventLoop.java:142)
+    at netscape.application.EventLoop.run(EventLoop.java:175)
+    at netscape.application.Application.run(Application.java:249)
+</pre>
+
+<P>If these lines aren't present, the code is being called from the wrong 
+thread, and you need to deploy one of the techniques described above to force 
+the IFC code into being called on the IFC thread.</P>
+
+<A name="IFCvsWindows">
+<H2>IFC vs windows</H2>
+</A>
+
+<P>Probably IFC's weakest area is window management. Partly this is due to
+Java's platform-independent lowest-common-denominator approach. Regardless of
+the reasons, it's impossible to get certain window-related operations to
+behave as you'd like, and others require trickery. This section will cover
+some of these issues.</P>
+
+<P>Note that IFC supports two types of "windows", both implementing interface
+<code>netscape.application.Window</code>:
+<ul>
+<P><li><code>netscape.application.ExternalWindow</code><BR>
+This is a normal native Windows window.</li></P>
+
+<P><li><code>netscape.application.InternalWindow</code><BR>
+This is a hideous window-like thing that lives 
+entirely trapped inside an external window. It's entirely drawn and otherwise 
+managed by pure Java code, so it doesn't necessarily look much like a native 
+window. </li></P>
+</ul>
+
+<P>We have entirely avoided internal windows, and the rest of this
+discussion is all about external windows.</P>
+
+<H4>Sizing windows</H4>
+
+<P>An IFC window can have an associated WindowOwner, which receives messages
+when certain window-related events occur. One of these messages is
+<code>Window.willSizeBy(Window window, Size size)</code>. According to
+the IFC documentation, this is called before the window is actually
+resized, and by altering the Size object an implementor can prevent or
+limit the size change. In practice, this does not work for external windows.
+When the user manually resizes a window, this method is called, but not at
+the right level for changes to the size to have any effect. Therefore, there
+is no way to prevent the window from being resized to whatever arbitrary
+size the user chooses. Bummer.</P>
+
+<P>However, often it's really important for the user interface to
+enforce a minimum size on a window. Since we can't prevent the user from
+resizing the window too small, the best we can do is react to it, and
+sproing the window back up to the minimum size as soon as possible after
+the user has finished resizing it. This is pretty ugly, both visually and
+programatically, but it's better than leaving the window at some broken
+tiny size. The approach is to notice in <code>Window.willSizeBy()</code>
+that the window is becoming too small, and then post an event to deal
+with it later (trying to deal with it immediately gets your code into a
+fight with native Windows code, which your code inevitably loses). Classes
+that currently use this technique include 
+<code>ec.cosm.gui.uipresenter.GUIStandardPresenter</code> and
+<code>ec.cosm.gui.uipresenter.GUITeleportListPresenter</code>. 
+Read the source for further details.</P>
+
+<H4>Minimizing and maximizing windows</H4>
+
+<P>AWT and IFC alike have no concept of minimizing/maximizing windows,
+presumably because this is not a platform-independent feature of windowing
+systems. But since an external window is really (or, technically, "has")
+a native window, the title bar will include all the little widgies normally
+found on a Windows title bar, including the minimize and maximize buttons.
+Furthermore, these work, and there's no Java way (as far as I know) to prevent
+them from working. Even windows that have been marked not resizable are still
+perfectly willing to zoom up to fill the whole screen.</P>
+
+<P>Since this minimizing and maximizing goes on behind Java's back, the
+IFC window doesn't even get notified properly when it happens. This led to
+various weirdnesses involving maximized windows saving their giant bounds
+and minimized windows refusing to open programatically. We worked around
+these weirdnesses as best we could in 
+<code>ec.ifc.app.ECExternalWindow</code>. That class is heavily commented,
+so read the source for the gory details.</P>
+
+<a name="layoutManagers">
+<H2>Using IFC LayoutManagers</H2>
+</a>
+
+<P>IFC borrows from AWT the concept of LayoutManagers, but the implementation
+is independent. We use IFC LayoutManagers extensively in Microcosm.</P>
+
+<P>Probably the most important aspect of IFC LayoutManagers to be aware of is 
+that the "no layout manager" case doesn't really work. According to the 
+documentation, if a
+<code>netscape.application.View</code> has no layout manager, then it uses
+its <code>vertResizeInstruction</code> and <code>horizResizeInstruction</code>
+to determine how to reposition itself when its container changes size. This
+would be a good and useful scheme, but for one pretty much fatal flaw: it
+gets unrecoverably messed up at small sizes. The design flaw, which the IFC
+folks have acknowledged but didn't seem to worry about, is that the bounds
+of each View must be a rectangle with positive width and height. If the
+size of the container gets small enough that following the resize instructions
+would result in a View with a negative width or height, that View's bounds
+get messed up forever -- resizing the container larger later on does not
+fix the problem. This flaw combines in a very nasty way with the inability
+to prevent windows from being resized to any arbitrary size, as
+<A HREF="#IFCvsWindows">discussed earlier</A>. So unless you've got an
+extremely simple arrangement of Views, using the resize instructions and
+no layout manager is likely to mess up the layout when the window is resized
+very small and then large again.</P>
+
+<P>This means you'll need an object that implements interface
+<code>netscape.application.LayoutManager</code> to position all the Views
+in each window. The approach we've usually taken is to have the Presenter
+object with which most every window is associated also act as the
+LayoutManager for the window's contents. For StoneLook windows, the object
+in which all other Views are placed is 
+<code>SLWindow.getContainerView()</code>, so this is the object for which the
+Presenter sets itself up as layoutManager. Generally the Presenter object also 
+creates the window and creates all the Views inside it. At creation time it 
+doesn't need to worry about positioning the Views. Once all the Views have 
+been created, it calls <code>containerView.layoutView(0, 0)</code> to
+position them. This method is also called by IFC whenever the window is
+resized, by the user or programatically. The Presenter's implementation of 
+<code>layoutView()</code>
+positions every View from scratch, ignoring the delta parameters. This
+avoids any of the weird container-so-small-that-contents-got-messed-up
+problems. Classes that currently use this technique include
+<code>ec.cosm.gui.uipresenter.GUIStandardPresenter</code>,
+<code>ec.cosm.gui.uipresenter.GUITeleportListPresenter</code>,
+<code>ec.cosm.gui.uipresenter.GUIPropertySheetPresenter</code>,
+and several others. Read the source for further details.</P>
+
+<a name="GUIPresenters">
+<H2>GUIStandardPresenter and relatives</H2>
+</a>
+
+<P>Much of Microcosm's IFC code is in the form of so-called "GUI Presenters".
+These are classes that present information to the user in a graphical
+environment (as opposed to "Console Presenters" which present information to
+the user in a text-only environment). Another document is due on this whole
+Presenter mechanism, but it hadn't been written when I wrote this.</P>
+
+<P>A typical GUI Presenter consists of a class named 
+"GUI[something]Presenter", which implements the [something]Presenter interface
+defined in package <code>ec.cosm.ui.presenter</code>. This typical GUI
+Presenter generally manages a single window or window type and all of its
+contents, though sometimes it also manages one or more auxiliary windows.
+Examples include 
+<code>ec.cosm.gui.uipresenter.GUIPropertySheetPresenter</code>, which manages 
+property sheet windows;
+<code>ec.cosm.gui.uipresenter.GUIAddressBookPresenter</code>, which manages
+the address book window and auxiliary windows such as the "default privileges"
+window; <code>ec.cosm.gui.uipresenter.GUICatalogPresenter</code>, which
+manages catalog windows; and many more. All of these GUI Presenters are in
+package <code>ec.cosm.gui.uipresenter</code>.</P>
+
+<P>To encapsulate much of the behavior and appearance common to many GUI
+Presenters, class <code>ec.cosm.gui.uipresenter.GUIStandardPresenter</code> 
+was created. This abstract class includes support for vertical tabs along
+the left side of the window, a search field and status area at the bottom
+of the window, and some other common elements.</P>
+
+<P>Given this, you might expect that all the GUI Presenters subclass from
+<code>GUIStandardPresenter</code>, but this is not the case. Some of the
+GUI Presenters were written before <code>GUIStandardPresenter</code> came 
+along, and it didn't seem worthwhile to rewrite them as subclasses (though in 
+the grand scheme of things maybe it would be). 
+<code>GUITeleportListPresenter</code> is one such relic. In other cases,
+very few of the common elements abstracted in <code>GUIStandardPresenter</code>
+were required in a particular presenter, so the implementer chose to do it from
+scratch instead. <code>GUIPropertySheetPresenter</code> fits into this
+category.</P>
+
+<P>When creating a new GUI Presenter, it's best to subclass from
+<code>GUIStandardPresenter</code> if your new GUI Presenter is going to use
+vertical tabs, a search field, or a status area. Since nearly every GUI
+Presenter will use at least the status area, this means nearly every new GUI
+Presenter should subclass from <code>GUIStandardPresenter</code>. In this way,
+we can keep improving this one class and get the results everywhere, instead
+of having to make parallel changes in a set of classes. It might even be worth
+someone's time someday to convert the relic classes over, but so far this
+has not seemed worth the tradeoff of time lost and potential bugs introduced.
+</P>
+
+<a name="minimizingIFC">
+<H2>Minimizing IFC</H2>
+</a>
+
+<P>Microcosm suffers from requiring too much memory. IFC has many classes we
+don't use at all, and lots of unused code in the classes we do use. Putting
+these two sentences together leads inexorably to the conclusion that
+Microcosm would be better off if we had a pared-down version of IFC that
+only included the stuff we actually use. Even better, we could throw out
+a lot more code and reduce the class count by another 20 or 30 by merging
+the code in <code>ec.ifc.app</code> and <code>ec.ifc.stonelook</code>
+directly into the parts of IFC that we actually use. For instance, this
+allows us to delete all the drawing code that the stonelook drawing code
+completely replaces.</P>
+
+<P>Crock and Arnold pestered the good folks at Netscape until they finally
+(around 2/11/98) gave in and gave us permission to do this. As long as we
+aren't shipping a UI framework or toolkit that can be construed as competing
+with IFC or Swing we can munge away at their code and squoosh it together
+with ours. I actually got pretty far along with this before it got put on
+hold due to changes in EC's plans for Microcosm. But the work I did will
+have to be redone if and when we decide to do this again, due to drift in
+our use of <code>netscape.application</code> and especially drift in
+<code>ec.ifc.app</code> and <code>ec.ifc.stonelook</code>. Here are the steps
+for "minimizing IFC" in this way:</P>
+
+<ol>
+<li>
+<P><H4>Remove unused methods and classes from IFC source code</H4></P>
+<P>Make a copy of the IFC source tree. Go through it, removing classes
+and methods that aren't used anywhere in Microcosm. 
+<A HREF="mailto:ronin@communities.com">RobL</A> has techniques for finding
+unused methods. I've done a pretty good first pass on this which will probably
+remain valid or very nearly so for a few months at least, so you might want
+to contact me first before starting this up again.</P>
+</li>
+
+<li>
+<P><H4>Create one package from minimized IFC packages</H4><P>
+<P>There's not much point in maintaining the application/util split after
+removing all the unused stuff from IFC, because most of the classes in
+<code>netscape.util</code> can be removed entirely since they're only used
+in the archiving mechanism, which we don't use. I was using <code>ec.efc</code>
+as the name of the new package, but you might be able to think of a 
+cleverer name. Search through the remaining source code, deleting references
+to the old package names or replacing them with the new name, as appropriate.
+</P>
+</li>
+
+<li>
+<P><H4>Merge <code>netscape.application</code> and <code>ec.ifc.app</code> 
+and <code>ec.ifc.stonelook</code></H4></P>
+<P>This is the trickiest part. First, for each class in 
+<code>ec.ifc.app</code>, either add it to the new package or merge its
+code in with its superclass's code. Look for variables and helper methods
+that are only used in code that's being replaced and delete them too. Then,
+do the same thing for each class in <code>ec.ifc.stonelook</code>. Along the
+way, note that there are a couple of hack/workaround classes 
+<code>IFCListViewAccess</code> and <code>IFCButtonAccess</code> that can
+be cleanly eliminated in this step. They currently live elsewhere in the
+source tree (we put them straight into package 
+<code>netscape.application</code> to get access to package-scope stuff
+that our subclasses wanted). I've done a first pass at this too, but it
+has already gone stale as bug fixes have been checked into 
+<code>ec.ifc.app</code>. There's only hope of salvaging it if I do so in
+the next couple of weeks (it's now 3/24/98), which doesn't seem likely.</P>
+</li>
+
+<li>
+<P><H4>Convert callers</H4></P>
+<P>After checking in the new merged package, convert callers in Microcosm to
+use it. Theoretically this could be done one file at a time, but I expect
+there would be some weird problems if some code used IFC and other code
+used the new package (e.g. there wouldn't be one Application object that
+knows about all the windows, so some window interactions might not work).
+Probably it's best to try to do this all as part of one giant checkin. When
+this step is done, the phrases "ifc", "netscape.", and "stonelook" should
+no longer appear anywhere in our code base.</P>
+</li>
+
+<li>
+<P><H4>Out with the old</H4></P>
+<P>When all callers have been converted, remove the old packages from our
+source tree, build environment, etc.</P>
+</li>
+
+<li>
+<P><H4>Improve merged package</H4></P>
+<P>At this point, we can make improvements at our leisure to the new merged
+package. One that we've already thought about is using IFC's caches of
+Rects, Points, and Vectors in the code that we merged in.</P>
+</li>
+
+</ol>
+
+</BODY>
+
+</HTML>
+
+

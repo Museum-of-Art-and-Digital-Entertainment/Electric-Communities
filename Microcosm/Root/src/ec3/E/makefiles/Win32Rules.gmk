@@ -1,0 +1,38 @@
+
+$(BUILD)/lib/$(MODNAME).$(LIBSUFFIX): $(FILES.obj)
+	@mkdir -p $(dir $@)
+	@mkdir -p $(dir $@)
+	link -out:$(BUILD_DRIVE)$(BUILD)/lib/$(MODNAME).$(LIBSUFFIX) $(addprefix $(BUILD_DRIVE),$(FILES.obj)) \
+		$(addprefix $(BUILD_DRIVE),$(FULLSTUBONAME)) \
+		-dll -nodefaultlib:libc.lib -nodefaultlib:msvcrtd.lib msvcrt.lib $(OTHER_LIBS) $(WINDOWS_LIBS) $(JAVA_LIB)
+
+$(BUILD)/lib/$(MODNAME)_g.$(LIBSUFFIX): $(OBJDIRS) $(FILES_g.obj)
+	@mkdir -p $(dir $@)
+	link -debug -debug:full -out:$(BUILD_DRIVE)$(BUILD)/lib/$(MODNAME)_g.$(LIBSUFFIX) $(addprefix $(BUILD_DRIVE),$(FILES_g.obj))  \
+		$(addprefix $(BUILD_DRIVE),$(FULLSTUBONAME))\
+		-dll -nodefaultlib:libc.lib -nodefaultlib:msvcrt.lib msvcrtd.lib $(OTHER_LIBS) $(WINDOWS_LIBS) $(JAVA_DEBUG_LIB)
+
+ifneq ($(USEJNI), no)
+CLFLAGS += -DUSEJNI
+endif
+
+$(BUILD)/objs/$(MODNAME)/%.obj: %.c
+	@mkdir -p $(dir $@)
+	$(CL) -MDd -LDd -Zi -Fo$(BUILD_DRIVE)$@ $(CLFLAGS) -c $<
+
+$(BUILD)/objs/$(MODNAME)_g/%.obj: %.c
+	@mkdir -p $(dir $@)
+	$(CL_g) -MDd -LDd -Zi -Fo$(BUILD_DRIVE)$@ $(CLFLAGS) -c $<
+
+$(BUILD)/objs/$(MODNAME)/%.obj: %.cpp
+	@mkdir -p $(dir $@)
+	$(CL) -MDd -LDd -Zi -Fo$(BUILD_DRIVE)$@ $(CLFLAGS) -c $<
+
+$(BUILD)/objs/$(MODNAME)_g/%.obj: %.cpp
+	@mkdir -p $(dir $@)
+	$(CL_g) -MDd -LDd -Zi -Fo$(BUILD_DRIVE)$@ $(CLFLAGS) -c $<
+
+$(FULLSTUBONAME): $(FULLSTUBNAME)
+	@mkdir -p $(dir $@)
+	$(CL) -MDd -LDd -Zi -Fo$(BUILD_DRIVE)$@ $(CLFLAGS) -c $(BUILD_DRIVE)$?
+

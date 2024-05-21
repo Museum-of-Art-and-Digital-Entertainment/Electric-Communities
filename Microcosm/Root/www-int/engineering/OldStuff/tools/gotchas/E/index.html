@@ -1,0 +1,95 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>E Gotcha Catalog</TITLE>
+<META NAME="Template" CONTENT="C:\Program Files\Microsoft Office\Templates\Web Pages\Web Page Wizard.wiz">
+</HEAD>
+<BODY TEXT="#000000" LINK="#0000ff" VLINK="#800080" BACKGROUND="Image1.gif">
+<DIR>
+
+<B><FONT FACE="Garamond" SIZE=7><P ALIGN="CENTER">E Gotcha Catalog</P>
+</B></FONT><FONT FACE="Garamond"><P>This is a catalog or cheat sheet for common mistakes E programmers make. </P>
+<P>For more information about these catalogs, </FONT><A HREF="../help.html">click here</A><FONT FACE="Garamond">. </P>
+<P>To see a list of related catalogs, </FONT><A HREF="../index.html">click here</A><FONT FACE="Garamond">.</P></DIR>
+</FONT>
+<TABLE CELLSPACING=0 BORDER=0 CELLPADDING=7 WIDTH=688>
+<TR><TD WIDTH="85%" VALIGN="TOP">
+<H2><A NAME="EConcurrency">E Concurrency</A> and optimistic computation</H2>
+<P>The gotchas here revolve around the fact that the linear order of the code doesn't necessarily correspond to the pattern of computation. The habits you learned in non-optimistic languages can lead you astray.</P>
+<P>Note: the following cases won't be entered until there's evidence non-novices stumble over them.</P>
+
+<UL>
+<LI>Nothing outside of an ewhen body should depend on the results of that body. An ewhen just creates a closure that will execute at some point after the method returns (or perhaps never). </LI>
+<LI>"&lt;-" just queues a message. Code after that statement should not behave as if the message completed (unless it's in an ewhen).</UL>
+</TD>
+<TD WIDTH="15%" VALIGN="TOP">
+<P ALIGN="RIGHT">&nbsp;<A HREF="#EExceptions">Next entry</A></TD>
+</TR>
+<TR><TD WIDTH="85%" VALIGN="TOP" HEIGHT=100>
+<H4>Method implementation: The messages a method sends are unordered</H4>
+<P>It's easy to unconsciously assume that messages are received in the order they were sent. When reading or coding a method, ask what will happen if the messages it sends are received in reverse order.</P>
+<P>Note: this also applies to the messages sent by different methods, of course, but looking at different message orderings for all the message traces would be a big chunk of work. When the shuffling channel is available, it will help. In the meantime, you could look at common traces and ask if there are order dependencies between messages. If so, what guarantees that they're delivered in that order? </TD>
+<TD WIDTH="15%" VALIGN="TOP" HEIGHT=100>
+<P>See the two examples following</TD>
+</TR>
+<TR><TD WIDTH="85%" VALIGN="TOP">
+<H4>Class design: Are messages delayed until setup is complete?</H4>
+<P>Suppose you have some object that is not ready for use until some setup messages complete their computation. You must prevent the object's use before it's ready. That can be hidden from callers by having the setup code forward a channel when it's completed.</TD>
+<TD WIDTH="15%" VALIGN="TOP">
+<P><A HREF="setup-forwarding.html">An example</A></P>
+<P>&nbsp;</TD>
+</TR>
+<TR><TD WIDTH="85%" VALIGN="TOP">
+<H4>Class API design: E methods should discourage order dependencies</H4>
+<P>When designing an E class, avoid defining methods that encourage mistakenly order-dependent code. For example, if there are two operations: <CODE>do</CODE> and <CODE>undo</CODE>, <CODE>do</CODE> should use a channel to ensure that calling code will work even if the <CODE>undo</CODE> message is delivered before <CODE>do</CODE>. </TD>
+<TD WIDTH="15%" VALIGN="TOP">
+<P><A HREF="Methods-prohibit-order-dependencies.html">An example</A></P>
+<P><A HREF="Methods-prohibit-order-dependencies.html#UnumNote">Unum programming note</A></TD>
+</TR>
+</TABLE>
+
+<H2>&nbsp;</H2>
+<TABLE CELLSPACING=0 BORDER=0 CELLPADDING=7 WIDTH=690>
+<TR><TD WIDTH="85%" VALIGN="TOP">
+<H2><A NAME="EExceptions">E Exceptions</A></H2>
+<P>The gotchas in E exceptions revolve around the fact that they look like Java exceptions, but they behave somewhat differently.</TD>
+<TD WIDTH="15%" VALIGN="TOP">
+<P ALIGN="RIGHT">&nbsp;<A HREF="#EConcurrency">Previous entry</A></TD>
+</TR>
+<TR><TD WIDTH="85%" VALIGN="TOP" HEIGHT=190>
+<H3>Ethrow is a message send</H3>
+<P>When reading E code, mentally replace each ethrow with what it really is, a message send:</P>
+<CODE><P>magicObject &lt;- throw(new RtEException(…));</P>
+</CODE><P>Does the code still appear to work?</P>
+<P>Just like any other E message send, this <I>queues</I> the message, and any code after the statement executes. This is different than Java throws, which immediately stops execution. Watch out.</TD>
+<TD WIDTH="15%" VALIGN="TOP" HEIGHT=190>
+<P><A HREF="EThrow-as-a-message-send.html">An example</A></TD>
+</TR>
+<TR><TD WIDTH="85%" VALIGN="TOP">
+<H3>Ecatch creates a closure</H3>
+<P>When reading E code, mentally replace each ecatch with:</P>
+<CODE><P>ewhen magicObject () {… body of catch block … }</P>
+</CODE><P>Just like any other ewhen, this <I>queues</I> a closure. It will only execute <I>after</I> the method returns, so it cannot guard later code. </TD>
+<TD WIDTH="15%" VALIGN="TOP">
+<P><A HREF="Ecatch-as-an-ewhen.html">An example</A></TD>
+</TR>
+<TR><TD WIDTH="85%" VALIGN="TOP">
+<H3>E exceptions now propagate through try blocks</H3>
+<P>The documentation still says that an E Exception must be handled in the first ecatch closure it encounters. That's no longer true. E Exceptions will now propagate backwards to all "enclosing" etry blocks.</TD>
+<TD WIDTH="15%" VALIGN="TOP">
+<P><A HREF="Exceptions-propagate.html">An example</A></TD>
+</TR>
+<TR><TD WIDTH="85%" VALIGN="TOP">
+<H3>&nbsp;Uncaught exceptions are ignored</H3>
+<P>Unlike Java, an exception handled by no ecatch block is simply ignored.</TD>
+<TD WIDTH="15%" VALIGN="TOP">
+<P>&nbsp;</TD>
+</TR>
+</TABLE>
+
+<P>&nbsp;</P><DIR>
+
+<P>&nbsp;</P></DIR>
+</BODY>
+</HTML>

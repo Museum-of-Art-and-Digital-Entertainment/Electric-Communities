@@ -1,0 +1,209 @@
+[DUMMY TRACE] error: exception ethrown to null environment
+java.lang.RuntimeException: 1/nullEnv
+	at ec.tests.keep.Keep_$_Impl.go
+	at ec.tests.keep.Keep_$_Sealer.invoke
+	at ec.e.run.RtEnvelope.deliverTo
+	at ec.e.run.EObject_$_Impl.deliver
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.reallyRun
+	at ec.e.run.RtRun.run
+	at java.lang.Thread.run
+Caught in envA: java.lang.RuntimeException: 2/envA
+java.lang.RuntimeException: 2/envA
+	at ec.tests.keep.Keep_$_Impl.go
+	at ec.tests.keep.Keep_$_Sealer.invoke
+	at ec.e.run.RtEnvelope.deliverTo
+	at ec.e.run.EObject_$_Impl.deliver
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.reallyRun
+	at ec.e.run.RtRun.run
+	at java.lang.Thread.run
+[DUMMY TRACE] error: exception ethrown to null environment
+java.lang.RuntimeException: 3/nullEnv
+	at ec.tests.keep.Keep_$_Impl.throwAgain
+	at ec.tests.keep.Keep_$_Sealer.invoke
+	at ec.e.run.RtEnvelope.deliverTo
+	at ec.e.run.EObject_$_Impl.deliver
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.reallyRun
+	at ec.e.run.RtRun.run
+	at java.lang.Thread.run
+[DUMMY TRACE] error: exception ethrown to null environment
+java.lang.RuntimeException: 4/nullEnv
+	at ec.tests.keep.Keep_$_Impl.throwAgain
+	at ec.tests.keep.Keep_$_Sealer.invoke
+	at ec.e.run.RtEnvelope.deliverTo
+	at ec.e.run.EObject_$_Impl.deliver
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.reallyRun
+	at ec.e.run.RtRun.run
+	at java.lang.Thread.run
+Caught in envA: java.lang.RuntimeException: 5/envA
+java.lang.RuntimeException: 5/envA
+	at ec.tests.keep.Keep_$_Impl.throwAgain
+	at ec.tests.keep.Keep_$_Sealer.invoke
+	at ec.e.run.RtEnvelope.deliverTo
+	at ec.e.run.EObject_$_Impl.deliver
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.reallyRun
+	at ec.e.run.RtRun.run
+	at java.lang.Thread.run
+Caught in envA: java.lang.RuntimeException: 6/envA
+java.lang.RuntimeException: 6/envA
+	at ec.tests.keep.Keep_$_Impl.go2
+	at ec.tests.keep.Keep_$_Sealer.invoke
+	at ec.e.run.RtEnvelope.deliverTo
+	at ec.e.run.EObject_$_Impl.deliver
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.reallyRun
+	at ec.e.run.RtRun.run
+	at java.lang.Thread.run
+Caught in envB: java.lang.RuntimeException: 7/envB
+java.lang.RuntimeException: 7/envB
+	at ec.tests.keep.Keep_$_Impl.go2
+	at ec.tests.keep.Keep_$_Sealer.invoke
+	at ec.e.run.RtEnvelope.deliverTo
+	at ec.e.run.EObject_$_Impl.deliver
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.reallyRun
+	at ec.e.run.RtRun.run
+	at java.lang.Thread.run
+Caught in envA: java.lang.RuntimeException: 8/envA
+java.lang.RuntimeException: 8/envA
+	at ec.tests.keep.Keep_$_Impl.throwAgain
+	at ec.tests.keep.Keep_$_Sealer.invoke
+	at ec.e.run.RtEnvelope.deliverTo
+	at ec.e.run.EObject_$_Impl.deliver
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.reallyRun
+	at ec.e.run.RtRun.run
+	at java.lang.Thread.run
+Caught in envB: java.lang.RuntimeException: 9/envB
+java.lang.RuntimeException: 9/envB
+	at ec.tests.keep.Keep_$_Impl.throwAgain
+	at ec.tests.keep.Keep_$_Sealer.invoke
+	at ec.e.run.RtEnvelope.deliverTo
+	at ec.e.run.EObject_$_Impl.deliver
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.reallyRun
+	at ec.e.run.RtRun.run
+	at java.lang.Thread.run
+[DUMMY TRACE] error: exception ethrown to null environment
+java.lang.RuntimeException: 10/nullEnv
+	at ec.tests.keep.Keep_$_Impl.go3
+	at ec.tests.keep.Keep_$_Sealer.invoke
+	at ec.e.run.RtEnvelope.deliverTo
+	at ec.e.run.EObject_$_Impl.deliver
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.reallyRun
+	at ec.e.run.RtRun.run
+	at java.lang.Thread.run
+Caught in envA: java.lang.RuntimeException: 11/envA
+java.lang.RuntimeException: 11/envA
+	at ec.tests.keep.Keep_$_Impl.go3
+	at ec.tests.keep.Keep_$_Sealer.invoke
+	at ec.e.run.RtEnvelope.deliverTo
+	at ec.e.run.EObject_$_Impl.deliver
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.reallyRun
+	at ec.e.run.RtRun.run
+	at java.lang.Thread.run
+Caught in envB: java.lang.RuntimeException: 12/envB
+java.lang.RuntimeException: 12/envB
+	at ec.tests.keep.Keep_$_Impl.go3
+	at ec.tests.keep.Keep_$_Sealer.invoke
+	at ec.e.run.RtEnvelope.deliverTo
+	at ec.e.run.EObject_$_Impl.deliver
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.reallyRun
+	at ec.e.run.RtRun.run
+	at java.lang.Thread.run
+Caught in envA: java.lang.RuntimeException: 13/envA
+java.lang.RuntimeException: 13/envA
+	at ec.tests.keep.Keep_$_Impl.go3
+	at ec.tests.keep.Keep_$_Sealer.invoke
+	at ec.e.run.RtEnvelope.deliverTo
+	at ec.e.run.EObject_$_Impl.deliver
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.reallyRun
+	at ec.e.run.RtRun.run
+	at java.lang.Thread.run
+[DUMMY TRACE] error: exception ethrown to null environment
+java.lang.RuntimeException: 14/nullEnv
+	at ec.tests.keep.Keep_$_Impl.go3
+	at ec.tests.keep.Keep_$_Sealer.invoke
+	at ec.e.run.RtEnvelope.deliverTo
+	at ec.e.run.EObject_$_Impl.deliver
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.reallyRun
+	at ec.e.run.RtRun.run
+	at java.lang.Thread.run
+[DUMMY TRACE] error: exception ethrown to null environment
+java.lang.RuntimeException: 15/nullEnv
+	at ec.tests.keep.Keep_$_Impl.throwAgain
+	at ec.tests.keep.Keep_$_Sealer.invoke
+	at ec.e.run.RtEnvelope.deliverTo
+	at ec.e.run.EObject_$_Impl.deliver
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.reallyRun
+	at ec.e.run.RtRun.run
+	at java.lang.Thread.run
+Caught in envA: java.lang.RuntimeException: 16/envA
+java.lang.RuntimeException: 16/envA
+	at ec.tests.keep.Keep_$_Impl.throwAgain
+	at ec.tests.keep.Keep_$_Sealer.invoke
+	at ec.e.run.RtEnvelope.deliverTo
+	at ec.e.run.EObject_$_Impl.deliver
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.reallyRun
+	at ec.e.run.RtRun.run
+	at java.lang.Thread.run
+Caught in envB: java.lang.RuntimeException: 17/envB
+java.lang.RuntimeException: 17/envB
+	at ec.tests.keep.Keep_$_Impl.throwAgain
+	at ec.tests.keep.Keep_$_Sealer.invoke
+	at ec.e.run.RtEnvelope.deliverTo
+	at ec.e.run.EObject_$_Impl.deliver
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.reallyRun
+	at ec.e.run.RtRun.run
+	at java.lang.Thread.run
+Caught in envA: java.lang.RuntimeException: 18/envA
+java.lang.RuntimeException: 18/envA
+	at ec.tests.keep.Keep_$_Impl.throwAgain
+	at ec.tests.keep.Keep_$_Sealer.invoke
+	at ec.e.run.RtEnvelope.deliverTo
+	at ec.e.run.EObject_$_Impl.deliver
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.reallyRun
+	at ec.e.run.RtRun.run
+	at java.lang.Thread.run
+[DUMMY TRACE] error: exception ethrown to null environment
+java.lang.RuntimeException: 19/nullEnv
+	at ec.tests.keep.Keep_$_Impl.throwAgain
+	at ec.tests.keep.Keep_$_Sealer.invoke
+	at ec.e.run.RtEnvelope.deliverTo
+	at ec.e.run.EObject_$_Impl.deliver
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.runOne
+	at ec.e.run.RtRun.reallyRun
+	at ec.e.run.RtRun.run
+	at java.lang.Thread.run

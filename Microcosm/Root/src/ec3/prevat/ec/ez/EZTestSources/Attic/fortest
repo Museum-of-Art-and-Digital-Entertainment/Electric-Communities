@@ -1,0 +1,1 @@
+for i in (10 till 1,-1) do {(i print)}

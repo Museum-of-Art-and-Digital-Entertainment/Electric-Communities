@@ -1,0 +1,114 @@
+# 1 "ec/ecomp/epredef.java" 
+
+/* ************************************************************************
+ * E Predefined identifiers and operators.
+ * Copyright 1996, 1997 Michael Philippsen. All rights reserved.
+ * 
+ * Author     : Michael Philippsen.
+ * Last change: 15-December-97
+ *************************************************************************/
+
+package ec.ecomp;
+
+class ePredef extends Predef implements /*imports*/ Constants {
+
+  // static boolean needs_e2j = false;
+  
+/** classes defined by the language:
+ */
+  static ClassObj EobjectClass;
+  static ClassObj EobjectIntfClass;
+  static ClassObj E$interface;
+  static ClassObj EdistributorClass;
+  //static ClassObj E$methodTypClass;
+  static ClassObj RtEnvelopeClass;
+  static ClassObj RtInvocationClass;
+  static ClassObj RtSealerClass;
+  static ClassObj EchannelClass;
+  static ClassObj EbooleanClass;
+  static ClassObj ETrueImpl;
+  static ClassObj RtExceptionEnvClass;
+  static ClassObj RtTetherClass;
+  static ClassObj ClassClass;
+
+/** and their types:
+ */
+  static Typ EobjectTyp;
+  static Typ EobjectIntfTyp;
+  static Typ E$interfaceTyp;
+  static Typ EdistributorTyp;
+  //static Typ E$methodTyp;
+  static Typ RtEnvelopeTyp;
+  static Typ RtInvocationTyp;
+  static Typ RtSealerTyp;
+  static Typ EchannelTyp;
+  static Typ EbooleanTyp;
+  static Typ ETrueImplTyp;
+  static Typ RtExceptionEnvTyp;
+  static Typ RtTetherTyp;
+  static Typ ClassTyp;
+
+/** E-Extension.
+ * load class in package "ec.e.run.".
+ */
+  private static ClassObj loadEclass(String name) {
+    try {
+      ClassObj c = ClassFile.load(Name.fromString("ec.e.run." + name)); 
+      // Attr.fixupScope(0, c);
+      return c;
+    } catch (LoadError e) {
+      Report.error
+        (Report.noPos, 
+         "error while loading class " + name + ": " + e);
+      return (new Typ(CLASS, Name.fromString(name))).obj;
+    }
+  }
+
+/** enter all predefined identifiers and operators.
+ */
+  static void einit() {
+    EobjectClass = loadEclass("EObject");
+    EobjectTyp = EobjectClass.typ;
+
+    EobjectIntfClass = loadEclass("EObject_$_Intf");
+    EobjectIntfTyp = EobjectIntfClass.typ;
+    
+    E$interface = loadEclass("E$Interface");
+    E$interfaceTyp = E$interface.typ;
+
+    EdistributorClass = loadEclass("EDistributor");
+    EdistributorTyp = EdistributorClass.typ;
+    
+    //E$methodTypClass = loadEclass("E$MethodTyp");
+    //E$methodTyp = E$methodTypClass.typ;
+
+    RtEnvelopeClass = loadEclass("RtEnvelope");
+    RtEnvelopeTyp = RtEnvelopeClass.typ;
+
+    RtInvocationClass = loadEclass("RtInvocation");
+    RtInvocationTyp = RtInvocationClass.typ;
+
+    RtSealerClass = loadEclass("RtSealer");
+    RtSealerTyp = RtSealerClass.typ;
+
+    EchannelClass = loadEclass("EChannel");
+    EchannelTyp = EchannelClass.typ;
+
+    if (!E2j.done) {
+      EbooleanClass = loadEclass("EBoolean");
+      EbooleanTyp = EbooleanClass.typ;
+    }
+
+    RtExceptionEnvClass = loadEclass("RtExceptionEnv");
+    RtExceptionEnvTyp = RtExceptionEnvClass.typ;
+
+    RtTetherClass = loadEclass("RtTether");
+    RtTetherTyp = RtTetherClass.typ;
+
+    ClassClass = loadClass("Class");
+    ClassTyp = ClassClass.typ;
+   
+    enterUnop("&", EobjectTyp, EdistributorTyp, nop);
+  }
+}
+

@@ -1,0 +1,19 @@
+MODNAME		= ecerep
+PACKAGE		= ec.e.rep
+BUILDTYPE	= lib
+
+SAFETY_MODE = GUEST
+
+FILES.java = \
+	Dummies.java
+
+FILES.javadoc =
+
+include $(TOP)/E/makefiles/Defs.gmk
+
+.PHONY: all classes 
+
+all: basics 
+
+include $(TOP)/E/makefiles/Rules.gmk
+

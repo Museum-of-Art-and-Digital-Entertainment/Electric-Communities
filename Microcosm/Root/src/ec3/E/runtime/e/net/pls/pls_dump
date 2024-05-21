@@ -1,0 +1,36 @@
+#!/bin/sh
+
+# to check on a running process location server, run this command with the
+# name of the control file as the argument:
+#
+# pls_checkup /home/eng/pls-location/gracie.communities.com_1666.control
+#
+
+LOCATION_DIR=${PLS_LOCATION_DIR:-/home/eng/pls-location}
+JAVA_DIR=${PLS_JAVA_DIR:-/home/eng/java-1.1.3/solaris/java-1.1.3}
+
+if [ x$1 = x ]; then
+    echo you must specify the PLS to inspect.
+    exit 1
+fi
+
+base=$1
+
+if [ ! -f $base.evat ]; then
+    echo $base.evat: file not found
+    exit 1
+fi
+
+cp $base.evat /tmp/dump$$.evat
+
+RELEASE_DIR=${PLS_RELEASE_DIR:-${base}.Release}
+
+CLASSPATH=$JAVA_DIR/lib/classes.zip:$RELEASE_DIR/classes:$RELEASE_DIR/compute/classes:$RELEASE_DIR/crew/classes:$RELEASE_DIR/guest/classes:$RELEASE_DIR/steward/classes
+
+LD_LIBRARY_PATH=/usr/lib:/usr/ucblib:$JAVA_DIR/lib/sparc:$RELEASE_DIR/lib:$RELEASE_DIR/solaris/lib
+
+export JAVA_DIR CLASSPATH LD_LIBRARY_PATH
+
+$JAVA_DIR/bin/java ec.e.start.EBoot ec.e.inspect.CheckpointDump CheckPoint=/tmp/dump$$.evat CheckpointToInspect=/tmp/dump$$.evat
+
+#rm -f /tmp/dump$$.evat

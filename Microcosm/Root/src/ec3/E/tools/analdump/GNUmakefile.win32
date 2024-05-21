@@ -1,0 +1,9 @@
+LINK = link
+CLFLAGS +=  -MDd -LDd -I.  
+FILES.o   = $(FILES.c:%.c=$(BUILD)/objs/$(MODNAME)/%.obj)
+
+$(APP_PATH): $(INSTALL_DIR) $(OBJDIRS) $(FILES.o)
+	$(LINK) -debug -map -out:$(BUILD_DRIVE)$@.exe $(addprefix $(BUILD_DRIVE),$(FILES.o))
+	$(RM) -f $(BUILD)/objs/$(MODNAME)/adversion.o
+
+all: standalone

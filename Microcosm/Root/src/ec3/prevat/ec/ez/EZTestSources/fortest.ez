@@ -1,0 +1,13 @@
+// Integer interval
+for a=>b in (2 till(8)) each {println(b)}
+
+// Iterating through doubles
+for x in (1.0 thru(10.0,2.5)) {println(x)}
+
+// Iterating thru a tuple
+define meow := [22, 33, 44, 55, 66]
+for x=>y in (meow) {
+print(x)
+print(" ")
+println(y)
+}

@@ -1,0 +1,326 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>Hub Member DB</title>
+</head>
+
+<body>
+
+<h1>Hub Member Database</h1>
+
+<p><b>Last updated:</b><i> [98/05/18 Jeff]</i> </p>
+
+<p>Author: Jeff Crilly, <a href="mailto:jeff@communities.com">jeff@communities.com</a></p>
+
+<h2>Introduction</h2>
+
+<p>The Hub Member DB is a database wrapper which provides high
+level access to a database schema implemented using an
+off-the-shelf database product. The database is &quot;hub
+only&quot;; there is no implementation on the
+&quot;habiturf&quot; product. However, the design is modular,
+such that enabling the member db on the &quot;gui habiturf&quot;
+version is doable.</p>
+
+<p>The highlevel wrapper api provides asynchronous access to the
+MemberDB schema using E objects, and provides a mechanism for the
+realm to verify that a given avatar identity exists in the member
+db, and the identity is allowed to enter the realm.</p>
+
+<p>In addition, there is a web based &quot;avatar
+registration&quot; mechanism for hub users to add their avatars
+to the member database.</p>
+
+<p>The member db architecture is designed to support multiple
+underlying database engines. Two are supported: CodeBase (a
+flat-file xbase compatible db engine on windows) and JDBC. For
+the JDBC implementation, SqlServer is currently supported,
+however the JDBC SQL code is generic enough to support other
+RDBMS. On the JDBC side, the JDK provided JDBC/ODBC bridge is
+used. Again, other JDBC drivers should work, the only change
+required is a property that specifies the driver and database
+URL.</p>
+
+<p>The key feature that the Hub Member DB provides is the ability
+to prevent &quot;banned&quot; avatars from entering the hub. This
+is accomplished partially by the database schema and partially by
+the hub realm una.</p>
+
+<h4>Related Documents</h4>
+
+<p>Realm una.</p>
+
+<h2>Requirements</h2>
+
+<p>Provide wrappers for database access.<br>
+Support asynchonrous non-blocking database access.<br>
+Web-based Avatar registration.<br>
+Provide support for kick/ban, specifically ban.<br>
+Provide support for &quot;hub member class&quot;, eg
+helper/world-manager/etc.<br>
+Accounting and Billing (actually outside of the scope of the
+member db).</p>
+
+<h2>Architecture</h2>
+
+<h4>Current Architecture Overview</h4>
+
+<p>The best way to explain the architecture is through the use of
+some diagrams. </p>
+
+<h5>Realm - Member DB - Off the shelf database relationship</h5>
+
+<p>The following diagram shows the components and message flows
+between the Realm una and the underlying database implementation.
+(Note: This is a draft picture; there is some simplification.)</p>
+
+<p><img src="RealmMbrDB.GIF" width="508" height="622"></p>
+
+<h5>Hub-o-cosm - Habi-cosm - Web - Database relationship</h5>
+
+<p>The other item worth mentioning at this level is the
+relationship between the hub, habi*, and the web. This is shown
+in the following diagram.</p>
+
+<p><img src="highlevelhubweb.GIF" width="670" height="417"></p>
+
+<p>Note: The above diagram shows relationships between the
+systems. Double ended arrows indicate bi-directional flows.
+Specific messages are identified in following sections and
+diagrams.</p>
+
+<p>&nbsp;</p>
+
+<h5>Avatar entry dataflow</h5>
+
+<p>The following diagram depicts the process data flow that
+occurs when an avatar is registered with the MemberDB and tries
+to enter the world. The Avatar identity is found in the Member
+DB, and the avatar can enter the world.</p>
+
+<p><img src="avatarchecksuccess.GIF" width="614" height="385"></p>
+
+<p>&nbsp;</p>
+
+<h5>Avatar registration</h5>
+
+<p>The following diagram shows the flow when an entering avatar's
+identity is not registered in the Member DB. In this case, the
+avatar entry will fail, and the user will be sent to a web page
+that will enable the user to register the current avatar
+identity. The web page is specified by the &quot;registration
+URL&quot;. This URL contains a query string value which will
+dynamically create the registration page from the database
+content. (The implementation for creating the page is web server
+and database dependent. For the MS IIS/SqlServer implementation
+the implementation is Active Server Pages (ASP). A &quot;C&quot;
+CGI version also exists for the CodeBase version.) When the user
+submits the avatar registration form, the form's field contents
+are processed by server-side code. If the avatar is added to the
+account, then a &quot;success&quot; page is sent back to the
+browser. If the avatar cannot be added to the account (e.g. the
+account password is incorrect, or the account is
+&quot;closed&quot;), then the form is sent back to the user with
+an appropriate error message.</p>
+
+<p><img
+src="../../../../engineering/OldStuff/neocosm/hub/mbrdb/avatarregister.GIF"
+width="675" height="442"></p>
+
+<p>&nbsp;</p>
+
+<h5>Supported database engines</h5>
+
+<p>Another important aspect of the hub member db is its use of
+the off-the-shelf database component. The current implementation
+supports Sequiter CodeBase and MS SqlServer. Other SQL RDBMSs
+should work; its just a matter of defining the MemberDB schema,
+and any neccessary stored procedures. The difference between
+these two DB engines is cost, flexibility, and
+ease-of-integration. CodeBase is no-royalty and made sense for
+the &quot;hub&quot; application we were productizing. However,
+CodeBase is not relational, its difficult to define a multi-table
+schema, and CodeBase doesn't easily integrate with other web
+applications. ('C' CGI is the only way to talk to it.) SqlServer
+carries a hefty price tag, but intregates easily with the java
+based hub code using JDBC and other web applications. For
+example, on the MS IIS web server, Active Server Pages directly
+support Active Data Objects which provide access to ODBC data
+sources. (Note: CodeBase was the first DB engine to get
+integrated. Its possible that the higher level implementation has
+drifted a bit, which require some adjustment to the CodeBase
+wrapper.)</p>
+
+<h5>Member DB Schema Overview</h5>
+
+<h5>MS SqlServer DB</h5>
+
+<p><em>(This section could really use a entity relationship
+diagram.)</em></p>
+
+<ul>
+    <li>Tables<ul>
+            <li>Acct - holds the basic account info: Login,
+                Password, email addr</li>
+            <li>Persons - holds information about the acct
+                holder: Name, real address, phone, etc</li>
+            <li>Identities - avatars that have registered and are
+                members of the hub</li>
+            <li>NewIdentities - a holding area for identities
+                that are attempting to register</li>
+            <li>FailUrls - a small table containing URLs. When an
+                avatar entry fails, one of these URLs is sent
+                back to the user. The failure URL is specified by
+                avatar in the Identities table.</li>
+        </ul>
+    </li>
+    <li>Unique Keys and Foriegn Keys<ul>
+            <li>The Acct table specifies an auto generated unique
+                key for each acct record. This key is used as a
+                foreign key in the Persons and Identities tables.</li>
+        </ul>
+    </li>
+    <li>Relationships<ul>
+            <li>Acct -&gt; Persons : One to One</li>
+            <li>Acct -&gt; Identities : One to Many</li>
+            <li>Identies -&gt; FailUrls: Many to One</li>
+        </ul>
+    </li>
+</ul>
+
+<h4>Proposed Architecture Overview</h4>
+
+<p><i>This section is not urgent for the first version of this
+document, you should capture what direction you feel this
+subsystem ought to take. As we start addressing specific systems
+this section will grow into the core of the design document.</i> </p>
+
+<p>(Draft Draft Draft) A couple items worth considering..</p>
+
+<ol>
+    <li>Avatar registration seems a bit clunky. Originally, we
+        were designing without the requirement of a password
+        protected web site. It seems that if we are requiring a
+        login/password to access the web site, then why do we
+        need to &quot;register&quot; avatars? The answer is that
+        with just the web site login/password we can't prevent
+        someone from entering the world (eg, if we ban the
+        person). For example, the user may have a teleport
+        reference to the world, which currently can't be revoked.
+        We need some form of &quot;dis-access&quot; and the
+        member db provides this.</li>
+    <li>There should be a simpler way for accessing external
+        databases from within an una. The initial design for the
+        member db took a direction to isolate the guest code as
+        much as possible from the crew code. Hence, the API at
+        the steward level was centered around the application,
+        i.e., the member db. Another approach would be to
+        implement a generic RDBMS access mechanism, which would
+        allow guest code access to any tables, and specify any
+        query. Clearly, there is an issue defining what the
+        granularity (if any) of access should be, if any, and by
+        capability. If we limit access to capabilities by table,
+        or query, then the complexity goes up. In the original
+        spec, this complexity was unjustified. However, we may
+        want to consider an alternate architecture that allows
+        more liberal access to an external database.</li>
+</ol>
+
+<h4>Off the shelf alternatives</h4>
+
+<p>The Member DB implementation utilizes off-the-shelf database
+engines. The future product should just support RDBMS that
+support SQL.</p>
+
+<h4>Other Design Objectives, Constraints and Assumptions</h4>
+
+<p><i>Lists any special objectives and assumptions of the code
+e.g. reusability, thread safety, security, performance, use of
+resources, compatibility with existing code etc. This section
+gives important context for reviewers</i> </p>
+
+<h2>Current implementation</h2>
+
+<h4>Which directories on our tree does this subsystem cover?</h4>
+
+<ul>
+    <li>src/hub<ul>
+            <li>src/hub/dbengines<ul>
+                    <li>hub/dbengines/jdbc<ul>
+                            <li>hub/dbengines/jdbc/crew</li>
+                            <li>hub/dbengines/jdbc/compute</li>
+                        </ul>
+                    </li>
+                    <li>hub/dbengines/xbasedb<ul>
+                            <li>hub/dbengines/xbasedb/crew</li>
+                            <li>hub/dbengines/xbasedb/compute</li>
+                        </ul>
+                    </li>
+                    <li>hub/dbengines/testdb<ul>
+                            <li>hub/dbengines/testdb/crew</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li>src/hub/mbrdb<ul>
+                    <li>hub/mbrdb/crew</li>
+                    <li>hub/mbrdb/steward</li>
+                    <li>hub/mbrdb/testers</li>
+                    <li>hub/mbrdb/compute</li>
+                    <li>hub/mbrdb/tools</li>
+                    <li>hub/mbrdb/server</li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+</ul>
+
+<h4>Is it JavaDoc'ed?</h4>
+
+<p>Each class contains javadoc comments for the class and
+methods. However, the javadoc output has not been generated.</p>
+
+<h4>Examples</h4>
+
+<p>Examples can be found in src/hub/mbrdb/testers.</p>
+
+<h4>Testing and Debugging</h4>
+
+<p>A test harness that simulates the same requests the realm
+makes is in src/hub/mbrdb/testers.</p>
+
+<p>Trace categories are: <em>(definitions to be provided)</em></p>
+
+<ul>
+    <li>mbrdbsteward</li>
+    <li>mbrcrewthread</li>
+    <li>mbrxbase</li>
+    <li>dbreq</li>
+</ul>
+
+<p>&nbsp;</p>
+
+<h2>Design Issues</h2>
+
+<h4>Resolved Issues</h4>
+
+<p><i>TBD</i></p>
+
+<p><i>History of issues raised and resolved during initial
+design, or during design inspections. Can also include
+alternative designs, with the reasons why they were rejected</i> </p>
+
+<h4>Open Issues</h4>
+
+<p><i>TBD</i></p>
+
+<p><i>This section of the document is used by the authors and
+moderator to store any incomplete information - issues identified
+during a design inspection but not yet resolved (the task list),
+notes that aren't ready to be put into the main text, etc.</i> <br>
+&nbsp; </p>
+</body>
+</html>

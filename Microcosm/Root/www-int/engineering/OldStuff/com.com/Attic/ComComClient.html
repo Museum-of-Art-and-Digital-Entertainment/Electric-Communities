@@ -1,0 +1,45 @@
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+	<META AUTHOR="Bob Schumaker">
+	<TITLE>The ComCom Client Experience</TITLE>
+</HEAD>
+
+<BODY>
+<A NAME="introduction"><H2>Introduction</H2></A>
+The ComCom Client is designed to add value to the traditional
+'buddy list' concept pioneered by ICQ by also tracking 'locations.'
+The location information can be anything related to a persons presence on
+the net -- the simple fact that they are 'online' and connected,
+the URL(s) they are currently browsing, or the current Palace server they
+are connected to.
+<P>The ComCom Client provides a rich, yet easy to use, interface to these
+disparate types of information. It presents the concept of location in a
+form that allows a much richer experience than merely knowing that your
+friends are connected -- now you can find out where they are as well.
+<H4>Related Documents</H4>
+<A HREF="mailto:cobblers@communities.com">Bob's</A> and
+<A HREF="mailto:karl@communities.com">Karl's</A> <A HREF="ComComDesignNotes.html">ComCom Design Notes</A>
+<BR><A HREF="index.html">ECID &amp; ComCom Home Page</A>
+<BR><A HREF="Components.html">ECID/ComCom Project Components List</A>
+<BR><A HREF="ComComSystemArchitecture.html">ComCom System Architecture</A>
+<A NAME="requirements"><H2>Requirements</H2></A>
+The ComCom Client needs to be able to display varied location information about
+other ECID users, as well as aggregated information about the various locations
+themselves (<I>e.g.</I> 'There are 15 people currently connected to the South Park
+Palace', where the count is the number of ECID users currently connected).
+<P>In addition to displaying location information, the ComCom Client will also provide
+a full-fledged user interface for the ECID core module. Through the ComCom Client, the user
+will be able to change profile information, set up demographic data, and gain fine-grained
+control over the various services provided by the ComCom client and the ECID module.
+<A NAME="architecture"><H2>Architecture</H2></A>
+The ComCom Client will be written in C++ using the appropriate application framework
+for each platform (<I>i.e.</I> MFC for Windows, <A HREF="http://www.metrowerks.com">Metrowerks</A>
+PowerPlant for Macintosh, and perhaps <A HREF="http://www.metrowerks.com">Metrowerks</A> Latitude for X-Windows).
+As much of the core functionality dealing with processing messages from the server and
+interfacing with the ECID module will be generic (<I>i.e.</I> cross-platform support will
+be an key criteria in design decisions) while allowing each user interface paradigm to
+be as natural as possible for each platform.
+
+</BODY>
+</HTML>

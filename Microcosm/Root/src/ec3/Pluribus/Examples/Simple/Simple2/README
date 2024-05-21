@@ -1,0 +1,14 @@
+
+This is a simple example unum which demonstrates 
+
+o the most basic kind of unum start-up, and 
+o the sending of a single message to the unum
+o unum registration and multiple presences.
+
+It doesn't change (or even initialize) shared state.
+
+It doesn't demonstrate a client-server presence model.
+
+It doesn't demonstrate how to use a user interface peer / factory.
+
+-Felix

@@ -1,0 +1,28 @@
+#!/bin/csh -f
+#
+# This will copy over to the build files in solaris/bin and solaris/lib
+# that aren't already in the build, but only if it hasn't been done
+# before--it checks for $BUILD/objs/.solariscopy-done and will touch
+# it when it's done.
+
+if (-e $BUILD/objs/.solariscopy-done) then
+    echo "(solaris bin and libs already copied)"
+else
+    echo "(copying solaris bin and libs from pre-built version)"
+    mkdir -p $BUILD/bin
+    cd $EDIR/solaris/bin
+    foreach x (*)
+        if (! -e $BUILD/bin/$x) then
+            cp $x $BUILD/bin
+        endif
+    end
+    mkdir -p $BUILD/lib
+    cd $EDIR/solaris/lib
+    foreach x (*)
+        if (! -e $BUILD/lib/$x) then
+            cp $x $BUILD/lib
+        endif
+    end
+    mkdir -p $BUILD/objs
+    touch $BUILD/objs/.solariscopy-done
+endif

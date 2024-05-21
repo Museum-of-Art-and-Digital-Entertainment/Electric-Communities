@@ -1,0 +1,194 @@
+<HTML>
+<HEAD>
+   <TITLE>Java Object Count</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Java Object Count</H1>
+<B>Author:</B> Russp, HTMlization by Tony.
+<P>
+You can find the original e-mail 
+<A HREF="http://www-int.communities.com/archives/ec_perf/0787.html">
+here.</A>
+<P>
+The difference in memory usage between MemDump1 and MemDump2
+as reported by analdump was 1,363,056 bytes of Java objects
+and 8,563,242 bytes of non-Java objects. The renderer accounts
+for 8,465,038 bytes of the non-Java objects (primarily because
+it's where all the textures in Harry's 10MB texture cache live).
+Anyways, below is the _complete_ list of all the differences
+in instantiated Java objects per class between the 4 and 31
+transitions. This is only the diffs. If anyone's interested
+in the full 32MB dump file, just ask. :)
+<P>
+Russ
+<P>
+<CODE><PRE>
+delta of bytes used per class between 4 and 31 transitions<br>
+<i>|</i><br>
+<i>|      objects per class used after 4 transitions</i><br>
+<i>|      |</i><br>
+<i>|      |     objects per class used after 31 transitions</i><br>
+<i>|      |     |</i><br>
+<i>|      |     |     bytes used per class after 4 transitions</i><br>
+<i>|      |     |     |</i><br>
+<i>|      |     |     |      bytes used per class after 31 transitions</i><br>
+<i>|      |     |     |      |</i><br>
+<i>|      |     |     |      |       class name</i><br>
+------ ----- ----- ------ ------- ----------------------------------<br>
+442168  4300  5501 719960 1162128 java.util.HashtableEntry[]
+186736 12117 18079 574232 760968 java.lang.Object[]
+ 90736  6252 11923 100032 190768 java.util.Vector
+ 80664 14911 16382 893064 973728 char[]
+ 78672    25   472   4400  83072 ec.cosm.gui.dynamics.DEControllerLeaf
+ 62736 13835 16449 332040 394776 java.util.HashtableEntry
+ 38016   287  1871   6888  44904 ec.cosm.gui.scene.EventPickHandle
+ 35136    35   523   2520  37656 ec.cosm.gui.framework.GUIPresenterHandler
+ 28824  4291  5492 102984 131808 java.util.Hashtable
+ 26720  1428  3098  22848  49568 ec.misc.graphics.Point3D
+ 25344   287  1871   4592  29936 ec.cosm.gui.scene.PickInfo
+ 23536 15497 16968 247952 271488 java.lang.String
+ 16320  3475  3985 111200 127520 ec.e.run.EUniChannel
+ 14256    51   645   1224  15480 ec.cosm.ui.presenter.ResponderTableEntry
+ 14024   770   922 249984 264008 int[]
+ 10000    51   676    816  10816 ec.misc.cache.HeapNode
+  9728  1315  1619  42080  51808 ec.pl.runtime.Unum_$_Deflector
+  9728    26   330    832  10560 ec.cosm.objects.CompositionState
+  9440    51    57    816  10256 float[]
+  9392     0     2      0   9392 java.lang.Float[]
+  8064    56   392   1344   9408 ec.cosm.gui.scenewidget.MenuItem
+  7904   372   866   5952  13856 java.awt.Point
+  7616    33   271   1056   8672 ec.cosm.gui.dynamics.HashBundle
+  7392     7    49   1232   8624 ec.cosm.gui.scenewidget.PieMenu
+  7296    26   330    624   7920 ec.cosm.objects.jufRlocalsupCb_$_Impl
+  6264     5    32   1160   7424 ec.cosm.gui.dynamics.DEAvatarController
+  5296  9024  9261 869248 874544 byte[]
+  5280    19   239    456   5736 ec.cosm.ui.presenter.ColorLabelPData
+  4864    26   330    416   5280 ec.cosm.objects.jPresenterNotifier
+  4736   230   526   3680   8416 ec.cosm.gui.scene.Texture
+  4704    24   171    768   5472 ec.e.run.ECatchClosure_$_Impl
+  4544    21   163    672   5216 ec.cosm.objects.jMenuEntry
+  4144   188   447   3008   7152 ec.cosm.ui.presenter.UIPresenterElement
+  3696    43    85   3784   7480 ec.cosm.gui.scenewidget.StringLabel
+  3520   128   348   2048   5568 java.awt.Color
+  3080   199   276   7960  11040 ec.cosm.gui.scene.WidgetPolygon
+  2912  2336  2364 242944 245856 java.lang.Class
+  2784    28   202    448   3232 ec.e.run.RtExceptionEnv
+  2688    43    85   2752   5440 ec.cosm.gui.scenewidget.OutlineFontInfo
+  2352   531   629  12744  15096 ec.e.run.EUniDistributor_$_Impl
+  2232   138   169   9936  12168 ec.cosm.gui.scenewidget.SceneGUI
+  2120     9    62    360   2480 ec.cosm.ui.presenter.CommandPresenterData[]
+  1904  7697  7935  61576  63480 ec.cert.CryptoHash
+  1840     5    28    400   2240 ec.cosm.gui.scene.Scene
+  1808  1831  2057  14648  16456 java.lang.Integer
+  1792    10    38    640   2432 netscape.application.TextParagraph
+  1728     9    63    288   2016 ec.cosm.objects.eiSerializeAvatarChangeRegion_$_Deflector
+  1728     4    31    256   1984 ec.cosm.gui.dynamics.Balloon
+  1728     0    54      0   1728 ec.cosm.objects.CameraBuffer
+  1696     9    62    288   1984 ec.cosm.ui.presenter.PieMenuPresenterData
+  1680     9    51    344   2024 java.awt.Point[]
+  1680     7    49    280   1960 ec.cosm.gui.scenewidget.MenuItem[]
+  1656    48   117   1152   2808 ec.cosm.gui.fonts.ECFont
+  1408    33    77   1056   2464 ec.e.run.EBoolean_$_Deflector
+  1296    10    64    240   1536 ec.cosm.objects.iiECAvatarChangeRegion$iicode_$_Impl$closure
+  1056     7    51    168   1224 ec.cosm.objects.jPieMenuRecord
+  1008    15    78    240   1248 ec.cosm.gui.scene.KeyEventHandlerList
+  1008     4    18    288   1296 ec.cosm.gui.dynamics.DEControllerRoot
+   992    11    73    176   1168 ec.e.run.RtEnvelope
+   896     9    37    288   1184 netscape.application.TextParagraphFormat
+   864   417   444  13344  14208 ec.cosm.objects.ukContainer$kind_$_Deflector
+   864    29    56    928   1792 ec.cosm.objects.uskRegion$kind_$_Deflector
+   864    29    56    928   1792 ec.cosm.objects.ukAddUnum$kind_$_Deflector
+   864    12    24    864   1728 ec.cosm.gui.uipresenter.TeleportListItem
+   864     5    32    160   1024 ec.pl.runtime.UnumReceiver_$_Deflector
+   864     5    32    160   1024 ec.cosm.objects.ukfCsupCb$kind_$_Deflector
+   864     5    32    160   1024 ec.cosm.objects.jNotifyTransitionBehaviorWrapper_$_Impl
+   696    15    44    360   1056 netscape.application.FastStringBuffer
+   672    10    38    240    912 netscape.application.TextStyleRun
+   672     7    49    112    784 ec.cosm.objects.jMoveToVerbHandler
+   648   855   882  20520  21168 ec.cosm.objects.efContainerQueuingFacet_$_Impl
+   648    31    58    744   1392 ec.cosm.objects.efCsupCbQueuingFacet_$_Impl
+   648     5    32    120    768 ec.pl.runtime.eUnumTarget_$_Impl
+   648     5    32    120    768 ec.cosm.objects.iiECBodyLinkToAvatar$iicode_$_Impl$closure
+   648     4    31     96    744 ec.cosm.objects.iiECChangeRegion$iicode_$_Impl$closure
+   552   418   441  10032  10584 ec.cosm.objects.jMoveToBehaviorWrapper_$_Impl
+   552     4    27     96    648 ec.cosm.objects.iiECExitPad$iicode_$_Impl$closure
+   480    19    29    912   1392 ec.e.run.TraceMessage
+   480     0    12      0    480 ec.cosm.objects.eiAvatarInterfaceVerbCallbacks_$_Sealer
+   464    75   104   1200   1664 netscape.util.Vector
+   432   856   883  13696  14128 ec.cosm.objects.jUnumKey
+   432     9    36    144    576 java.awt.Dimension
+   336     7    49     56    392 ec.cosm.objects.jPropertySheetVerbHandler
+   336     7    49     56    392 ec.cosm.objects.jDescribeVerbHandler
+   336     5    26     80    416 ec.cosm.gui.scene.KeyEventRouter
+   336     5    19    120    456 ec.cosm.objects.jURLLaunchBehaviorWrapper_$_Impl
+   336     5    19    120    456 ec.cosm.objects.jAlertBehaviorWrapper_$_Impl
+   328     9    50     72    400 ec.cosm.objects.jBehaviorRevoker
+   280   410   445   3360   3640 boolean[]
+   248     4     5    992   1240 netscape.application.TextField
+   240    20    30    480    720 ec.e.run.TraceDate
+   232    54    83    432    664 java.lang.Float
+   192   300   304  14400  14592 ec.e.run.Trace
+   192     2     3    384    576 netscape.application.FoundationFrame
+   192     0     8      0    192 ec.cosm.objects.iiECTeleportList$iicode_$_Impl$closure
+   168     5    26     40    208 ec.cosm.gui.scene.SceneMouseListener
+   160     0     4      0    160 ec.cosm.ui.presenter.UIForTeleportList_$_Sealer
+   160     0     4      0    160 ec.cosm.objects.ikAvatarAddressBook$kind_$_Sealer
+   160     0     4      0    160 ec.cosm.gui.scenewidget.SceneGUI[]
+   128   199   203   6368   6496 ec.e.run.TraceSubsystemMediator
+   128     0     8      0    128 ec.cosm.objects.jSimpleVerbHandler
+   112   264   271   4224   4336 ec.misc.graphics.Point2DInt
+    96     0     4      0     96 ec.cosm.objects.iiECTeleportPad$iicode_$_Impl$closure
+    96     0     4      0     96 ec.cosm.objects.iiECAvatarTeleport$iicode_$_Impl$closure
+    96     0     1      0     96 ec.cosm.gui.fonts.TextBalloon
+    80     8    10    320    400 ec.cosm.gui.dynamics.BalloonElement
+    80     4     9     64    144 ec.cosm.ui.presenter.LabelPresenterData
+    80     0     2      0     80 ec.cosm.objects.ikCamera$kind_$_Sealer
+    72    12    13    864    936 sun.awt.image.ImageRepresentation
+    64   325   329  97024  97088 java.lang.String[]
+    64    44    45   2816   2880 netscape.application.Bitmap
+    56     9    10    504    560 sun.awt.image.PixelStore8
+    48    15    17    360    408 java.awt.Rectangle
+    48    11    14    176    224 sun.awt.FontDescriptor
+    48     6     8    144    192 java.awt.Insets
+    48     3     4    144    192 sun.awt.windows.WPanelPeer
+    48     3     4    144    192 sun.awt.windows.WFramePeer
+    40    78    79   3120   3160 netscape.util.Hashtable
+    40    24    25    960   1000 sun.awt.image.ByteArrayImageSource
+    40     1     2     40     80 ec.cosm.gui.scene.CameraInfo
+    40     0     1      0     40 ec.cosm.ui.presenter.CameraSetter_$_Sealer
+    40     0     1      0     40 ec.cosm.objects.ikAvatarTeleport$kind_$_Sealer
+    32    43    44   1376   1408 sun.awt.windows.WImage
+    32    12    14    192    224 ec.cosm.gui.scene.ControlEvent
+    32    10    11    320    352 java.awt.image.IndexColorModel
+    32     8     9    256    288 java.awt.LightweightDispatcher
+    32     5     6    160    192 sun.awt.windows.WFontPeer
+    32     5     6    160    192 sun.awt.windows.WDefaultFontCharset
+    32     5     6    160    192 java.awt.Font
+    32     4     5    128    160 ec.cosm.gui.dynamics.BalloonGroup
+    32     3     4     96    128 java.awt.BorderLayout
+    32     0     1      0     32 netscape.application.KeyEvent
+    24    61    62   1464   1488 netscape.application.Rect
+    24     8     9    192    216 java.awt.Component[]
+    24     5     6    104    128 sun.awt.FontDescriptor[]
+    16     9    10    144    160 netscape.application.BitmapObserver
+    16     3     4     48     64 java.awt.FocusManager
+    16     0     1      0     16 ec.cosm.ui.presenter.DuplicateCommandException
+    16     0     1      0     16 ec.cosm.objects.jTelepathyVerbHandler
+    16     0     1      0     16 ec.cosm.objects.jSayVerbHandler
+    16     0     1      0     16 ec.cosm.gui.scene.Texture[]
+     8     0     1      0      8 netscape.application.LineBorder
+     8     0     1      0      8 ec.cosm.ui.presenter.AvatarNameList
+     8     0     1      0      8 ec.cosm.objects.jOpenPocketVerbHandler
+     8     0     1      0      8 ec.cosm.objects.jMoodVerbHandler
+     8     0     1      0      8 ec.cosm.objects.jGestureVerbHandler
+     8     0     1      0      8 ec.cosm.objects.jAvatarInventoryVerbHandler
+     8     0     1      0      8 ec.cosm.objects.jAvatarCatalogVerbHandler
+     8     0     1      0      8 ec.cosm.gui.fonts.TextColorMap
+   -40     1     0     40      0 netscape.application.CommandEvent
+   -56     1     0     56      0 ec.cosm.gui.fonts.ECText
+  -224   109   102   3488   3264 sun.awt.windows.WGraphics
+  -288    17    11    816    528 ec.e.time
+</PRE></CODE>
+</BODY>
+</HTML>

@@ -1,0 +1,19 @@
+# These are used by Defs.gmk for the GENLIBS variable
+LIBFILENAME = lib$(MODNAME)
+LIBSUFFIX = so
+
+# Specifies the name of the make utility to call
+MAKE = make
+
+# Use these to refer to supporting programs
+KSH		= /bin/ksh
+RM		= /bin/rm
+AR		= /usr/bin/ar
+LD		= /usr/bin/ld
+RANLIB		= /usr/bin/ranlib
+
+JAVA_CLASSPATH = $(CLASSPATH)
+
+FILE_SEPARATOR = /
+
+JAVAOSINC 	  = $(JAVAHOME)/include/genunix

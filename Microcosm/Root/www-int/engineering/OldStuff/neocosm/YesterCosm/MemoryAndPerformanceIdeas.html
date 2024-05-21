@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>Ideas for Performance and Memory Usage Improvement</TITLE>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="Author" CONTENT="Scott B Lewis">
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; U) [Netscape]">
+</HEAD>
+<BODY>
+
+<H1>Ideas for Performance and Memory Usage Improvements</H1>
+
+<P><B>Author</B>: everyone, but created by <A HREF="mailto:slewis@communities.com">slewis@communities.com</A>
+</P>
+
+<P><B>Last Updated</B>:&nbsp; 5/29/98 </P>
+
+<H2>Ideas for Performance Improvement</H2>
+
+<P>None yet. </P>
+
+<H2>Ideas for Memory Usage Improvement</H2>
+
+<P>
+<HR WIDTH="100%"><BR>
+One huge problem we've had is <A HREF="http://www-int.communities.com/archives/ec_perf/0679.html">class
+bloat</A>.&nbsp; One thought that <A HREF="mailto:walendo@communities.com">Walendo
+</A>and I (<A HREF="mailto:slewis@communities.com">Scott</A>) came up with
+during a discussion this morning is the following:&nbsp; The java handling
+of class garbage collection is changing (for the good IMHO).&nbsp; Formerly,
+the rules for unloading classes were confusing, and caused some problems
+for our code (i.e. classes were unloaded by the gc, when we needed for
+them to stay around).&nbsp; The new rules for the garbage collector are
+basically as follows: </P>
+
+<P>Classes are gc'ed only if their classloader is gc'ed.&nbsp; Classes
+loaded by the null classloader are never gc'ed. </P>
+
+<P>One opportunity for memory saving that this affords:&nbsp; for classes
+that we know are used only once (e.g. startup code), we might want to create
+a special classloader instance to load those classes (it could just trivially
+turn around and call getSystemClass [or whatever it's called]).&nbsp; Then
+when the code is finished with these classes this trivial classloader could
+turn around and be released, and the loaded classes would then be gc'ed.&nbsp;
+This could be done for any code that we know is used only once, or even
+code that is only used rarely (the repeated load time might be worth paying
+in this case to save on memory usage). </P>
+
+<P>
+<HR WIDTH="100%"></P>
+
+<P>[Bill 29 May 1998] Looking at Russ's <A HREF="JavaObjectCount.html">table
+of memory usage</A>, I see a an increase between the 4 transition and 31
+transition measurement of 1201 hashtables but only 2614 hash table entries.
+If these hashtables were allocated with a small initial number of entries,
+we could save on the order of 400K. We could save even more if they are
+garbage and can be dropped.</P>
+
+<P>
+<HR WIDTH="100%"></P>
+
+</BODY>
+</HTML>

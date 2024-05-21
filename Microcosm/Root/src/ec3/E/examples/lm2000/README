@@ -1,0 +1,50 @@
+====================
+The LunchMaster 2000
+====================
+v 1.0
+Sep 6, 1996
+Felix Baumgardner
+Copyright 1996 Electric Communities, all rights reserved
+
+LM2000 users (each with their own tastes in restaurants) notify the server 
+when they are ready to go to lunch.  The server determines, based on the
+list of users who want to go to lunch and their tastes, which are the best 
+restaruants to choose from, and distributes this list to all the clients.
+
+o To start server:
+
+javaec ec.examples.lm2000.StartServer -ECkeepCommRunning
+
+o To start client: 
+
+choose a unique listenPort and pass the name of the server host as args:
+
+javaec ec.examples.lm2000.StartClient listenPort=5431 hostName=george
+
+o Instructions:
+
+Fill out your name, and your budget.  Rate all the restaurants.
+Add restaurants as you see fit.  To see a restaurant's stats, double-click
+on it.  Delete restaurants if you make a mistake.  When you want to go to
+lunch, click on the 'I wanna go to lunch' check box.
+
+o Files:
+
+In your home directory, you'll find these files:
+
+Person -- your name, budgets, and restaurant tastes (client)
+Restaurants -- a list of restaurants                (server)
+
+o Bugs:
+
+Uses AWT
+The failure semantics suck.  They are most ungraceful.
+The client doesn't break nicely when the server goes away, it just spews
+  error messages when the user tries to do any server-related stuff.
+The server spews error messages when a client goes away, but still works.
+(However, when a client returns after going away, things come back to normal)
+Exception handling for e-messages is virtually non-existent.
+The unique identifier for a client is the user's name, which causes problems
+  when the user decides to change their name.
+The server doesn't try to find out if there's another server running before
+  starting.  (I have a fix for this)

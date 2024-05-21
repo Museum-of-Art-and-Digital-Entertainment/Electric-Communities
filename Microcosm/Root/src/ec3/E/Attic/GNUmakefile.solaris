@@ -1,0 +1,11 @@
+all: real-all
+
+ecomp-prep:
+	mkdir -p $(BUILD)/bin
+	cp $(TOP)/E/tools/ecomp/ecomp $(BUILD)/bin
+	mkdir -p $(BUILD)/classes
+	cp -r $(EDIR)/classes/* $(BUILD)/classes
+	mkdir -p $(BUILD)/win32/bin
+	mkdir -p $(BUILD)/win32/lib
+	cp -r $(EDIR)/win32/bin/* $(BUILD)/win32/bin
+	cp -r $(EDIR)/win32/lib/* $(BUILD)/win32/lib

@@ -1,0 +1,23 @@
+lookup=u:\scruffy RegisterWithURLs=ftp://www.communities.com/pub/pls-location/gracie.communities.com_1667 SearchPath=gracie.communities.com:1667
+reg=c:\regs\scruffy RegisterWithURLs=ftp://www.communities.com/pub/pls-location/gracie.communities.com_1667 SearchPath=gracie.communities.com:1667
+
+ec.ez.syntax.EZMain
+
+C:\cafe;c:\src\ec3\E\runtime\e\start;c:\src\ec3\prevat
+
+.;C:\CAFE\BIN\..\JAVA\LIB\CLASSES.ZIP;C:\CAFE\BIN\..\JAVA\LIB\SYMCLASS.ZIP;C:\ECDEV\Build.Win32\steward\classes;C:\ECDEV\e\classes.zip;C:\ECDEV\e\compute.zip;C:\ECDEV\e\crew.zip;C:\ECDEV\e\guest.zip;C:\ECDEV\e\steward.zip;C:\ECDEV\support\compute.zip;C:\ECDEV\support\crew.zip;C:\ECDEV\support\guest.zip;C:\ECDEV\support\steward.zip;C:\ECDEV\ifc\classes.zip;C:\ECDEV\edoc\classes\edoc.zip;c:\cafe;C:\ECDEV\Build.Win32\guest\classes
+
+c:\cafe\classes
+
+define cat := 3.0 <- cos
+cat when(to (x) {println(x)})
+
+
+// gets the description from something
+
+define meow := region <- uGetRegionID
+meow when (to (arg) {println(arg)})
+
+define hew := ec.examples.heew.HelloEWhenObj_$_Impl new
+hew <- StartHelloEWhenInstance$async
+

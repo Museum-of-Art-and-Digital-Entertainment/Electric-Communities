@@ -1,0 +1,26 @@
+#!/bin/csh -f
+#
+# Build a minimal source distribution for the E runtime. Run in the
+# directory that this script resides in (E/runtime).
+
+if ("$1" == "") then
+	echo "${0}: must specify a target directory name"
+	exit 1
+endif
+
+set dest=$1
+echo "Building dist in $1"
+
+rm -rf $dest
+mkdir -p $dest/ec/e/lang
+mkdir -p $dest/ec/e/run
+mkdir -p $dest/ec/util
+
+cp e/lang/*.{e,java,c} $dest/ec/e/lang
+cp e/run/*.{e,java,c} $dest/ec/e/run
+cp util/{EMainThread.java,EThreadGroup.java,NestedError.java,NestedThrowable.java,PEHashtable.java,ReadOnlyHashtable.java} $dest/ec/util
+cp minimal-* $dest/ec
+
+cd $dest
+tar cf ec.tar ec
+gzip ec.tar

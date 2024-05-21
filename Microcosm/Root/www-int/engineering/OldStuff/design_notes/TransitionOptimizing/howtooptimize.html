@@ -1,0 +1,383 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="Author" CONTENT="Rob Jellinghaus">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.03 [en] (Win95; U) [Netscape]">
+   <TITLE>How To Optimize Region Transitions</TITLE>
+</HEAD>
+<BODY>
+
+<H1>
+How To Optimize Region Transitions</H1>
+by <A HREF="mailto://robj@communities.com">RobJ</A>
+
+<P>This page outlines some techniques for analyzing and optimizing the
+between-process messaging that happens during region transitions.&nbsp;
+I focus here on the network issues (latency and bandwidth) rather than
+the local issues (loading art and minimizing thrashing).&nbsp; Any other
+tips might well go in here....
+
+<P>Table of contents (because section 1 is lengthy):
+<BR>1. <A HREF="#minimizingroundtrips">Minimizing Round Trips</A>
+<BR>2. <A HREF="#minimizingcommbandwidth">Minimizing Comm Bandwidth</A>
+<H2>
+<A NAME="minimizingroundtrips"></A>1. Minimizing Round Trips</H2>
+One fruitful way to reduce the time to enter a region is to study the messages
+going back and forth and reduce the number of times one side waits for
+a message from the other side.&nbsp; The most straightforward way to do
+this is to add the following props entries:
+<UL>
+<PRE>Trace_ec.e.net.MsgSender=debug</PRE>
+
+<PRE>Trace_ec.e.net.MsgReceiver=debug</PRE>
+</UL>
+These will turn on spam whenever an envelope is sent or received.&nbsp;
+This makes it very easy to see what's happening.&nbsp; It results in spam
+files like <A HREF="out.txt">this one</A>, produced from a single host
+running OneRegion when a single client entered.&nbsp; This spam looks intimidating
+as hell, but the way to parse it is to walk through each message making
+sure you understand who is sending it and why.&nbsp; Herewith I dissect
+that spam file so you can follow the bouncing ball along with me.&nbsp;
+I've filtered out everything but the actual envelope spam (think "grep
+ec.e.run.RtEnvelope out.txt").
+
+<P>Remember, this spam is produced <B>by a host</B> when a client enters,
+so everything you see, think "this is what the host is sending" or "this
+is what the host is receiving from the newly-entering client."&nbsp; Also
+note that Walendo has recently added timestamp information to this spam
+so forgive me if the format is slightly different--the envelope contents
+will be the same.
+
+<P>The first messages we see are the
+<UL>ec.e.net.MsgSender: sending #&lt;ec.e.run.RtEnvelope void ec.e.net.SturdyRefFollower&lt;-lookupObjectID(java.lang.String,
+ec.e.run.EResult_$_Intf) (1849li551jagd, ec.e.run.EDistributor_$_Impl@292352)>
+<BR>ec.e.net.MsgSender: sending #&lt;ec.e.run.RtEnvelope void ec.e.net.SturdyRefFollower&lt;-lookupObjectID(java.lang.String,
+ec.e.run.EResult_$_Intf) (vkgghk126nuu, ec.e.run.EDistributor_$_Impl@292255)>
+<BR>ec.e.net.MsgSender: sending #&lt;ec.e.run.RtEnvelope void ec.e.net.SturdyRefFollower&lt;-lookupObjectID(java.lang.String,
+ec.e.run.EResult_$_Intf) (m0zveipqo10t, ec.e.run.EDistributor_$_Impl@2922cc)></UL>
+These are the host sending requests to each of the three PLSes.&nbsp; lookupObjectID
+is a message sent by Registrar.java when you call followRef on a SturdyRef.
+<UL>ec.e.net.MsgReceiver: received ec.e.run.EDistributor_$_Impl@2922cc
+&lt;- #&lt;ec.e.run.RtEnvelope void ec.e.run.EResult&lt;-forward(java.lang.Object)
+(ec.e.net.ProcessLocationServer_$_Proxy@291a04)> {{ec.e.run.ECatchClosure_$_Impl@2922c7}}
+<BR>ec.e.net.MsgReceiver: received ec.e.run.EDistributor_$_Impl@292255
+&lt;- #&lt;ec.e.run.RtEnvelope void ec.e.run.EResult&lt;-forward(java.lang.Object)
+(ec.e.net.ProcessLocationServer_$_Proxy@291b03)> {{ec.e.run.ECatchClosure_$_Impl@292250}}
+<BR>ec.e.net.MsgReceiver: received ec.e.run.EDistributor_$_Impl@292352
+&lt;- #&lt;ec.e.run.RtEnvelope void ec.e.run.EResult&lt;-forward(java.lang.Object)
+(ec.e.net.ProcessLocationServer_$_Proxy@291bbc)> {{ec.e.run.ECatchClosure_$_Impl@29234d}}</UL>
+These are the three PLSes reporting back in.&nbsp; (These receives are
+how I know it's the PLS reporting back; first, the argument to the forward
+message is a PLS proxy in each case; second, the distributors that the
+forward messages are being sent to are the same distributors we just saw
+getting sent out above, so you know the latter is a response to the former.)
+<UL>ec.e.net.MsgSender: sending #&lt;ec.e.run.RtEnvelope void ec.e.run.EObject&lt;-when(ec.e.run.EResult_$_Intf)
+(ec.e.run.EWhenClosure_$_Impl@2922d3)>
+<BR>ec.e.net.MsgSender: sending #&lt;ec.e.run.RtEnvelope void ec.e.run.EObject&lt;-when(ec.e.run.EResult_$_Intf)
+(ec.e.run.EWhenClosure_$_Impl@292290)>
+<BR>ec.e.net.MsgSender: sending #&lt;ec.e.run.RtEnvelope void ec.e.run.EObject&lt;-when(ec.e.run.EResult_$_Intf)
+(ec.e.run.EWhenClosure_$_Impl@292359)>
+<BR>ec.e.net.MsgReceiver: received ec.e.run.EWhenClosure_$_Impl@292290
+&lt;- #&lt;ec.e.run.RtEnvelope void ec.e.run.EResult&lt;-forward(java.lang.Object)
+(ec.e.net.ProcessLocationServer_$_Proxy@291b03)> {{ec.e.run.ECatchClosure_$_Impl@292250}}
+<BR>ec.e.net.MsgReceiver: received ec.e.run.EWhenClosure_$_Impl@292359
+&lt;- #&lt;ec.e.run.RtEnvelope void ec.e.run.EResult&lt;-forward(java.lang.Object)
+(ec.e.net.ProcessLocationServer_$_Proxy@297c0e)> {{ec.e.run.ECatchClosure_$_Impl@29234d}}
+<BR>ec.e.net.MsgReceiver: received ec.e.run.EWhenClosure_$_Impl@2922d3
+&lt;- #&lt;ec.e.run.RtEnvelope void ec.e.run.EResult&lt;-forward(java.lang.Object)
+(ec.e.net.ProcessLocationServer_$_Proxy@291a04)> {{ec.e.run.ECatchClosure_$_Impl@2922c7}}</UL>
+Here we have an ewhen round trip.&nbsp; Look Ma, something to optimize!&nbsp;
+Three "when" messages go out, and three "forward" results come back--and
+the arguments to each returning "forward" result are the <I>very same proxies</I>
+we got in the last set of messages received.&nbsp; In other words, this
+ewhen round trip buys us exactly nothing and is a total waste, providing
+us no new information whatsoever.
+<UL>ec.e.net.MsgSender: sending #&lt;ec.e.run.RtEnvelope void ec.e.net.ProcessLocationServer&lt;-register(java.lang.String,
+java.lang.String) (lx8chjb48x7luxrn97adwt9bictm7pv, 205.162.51.181:2397)>
+<BR>ec.e.net.MsgSender: sending #&lt;ec.e.run.RtEnvelope void ec.e.net.ProcessLocationServer&lt;-register(java.lang.String,
+java.lang.String) (lx8chjb48x7luxrn97adwt9bictm7pv, 205.162.51.181:2397)>
+<BR>ec.e.net.MsgSender: sending #&lt;ec.e.run.RtEnvelope void ec.e.net.ProcessLocationServer&lt;-register(java.lang.String,
+java.lang.String) (lx8chjb48x7luxrn97adwt9bictm7pv, 205.162.51.181:2397)></UL>
+Now is where we actually <I>use</I> the PLS proxies we got earlier.&nbsp;
+Yes, there is even room for optimization here.&nbsp; Look at the sequence
+of events.&nbsp; First we do "lookupObjectID" on a SturdyRef.&nbsp; Then
+we get back a proxy that gets connected to our local EDistributor.&nbsp;
+[Then we do a gratuitous ewhen round trip, but ignore that for now.]&nbsp;
+Then we finally send a message to that channel (which sends it via the
+distributor to the proxy).
+
+<P>The question is, why bother mucking about with the distributor at all,
+when all you really want to do is send the "register" message to the thing
+on the other side of the SturdyRef?&nbsp; One answer is that "the distributor
+shouldn't really require a round trip if channels were properly optimistic."&nbsp;
+(Ask MarkM/Danfuzz about the details of this one.)&nbsp; Another answer
+is "you don't need to muck with the distributor; just add a method to SturdyRef
+that lets you send one envelope to the ref at the other side."&nbsp; This
+is in fact what we see next:
+<UL>ec.e.net.MsgReceiver: received ec.e.net.SturdyRefFollower_$_Impl@29789d
+&lt;- #&lt;ec.e.run.RtEnvelope void ec.e.net.SturdyRefFollower&lt;-sendToObjectID(java.lang.String,
+ec.e.run.RtEnvelope) (mma8mo04d1jy, #&lt;ec.e.run.RtEnvelope void ec.cosm.objects.ukTeleportPad$kind&lt;-uTeleport(java.util.Hashtable,
+ec.e.run.EResult_$_Intf) ({notifytransition=ec.cosm.objects.jNotifyTransitionBehaviorWrapper_$_Proxy@293d9f,
+changeregion=ec.cosm.objects.jChangeRegionBehaviorWrapper_$_Proxy@293dc2},
+ec.e.run.EDistributor_$_Proxy@293d91)>)> {{ec.e.run.ECatchClosure_$_Proxy@293f2b}}</UL>
+Here what is happening is the client is looking up its sturdyref to a teleport
+pad, and sending the uTeleport message to that sturdyref.&nbsp; This uses
+the very "send just the envelope to the SturdyRef" technique I just described;
+instead of the client sending over an EDistributor (which requires a round
+trip to send back the "forward" message), the client just sends over the
+envelope itself, and the host looks up the ObjectID and sends the envelope
+to that object.&nbsp; So the net effect here is the client saying "O teleport
+pad, handle this uTeleport message."&nbsp; Yes, there were two extra round
+trips here before I went in and added SturdyRef.sendToObjectID.
+
+<P>Next, the host responds by kicking off the transition:
+<UL>ec.e.net.MsgSender: sending #&lt;ec.e.run.RtEnvelope void ec.cosm.objects.ukAvatarNotifyTransitionBehavior$kind&lt;-uNotifyTransitionStarted(java.lang.String)
+(Entering Aztec Turf)>
+<BR>ec.e.net.MsgSender: sending #&lt;ec.e.run.RtEnvelope void ec.cosm.objects.ukAvatarChangeRegion$kind&lt;-uChangeRegion(ec.cosm.objects.ukAddUnum$kind_$_Intf,
+ec.cosm.ui.presenter.RegionTransition, ec.cosm.objects.SurfaceLocation,
+ec.e.run.EResult_$_Intf) (ec.cosm.objects.ukAddUnum$kind_$_Deflector@29390a[target
+ec.e.run.EChannel@293919], ec.cosm.ui.presenter.TeleportTransition@293946,
+SurfaceLocation[Location[point Point3D(0.0,6.0,0.0) ori null] floorNum
+0], ec.e.run.EDistributor_$_Impl@2938f5)></UL>
+uNotifyTransitionStarted may be a historical artifact; ask Walendo or Trev.&nbsp;
+uChangeRegion is the really important message.&nbsp; Note that one of the
+arguments is a ukAddUnum capability.&nbsp; This is what the avatar next
+uses to send over all of its information, including its presentation state
+and a SturdyRef which is its identity:
+<UL>ec.e.net.MsgReceiver: received ec.cosm.objects.ukAddUnum$kind_$_Deflector@29390a[target
+ec.e.run.EChannel@293919] &lt;- #&lt;ec.e.run.RtEnvelope void ec.cosm.objects.ukAddUnum$kind&lt;-uAddUnum(ec.cosm.objects.jUnumTree,
+java.lang.Object, ec.cosm.objects.ukSetNewParent$kind_$_Intf, ec.cosm.objects.jUnumKey,
+ec.e.run.EResult_$_Intf, ec.cosm.objects.ukCbsupCInterest$kind_$_Intf,
+java.lang.Object, ec.pl.runtime.UnumReceiver_$_Intf) ([jUT:name]:jUnumTree@29216d:parent&lt;null>:contents
+{}, ec.cosm.objects.uskAvatarBody$kind, ec.cosm.objects.ukSetNewParent$kind_$_Proxy@29f195,&nbsp;&nbsp;&nbsp;
+[jUK|Aztec Turf:name]&lt;-1290911038>, ec.e.run.EDistributor_$_Proxy@2989ad,
+ec.cosm.objects.efCbsupCInterestFacet_$_Impl@297792[null], SurfaceLocation[Location[point
+Point3D(0.0,6.0,0.0) ori null] floorNum 0], ec.pl.runtime.eUnumTarget_$_Proxy@297754)>
+{{ec.e.run.ECatchClosure_$_Proxy@29247d}}</UL>
+Pretty big message!&nbsp; The avatar has now sent over all of its containership
+state.&nbsp; Note the ukSetNewParent proxy which is what the host will
+use to tell the avatar that the avatar is admitted, assuming TOS is passed
+and so forth.&nbsp; Another of the arguments above is a distributor that
+the host will use to connect up the avatar as a direct containable, which
+is what happens next:
+<UL>ec.e.net.MsgSender: sending #&lt;ec.e.run.RtEnvelope void ec.e.run.EResult&lt;-forward(java.lang.Object)
+(ec.cosm.objects.efCsupCbInterestFacet_$_Impl@296b83[null])></UL>
+The next thing the host does is verify the identity of the incoming avatar
+by sending to the ObjectID of the identity sturdyref that the avatar just
+sent over:
+<UL>ec.e.net.MsgSender: sending #&lt;ec.e.run.RtEnvelope void ec.e.net.SturdyRefFollower&lt;-sendToObjectID(java.lang.String,
+ec.e.run.RtEnvelope) (nyvbt2j3056p, #&lt;ec.e.run.RtEnvelope void ec.cosm.objects.eIdentity&lt;-confirmCapability(ec.e.run.EObject_$_Intf,
+ec.cosm.objects.eiConfirmCapability_$_Intf) (ec.cosm.objects.ukSetNewParent$kind_$_Proxy@29f195,
+ec.cosm.objects.efConfirmCapability_$_Impl@29685b)>)></UL>
+The idea here is that the incoming uAddUnum message contains both a proxy
+to a "setNewParent" capability, and an identity which (according to the
+uAddUnum message) created that capability.&nbsp; So you need to make sure
+that when you call uSetNewParent on that capability, you are really admitting
+the identity that was passed in.&nbsp; The way to do that is to contact
+that identity (via its sturdyref) and send it the capability you were given,
+so it can tell you whether it really made that capability or not.&nbsp;
+If it didn't, then someone is spoofing and you don't let them in.&nbsp;
+If it did, then all's well.
+
+<P>The next outbound message is for telling the new avatar that another
+identity has arrived:
+<UL>ec.e.net.MsgSender: sending #&lt;ec.e.run.RtEnvelope void ec.cosm.objects.ukCbsupC$kind&lt;-uSendToContainedUnum(ec.e.run.RtEnvelope)
+(#&lt;ec.e.run.RtEnvelope void ec.cosm.objects.ukBasicContainableNotify$kind&lt;-uAddedToContainer(ec.cosm.objects.jIdentity,
+ec.cosm.objects.jContainerInfo) (Identity: name = Foo sturdy ref = ec.e.net.SturdyRef@f23d2f08,
+Container:Identity: name = Aztec Turf sturdy ref = ec.e.net.SturdyRef@304a955c;Type:0)>)></UL>
+And the next inbound message is the identity confirming that it wasn't
+spoofed:
+<UL>ec.e.net.MsgReceiver: received ec.cosm.objects.efConfirmCapability_$_Impl@29685b
+&lt;- #&lt;ec.e.run.RtEnvelope void ec.cosm.objects.eiConfirmCapability&lt;-confirmCapability(boolean)
+(true)> {{ec.e.run.ECatchClosure_$_Impl@296814}}</UL>
+Now that the region has confirmed the identity, it's time to actually admit
+the avatar!&nbsp; So now the region uses that setNewParent capability to
+send out a bunch of stuff, including an actual client presence of the region.&nbsp;
+Note that from here on down we are actually starting the transition itself;
+round trip reductions down here are less critical than up above.
+<UL>ec.e.net.MsgSender: sending #&lt;ec.e.run.RtEnvelope void ec.cosm.objects.ukSetNewParent$kind&lt;-uSetNewParent(java.lang.Object,
+ec.pl.runtime.UnumReceiver_$_Intf, java.lang.Object, java.lang.Object,
+ec.cosm.objects.ukfRsupCb$kind_$_Intf, ec.cosm.objects.jEditableCapabilityGroup)
+(ec.cosm.objects.uskAvatarBody$kind, ec.pl.runtime.eUnumTarget_$_Impl@294f70,
+Aztec Turf RegionSessionKey&lt;-1413333071>,&nbsp;&nbsp; [jUK|Aztec Turf:name]&lt;682261741>,
+ec.cosm.objects.ukfRsupCb$kind_$_Deflector@294f13[target ec.e.run.EStone@294f36],
+ec.cosm.objects.jEditableCapabilityGroup@295027)></UL>
+And hard on the heels of that message, the region sends out all the other
+una contained within it, tagged with the identity of the newly-arriving
+avatar (so when that avatar leaves all these una can be revoked):
+<UL>ec.e.net.MsgSender: sending #&lt;ec.e.run.RtEnvelope void ec.pl.runtime.UnumReceiver&lt;-uReceiveUnum(ec.pl.runtime.UnumRouter,
+java.lang.Object, java.lang.Object) (ec.pl.runtime.UnumRouter@293b12[Identity:
+name = Foo sturdy ref = ec.e.net.SturdyRef@a4a2d3a1&lt;-1327868065>], Identity:
+name = Foo sturdy ref = ec.e.net.SturdyRef@a4a2d3a1&lt;-1327868065>,&nbsp;
+[jUK|Aztec Turf:Chair]&lt;-192578258>)>
+<BR>ec.e.net.MsgSender: sending #&lt;ec.e.run.RtEnvelope void ec.pl.runtime.UnumReceiver&lt;-uReceiveUnum(ec.pl.runtime.UnumRouter,
+java.lang.Object, java.lang.Object) (ec.pl.runtime.UnumRouter@293ac7[Identity:
+name = Foo sturdy ref = ec.e.net.SturdyRef@a4a2d3a1&lt;-1327868065>], Identity:
+name = Foo sturdy ref = ec.e.net.SturdyRef@a4a2d3a1&lt;-1327868065>,&nbsp;
+[jUK|Aztec Turf:Small Vase]&lt;-1217141921>)>
+<BR>ec.e.net.MsgSender: sending #&lt;ec.e.run.RtEnvelope void ec.pl.runtime.UnumReceiver&lt;-uReceiveUnum(ec.pl.runtime.UnumRouter,
+java.lang.Object, java.lang.Object) (ec.pl.runtime.UnumRouter@293a78[Identity:
+name = Foo sturdy ref = ec.e.net.SturdyRef@a4a2d3a1&lt;-1327868065>], Identity:
+name = Foo sturdy ref = ec.e.net.SturdyRef@a4a2d3a1&lt;-1327868065>,&nbsp;
+[jUK|Aztec Turf:Aztec Turf]&lt;1590669372>)>
+<BR>ec.e.net.MsgSender: sending #&lt;ec.e.run.RtEnvelope void ec.pl.runtime.UnumReceiver&lt;-uReceiveUnum(ec.pl.runtime.UnumRouter,
+java.lang.Object, java.lang.Object) (ec.pl.runtime.UnumRouter@293a32[Identity:
+name = Foo sturdy ref = ec.e.net.SturdyRef@a4a2d3a1&lt;-1327868065>], Identity:
+name = Foo sturdy ref = ec.e.net.SturdyRef@a4a2d3a1&lt;-1327868065>,&nbsp;
+[jUK|Aztec Turf:name]&lt;-340743004>)>
+<BR>ec.e.net.MsgSender: sending #&lt;ec.e.run.RtEnvelope void ec.pl.runtime.UnumReceiver&lt;-uReceiveUnum(ec.pl.runtime.UnumRouter,
+java.lang.Object, java.lang.Object) (ec.pl.runtime.UnumRouter@2939cb[Identity:
+name = Foo sturdy ref = ec.e.net.SturdyRef@a4a2d3a1&lt;-1327868065>], Identity:
+name = Foo sturdy ref = ec.e.net.SturdyRef@a4a2d3a1&lt;-1327868065>,&nbsp;
+[jUK|Aztec Turf:Jungle]&lt;979136777>)>
+<BR>ec.e.net.MsgSender: sending #&lt;ec.e.run.RtEnvelope void ec.pl.runtime.UnumReceiver&lt;-uReceiveUnum(ec.pl.runtime.UnumRouter,
+java.lang.Object, java.lang.Object) (ec.pl.runtime.UnumRouter@2938ec[Identity:
+name = Foo sturdy ref = ec.e.net.SturdyRef@a4a2d3a1&lt;-1327868065>], Identity:
+name = Foo sturdy ref = ec.e.net.SturdyRef@a4a2d3a1&lt;-1327868065>,&nbsp;
+[jUK|Aztec Turf:Floor]&lt;-1424855377>)></UL>
+Now, whenever an unum gets sent out to create a client presence, that new
+client presence (once decoded) must report back to the host presence passing
+a proxy that the host can use to communicate with it.&nbsp; Otherwise the
+host would never be able to send messages to that new client presence!&nbsp;
+So the first thing coming back from the client machine is a message from
+the (newly-arrived) region client presence:
+<UL>ec.e.net.MsgReceiver: received ec.cosm.objects.pskRegionHost$kind_$_Deflector@2935fd[target
+ec.cosm.objects.pskRegionHost$kind_$_Deflector@293609[target ec.pl.runtime.PresenceRouter@293619]]
+&lt;- #&lt;ec.e.run.RtEnvelope void ec.pl.runtime.PresenceHost&lt;-newOtherPresence(ec.pl.runtime.Presence_$_Intf,
+long) (ec.cosm.objects.pskRegionClient$kind_$_Proxy@292d27, 1)> {{noex}true}</UL>
+Not only does the host have to send all the una in the region to the client
+machine, but the client machine must send a presence of the client's avatar
+to the host machine.&nbsp; That's this message here:
+<UL>ec.e.net.MsgReceiver: received ec.pl.runtime.eUnumTarget_$_Impl@294f70
+&lt;- #&lt;ec.e.run.RtEnvelope void ec.pl.runtime.UnumReceiver&lt;-uReceiveUnum(ec.pl.runtime.UnumRouter,
+java.lang.Object, java.lang.Object) (ec.pl.runtime.UnumRouter@292743[Aztec
+Turf RegionSessionKey&lt;-1413333071>], Aztec Turf RegionSessionKey&lt;-1413333071>,&nbsp;
+[jUK|Aztec Turf:name]&lt;682261741>)> {{noex}true}</UL>
+And of course once that client presence of the client's avatar arrives,
+it must report back <I>to</I> the client machine (just like the host una
+had to report back <I>from</I> the client machine):
+<UL>ec.e.net.MsgSender: sending #&lt;ec.e.run.RtEnvelope void ec.pl.runtime.PresenceHost&lt;-newOtherPresence(ec.pl.runtime.Presence_$_Intf,
+long) (ec.cosm.objects.pskAvatarBodyClient$kind_$_Deflector@2926c8[target
+ec.pl.runtime.PresenceRouter@292741], 1)></UL>
+Now some subtlety [skip this if you like since there is no room for optimization
+here at present]:&nbsp; there are actually two levels of unum being made
+here.&nbsp; There is the "region puppet" (the presence of the avatar made
+for the region, that exists as long as the avatar is in the region), and
+the "viewer puppet" (the presence of the avatar-in-the-region made for
+a particular viewer of the region, that exists as long as that viewer is
+watching the region).&nbsp; For the case of a client entering the space,
+the unum entering happens to be associated with the new viewer.&nbsp; So
+when the region requests a new presence of the newly-arrived avatar on
+behalf of the new viewer (which happens to be the person whose avatar it
+is), the client avatar presence makes a "viewer puppet" on the client's
+own machine.&nbsp; That's this next message:
+<UL>ec.e.net.MsgSender: sending #&lt;ec.e.run.RtEnvelope void ec.pl.runtime.PresenceHost&lt;-pHostSendUnum(ec.pl.runtime.UnumReceiver_$_Intf,
+java.lang.Object, java.lang.Object) (ec.pl.runtime.eUnumTarget_$_Proxy@297754,
+Identity: name = Foo sturdy ref = ec.e.net.SturdyRef@a4a2d3a1&lt;-1327868065>,&nbsp;
+[jUK|Aztec Turf:name]&lt;682261741>)></UL>
+OK, now the client hooks up its ability to converse with the region:
+<UL>ec.e.net.MsgReceiver: received ec.cosm.objects.eConversationInputFacet_$_Impl@295011
+&lt;- #&lt;ec.e.run.RtEnvelope void ec.cosm.objects.ukConversationInput$kind&lt;-uSetOutput(ec.cosm.objects.ukConversationOutput$kind_$_Intf)
+(ec.cosm.objects.eConversationOutputFacet_$_Proxy@28e6b5)> {{ec.e.run.ECatchClosure_$_Proxy@28e6ad}}</UL>
+And now all the client presences of all the other una in the region happen
+to get around to reporting back:
+<UL>ec.e.net.MsgReceiver: received ec.cosm.objects.pskPropHost$kind_$_Deflector@291024[target
+ec.cosm.objects.pskPropHost$kind_$_Deflector@29102e[target ec.pl.runtime.PresenceRouter@291038]]
+&lt;- #&lt;ec.e.run.RtEnvelope void ec.pl.runtime.PresenceHost&lt;-newOtherPresence(ec.pl.runtime.Presence_$_Intf,
+long) (ec.cosm.objects.pskPropClient$kind_$_Proxy@28e799, 2)> {{noex}true}
+<BR>ec.e.net.MsgReceiver: received ec.cosm.objects.pskPropHost$kind_$_Deflector@290cfa[target
+ec.cosm.objects.pskPropHost$kind_$_Deflector@290d05[target ec.pl.runtime.PresenceRouter@290d14]]
+&lt;- #&lt;ec.e.run.RtEnvelope void ec.pl.runtime.PresenceHost&lt;-newOtherPresence(ec.pl.runtime.Presence_$_Intf,
+long) (ec.cosm.objects.pskPropClient$kind_$_Proxy@28e884, 3)> {{noex}true}
+<BR>ec.e.net.MsgReceiver: received ec.cosm.objects.pskTeleportPadHost$kind_$_Deflector@29090e[target
+ec.cosm.objects.pskTeleportPadHost$kind_$_Deflector@290920[target ec.pl.runtime.PresenceRouter@29092a]]
+&lt;- #&lt;ec.e.run.RtEnvelope void ec.pl.runtime.PresenceHost&lt;-newOtherPresence(ec.pl.runtime.Presence_$_Intf,
+long) (ec.cosm.objects.pskTeleportPadClient$kind_$_Proxy@28e980, 4)> {{noex}true}
+<BR>ec.e.net.MsgReceiver: received ec.cosm.objects.pskAvatarBodyHost$kind_$_Deflector@2932f5[target
+ec.cosm.objects.pskAvatarBodyHost$kind_$_Deflector@290605[target ec.pl.runtime.PresenceRouter@290617]]
+&lt;- #&lt;ec.e.run.RtEnvelope void ec.pl.runtime.PresenceHost&lt;-newOtherPresence(ec.pl.runtime.Presence_$_Intf,
+long) (ec.cosm.objects.pskAvatarBodyClient$kind_$_Proxy@28eaff, 5)> {{noex}true}
+<BR>ec.e.net.MsgReceiver: received ec.cosm.objects.pskPropHost$kind_$_Deflector@29305d[target
+ec.cosm.objects.pskPropHost$kind_$_Deflector@293073[target ec.pl.runtime.PresenceRouter@293081]]
+&lt;- #&lt;ec.e.run.RtEnvelope void ec.pl.runtime.PresenceHost&lt;-newOtherPresence(ec.pl.runtime.Presence_$_Intf,
+long) (ec.cosm.objects.pskPropClient$kind_$_Proxy@28ebea, 6)> {{noex}true}
+<BR>ec.e.net.MsgReceiver: received ec.cosm.objects.pskSurfaceHost$kind_$_Deflector@292f29[target
+ec.cosm.objects.pskSurfaceHost$kind_$_Deflector@292f33[target ec.pl.runtime.PresenceRouter@292f3f]]
+&lt;- #&lt;ec.e.run.RtEnvelope void ec.pl.runtime.PresenceHost&lt;-newOtherPresence(ec.pl.runtime.Presence_$_Intf,
+long) (ec.cosm.objects.pskSurfaceClient$kind_$_Proxy@28ece9, 7)> {{noex}true}</UL>
+Next the host presence of the client's avatar sets the client presence's
+mood:
+<UL>ec.e.net.MsgReceiver: received ec.cosm.objects.pskAvatarBodyClient$kind_$_Deflector@2926c8[target
+ec.pl.runtime.PresenceRouter@292741] &lt;- #&lt;ec.e.run.RtEnvelope void
+ec.cosm.objects.pkCompositableClient$kind&lt;-pClientSetMood(java.lang.String)
+(null)> {null}</UL>
+Now the client avatar requests the teleport pads of the region:
+<UL>ec.e.net.MsgReceiver: received ec.cosm.objects.pskRegionHost$kind_$_Deflector@2935fd[target
+ec.cosm.objects.pskRegionHost$kind_$_Deflector@293609[target ec.pl.runtime.PresenceRouter@293619]]
+&lt;- #&lt;ec.e.run.RtEnvelope void ec.cosm.objects.pkRegionContainableHost$kind&lt;-pGetAllTeleportPads(ec.e.run.EResult_$_Intf)
+(ec.e.run.EDistributor_$_Proxy@28efc7)> {{ec.e.run.ECatchClosure_$_Proxy@28efbf}}</UL>
+This next one is sending a jObjectFuture containing the teleport pads to
+the avatar:
+<UL>ec.e.net.MsgSender: sending #&lt;ec.e.run.RtEnvelope void ec.e.run.EResult&lt;-forward(java.lang.Object)
+(ec.e.lang.jObjectFuture_$_Impl@28f0c4)></UL>
+This next one turns out to be a whenDone response to the uChangeRegion
+message which we sent out long ago (go back and look, it's the same 2938f5
+distributor):
+<UL>ec.e.net.MsgReceiver: received ec.e.run.EDistributor_$_Impl@2938f5
+&lt;- #&lt;ec.e.run.RtEnvelope void ec.e.run.EResult&lt;-forward(java.lang.Object)
+(ec.e.run.ETrue_$_Impl@291def)> {{ec.e.run.ECatchClosure_$_Proxy@28efbf}}</UL>
+Why we are doing whenDones this way escapes me at the moment; seems like
+it could be tightened up.&nbsp; Next the host machine tells the client
+that the transition is complete, probably in response to that very incoming
+"whenDone" forward message:
+<UL>ec.e.net.MsgSender: sending #&lt;ec.e.run.RtEnvelope void ec.cosm.objects.ukAvatarNotifyTransitionBehavior$kind&lt;-uNotifyTransitionComplete(java.lang.String)
+(null)></UL>
+And one more whenDone of some kind:
+<UL>ec.e.net.MsgSender: sending #&lt;ec.e.run.RtEnvelope void ec.e.run.EResult&lt;-forward(java.lang.Object)
+(ec.e.run.ETrue_$_Impl@291def)></UL>
+And last, an ewhen round trip to get the actual teleport pads from the
+jObjectFuture (yes, this could probably be optimized away):
+<UL>ec.e.net.MsgReceiver: received ec.e.lang.jObjectFuture_$_Impl@28f0c4
+&lt;- #&lt;ec.e.run.RtEnvelope void ec.e.run.EObject&lt;-when(ec.e.run.EResult_$_Intf)
+(ec.e.run.EWhenClosure_$_Proxy@28f520)> {{ec.e.run.ECatchClosure_$_Proxy@28efbf}}
+<BR>ec.e.net.MsgSender: sending #&lt;ec.e.run.RtEnvelope void ec.e.run.EResult&lt;-forward(java.lang.Object)
+({Aztec Turf=ec.e.net.SturdyRef@99c8b2e0})></UL>
+Whew!
+
+<P>So that's the basic story:&nbsp; two classes of round trips that are
+known to be optimizable are "look up a sturdyref only to send just one
+message over it" (which you can do sans round trips by SturdyRef.sendToRef);
+and "an ewhen for synchronization purposes that returns no actual new information"
+(which can quite commonly just be removed if you are doing exception handling
+properly).
+<BR>&nbsp;
+<H2>
+<A NAME="minimizingcommbandwidth"></A>2. Minimizing Comm Bandwidth</H2>
+I was going to write up another big thing here walking through some comm
+spam and talking about how to reduce what.&nbsp; But I don't have time
+right now (Tuesday evening before Xmas eve).&nbsp; The simple thing to
+do is just
+<UL>
+<PRE>Trace_commspam=debug</PRE>
+</UL>
+This turns on Walendo's amazing comm spam, which will show you everything
+that gets encoded, together with tremendously readable byte counts per
+object.&nbsp; It turns out that sending over an instance of "null" takes
+4 bytes, and many other things that seem like they should be small take
+at least 4-byte to 8-byte overhead.&nbsp; I think there is LOTS of room
+for careful tuning of the encoding infrastructure, but you can draw your
+own conclusions.
+
+<P>The higher-level way to optimize bandwidth is to change not just how
+things get sent but actually what things get sent in the first place.&nbsp;
+Arturo and I have some ideas on this.&nbsp; One thing that someone might
+be able to try is to stop sending over "myDebugName" in the Containership_support.plu
+jUnumTree class unless Trace_containership is turned on, though this is
+not a huge win.&nbsp; In general I think the biggest wins will probably
+be tuning the comm system to reduce our per-object bandwidth consumption,
+but that is just a hunch at the moment.
+
+<P>Please send additional comments, etc. to RobJ.&nbsp; Thanks for reading!
+<BR>&nbsp;
+</BODY>
+</HTML>

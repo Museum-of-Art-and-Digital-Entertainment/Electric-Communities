@@ -1,0 +1,24 @@
+MODNAME		= ecerepsteward
+PACKAGE		= ec.e.rep.steward
+BUILDTYPE	= lib
+
+DOCDIR       = $(TOP)/../../www-int/engineering/API_doc/javadoc 
+
+SAFETY_MODE = STEWARD
+
+FILES.java = \
+	SimpleRepository.java \
+	RepositoryAccessException.java \
+	RepositoryKeyNotFoundException.java \
+	RepositoryNeedParameterException.java \
+
+include $(TOP)/E/makefiles/Defs.gmk
+
+.PHONY: all classes 
+
+all: basics 
+
+clean: basic_clean
+
+include $(TOP)/E/makefiles/Rules.gmk
+

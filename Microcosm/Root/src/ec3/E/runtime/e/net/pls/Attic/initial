@@ -1,0 +1,57 @@
+#!/bin/sh -x
+
+# YOU PROBABLY DON'T WANT TO RUN THIS, TRY restart INSTEAD!
+
+# to create a process location server, run this command with the
+# name of the checkpoint file (without the .evat) as the argument:
+#
+# cd /home/eng/pls-location
+# ./initial 1666
+#
+
+JAVA_DIR=/home/eng/java-1.1.3/solaris/java-1.1.3
+#BUILD_DIR=/home/eng/e-stable
+BUILD_DIR=/home/eric/Build.pls
+
+CLASSPATH=$JAVA_DIR/lib/classes.zip:$BUILD_DIR/classes:$BUILD_DIR/compute/classes:$BUILD_DIR/crew/classes:$BUILD_DIR/guest/classes:$BUILD_DIR/steward/classes
+
+LD_LIBRARY_PATH=/usr/lib:/usr/ucblib:$JAVA_DIR/lib/sparc:$BUILD_DIR/lib:$BUILD_DIR/solaris/lib
+
+export JAVA_DIR CLASSPATH LD_LIBRARY_PATH
+
+if [ x$1 != "xIKnowWhatImDoing" ] ; then
+	echo "you don't know what you're doing, so don't do it!"
+	exit 1
+fi
+shift
+
+HostName=`uname -n`
+#FQDN="${HostName}.`domainname`"
+FQDN="${HostName}.communities.com"
+Port=$1
+
+if [ x$1 = x ]; then
+	echo "need a port"
+	exit 1
+fi
+
+props=${HostName}-${Port}-pls.evat.props
+
+cat <<EOF > $props
+
+RegisterWith=${FQDN}_${Port}
+SearchPath=${FQDN}:${Port}
+checkpoint=${HostName}-${Port}-pls.evat
+Controller=${HostName}-${Port}-pls.control
+user.name=PLS
+killerhack=true
+
+EOF
+
+$JAVA_DIR/bin/java ec.e.start.EBoot ec.e.net.BareProcessLocationServer -ECproperties $props
+
+echo
+echo
+echo "remember to push $RegisterWith to www"
+echo
+echo

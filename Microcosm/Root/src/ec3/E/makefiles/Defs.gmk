@@ -1,0 +1,233 @@
+# -*-Makefile-*- <-- tells emacs to use Makefile mode when editing
+#
+# The following environment variable must be defined:
+#    TOP      -- should point to the top of the EC source tree
+#    BUILD    -- where new generated files should go
+#    COSM     -- should point to the top of the cosm source tree
+#
+# The following environment variables _may_ be defined:
+#
+#    ALT_JAVAHOME -- overrides JAVAHOME
+#    ALT_IFCHOME  -- overrides IFCHOME
+#    ALT_JCEHOME  -- overrides JCEHOME
+#    ALT_CRYPTIXHOME  -- overrides CRYPTIXHOME
+#    ALT_EC       -- overrides EC, the E compiler, currently ecomp
+#    ALT_CC       -- overrides CC, the C compiler for native code, currently gcc
+#    ALT_EC_RUNNER -- used with ALT_EC to override EC
+#    JIT_COMP     -- use jit if defined
+#    ALT_JAVA     -- used instead of java
+#    ALT_JAVAC    -- used instead of javac
+
+PWD		= $(shell pwd)
+
+CLASSSTUBDIR	= $(BUILD)/stubs
+CHEADERDIR	= $(BUILD)/CClassHeaders
+LIBDIR		= $(BUILD)/lib
+OBJDIR		= $(BUILD)/objs
+DISTDIR		= $(BUILD)/dist
+
+CLASSDIR	= $(BUILD)$(VAT_TARGET)/classes
+PKGDIR          = $(subst .,/,$(PACKAGE))/
+FULLPATH        = $(CLASSDIR)/$(PKGDIR)
+
+LISTPATH = $(BUILD)/objs/$(MODNAME)
+
+# For interfaces in FILES.pass1.java
+_PASS1CLASSLIST = $(LISTPATH)/.pass1.class.list
+PASS1CLASSLIST  = $(_PASS1CLASSLIST$(ALT_PASS1CLASSLIST))$(ALT_PASS1CLASSLIST)
+PASS1TOUCHLIST = $(LISTPATH)/.pass1.touch.list
+
+# For FILES.pass1.javac
+_PASS1JCLASSLIST = $(LISTPATH)/.pass1.jclass.list
+PASS1JCLASSLIST  = $(_PASS1JCLASSLIST$(ALT_PASS1JCLASSLIST))$(ALT_PASS1JCLASSLIST)
+PASS1JTOUCHLIST = $(LISTPATH)/.pass1.jtouch.list
+
+# For FILES.pass1.plu
+_PASS1PLCLASSLIST = $(LISTPATH)/.pass1.plclass.list
+PASS1PLCLASSLIST  = $(_PASS1PLCLASSLIST$(ALT_PASS1PLCLASSLIST))$(ALT_PASS1PLCLASSLIST)
+PASS1PLTOUCHLIST = $(LISTPATH)/.pass1.pltouch.list
+PASS1PLPROCLIST = $(LISTPATH)/.pass1.plproc.list
+
+# For regular FILES.java
+_CLASSLIST = $(LISTPATH)/.class.list
+CLASSLIST  = $(_CLASSLIST$(ALT_CLASSLIST))$(ALT_CLASSLIST)
+TOUCHLIST = $(LISTPATH)/.touch.list
+
+# For FILES.javac
+_JCLASSLIST = $(LISTPATH)/.jclass.list
+JCLASSLIST  = $(_JCLASSLIST$(ALT_JCLASSLIST))$(ALT_JCLASSLIST)
+JTOUCHLIST = $(LISTPATH)/.jtouch.list
+
+# For FILES.spjava
+_SPCLASSLIST = $(LISTPATH)/.spclass.list
+SPCLASSLIST  = $(_SPCLASSLIST$(ALT_SPCLASSLIST))$(ALT_SPCLASSLIST)
+SPTOUCHLIST = $(LISTPATH)/.sptouch.list
+
+# For FILES.plu
+_PLCLASSLIST = $(LISTPATH)/.plclass.list
+PLCLASSLIST  = $(_PLCLASSLIST$(ALT_PLCLASSLIST))$(ALT_PLCLASSLIST)
+PLTOUCHLIST = $(LISTPATH)/.pltouch.list
+PLPROCLIST = $(LISTPATH)/.plproc.list
+
+# Pluribus makefile info
+PLGEN		= gencode/plgen
+OUTPUT		= $(BUILD)/$(PLGEN)/$(MODNAME)
+
+# we set a default for these, but allow override by ALT_ versions
+# if present in the environment
+
+_JAVAHOME	= $(JAVADIR)
+JAVAHOME        = $(_JAVAHOME$(ALT_JAVAHOME))$(ALT_JAVAHOME)
+
+_IFCHOME	= /home/eng/ifc
+IFCHOME        = $(_IFCHOME$(ALT_IFCHOME))$(ALT_IFCHOME)
+
+_JCEHOME       = /home/eng/jce-1.1
+JCEHOME        = $(_JCEHOME$(ALT_JCEHOME))$(ALT_JCEHOME)
+
+_CRYPTIXHOME       = /home/eng/cryptix-2.2
+CRYPTIXHOME        = $(_CRYPTIXHOME$(ALT_CRYPTIXHOME))$(ALT_CRYPTIXHOME)
+_PUREJAVA  = $(PUREJAVA)
+
+ifneq ($(JIT_COMP),)
+  EJIT = -Djava.compiler=$(JIT_COMP)
+  JJIT = -J-Djava.compiler=$(JIT_COMP)
+endif
+
+_EC		= ecomp
+EC  = $(_EC$(ALT_EC))$(ALT_EC)
+ifneq ($(ALT_EC_RUNNER),)
+  EC  = $(_EC2$(ALT_EC_RUNNER))$(ALT_EC_RUNNER) $(EJIT) $(ALT_EC)
+endif
+
+_CC		= gcc
+CC		= $(_CC$(ALT_CC))$(ALT_CC)
+
+# JAVAH		= $(KSH) $(JAVAHOME)/bin/javah
+JAVAH		= javah
+USEJNI		= no
+LD		= /usr/ccs/bin/ld
+
+JAVAEC  = java
+
+JAVAINC 	  = $(JAVAHOME)/include
+JAVASOLINC 	  = $(JAVAHOME)/include/solaris
+JAVAOSINC 	  = $(JAVAHOME)/include/$(PLATFORM_OS)
+
+STUBPREAMBLE      = $(JAVAINC)/StubPreamble.h
+CLASSSTUBDIR      = $(BUILD)/stubs
+FULLSTUBNAME	  = $(BUILD)/stubs/$(MODNAME)stubs.c
+FULLSTUBONAME	  = $(BUILD)/objs/$(MODNAME)/$(MODNAME)stubs.o
+
+CHEADERSTATE	  = $(CHEADERDIR)/$(MODNAME)
+
+FILES.expintr	= $(subst .,/,$(CLASSES.export))
+FILES.export	= $(foreach foo,$(FILES.expintr),$(foo).java)
+FILES.eextt	= $(FILES.eext:%.eext=$(FULLPATH)%.eextt)
+FILES.pass1.javat	= $(FILES.pass1.java:%.java=$(FULLPATH)%.pass1.javat)
+FILES.pass1.javact	= $(FILES.pass1.javac:%.java=$(FULLPATH)%.pass1.javact)
+FILES.javat	= $(FILES.java:%.java=$(FULLPATH)%.javat)
+FILES.javact	= $(FILES.javac:%.java=$(FULLPATH)%.javact)
+FILES.spjavat	= $(FILES.spjava:%.java=$(FULLPATH)%.spjavat)
+FILES.pass1.et	= $(FILES.pass1.e:%.e=$(FULLPATH)%.pass1.et)
+FILES.et	= $(FILES.e:%.e=$(FULLPATH)%.et)
+CFILES.o	= $(FILES.c:%.c=$(BUILD)/objs/$(MODNAME)/%.o)
+CCFILES.o	= $(FILES.cpp:%.cpp=$(BUILD)/objs/$(MODNAME)/%.o)
+FILES.o		= $(CCFILES.o) $(CFILES.o) 
+CFILES_g.o	= $(FILES.c:%.c=$(BUILD)/objs/$(MODNAME)_g/%.o)
+CCFILES_g.o	= $(FILES.cpp:%.cpp=$(BUILD)/objs/$(MODNAME)_g/%.o)
+FILES_g.o	= $(CFILES_g.o) $(CCFILES_g.o)
+FILES.pass1.plut	= $(FILES.pass1.plu:%.plu=$(OUTPUT)/%.pass1.plut)
+FILES.plut	= $(FILES.plu:%.plu=$(OUTPUT)/%.plut)
+
+ifeq ($(BUILDTYPE), lib)
+  FILES.o += $(BUILD)/objs/$(MODNAME)/$(MODNAME)stubs.o
+  FILES_g.o += $(BUILD)/objs/$(MODNAME)/$(MODNAME)stubs.o
+endif
+ifeq ($(BUILDTYPE), biglib)
+  FILES.o += $(BUILD)/objs/$(MODNAME)/$(MODNAME)stubs.o
+endif
+
+vpath %.c .
+vpath %.c $(CLASSSTUBDIR)
+
+ifeq ($(BUILDTYPE), biglib)
+GENLIBS = $(BUILD)/lib/$(LIBFILENAME).$(LIBSUFFIX)
+OBJDIRS = $(BUILD)/objs/$(MODNAME) $(BUILD)/lib/
+else
+GENLIBS = $(BUILD)/lib/$(LIBFILENAME).$(LIBSUFFIX) $(BUILD)/lib/$(LIBFILENAME)_g.$(LIBSUFFIX)
+OBJDIRS = $(BUILD)/objs/$(MODNAME) $(BUILD)/objs/$(MODNAME)_g $(BUILD)/lib/
+endif
+
+DIR_SEPARATOR = :
+
+#
+# Include Platform.gmk in case it wasn't included yet
+#
+include $(TOP)/E/makefiles/Platform.gmk
+
+# Optionally include a platform specific Defs file and a project
+# specific platform specific makefile.
+-include $(TOP)/E/makefiles/$(PLATFORM_OS)Defs.gmk
+-include ./GNUmakefile.$(PLATFORM_OS)
+
+# Set classpath and target directory, to enforce adherence to VAT rules 
+# at compile time
+
+ifeq ($(ZIPCLASSES), true)
+  # classes are in zipfiles
+  JAVA_CLASSPATH = INVALID_SAFETY_MODE
+  ifeq ($(SAFETY_MODE),)
+    SAFETY_MODE = STEWARD
+    # Soon, the default mode will be GUEST
+  endif
+  ifeq ($(SAFETY_MODE), GUEST)
+    VAT_TARGET = /guest
+    JAVA_CLASSPATH = $(BUILD_DRIVE)$(BUILD)/guest/classes$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/steward/classes$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/compute/classes$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/classes$(DIR_SEPARATOR)$(SAFEJAVADIR)/classes.zip$(DIR_SEPARATOR)$(EDIR)/guest.zip$(DIR_SEPARATOR)$(EDIR)/steward.zip$(DIR_SEPARATOR)$(EDIR)/compute.zip$(DIR_SEPARATOR)$(PLDIR)/guest.zip$(DIR_SEPARATOR)$(PLDIR)/steward.zip$(DIR_SEPARATOR)$(PLDIR)/compute.zip$(DIR_SEPARATOR)$(SUPPORTDIR)/guest.zip$(DIR_SEPARATOR)$(SUPPORTDIR)/steward.zip$(DIR_SEPARATOR)$(SUPPORTDIR)/compute.zip$(DIR_SEPARATOR)$(HUBDIR)/guest.zip$(DIR_SEPARATOR)$(HUBDIR)/steward.zip$(DIR_SEPARATOR)$(HUBDIR)/compute.zip$(DIR_SEPARATOR)$(EZDIR)/guest.zip$(DIR_SEPARATOR)$(EZDIR)/steward.zip
+  endif
+  ifeq ($(SAFETY_MODE), STEWARD)
+    VAT_TARGET = /steward
+    JAVA_CLASSPATH = $(ECROOTDRIVE)$(JAVAHOME)/lib/classes.zip$(DIR_SEPARATOR)$(IFCHOME)/classes.zip$(DIR_SEPARATOR)$(ECROOTDRIVE)$(JCEHOME)/lib/jce.zip$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/guest/classes$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/steward/classes$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/crew/classes$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/compute/classes$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/classes$(DIR_SEPARATOR)$(EDIR)/guest.zip$(DIR_SEPARATOR)$(EDIR)/steward.zip$(DIR_SEPARATOR)$(EDIR)/crew.zip$(DIR_SEPARATOR)$(EDIR)/compute.zip$(DIR_SEPARATOR)$(PLDIR)/guest.zip$(DIR_SEPARATOR)$(PLDIR)/steward.zip$(DIR_SEPARATOR)$(PLDIR)/crew.zip$(DIR_SEPARATOR)$(PLDIR)/compute.zip$(DIR_SEPARATOR)$(SUPPORTDIR)/guest.zip$(DIR_SEPARATOR)$(SUPPORTDIR)/steward.zip$(DIR_SEPARATOR)$(SUPPORTDIR)/crew.zip$(DIR_SEPARATOR)$(SUPPORTDIR)/compute.zip$(DIR_SEPARATOR)$(ECROOTDRIVE)$(CRYPTIXHOME)/classes.zip$(DIR_SEPARATOR)$(HUBDIR)/guest.zip$(DIR_SEPARATOR)$(HUBDIR)/steward.zip$(DIR_SEPARATOR)$(HUBDIR)/crew.zip$(DIR_SEPARATOR)$(HUBDIR)/compute.zip$(DIR_SEPARATOR)$(EZDIR)/guest.zip$(DIR_SEPARATOR)$(EZDIR)/steward.zip$(DIR_SEPARATOR)$(BUILD_DRIVE)/CertMakerStuff/symbeans.jar
+  endif
+  ifeq ($(SAFETY_MODE), CREW)
+    VAT_TARGET = /crew
+    JAVA_CLASSPATH = $(ECROOTDRIVE)$(JAVAHOME)/lib/classes.zip$(DIR_SEPARATOR)$(IFCHOME)/classes.zip$(DIR_SEPARATOR)$(ECROOTDRIVE)$(JCEHOME)/lib/jce.zip$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/steward/classes$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/crew/classes$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/compute/classes$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/classes$(DIR_SEPARATOR)$(EDIR)/steward.zip$(DIR_SEPARATOR)$(EDIR)/crew.zip$(DIR_SEPARATOR)$(EDIR)/compute.zip$(DIR_SEPARATOR)$(PLDIR)/steward.zip$(DIR_SEPARATOR)$(PLDIR)/crew.zip$(DIR_SEPARATOR)$(PLDIR)/compute.zip$(DIR_SEPARATOR)$(SUPPORTDIR)/steward.zip$(DIR_SEPARATOR)$(SUPPORTDIR)/crew.zip$(DIR_SEPARATOR)$(SUPPORTDIR)/compute.zip$(DIR_SEPARATOR)$(ECROOTDRIVE)$(CRYPTIXHOME)/classes.zip$(DIR_SEPARATOR)$(HUBDIR)/steward.zip$(DIR_SEPARATOR)$(HUBDIR)/crew.zip$(DIR_SEPARATOR)$(HUBDIR)/compute.zip$(DIR_SEPARATOR)$(EZDIR)/steward.zip
+  endif
+  ifeq ($(SAFETY_MODE), COMPUTE)
+    VAT_TARGET = /compute
+    JAVA_CLASSPATH = $(SAFEJAVADIR)/classes.zip$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/compute/classes$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/classes$(DIR_SEPARATOR)$(EDIR)/compute.zip$(DIR_SEPARATOR)$(PLDIR)/compute.zip$(DIR_SEPARATOR)$(SUPPORTDIR)/compute.zip$(DIR_SEPARATOR)$(HUBDIR)/compute.zip
+  endif
+  ifeq ($(SAFETY_MODE), ECOMP)
+    VAT_TARGET = ""
+    JAVA_CLASSPATH = $(ECROOTDRIVE)$(JAVAHOME)/lib/classes.zip$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/guest/classes$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/steward/classes$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/crew/classes$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/compute/classes$(DIR_SEPARATOR)$(EDIR)/guest.zip$(DIR_SEPARATOR)$(EDIR)/steward.zip$(DIR_SEPARATOR)$(EDIR)/crew.zip$(DIR_SEPARATOR)$(EDIR)/compute.zip
+  endif
+
+else
+  # pre-built classes are (by default) not in zipfiles
+  JAVA_CLASSPATH = INVALID_SAFETY_MODE
+  ifeq ($(SAFETY_MODE),)
+    SAFETY_MODE = STEWARD
+    # Soon, the default mode will be GUEST
+  endif
+  ifeq ($(SAFETY_MODE), GUEST)
+    VAT_TARGET = /guest
+    JAVA_CLASSPATH = $(BUILD_DRIVE)$(BUILD)/guest/classes$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/steward/classes$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/compute/classes$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/classes$(DIR_SEPARATOR)$(SAFEJAVADIR)/classes$(DIR_SEPARATOR)$(EDIR)/guest/classes$(DIR_SEPARATOR)$(EDIR)/steward/classes$(DIR_SEPARATOR)$(EDIR)/compute/classes$(DIR_SEPARATOR)$(PLDIR)/guest/classes$(DIR_SEPARATOR)$(PLDIR)/steward/classes$(DIR_SEPARATOR)$(PLDIR)/compute/classes$(DIR_SEPARATOR)$(SUPPORTDIR)/guest/classes$(DIR_SEPARATOR)$(SUPPORTDIR)/steward/classes$(DIR_SEPARATOR)$(SUPPORTDIR)/compute/classes$(HUBDIR)/guest/classes$(DIR_SEPARATOR)$(HUBDIR)/steward/classes$(DIR_SEPARATOR)$(HUBDIR)/compute/classes$(DIR_SEPARATOR)$(EZDIR)/guest/classes$(DIR_SEPARATOR)$(EZDIR)/steward/classes
+  endif
+  ifeq ($(SAFETY_MODE), STEWARD)
+    VAT_TARGET = /steward
+    JAVA_CLASSPATH = $(ECROOTDRIVE)$(JAVAHOME)/lib/classes.zip$(DIR_SEPARATOR)$(IFCHOME)/classes$(DIR_SEPARATOR)$(ECROOTDRIVE)$(JCEHOME)/lib/jce.zip$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/guest/classes$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/steward/classes$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/crew/classes$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/compute/classes$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/classes$(DIR_SEPARATOR)$(EDIR)/guest/classes$(DIR_SEPARATOR)$(EDIR)/steward/classes$(DIR_SEPARATOR)$(EDIR)/crew/classes$(DIR_SEPARATOR)$(EDIR)/compute/classes$(DIR_SEPARATOR)$(PLDIR)/guest/classes$(DIR_SEPARATOR)$(PLDIR)/steward/classes$(DIR_SEPARATOR)$(PLDIR)/crew/classes$(DIR_SEPARATOR)$(PLDIR)/compute/classes$(DIR_SEPARATOR)$(SUPPORTDIR)/guest/classes$(DIR_SEPARATOR)$(SUPPORTDIR)/steward/classes$(DIR_SEPARATOR)$(SUPPORTDIR)/crew/classes$(DIR_SEPARATOR)$(SUPPORTDIR)/compute/classes$(DIR_SEPARATOR)$(ECROOTDRIVE)$(CRYPTIXHOME)/classes.zip$(DIR_SEPARATOR)$(HUBDIR)/guest/classes$(DIR_SEPARATOR)$(HUBDIR)/steward/classes$(DIR_SEPARATOR)$(HUBDIR)/crew/classes$(DIR_SEPARATOR)$(HUBDIR)/compute/classes$(DIR_SEPARATOR)$(EZDIR)/guest/classes$(DIR_SEPARATOR)$(EZDIR)/steward/classes$(DIR_SEPARATOR)$(BUILD_DRIVE)/CertMakerStuff/symbeans.jar
+  endif
+  ifeq ($(SAFETY_MODE), CREW)
+    VAT_TARGET = /crew
+    JAVA_CLASSPATH = $(ECROOTDRIVE)$(JAVAHOME)/lib/classes.zip$(DIR_SEPARATOR)$(IFCHOME)/classes$(DIR_SEPARATOR)$(ECROOTDRIVE)$(JCEHOME)/lib/jce.zip$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/steward/classes$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/crew/classes$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/compute/classes$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/classes$(DIR_SEPARATOR)$(EDIR)/steward/classes$(DIR_SEPARATOR)$(EDIR)/crew/classes$(DIR_SEPARATOR)$(EDIR)/compute/classes$(DIR_SEPARATOR)$(PLDIR)/steward/classes$(DIR_SEPARATOR)$(PLDIR)/crew/classes$(DIR_SEPARATOR)$(PLDIR)/compute/classes$(DIR_SEPARATOR)$(SUPPORTDIR)/steward/classes$(DIR_SEPARATOR)$(SUPPORTDIR)/crew/classes$(DIR_SEPARATOR)$(SUPPORTDIR)/compute/classes$(DIR_SEPARATOR)$(ECROOTDRIVE)$(CRYPTIXHOME)/classes.zip$(DIR_SEPARATOR)$(HUBDIR)/steward/classes$(DIR_SEPARATOR)$(HUBDIR)/crew/classes$(DIR_SEPARATOR)$(HUBDIR)/compute/classes$(DIR_SEPARATOR)$(EZDIR)/steward/classes
+  endif
+  ifeq ($(SAFETY_MODE), COMPUTE)
+    VAT_TARGET = /compute
+    JAVA_CLASSPATH = $(SAFEJAVADIR)/classes$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/compute/classes$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/classes$(DIR_SEPARATOR)$(EDIR)/compute/classes$(DIR_SEPARATOR)$(PLDIR)/compute/classes$(DIR_SEPARATOR)$(SUPPORTDIR)/compute/classes$(DIR_SEPARATOR)$(HUBDIR)/compute/classes
+  endif
+  ifeq ($(SAFETY_MODE), ECOMP)
+    VAT_TARGET = ""
+    JAVA_CLASSPATH = $(ECROOTDRIVE)$(JAVAHOME)/lib/classes.zip$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/guest/classes$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/steward/classes$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/crew/classes$(DIR_SEPARATOR)$(BUILD_DRIVE)$(BUILD)/compute/classes$(DIR_SEPARATOR)$(EDIR)/guest/classes$(DIR_SEPARATOR)$(EDIR)/steward/classes$(DIR_SEPARATOR)$(EDIR)/crew/classes$(DIR_SEPARATOR)$(EDIR)/compute/classes
+  endif
+  
+endif

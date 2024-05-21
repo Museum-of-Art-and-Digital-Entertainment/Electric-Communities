@@ -1,0 +1,159 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title></title>
+</head>
+
+<body>
+
+<h2>The Neocosm Worry List</h2>
+
+<p>Updated by anyone who has a worry worth worrying about. <br>
+</p>
+
+<hr>
+
+<p><br>
+Format of this list: </p>
+
+<ol>
+    <li>[Author Date] Worry</li>
+</ol>
+
+<p>These are issues that as far as the submitter knows are not
+being planned for or looked at.&nbsp; For a worry to go off this
+list, it either needs to be empirically shown not to be a worry,
+or it needs to have a good enough plan for dealing with it that
+it's no longer considered worrisome--in the opinion of the person
+who owns the worry!&nbsp; Some things, like performance, are only
+no longer worries when we have a working well-performing system;
+other things, like architectural issues, are only worries until
+we have a resolution that has been reviewed and that's considered
+livable. <br>
+</p>
+
+<hr>
+
+<ol>
+    <li><h3>Architectural/subsystem gating decisions</h3>
+    </li>
+    <li>[RobJ 18 May 98] The microvats question:&nbsp; do we
+        continue the current one-vat-per-process concurrency
+        policy, or do we go to a more microvat-like concurrency
+        model where each object has its own run queue
+        machinery?&nbsp; The former is more like the current
+        alpha's architecture; the latter has different and
+        perhaps more robust concurrency behavior.&nbsp; This
+        decision has a peculiar latch: if we assume one run queue
+        per process, we will rapidly start writing code that will
+        break in a run-queue-per-object model; but if we make the
+        latter assumption (a run queue per object), that code
+        will run fine if there is only one run queue per process.</li>
+    <li>[RobJ 18 May 98] More generally, a simple and adequate
+        DObjects framework that everyone believes in is a very
+        high priority.</li>
+    <li>[RobJ 18 May 98] The GUI framework: what new UI framework
+        will we use for our GUI?</li>
+    <li>[RobJ 18 May 98] The renderer: what do we do?</li>
+    <li>[RobJ 18 May 98] The repository: who will own it?</li>
+    <li>[Tony 19 May 98] The repository: How about alternatives?
+        We could use a hard definition of the requirements for
+        this piece. JAR files have been mentioned as a
+        possibility. Standard file support would be good
+        (especially for production).</li>
+    <li>[Tony 19 May 98] The repository: Art download. This was
+        never fully working. Do we have any documentation on
+        what's needed or missing?</li>
+    <li>[Bill 20 May 98] Where should we draw the line between
+        what is implemented in Java and what is in C/C++?</li>
+    <li>[Tony 20 May 98] Localization. Our current menus.uifile
+        approach is doing double duty as a UI layout file and a
+        localization solution. We need to break these apart. In
+        particular, the current menus.uifile approach makes
+        creating swatchable items difficult, because the
+        artist/designer must edit this file to add new swatch
+        labels.</li>
+    <li>[Tony 20 May 98] Event model. Even if we don't ship a
+        full-fledged scripting language right away, having an
+        event model could be very valuable. We could get a bunch
+        of behavior just by letting objects respond to a small
+        number of pre-defined events (enterRegion, avatarSpeech,
+        pickUp, putDown, etc...) </li>
+    <li>[Tony 22 May 98] Extensibility. There is a very wide
+        spectrum of possible work here. It's very likely that any
+        solutions will require some thought up front in our
+        desgin decisions. See <a href="Extensibility.html">Extensibility</a>
+        for a discussion of different ways in which we could
+        allow users to extend the world..</li>
+    <li>[Tony 27 May 98] Upgradable Production. We have a
+        reasonable story for packaging new resources into a
+        separate repository. What we've never really addressed,
+        and what I imagine *all* customers will want is the
+        ability to add new regions to a running process. Imagine,
+        for instance, if we wanted to add 5 new regions to
+        BeachTown and connect them to the Lighthouse. We can't do
+        this now. This isn't an unsolvable problem, but we'll
+        need to provide support for this sort of thing.</li>
+    <li>[Jeff 02 June 98] Naming.. We've talked about the name
+        problem.&nbsp; Its really cool that we can have multiple
+        avatars with the same name.&nbsp; However, teleport pad
+        sturdy refs are a bit awkward.&nbsp; It seems that we
+        need some sort of naming mechanism. LDAP might be a good
+        mechanism for naming.&nbsp; </li>
+    <li>[Jeff 02 June 98] User-friendly sturdy refs: Something
+        like ec://directory.communities.com/turfs/MyTurfName
+        would be nice. (Though I fear it would be problematic.)<br>
+        </li>
+    <li>[Tony 04 June 98] Hub management. We never really nailed down
+        a story for how hub operators could do reasonable server management
+        of a running hub. Specifically: how can I take a running realm that's
+        now getting heavy traffic and split its regions over two servers? 
+        Also, can I move a running realm from one server to another?<br>
+        </li>
+    <li>[Tony 09 June 98] Compile to native code. One of the benefits of moving to
+    	pure Java is that we get to use all the slick new IDEs and tools coming out.
+    	One of the biggest potential wins in this arena is the ability to compile our
+    	app to native code. If it turns out that this is a big win, we might want to consider
+    	enforcing that we're always able to do this-- checking in code that breaks native
+    	compilation would be considered a real build break. It seems wise to get on this wagon
+    	sooner rather than later.<br>
+        </li>
+
+
+    <li><h3>Implementation issues</h3>
+    </li>
+    <li>[RobJ 18 May 98] Will the new system perform well in 32
+        megs?&nbsp; This is something we have to stay on top of
+        continuously, and is mentioned here only to keep it from
+        falling off our radar screens.</li>
+    <li>[Tony 19 May 98] Performance metrics. Remember January?
+        We should have targets in mind for things like startup,
+        region transitions, etc. And we should have (ideally
+        automated) testing of these so that we never lose sight
+        of the actual product and its requirements.</li>
+    <li>[Bob 27 May 98] Is there a dichotomy between
+        'serialization to comm' and 'serialization everywhere
+        else'? If we can make this statement, then implementing
+        proxies as a simple extension (using inherited traits,
+        perhaps) to the underlying object serialization becomes
+        much simpler. Proxied objects will be the only ones that
+        need to have any special code, and all of the special
+        case checking could be done in the superclass -- freeing
+        the programmer from having to worry explicitly about comm
+        serialization -- merely marking an object as 'proxyable'
+        by inheritance would be sufficient.</li>
+    <li><h3>Personnel issues</h3>
+    </li>
+    <li>[RobJ 18 May 98] Where is the engineering VP???&nbsp;
+        Every passing day costs us....</li>
+    <li>[RobJ 18 May 98] We need a better concept of what QA
+        should do in this organization.&nbsp; We won't have a QA
+        manager anytime very soon but we need to start doing
+        design for testability and generally getting engineering
+        agreement on what QA's role could most effectively be.</li>
+</ol>
+</body>
+</html>

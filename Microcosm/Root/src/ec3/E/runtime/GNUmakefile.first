@@ -1,0 +1,11 @@
+
+all:
+	$(MAKE) -f GNUmakefile.first.steward
+	$(MAKE) -f GNUmakefile.first.guest
+
+bootstrap:
+	$(MAKE) -f GNUmakefile.first.steward bootstrap_classes
+
+clean:
+	$(MAKE) -f GNUmakefile.first.steward clean
+	$(MAKE) -f GNUmakefile.first.guest clean

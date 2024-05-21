@@ -1,0 +1,1196 @@
+
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <TITLE>ComCom Server</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+
+<H1>
+ComCom Server</H1>
+<B>Last updated:</B>
+
+<P><I>
+98/08/19 <A HREF="mailto:karl@communities.com">Karl</A>
+<UL>
+<LI><A HREF="#Architecture4">Final system architecture picture</A> suggestion</LI>
+<LI>Filled out section on <A HREF="#Timeouts">timeouts</A></LI>
+<LI>Added half of an example to <A HREF="#ServerTables">Server Data Tables</A></LI>
+<LI>Filled out section on <A HREF="#LoadBalancing">Load Balancing</A></LI>
+<LI>Filled out section on <A HREF="#PlaceTracking">Place Tracking</A></LI>
+<LI>Filled out section on <A HREF="#DatabaseRequirements">Database Requirements</A></LI>
+<LI>Filled out section on <A HREF="#Firewalls">firewalls</A></LI>
+<LI>Filled out section on <A HREF="#Groupware">Groupware</A></LI>
+<LI>Created <A HREF="#UpdateHistory">Update History</A> section</LI>
+<LI>Created <A HREF="#Contents">Contents</A> section</LI>
+</UL>
+<A HREF="#UpdateHistory">Update History</A>
+</I></P>
+
+<H2><A NAME="Introduction">Introduction</H2>
+
+<P>The ComCom <B><I>system</I></B> is intended to share "location"
+information amongst ComCom users via their EC Identities (hereafter
+ECIDs).  The location information will include such data as how many
+(and which) ECID users are looking at a specific URL or are in a
+particular Palace (room?).  This could easily be extended to include the
+number of (and which) ECID users in a specified MUDD or MOO, along with
+other such useful information. The ComCom <I><B>server</I></B> at its
+simplest is a message fan-out mechanism for forwarding this location
+information to ComCom <I><B>clients</I></B>. </P>
+
+<P>Using a particular ECID, a ComCom <I><B>client</I></B> connects to a
+ComCom <I><B>server</I></B> :  Multiple ECIDs may be possible on the
+<B>client</B>'s machine, and ComCom <I><B>clients</I></B> may deal with
+multiple ECIDs and  may even connect with a <I><B>server</I></B> using
+more than one ECID at a time, but there is only one "connection" per
+ECID.  Upon a successful connection, the <I><B>client</I></B> indicates
+which sort, if any, of location information it is interested in
+(<FONT COLOR="#0000FF"><B>interests</B></FONT>)
+<i>and</I> what other ECIDs have permission to receive what subsets of
+the <I><B>client's</I></B> location information
+(<FONT COLOR="#0000FF"><B>permissions</B></FONT>). </P>
+
+<P>The ComCom <I><B>server</I></B> receives
+<FONT COLOR="#0000FF"><B>interest</B></FONT> and
+<FONT COLOR="#0000FF"><B>permission</B></FONT>
+data from ComCom <I><B>clients</I></B>, and correlates said data into what
+are, in effect, routing tables.  The <I><B>server</I></B> also receives
+location information from connected <I><B>clients</I></B> and routes
+this information to any <I><B>clients</I></B> which have expressed an
+<FONT COLOR="#0000FF"><B>interest</B></FONT> in it, and have been granted
+<FONT COLOR="#0000FF"><B>permission</B></FONT> to see it.</P>
+
+<H4>Related Documents</H4>
+<A HREF="mailto:cobblers@communities.com">Bob's</A> and
+<A HREF="mailto:karl@communities.com">Karl's</A> <A HREF="ComComDesignNotes.html">ComCom Design Notes</A>
+<BR><A HREF="../index.html">ECID &amp; ComCom Home Page</A>
+<BR><A HREF="../Components.html">ECID/ComCom Project Components List</A>
+<BR><A HREF="ComComSystemArchitecture.html">ComCom Message/Authentication Spec</A>
+
+<H2><A NAME="Contents"></A>Contents</H2>
+
+<OL>
+<LI><A HREF="#Introduction">Introduction</A></LI>
+<LI><A HREF="#Requirements">Requirements</A></LI>
+<LI><A HREF="#Architecture">Architecture</A></LI>
+	<OL>
+	<LI><A HREF="#PAO">Proposed Architecture Overview</A></LI>
+	<LI><A HREF="#DataDescription">Types of Data</A></LI>
+	<LI><A HREF="#MessageDescription">Types of Messages</A></LI>
+	<LI><A HREF="#MessageTraffic">Message Traffic in the ComCom System</A></LI>
+	<LI><A HREF="#Timeouts">"Connection" Timeouts and Shutdowns</A></LI>
+	<LI><A HREF="#ServerTables">Server Data Tables</A></LI>
+	<LI><A HREF="#LoadBalancing">Load Balancing</A></LI>
+	<LI><A HREF="#PlaceTracking">Place Tracking</A></LI>
+	<LI><A HREF="#DatabaseRequirements">Path Tracking and Database Requirement</A></LI>
+	<LI><A HREF="#Firewalls">Clients Behind Firewalls</A></LI>
+	<LI><A HREF="#Groupware">Groupware: Yet Another Product</A></LI>
+	<LI><A HREF="#OffTheShelf">Off the shelf alternatives</A></LI>
+	<LI><A HREF="#OtherStuff">Other Design Objectives, Constraints and Assumptions</A></LI>
+	</OL>
+<LI><A HREF="#CurrentImplementation">Current implementation</A></LI>
+	<OL>
+	<LI><A HREF="#Packages">Which packages on our tree does this subsystem cover?</A></LI>
+	<LI><A HREF="#ImplementationOverview">Implementation overview</A></LI>
+	<LI><A HREF="#ExceptionHandling">Exception handling</A></LI>
+	<LI><A HREF="#Examples">Examples</A></LI>
+	<LI><A HREF="#Performance">Performance</A></LI>
+	<LI><A HREF="#Testing">Testing Strategy and Debugging</A></LI>
+	<LI><A HREF="#Interactions">Interactions and dependencies with other subsystems</A></LI>
+	</OL>
+<LI><A HREF="#DesignIssues">Design Issues</A></LI>
+	<OL>
+	<LI><A HREF="#ResolvedIssues">Resolved Issues</A></LI>
+	<LI><A HREF="#OpenIssues">Open Issues</A></LI>
+	</OL>
+<LI><A HREF="#UpdateHistory">Update History</A></LI>
+</OL>
+
+<H2><A NAME="Requirements"></A>Requirements</H2>
+<UL>
+<LI>Accept "logins" from ComCom clients over secure authenticated connection</LI>
+	<OL>
+	<LI>Receive ECID from client</LI>
+	<LI>Set up mechanism for "secure" UDP communication</LI>
+	<LI>Receive <FONT COLOR="#0000FF"><B>interests</B></FONT> lists from client</LI>
+	<LI>Receive <FONT COLOR="#0000FF"><B>permissions</B></FONT> lists from client</LI>
+	<LI>Remove any old <FONT COLOR="#0000FF"><B>interests</B></FONT> for the ECID from the routing tables</LI>
+	<LI>Revoke any old <FONT COLOR="#0000FF"><B>permissions</B></FONT> for the ECID, removing entries from routing tables</LI>
+	<LI>Correlate new <FONT COLOR="#0000FF"><B>interests</B></FONT> with <FONT COLOR="#0000FF"><B>permissions</B></FONT> from named clients</LI>
+	<LI>Correlate new <FONT COLOR="#0000FF"><B>permissions</B></FONT> with <FONT COLOR="#0000FF"><B>interests</B></FONT> from named clients</LI>
+	<LI>Update stored routing tables with new information</LI>
+	<LI>Fan out the fact of login to interested, permitted and connected clients</LI>
+	<LI>Send "latest info" on requested, permitted and connected clients</LI>
+	</OL>
+<LI>Receive periodic update information via UDP</LI>
+	<OL>
+	<LI>Receive location information from clients</LI>
+	<LI>Fan out location information to interested, permitted and connected clients</LI>
+	<LI>Keep latest location information by ECID</LI>
+	<LI>Forward location information and ECID to Demographics processor</LI>
+	</OL>
+<LI>Receive periodic update information or requests via TCP</LI>
+	<OL>
+	<LI>Receive <FONT COLOR="#0000FF"><B>interest</B></FONT> updates</LI>
+	<LI>Receive <FONT COLOR="#0000FF"><B>permission</B></FONT> updates</LI>
+	<LI>Correlate new <FONT COLOR="#0000FF"><B>interests</B></FONT> with <FONT COLOR="#0000FF"><B>permissions</B></FONT> from named clients</LI>
+	<LI>Correlate new <FONT COLOR="#0000FF"><B>permissions</B></FONT> with <FONT COLOR="#0000FF"><B>interests</B></FONT> from named clients</LI>
+	<LI>Update stored routing tables with new information</LI>
+	<LI>Accept "latest info" request from clients behind firewalls</LI>
+	<LI>Send "latest info" responses to clients behind firewalls</LI>
+	</OL>
+<LI>Deal with "time-outs" by ComCom clients (treat as a "logout"; see below)</LI>
+<LI>Accept "logouts" from ComCom clients over secure authenticated connection</LI>
+	<OL>
+	<LI>Remove <FONT COLOR="#0000FF"><B>interests</B></FONT> for the ECID from the routing tables</LI>
+	<LI>Revoke <FONT COLOR="#0000FF"><B>permissions</B></FONT> for the ECID "logging out", removing entries from routing tables</LI>
+	<LI>Fan out the fact of logout to interested, permitted and connected clients</LI>
+	</OL>
+</UL>
+
+<A NAME="Architecture"></A>
+<H2>Architecture</H2>
+
+<H4><A NAME="PAO"></A>Proposed Architecture Overview</H4>
+
+<IMG SRC="Architecture1.GIF" ALT="General Architecture I"
+     WIDTH=447 HEIGHT=267 HSPACE=20 VSPACE=20
+     ALIGN=RIGHT CAPTION="447x267">
+
+<P>The ComCom server will be a Java application consisting of several processes,
+either on one machine or spread across several.  First, of course, are the
+ComCom <I><B>server</I></B> processes, the ones which actually receive and
+fan out location messages from ComCom <I><B>clients</I></B>.  There will also
+be a ComCom <I><B>server manager</I></B>, which will keep track of the loads on
+the various <I><B>servers</I></B> it knows about and assign new <I><B>clients</I></B>
+to the <I><B>server</I></B> with the lowest load.  Finally, there will be a
+Demographic processor, which will receive and store location information and ECIDs
+for us to sell later.
+</P>
+
+<UL>
+<LI><FONT COLOR="#00FF00"><B>GREEN</B></FONT> - login/logout data</LI>
+<LI><FONT COLOR="#0000FF"><B>BLUE</B></FONT> - interest/permission data</LI>
+<LI><FONT COLOR="#FF0000"><B>RED</B></FONT> - location data</LI>
+</UL>
+
+<P CLEAR=right>At this point in the design, there are many "connections"
+between the various processes, whether these are actual direct
+connections or just knowledge of how to send messages to a specific
+entity.  The <I><B>server manager</I></B> knows where all of the
+<I><B>servers</I></B> are.  The various <I><B>servers</I></B> share
+location, login/logout, <FONT COLOR="#0000FF"><B>interests</B></FONT>
+and <FONT COLOR="#0000FF"><B>permissions</B></FONT> information with
+each other. Also, all of the <I><B>servers</I></B> send location
+information to the Demographics processor.  As the <I><B>server
+manager</I></B> already knows where all of the <I><B>servers</I></B> are and
+is a natural central processing point anyway, inter-<I><B>server</I></B>
+messages could be routed through the <I><B>server manager</I></B>.  And,
+as all <I><B>servers</I></B> are communicating with the <I><B>server
+manager</I></B> anyway, they could route all of their Demographic
+messages through it. For N <I><B>servers</I></B>, this eliminate
+N + (N * (N-1))/2 connections (N connections to the Demographics processor
+and (N * (N-1))/2 connections to the other <I><B>servers</I></B>).  Admittedly,
+this would also increase the amount of message traffic through the
+<I><B>server manager</I></B>.</P>
+
+<IMG SRC="Architecture2.GIF" ALT="General Architecture II"
+     WIDTH=447 HEIGHT=267 HSPACE=20 VSPACE=20
+     CAPTION="447x267">
+
+<P>As far as the demographic data goes, it could be collected locally on
+the <I><B>server</I></B>'s machines (into a Local Demographic Processor
+or <B>LDP</B>) and downloaded to a central point periodically. This would
+eliminate the constant low-bandwidth <FONT COLOR="#FF0000">red</FONT>
+traffic in favor of periodic high-bandwidth dumps from the
+<I><B>servers</I></B> to the central processing point: </P>
+
+<IMG SRC="Architecture3.GIF" ALT="General Architecture III"
+     WIDTH=494 HEIGHT=267 HSPACE=20 VSPACE=20
+     CAPTION="947x267">
+
+<UL>
+<LI><FONT COLOR="#00FF00"><B>GREEN</B></FONT> - login/logout data</LI>
+<LI><FONT COLOR="#0000FF"><B>BLUE</B></FONT> - interest/permission data</LI>
+<LI><FONT COLOR="#FF0000"><B>RED</B></FONT> - location data</LI>
+<LI><FONT COLOR="#FF0000"><B>STRIPED RED</B></FONT> - periodic high-bandwidth downloads of location data</LI>
+</UL>
+
+<A NAME="Architecture4"></A>
+<P>The first approach with lots of connections is probably the best one as the
+load on the <I><B>server manager</I></B> would be extreme, which is the point
+of load balancing over multiple <I><B>servers</I></B>.  Also, the overall
+amount of traffic increases with approach number two or three (according to
+some rough calculations I did on the back of an envelope :-).  If we decide
+that the demographic data is not really time sensitive and can be saved locally
+on the <I><B>server</I></B> machines and then downloaded occasionally to a
+central Demographics Processor, then the final <I><B>system</I></B> will
+probably look something like this:</P>
+
+<CENTER>
+<IMG SRC="Architecture4.GIF" ALT="General Architecture IV"
+     WIDTH=495 HEIGHT=267 HSPACE=20 VSPACE=20
+     CAPTION="947x267">
+</CENTER>
+
+<A NAME="DataDescription"></A>
+<H4>Types of Data</H4>
+
+<UL>
+<LI><FONT COLOR="#000000"><B>login request</B></FONT> - When a
+	<I><B>client</I></B> wants to log into the ComCom <I><B>system</I></B>.
+	This message is sent to the <I><B>server mnanager</I></B>.</LI>
+<LI><FONT COLOR="#000000"><B>connection address</B></FONT> - An IP address and
+	port number.
+	<OL>
+	<LI>What <I><B>server</I></B> the new <I><B>client</I></B> should log
+	into.  The <I><B>server manager</I></B> sends this to the
+	<I><B>client</I></B>.</LI>
+	<LI>Where a <I><B>server</I></B> should send UDP messages for a
+	<I><B>client</I></B>.  The <I><B>server</I></B> sends this to the
+	<I><B>client</I></B> during the login process.</LI>
+	<LI>Where a <I><B>client</I></B> should send UDP messages for a
+	<I><B>server</I></B>.  The <I><B>client</I></B> sends this to the
+	<I><B>server</I></B> during the login process.</LI>
+	</OL>
+</LI>
+<LI><FONT COLOR="#000000"><B>secret numbers</B></FONT> - When a
+	<I><B>client</I></B> has connected to a <I><B>server</I></B>.  The
+	<I><B>server</I></B> sends them to the <I><B>client</I></B> and the pair
+	will authenticate their UDP communications with these numbers.</LI>
+<LI><FONT COLOR="#000000"><B>load</B></FONT> - When a
+	<I><B>server</I></B>'s load changes.  The <I><B>server</I></B> sends this
+	to the <I><B>server manager</I></B> for determining load and assigning
+	new clients.  The type of this data is TBD.  See section on
+	<A HREF="#LoadBalancing">Load Balancing</A>.</LI>
+<LI><FONT COLOR="#00FF00"><B>login</B></FONT> - When a
+	<I><B>client</I></B> logs into the ComCom <I><B>system</I></B>.  This
+	information is used by the <I><B>server manager</I></B> to balance the
+	loads on the <I><B>servers</I></B> and is fanned out by
+	<I><B>servers</I></B> to <I><B>clients</I></B> who are interested in when
+	certain ECIDs enter the <I><B>system</I></B>.</LI>
+<LI><FONT COLOR="#00FF00"><B>logout</B></FONT> - When a <I><B>client</I></B>
+	logs  out of the ComCom <I><B>system</I></B>.  This information is used
+	by the <I><B>server manager</I></B> to balance the loads on the
+	<I><B>servers</I></B> and is fanned out by <I><B>servers</I></B> to
+	<I><B>clients</I></B> who are interested in when certain ECIDs leave the
+	<I><B>system</I></B>.</LI>
+<LI><FONT COLOR="#0000FF"><B>interest</B></FONT> - What locations
+	and ECIDs a <I><B>client</I></B> wants to watch.  This information comes in
+	two forms: 1) pure location information such as
+	<B>"http://www.communities.com"</B> or
+	<B>"palace://BobsPalace.communities.com:7565"</B>, which
+	are stored in tables by the <I><B>servers</I></B> attached to lists of
+	ECIDs which are interested in how many ECIDs are "at" those locations, and
+	2) ECID/location-type information which are pairs of ECIDs and a
+	<I>type</I> of location (URL, Palace or whatever), which are indicate that
+	the sending ECID is interested in what URL or Palace another ECID is
+	currently visiting.
+<LI><FONT COLOR="#0000FF"><B>permission</B></FONT> - What ECIDs are allowed
+	to watch what sort of information about this <I><B>client</I></B>.  There
+	are 2 types of information, 1) login/logout or "online", and
+	2) location-type (ComCom, URL, Palace or whatever).  Thus a <B>client</B>
+	can say "Bob can see when I'm logged into ComCom and what Palace I am in"
+	and "Alice can see what URL I'm browsing".</LI>
+<LI><FONT COLOR="#0000FF"><B>interest/permission pairs</B></FONT> - The
+	correlation between ECID/location-type interest pairs and
+	ECID/location-type permission pairs.  <B>Servers</B> match up these
+	two sets of pairs to build routing tables which contain ECIDs,
+	location-types and ECID lists.  For example, one entry might be
+	"Bob; PALACE; Alice, John, Dirk", which would mean that whenever Bob enters
+	a Palace, Alice, John, and Dirk will be notified.  This particular entry
+	means that Bob has given Alice, John, and Dirk permission to watch his
+	Palace location and that Alice, John, and Dirk have expressed interest
+	in Bob's Palace location.  This also means that Bob, Alice, John, and
+	Dirk are all currently logged into the <B>system</B>, because all
+	mentions of specific ECIDs in the tables are removed when that ECID logs
+	out.  If John logs out, the entry will become "Bob; Palace; Alice, Dirk",
+	and if Bob logs out, the entire entry will be deleted.</LI>
+<LI><FONT COLOR="#FF0000"><B>location</B></FONT> - The type of location
+	and the location where an ECID currently "is".  This information is sent
+	by <I><B>clients</I></B> to <I><B>servers</I></B>, which then fan it out
+	to interested and permitted <I><B>clients</I></B>.  This information is
+	also sent to the Demographic Processor.  This data will be something like
+	"Bob"+"URL"+"http://www.communities.com" or
+	"Alice"+"PALACE"+"palace://BobsPalace.communities.com:756".</LI>
+</UL>
+
+<A NAME="MessageDescription"></A>
+<H4>Types of Messages</H4>
+
+<UL>
+<LI><FONT COLOR="#000000"><B>login request</B></FONT> - ECID X wants to log
+	into the ComCom <I><B>system</I></B>.</LI>
+<LI><FONT COLOR="#000000"><B>connection address</B></FONT> - Connect to IP
+	address Y on port Z.</LI>
+<LI><FONT COLOR="#000000"><B>secret numbers</B></FONT> - The secret numbers
+	with which <I><B>server</I></B> Y and <I><B>client</I></B> X will
+	authenticate their UDP communications.</LI>
+<LI><FONT COLOR="#000000"><B>load</B></FONT> - The data with which a
+	<I><B>server manager</I></B> will determine load on a
+	<B><I>server</I></B>.  See section on
+	<A HREF="#LoadBalancing">Load Balancing</A>.</LI>
+<LI><FONT COLOR="#00FF00"><B>login</B></FONT> - ECID X has logged into the
+	ComCom <I><B>system</I></B>.</LI>
+<LI><FONT COLOR="#00FF00"><B>logout</B></FONT> - ECID X has logged out of the
+	ComCom <I><B>system</I></B>.</LI>
+<LI><FONT COLOR="#0000FF"><B>interest</B></FONT> - ECID X is/is no longer
+	interested in these locations, these ECID/location-type pairs, these
+	ECID/online pairs</LI>
+<LI><FONT COLOR="#0000FF"><B>permission</B></FONT> - ECID X grants/revokes these
+	ECIDs permission to see when ECID X is "at" these location-types or whether
+	X is "online" in ComCom.  As this is the implicit
+	<FONT COLOR="#00FF00"><B>login</B></FONT> message as well, it should let
+	the <B><I>server</I></B> know if this <B><I>client</I></B> is behind a
+	<A HREF="#Firewalls">firewall</A></LI>
+<LI><FONT COLOR="#FF0000"><B>location</B></FONT> - ECID X is at the
+	location-type named Y.</LI>
+</UL>
+
+<P>In some cases messages may be sent as "bundles" in one messages.  This is
+particularly likely for <B><I>clients</I></B> behind
+<A HREF="#Firewalls">firewalls</A> who cannot broadcast individual UDP
+location messages.</P>
+
+<A NAME="MessageTraffic"></A>
+<H4>Message Traffic in the ComCom System</H4>
+
+<P>Important information in ComCom is transmitted over authenticated TCP
+connections, while less vital data is transmitted via authenticated UDP
+connections.  The initial log in sequences between <B>client</B> and
+<B>manager</B> and <B>client</B> and <B>server</B> are done via TCP, both
+to ensure the login to the <B>system</B> and to protect and ensure the
+transmission of the
+<FONT COLOR="#0000FF"><B>interest/permission</B></FONT> data
+and the <FONT COLOR="#000000"><B>secret numbers</B></FONT>.  Any time a
+<B>client</B> wishes to update its
+<FONT COLOR="#0000FF"><B>interest/permission</B></FONT> data or is
+<FONT COLOR="#00FF00"><B>logging out</B></FONT>, a TCP connection is used.
+The connection between the <B>manager</B> and a <B>server</B> is used to keep
+track of <B>server</B> load by counting
+<FONT COLOR="#00FF00"><B>login/logout</B></FONT> messages, and so needs to be
+TCP.  I am assuming at this point that the <B>servers</B> are interconnected
+via TCP for transmission of important
+<FONT COLOR="#0000FF"><B>permission</B></FONT> data anyway, so sending
+the <FONT COLOR="#00FF00"><B>login/logout</B></FONT> and
+<FONT COLOR="#FF0000"><B>location</B></FONT> data over the same connection
+seems appropriate.  Whether or not whatever connections we have to a
+Demographics Processor are TCP or UDP is open to debate.  If it is important
+enough for us to make money off of it, then maybe TCP is best.
+</P>
+<P>The greatest amount of traffic is going to be generated by
+<FONT COLOR="#FF0000"><B>location</B></FONT> data from the <B>clients</B>
+to the <B>servers</B>, and the fanning out of such data as well as
+<FONT COLOR="#00FF00"><B>login/logout</B></FONT> messages from the
+<B>servers</B> to the <B>clients</B> and this information, while interesting,
+is not critical to the <B>system</B> as a whole, and will be done via UDP.  If
+we occasionally lose a packet about what Palace a <B>client</B> is visiting,
+it's not the end of the world.  And if the occasional <B>client</B> thinks
+someone is still logged in when they actually aren't...oh well.
+</P>
+<UL>
+<LI><B>Client to Server Manager (TCP)</B>.</LI>
+	<UL>
+	<LI><FONT COLOR="#000000"><B>login request</B></FONT></LI>
+	</UL>
+<LI><B>Server Manager to Client (TCP)</B>.</LI>
+	<UL>
+	<LI><FONT COLOR="#000000"><B>connection address</B></FONT> - for
+	connecting to the server via TCP</LI>
+	</UL>
+<LI><B>Client to Server (TCP)</B>.</LI>
+	<UL>
+	<LI><FONT COLOR="#000000"><B>connection address</B></FONT> - for sending
+	UDP messages to the client</LI>
+	<LI><FONT COLOR="#0000FF"><B>initial interest/permission</B></FONT> - implicitly
+		includes a <FONT COLOR="#00FF00"><B>login</B></FONT></LI>
+	<LI><FONT COLOR="#0000FF"><B>add interest/permission</B></FONT></LI>
+	<LI><FONT COLOR="#0000FF"><B>remove interest/permission</B></FONT></LI>
+	<LI><FONT COLOR="#00FF00"><B>logout</B></FONT> - this might be a UDP message</LI>
+	</UL>
+<LI><B>Client to Server (UDP)</B>.</LI>
+	<UL>
+	<LI><FONT COLOR="#00FF00"><B>login</B></FONT> - used as a "ping" message</LI>
+	<LI><FONT COLOR="#FF0000"><B>location</B></FONT></LI>
+	</UL>
+<LI><B>Server to Client (TCP)</B>.</LI>
+	<UL>
+	<LI><FONT COLOR="#000000"><B>connection address</B></FONT> - for sending
+	UDP messages to the server</LI>
+	<LI><FONT COLOR="#000000"><B>secret numbers</B></FONT></LI>
+	</UL>
+<LI><B>Server to Client (UDP)</B>.</LI>
+	<UL>
+	<LI><FONT COLOR="#00FF00"><B>login</B></FONT></LI>
+	<LI><FONT COLOR="#FF0000"><B>location</B></FONT></LI>
+	<LI><FONT COLOR="#00FF00"><B>logout</B></FONT></LI>
+	</UL>
+<LI><B>Server to Server Manager (TCP)</B>.</LI>
+	<UL>
+	<LI><FONT COLOR="#00FF00"><B>login</B></FONT></LI>
+	<LI><FONT COLOR="#00FF00"><B>logout</B></FONT></LI>
+	<LI><FONT COLOR="#000000"><B>load message</B></FONT> - some other type of
+	data to allow the server manager to determine server load
+	</UL>
+<LI><B>Server to Server (TCP)</B>.</LI>
+	<UL>
+	<LI><FONT COLOR="#0000FF"><B>initial permission</B></FONT> - implicitly
+		includes a <FONT COLOR="#00FF00"><B>login</B></FONT></LI>
+	<LI><FONT COLOR="#FF0000"><B>location</B></FONT></LI>
+	<LI><FONT COLOR="#0000FF"><B>add permission</B></FONT></LI>
+	<LI><FONT COLOR="#0000FF"><B>remove permission</B></FONT></LI>
+	<LI><FONT COLOR="#00FF00"><B>logout</B></FONT></LI>
+	</UL>
+<LI><B>Server to Demographics Processor (TCP or UDP?)</B>.</LI>
+	<UL>
+	<LI><FONT COLOR="#00FF00"><B>login</B></FONT> - Is how many people log into
+		ComCom an important piece of demographic data?</LI>
+	<LI><FONT COLOR="#FF0000"><B>location</B></FONT></LI>
+	</UL>
+</UL>
+
+<P>There follows a description of the procedure of logging into the ComCom
+system of federated servers and routing location information; this description
+is in terms of the message traffic involved in the various transactions and
+the some of the processing performed in response to the messages.</P>
+
+<P>In this examples there is a ComCom <I><B>Server Manager</I></B>, 
+<I><B>Servers</I></B> One, Two and Three, and <I><B>Clients</I></B> A through
+H.  I have left out the Demographics Processor as unnecessary for this
+example.  <I><B>Clients</I></B> A through G are already conected with the following
+<FONT COLOR="#0000FF"><B>interests</B></FONT> and
+<FONT COLOR="#0000FF"><B>permissions</B></FONT>,
+
+<UL>
+<LI><B>A</B> is interested in <B>H</B></LI>
+<LI><B>C</B> is interested in <B>www.communities.com</B></LI>
+<LI><B>F</B> is interested in <B>E</B></LI>
+<LI><B>G</B> is interested in <B>H</B></LI>
+<LI><B>D</B> permits <B>H</B> to see what <B>D</B> is doing</LI>
+<LI><B>E</B> permits <B>F</B> to see what <B>E</B> is doing</LI>
+</UL>
+
+and <B>H</B> is about to log in with
+
+<UL>
+<LI><B>H</B> in interested in <B>D</B></LI>
+<LI><B>H</B> permits <B>A</B> and <B>G</B> to see what <B>H</B> is doing</LI>
+</UL>
+
+and at this time <B>B</B>, <B>C</B> and <B>F</B> are looking at
+<B>www.communities.com</B>, so <B>C</B> currently sees that there are three
+ECIDs "at" that location.</P>
+
+<P><B>NOTE:</B>  The colors of the arrows on the messages in this diagram are
+intended to reflect the colors indicating type of data in the architecture
+diagrams:
+<UL>
+<LI><FONT COLOR="#00FF00"><B>GREEN</B></FONT> - login/logout data</LI>
+<LI><FONT COLOR="#0000FF"><B>BLUE</B></FONT> - interest/permission data</LI>
+<LI><FONT COLOR="#FF0000"><B>RED</B></FONT> - location data</LI>
+</UL>
+</P>
+<P><B>NOTE 2:</B>  I am using a simplified method of
+<FONT COLOR="#0000FF"><B>interests</B></FONT> and
+<FONT COLOR="#0000FF"><B>permissions</B></FONT> in this example: 1) An
+interested party is watching for <I>all</I> activity rather than expressing
+interest in <B>logins/logouts</B> and <B>locations</B> separately, and 2)
+<B>location</B> is used generally rather than being specified by <B>URL</B>,
+<B>Palace</B>
+or other <I>type</I> of location.</P>
+
+<IMG SRC="FederatedLogin.GIF" ALT="Login Dialogue"  WIDTH=567 HEIGHT=444 CAPTION="612x417">
+
+<DL>
+<DT><B>C1 (TCP)</B></DT>
+<DD>Client <B>H</B> informs the Server <B>Manager</B> that
+	it wants to log into the ComCom <B>system</B>.</DD>
+<DT><B>M2 (TCP)</B></DT>
+<DD>The <B>Manager</B> tells Client <B>H</B> to
+	"Log into Server <B>Three</B> at address <B>X.Y.Z.Q</B>", then the
+	connection is closed.</DD>
+<DT><B>C3 (TCP)</B></DT>
+<DD><B>H</B> <FONT COLOR="#00FF00"><B>logs into</B></FONT> Server
+	<B>Three</B> and transmits its <FONT COLOR="#0000FF"><B>interests</B></FONT> and
+	<FONT COLOR="#0000FF"><B>permissions</B></FONT>.</DD>
+<DT><B>S4 (TCP)</B></DT>
+<DD><B>Three</B> sets up the secret numbers for
+	verifying later <B>UDP</B> communication and shares them with <B>H</B>,
+	then the connection is closed.</DD>
+<DT><B>S5 (TCP)</B></DT>
+<DD><B>Three</B> tells the <B>Manager</B> that
+	<B>Three</B> has a new <FONT COLOR="#00FF00"><B>login</B></FONT> and the
+	<B>Manager</B> updates its load tables.</DD>
+<DT><B>S6 (TCP)</B></DT>
+<DD><B>Three</B>  shares <B>H</B>'s
+	<FONT COLOR="#0000FF"><B>permissions</B></FONT> with Servers <B>One</B> and
+	<B>Two</B>.  This is, in effect, also a <FONT COLOR="#00FF00"><B>login</B></FONT>
+	message to those servers so they can tell any of their interested clients
+	that <B>H</B> has <FONT COLOR="#00FF00"><B>logged in</B></FONT>.</DD>
+<DT><B><I>Processing 1</I></B></DT>
+<DD><B>Three</B> checks <B>H</B>'s
+	<FONT COLOR="#0000FF"><B>permissions</B></FONT> list and finds that one
+	of <B>Three</B>'s clients, <B>G</B>, is interested in <B>H</B> and 
+	updates its routing tables.
+	<BR><B>Three</B> checks <B>H</B>'s
+	<FONT COLOR="#0000FF"><B>interests</B></FONT> list and, having received
+	<B>D</B>'s <FONT COLOR="#0000FF"><B>permissions</B></FONT> from
+	<B>Two</B> when <B>D</B> originally logged in, matches <B>H</B>'s
+	interest in <B>D</B> with <B>D</B>'s permission for <B>H</B>, and updates
+	<B>Three</B>'s routing tables accordingly.
+	<BR><B>One</B> checks <B>H</B>'s
+	<FONT COLOR="#0000FF"><B>permissions</B></FONT> list and finds that one
+	of <B>One</B>'s clients, <B>A</B>, is interested in <B>H</B> and 
+	updates its routing tables.
+	<BR><B>Two</B> checks <B>H</B>'s
+	<FONT COLOR="#0000FF"><B>permissions</B></FONT> list and finds that none
+	of <B>Two</B>'s clients is interested in <B>H</B>.
+	<BR><B>One</B> and <B>Two</B> do not receive nor care about <B>H</B>'s
+	<FONT COLOR="#0000FF"><B>interests</B></FONT>:  They only fan out
+	login/location information to their clients and to other servers they
+	know about, and it is up to <I>those</I> servers to keep track of their
+	own clients <FONT COLOR="#0000FF"><B>interests</B></FONT>.
+	</DD>
+<DT><B>S7A</B> (<B>UDP</B>)</DT>
+<DD><B>Three</B> tells <B>H</B> that <B>D</B> is
+	<FONT COLOR="#00FF00"><B>logged in</B></FONT>.  If <B>G</B> had registered
+	interest in <B>D</B>, then <B>Three</B> would be tracking <B>D</B>'s latest
+	<FONT COLOR="#FF0000"><B>location</B></FONT> information and could send
+	this to <B>H</B> as well.</DD>
+<DT><B>S7</B> (<B>UDP</B>)</DT>
+<DD><B>Three</B> checks its routing tables for interest in <B>H</B>'s
+	login and notifies <B>G</B> that
+	<B>H</B> has <FONT COLOR="#00FF00"><B>logged in</B></FONT>.</DD>
+<DT><B>S8</B> (<B>UDP</B>)</DT>
+<DD><B>One</B> checks its routing tables for interest in <B>H</B>'s
+	login and notifies <B>A</B> that
+	<B>H</B> has <FONT COLOR="#00FF00"><B>logged in</B></FONT>.</DD>
+<DT><B><I>Processing 2</I></B></DT>
+<DD><B>Two</B> checks its routing tables for interest in <B>H</B>'s
+	login and finds that nobody cares.</DD>
+<DT><B>C9</B> (<B>UDP</B>)</DT>
+<DD><B>H</B> changes its <FONT COLOR="#FF0000"><B>location</B></FONT> and
+	informs <B>Three</B>.</DD>
+<DT><B>S10</B> (<B>TCP/UDP</B>)</DT>
+<DD><B>Three</B> sends <B>H</B>'s new
+	<FONT COLOR="#FF0000"><B>location</B></FONT> to <B>One</B>, <B>Two</B>
+	and <B>G</B>. <B>Servers</B> talk to other <B>servers</B> via TCP
+	and send <FONT COLOR="#FF0000"><B>location</B></FONT> data to <B>clients</B>
+	via UDP.</DD>
+<DT><B>S11</B> (<B>UDP</B>)</DT>
+<DD><B>One</B> sends <B>H</B>'s new
+	<FONT COLOR="#FF0000"><B>location</B></FONT> to <B>A</B>.</DD>
+<DT><B><I>Processing 3</I></B></DT>
+<DD><B>Two</B> checks its routing tables for interest in <B>H</B>'s
+	location and finds that nobody cares.</DD>
+<DT><B>C12</B> (<B>UDP</B>)</DT>
+<DD><B>D</B> changes its <FONT COLOR="#FF0000"><B>location</B></FONT> and
+	informs <B>One</B>.</DD>
+<DT><B>S13</B> (<B>UDP</B>)</DT>
+<DD><B>One</B> sends <B>D</B>'s new
+	<FONT COLOR="#FF0000"><B>location</B></FONT> to <B>Two</B> and
+	<B>Three</B>.</DD>
+<DT><B><I>Processing 6</I></B></DT>
+<DD><B>One</B> and <B>Two</B> check their routing tables for interest in
+	<B>D</B>'s location and find that nobody cares.</DD>
+<DT><B>S14</B> (<B>UDP</B>)</DT>
+<DD><B>Three</B> sends <B>D</B>'s new
+	<FONT COLOR="#FF0000"><B>location</B></FONT> to <B>H</B>.</DD>
+<DT><B>C15</B> (<B>TCP</B>)</DT>
+<DD><B>E</B> <FONT COLOR="#00FF00"><B>logs out</B></FONT> of <B>Two</B>.</DD>
+<DT><B>S16</B> (<B>TCP/UDP</B>)</DT>
+<DD><B>Two</B> tells the <B>Manager</B>, <B>One</B>, <B>Three</B> and <B>F</B>
+	that <B>E</B> has <FONT COLOR="#00FF00"><B>logged out</B></FONT>.  The
+	<B>Manager</B> updates its load tables.
+	<B>Servers</B> talk to the <B>manager</B> and other <B>servers</B> via TCP
+	and send <FONT COLOR="#00FF00"><B>logout</B></FONT> data to <B>clients</B>
+	via UDP.</DD>
+<DT><B><I>Processing 7</I></B></DT>
+<DD><B>Two</B> removes all references to <B>E</B> from its routing tables:  If
+	<B>E</B> is not logged in then 1) E has no more interests and 2) noone
+	needs permissions for <B>E</B> because <B>E</B> will not be doing
+	anything.</DD>
+	<BR><B>One</B> and <B>Three</B> discover nobody cares about <B>E</B>, so no
+	logout messages need to be sent and no routing table cleanup needs to be
+	done.</DD>
+</DL>
+
+<P>This example covers most (if not all) of the types of message traffic which
+will exist in the ComCom <B>system</B>.</P>
+
+<A NAME="Timeouts"></A>
+<H4>"Connection" Timeouts and Shutdowns</H4>
+<P>A <B>client</B>'s machine may crash for some reason, or they may shut it
+down without sending a <B><FONT COLOR="#00FF00">logout</FONT></B> message.
+This would be indistinguishable from the fact that the <B>client</B> just
+hasn't changed its browser or Palace location for some time.  Because
+whether or not a <B>client</B> is logged in affects load balancing and the
+size of the routing tables on the <B>servers</B>, this knowledge is important
+to how well the ComCom <B>system</B> runs.</P>
+
+<P>Bob has suggested a heartbeat sort of timeout scheme for ComCom
+<B>clients</B>. The <B>server</B> will keep track of the
+<A HREF="#LastPing">last time a <B>client</B> "pinged"</A>, and if a
+certain (user-defined) amount of time has passed, a <B><FONT
+COLOR="#00FF00">logout</FONT></B> message will be circulated for that
+<B>client</B> and the ECID for that <B>client</B> will be purged from
+the <B>server</B>'s tables. This is to prevent the <B>server</B> from
+sending large amounts of unnecessary UDP packets to someone who has, for
+instance, shut down their computer for the night. </P>
+
+<P>The occasional "ping" message from the will also be useful for notifying new
+<B>clients</B> of the status of someone they are interested in.  Say Alice is
+logged in to <B>server</B> A.  Bob then logs into <B>server</B> B, which has
+no data for Alice because none of its <B>clients</B> are interested in her.
+Bob will receive no information on Alice's login status until she changes
+a location (which will cause the Bob's <B>client</B>'s "online" flag for Alice
+to be set to true), or <I>until she sends out a "ping" message</I>, which
+will be fanned out to interested <B>clients</B> as a "login".
+</P>
+
+<A NAME="ServerTables"></A>
+<H4>Server Data Tables</H4>
+
+<P>At this point, it appears as if a ComCom <B>server</B> will need four
+tables for routing information.  The first two, informational tables used for
+building the routing tables, will be indexed by ECID.  For the first table
+of all of the ECIDs this <B><I>server</I></B> knows about, each
+record will contain:
+<OL>
+<LI><FONT COLOR="#0000FF"><B>permissions</B></FONT></LI> - Used in correlation
+	with interests from new clients of this server to update this server's
+	routing tables.
+<LI><FONT COLOR="#FF0000"><B>last locations</B></FONT> - Changes with new
+	location message for this ECID.  (This table extends as we add more
+	location types.)</LI>
+	<UL>
+	<LI><FONT COLOR="#FF0000"><B>last URL</B></FONT></LI>
+	<LI><FONT COLOR="#FF0000"><B>last Palace</B></FONT></LI>
+	<LI><FONT COLOR="#FF0000"><B>last "whatever"</B></FONT></LI>
+	</UL>
+</OL>
+</P>
+<P>The second is a table of this <B><I>server</I></B>'s <B><I>clients</I></B>,
+and the records will contain:
+<OL>
+<LI><FONT COLOR="#0000FF"><B>interests</B></FONT></LI> - Used in correlation
+with permissions messages from other servers or from new clients of this
+server to update this server's routing tables.
+<LI><A NAME="LastPing">time of
+<FONT COLOR="#00FF00"><B>last ping</B></FONT></A> or
+<FONT COLOR="#FF0000"><B>location</B></FONT></A> update</LI> - Used by this
+server to determine whether or not this client should be
+<A HREF="#Timeouts">timed out</A>.
+<LI><FONT COLOR="#000000"><B>secret numbers</B></FONT></LI> - Used by this
+server to verify the UDP messages from the client and for "encoding"
+messages to the client.
+<LI><FONT COLOR="#000000"><B>connection address</B></FONT></LI> - Used by
+this server to send UDP messages to the client.
+</OL>
+</P>
+<P>The third, a location routing table, will be indexed by location name (probably a
+String) and each record will contain:
+<OL>
+<LI>ECIDs <FONT COLOR="#0000FF"><B>interested</B></FONT> in this location</LI>
+<LI>A <FONT COLOR="#000000"><B>count</B></FONT> of ECID's "at" this location</LI>
+<LI>The <FONT COLOR="#000000"><B>message</B></FONT> to fan out when the
+	<FONT COLOR="#000000"><B>count</B></FONT> for this location changes
+	<A HREF="#PlaceTracking">enough</A></LI>
+</OL>
+</P>
+<P>The fourth, an ECID routing table, will be also be indexed by ECID and each
+record will contain:
+<OL>
+<LI>ECIDs <FONT COLOR="#0000FF"><B>interested</B></FONT> in the
+	<FONT COLOR="#00FF00"><B>login/logout</B></FONT> status of this ECID</LI>
+<LI>ECIDs <FONT COLOR="#0000FF"><B>interested</B></FONT> in
+	<FONT COLOR="#FF0000"><B>URL</B></FONT> locations this ECID visits</LI>
+<LI>ECIDs <FONT COLOR="#0000FF"><B>interested</B></FONT> in
+	<FONT COLOR="#FF0000"><B>Palace</B></FONT> locations this ECID visits</LI>
+<LI>ECIDs <FONT COLOR="#0000FF"><B>interested</B></FONT> in
+	<FONT COLOR="#FF0000"><B>"whatever"</B></FONT> locations this ECID visits</LI>
+</OL>
+</P>
+
+<P><B><I>Example:</I></B>  Assume there are three <B><I>servers</B></I>,
+<B>One</B>, <B>Two</B> and <B>Three</B>.  Currently there are no
+<B><I>clients</B></I> connected.  Bob comes along and logs into
+<B>One</B>.  He tells <B>One</B> that he is interested in Alice's logins,
+Ted's URLs,
+Bart's logins and Palaces, "<B>www.foo.com</B>" and "<B>www.BarPalace.com:322</B>", and he gives
+permission for Ted to see when he is logged on, and for Alice to see
+what URLs and Palaces he visits.  He also sends his IP address and port
+number for  receiving UDP packets.  <B>One</B> sends back its address
+and port number, along with the secret numbers it came up with for
+encoding/ decoding their future UDP conversations.  <B>One</B> stores
+Bob's <FONT COLOR="#0000FF"><B>interest</B></FONT>,
+<FONT COLOR="#0000FF"><B>permission</B></FONT>,
+<FONT COLOR="#000000"><B>secret numbers</B></FONT> and
+<FONT COLOR="#000000"><B>connection address</B></FONT>
+in its "CLIENT" table, and sets the "last contact" time, and sends
+Bob's <FONT COLOR="#0000FF"><B>permissions</B></FONT> to <B>Two</B> and
+<B>Three</B>, who store the info into their "KNOWN ECIDS" table, where Bob's
+last location fields will be empty.  <B>One</B> also sends a "Bob has logged in"
+message to the <B>server manager</B>.
+<B>One</B>'s "LOCATION ROUTING" table has 2 entries,
+while the "ECID ROUTING" table is empty as there's only one ECID in the system
+(although Bob could actually register an interest in <I>himself</I>, if he
+really wanted to).  So Bob's tables look like:
+</P>
+<TABLE BORDER>
+<TR><TH colspan=5>KNOWN ECIDS</TH>
+<TR><TH></TH><TH></TH><TH>Login</TH><TH>URL</TH><TH>Palace</TH></TR>
+<TR><TH rowspan=2>Bob</TH><TH>Permissions</TH><TD>Ted</TD><TD>Alice</TD><TD>Alice</TD></TR>
+<TR><TH>Locations</TH><TD></TD><TD></TD><TD></TD></TR>
+</TABLE>
+<BR>
+
+<TABLE BORDER>
+<TR><TH colspan=6>CLIENT ECIDS</TH>
+<TR><TH></TH><TH></TH><TH>Login</TH><TH>URL</TH><TH>Palace</TH><TH>Locations</TH></TR>
+<TR><TH rowspan=2>Bob</TH><TH>Interests</TH><TD>Alice, Bart</TD><TD>Ted</TD><TD>Bart</TD><TD>www.foo.com, www.BarPalace.com:322</TD></TR>
+<TR><TH>Last Contact</TH><TD colspan=4>10:43:36 AM 9/9/99</TD>
+</TR>
+</TABLE>
+<BR>
+
+<TABLE BORDER>
+<TR><TH colspan=2>LOCATION ROUTING</TH><TH>Count</TH>
+<TR><TD>www.BarPalace.com:322<TD>Bob<TD ALIGN=center>0
+<TR><TD>www.foo.com<TD>Bob<TD ALIGN=center>0
+</TABLE>
+
+<P>Now Bob opens his browser and goes to <B>www.communities.com</B>.  This is
+sent to <B>One</B> as a location message.  <B>One</B> check its "LOCATION
+ROUTING" table for <B>www.communities.com</B> but finds no match, then checks
+its "ECID ROUTING" table for Bob, and finds no match there either.  Bob then
+enters good old BarPalace.  <B>One</B> gets this location message and finds
+that Bob is interested in this location.  <B>One</B> increments BarPalace's
+counter and sends a UDP message to Bob that there is 1 ECID "at"
+<B>www.BarPalace.com:322</B>.  In the interim, <B>One</B> has forwarded these
+two location message onto <B>Two</B> and <B>Three</B>, who add this info to
+their "KNOWN ECIDS" tables.  Note that all "KNOWN ECIDS" tables end up being
+<A HREF="#KnownECIDTableProblem">exactly the same</A>.
+Then <B>One</B> updates its tables:
+
+</P>
+<TABLE BORDER>
+<TR><TH colspan=5>KNOWN ECIDS</TH>
+<TR><TH></TH><TH></TH><TH>Login</TH><TH>URL</TH><TH>Palace</TH></TR>
+<TR><TH rowspan=2>Bob</TH><TH>Permissions</TH><TD>Ted</TD><TD>Alice</TD><TD>Alice</TD></TR>
+<TR><TH>Locations</TH><TD></TD><TD>www.communities.com</TD><TD>www.BarPalace.com:322</TD></TR>
+</TABLE>
+<BR>
+
+<TABLE BORDER>
+<TR><TH colspan=6>CLIENT ECIDS</TH>
+<TR><TH></TH><TH></TH><TH>Login</TH><TH>URL</TH><TH>Palace</TH><TH>Locations</TH></TR>
+<TR><TH rowspan=2>Bob</TH><TH>Interests</TH><TD>Alice, Bart</TD><TD>Ted</TD><TD>Bart</TD><TD>www.foo.com, www.BarPalace.com:322</TD></TR>
+<TR><TH>Last Contact</TH><TD colspan=4>10:48:55 AM 9/9/99</TD>
+</TR>
+</TABLE>
+<BR>
+
+<TABLE BORDER>
+<TR><TH colspan=2>LOCATION ROUTING</TH><TH>Count</TH>
+<TR><TD>www.BarPalace.com:322<TD>Bob<TD ALIGN=center>1
+<TR><TD>www.foo.com<TD>Bob<TD ALIGN=center>0
+</TABLE>
+</P>
+
+<P>Note that there are now "URL/Location" and "Palace/Location" entries
+in the "KNOWN ECIDS" table for Bob, his "Last contact" field in the
+"CLIENT ECIDS" table has been updated, and there is 1 ECID at
+BarPalace in the "LOCATION ROUTING" table.</P>
+
+<P>Now Ted comes along and, for some reason known only to the
+<B><I>server manager</I></B>, is told to log into <B>One</B>.  He does so with
+interests in enerything that Bob, Alice, and Bart do, and in
+"<B>www.foo.com</B>" and "<B>www.communities.com</B>".  He gives Bob permission
+to see anything he does.  <B>One</B> sends
+Ted's <FONT COLOR="#0000FF"><B>permissions</B></FONT> to <B>Two</B> and
+<B>Three</B>, who store the info into their "KNOWN ECIDS" table, where Ted's
+last location fields will be empty, adds this information to its tables and
+ends up with:
+</P>
+<TABLE BORDER>
+<TR><TH colspan=5>KNOWN ECIDS</TH>
+<TR><TH></TH><TH></TH><TH>Login</TH><TH>URL</TH><TH>Palace</TH></TR>
+<TR><TH rowspan=2>Bob</TH><TH>Permissions</TH><TD>Ted</TD><TD>Alice</TD><TD>Alice</TD></TR>
+<TR><TH>Locations</TH><TD></TD><TD>www.communities.com</TD><TD>www.BarPalace.com:322</TD></TR>
+<TR><TH rowspan=2>Ted</TH><TH>Permissions</TH><TD>Bob</TD><TD>Bob</TD><TD>Bob</TD></TR>
+<TR><TH>Locations</TH><TD></TD><TD></TD><TD></TD></TR>
+</TABLE>
+<BR>
+
+<TABLE BORDER>
+<TR><TH colspan=6>CLIENT ECIDS</TH>
+<TR><TH></TH><TH></TH><TH>Login</TH><TH>URL</TH><TH>Palace</TH><TH>Locations</TH></TR>
+<TR><TH rowspan=2>Bob</TH><TH>Interests</TH><TD>Alice, Bart</TD><TD>Ted</TD><TD>Bart</TD><TD>www.foo.com, www.BarPalace.com:322</TD></TR>
+<TR><TH>Last Contact</TH><TD colspan=4>10:48:55 AM 9/9/99</TD>
+<TR><TH rowspan=2>Ted</TH><TH>Interests</TH><TD>Alice, Bart, Bob</TD><TD>Alice, Bart, Bob</TD><TD>Alice, Bart, Bob</TD><TD>www.foo.com, www.communities.com</TD></TR>
+<TR><TH>Last Contact</TH><TD colspan=4>10:53:17 AM 9/9/99</TD>
+</TR>
+</TABLE>
+<BR>
+
+<TABLE BORDER>
+<TR><TH colspan=2>LOCATION ROUTING</TH><TH>Count</TH>
+<TR><TD>www.BarPalace.com:322<TD>Bob<TD ALIGN=center>1
+<TR><TD>www.communities.com<TD>Ted<TD ALIGN=center>0
+<TR><TD>www.foo.com<TD>Bob<TD ALIGN=center>0
+</TABLE>
+<BR>
+
+<TABLE BORDER>
+<TR><TH colspan=5>ECID ROUTING</TH>
+<TR><TH></TH><TH>Login</TH><TH>URL</TH><TH>Palace</TH></TR>
+<TR><TH>Bob</TH><TD>Ted</TD><TD></TD><TD></TD></TR>
+<TR><TH>Ted</TH><TD></TD><TD>Bob</TD><TD></TD></TR>
+</TABLE>
+</P>
+<P>Now <B>One</B> goes through Ted's location interests and correlates them
+with its "LOCATION TABLE" and sends a UDP message to Ted saying that there are
+no ECIDs at either <B>www.foo.com</B> or <B>www.communities.com</B>.  Next
+<B>One</B> checks Ted's Login, URL and Palace interests against the permissions
+in its "KNOWN ECIDS" table.  <B>One</B> finds no Alice or Bart, but it does
+find a Bob.  Bob has granted Ted permission to see his logins, so Ted is told
+that Bob is logged in.  Ted has asked for permission on Bob's URLs and Palaces,
+but Bob has not granted his permission, so Ted is not told Bob's current
+locations.
+</P>
+
+<BR>
+<BR>
+<BR>
+<BR>
+<P><I><FONT COLOR="#FF0000">KSS--Do:
+<UL>
+<LI>Bob goes to www.foo.com
+<LI>Ted enters www.BarPalace.com:322 and www.foo.com
+<LI>Alice logs into Two
+<LI>Alice changes interests or permissions
+<LI>Ted logs out
+</UL>
+</FONT></I></P>
+
+<A NAME="KnownECIDTableProblem"></A>
+<P><I><FONT COLOR="#FF0000"><B>POSSIBLE PROBLEM:</B></FONT></I> The
+"KNOWN ECID" tables on <B>all</B> of the servers are exactly the same
+and contain information on <B>every</B> ECID logged into the ComCom
+system, and are therefore potentially huge.  This information is needed
+by all of the servers, however:  The PERMISSIONS so that the servers can
+correlate them with their clients' INTERESTS to build routing tables,
+and the LAST LOCATIONS so that the servers can give an accurate COUNT of
+the population of specific locations to their clients, and give current
+locations/login status of ECIDs.  Without the LAST LOCATION info, a
+server would only be able to tell its clients how many CLIENTS ON THIS
+SERVER are at a specific location.</P>
+
+<P><I><FONT COLOR="#FF0000"><B>POSSIBLE SOLUTION:</B></FONT></I>
+The "KNOWN ECID" tables
+could be kept on the server manager.  As this information is really only
+needed when a client logs in, a server could ask the manager to build the
+new routing entries for the entering client and for the last locations
+of ECIDs in which the entering client has interest.</P>
+
+<H4><A NAME="LoadBalancing">Load Balancing</A></H4>
+
+<P>The <B><I>server manager</B></I> tells <B><I>clients</B></I> which
+<B><I>server</B></I> to log into based on the load on the various
+<B><I>servers</B></I>.  This "load" can be determined in several ways.
+The simplest is just the number of <B><I>clients</B></I> the
+<B><I>server</B></I> has:  As most of the load on a <B><I>server</B></I>
+is probably going to be the message fan out, the number of
+<B><I>clients</B></I> determines the maximum fan out a <B><I>server</B></I>
+will ever need to do for one message.  Therefore, the <B><I>server</B></I>
+with the most <B><I>clients</B></I> is the most loaded.  This is a <I>very</I>
+simplistic and probably fallacious approach.</P>
+
+<P>The second method would deal with the number and length of entries in
+the routing tables:  Two <B>servers</B> may have the same number of
+<B>clients</B>, but one set may be much more active, and therefore the
+entries in the more active <B>server</B>'s tables will be more numerous
+and have longer ECID lists in them.  As an extreme example,
+<B>server</B> A has 50 <B>clients</B>, only half of which care about
+anything at all, and that is just what 1 other ECID is doing, and maybe
+the other half are watching the traffic on <B>www.communities.com</B>.
+The location routing table would have one entry with a fan out list of
+25.  The ECID routing table would have 25 entries with lists of length
+1.  Now say <B>server</B> B has 50 <B>clients</B> all of whom care about
+what the other 49 are doing, and all are interested in 10 Web sits and
+palaces.  <B>Server</B> B's location routing table has 10 entries with
+lists of length 50, and its ECID routing table has 50 entries, each with
+a fan out list of 49.  B is "obviously" more loaded than A, even though
+they both have the same number of clients.</P>
+
+<P>But wait, I haven't even warmed up yet.  Method 2 is not as
+simplistic as 1, but it still has its problems.  Suppose that
+<B>www.communities.com</B> gets a hit every second.  Server A would be
+fanning out a location traffic message to 25 <B>clients</B> every second
+or so.  Now suppose that the <B>clients</B> on server B never do
+anything but watch, and the 10 sites they are interested in are
+something like <B>www.porkbellypricesinszechuanprovince.com</B> and
+<B>//PalaceGingrich.washingtonDC.gov:666</B>, which hardly get any
+traffic; <B>server</B> B's fan outs will be pretty much nonexistent even
+though its table entries are more numerous and longer than A's.  In this
+third case, the actual traffic would need to be measured and
+communicated to the <B>server manager</B> and the loads calculated over
+a period of time.</P>
+
+<P>Obviously method 1 is the simplest implementation and probably
+acceptable for the short term. New messages types will be needed for 2
+and 3 to communicate table and list sizes or traffic volume.  Method 2
+offers a simple comparison of numbers for determining load, while method
+3, the best solution for determining actual load, will require
+collection of traffic statistics over time--However, the <B>server
+manager</B> doesn't do very much except tell new <B>clients</B> whic
+<B>server</B> to log into, so the added processing would probably not be
+detrimental to its overall performance. </P>
+
+<H4><A NAME="PlaceTracking">Place Tracking</A></H4>
+
+<P>Place tracking is the process of letting <B><I>clients</I></B> interested
+in a specific URL, Palace (or other type of location) know the current
+number of ECIDs which are currently "at" the location.  When a ComCom
+<B><I>client</I></B> sends a location change, its <B><I>server</I></B>
+will check the <B><I>client</I></B>'s last location, decrement the count for
+that location, then change the last location to the current one and increment
+the counter for the new location.  The current count for both locations will
+then be fanned out to any clients interested in this data.
+</P>
+
+<P>Note that this would be a bad scheme for a popular location which
+could generate a tremendous amount of UDP traffic.  Say that there are
+5,000 ComCom users which heve registered interest in
+<B>"palace://BobsPalace.communities.com:7565"</B> with their
+<B><I>server</I></B>, and that many of these users visit the place
+several times a day.  Every time someone enters or leaves this Palace,
+the <B><I>server</I></B> must fan out 5,000 messages.  For this reason, we
+should implement a strategy for filtering fanouts based on the population "at"
+locations.  It might be something like:
+<UL>
+<LI><B>Pop. under 50</B> - fan every entry/exit</LI>
+<LI><B>Pop. 50 to 100</B> - fan when population crosses a multiple of 10</LI>
+<LI><B>Pop. 100 to 1000</B> - fan when population crosses a multiple of 100</LI>
+<LI><B>Pop. 1000 to 10000</B> - fan when population crosses a multiple of 1000</LI>
+<LI><B>and so on...</B>
+<LI><B>Pop. <I>lower</I> to <I>upper</I></B> - fan when population crosses a multiple of <B><I>lower</I></B></LI>
+</UL>
+</P>
+
+<P><B><FONT COLOR="#009900">Randy's Population Ticker Product:</FONT></B>
+EC could provide an HTML interface/plug-in like a ticker which could accept
+population messages and display the data on Web pages.</P>
+
+<H4><A NAME="DatabaseRequirements">
+Path Tracking and Database Requirements</A></H4>
+
+<P><I><FONT COLOR="#009900"> <A HREF="mailto:jeff@communities.com">Jeff</A>,
+<A HREF="mailto:callen@communities.com">Christina</A>, and
+<A HREF="mailto:randy@communities.com">Randy</A> particularly should review
+this section and let <A HREF="mailto:karl@communities.com">Karl</A>
+(and the others) know what to add.</FONT></I></P>
+
+<P>One of our key areas for revenue potential for ComCom is the collection of
+user navigation information:  How many and what sort of people are visiting what
+locations.
+</P>
+<P>As location messages are received by ComCom <B><I>servers</I></B> from their
+<B><I>clients</I></B>, these messages will be collected in a database.  These
+messages include the name of the location and the ECID of the user who went
+there.  The master database(s) will probably be at a specific location(s),
+and the ComCom <B><I>servers</I></B> will either route the location messages
+directly to the master(s) to a local (on the same machine as the
+<B><I>server</I></B>) database, which could then be periodically uploaded
+to the master(s).  The database could time stamp the messages if time-related
+demographics are needer.
+</P>
+
+<P>Once data has been collected in a master database, a Demographics
+Processor can then analyze the data for particular locations by using
+the ECIDs and asking the Directory Server for demographic profile
+information about the ECIDs.  I believe that it is part of the overall
+ComCom design for ComCom <B><I>clients</I></B> to send profile information
+(personal, friends' and public) to the Directory Server at login time
+(<A HREF="mailto:jeff@communities.com">Jeff</A>,
+<A HREF="mailto:cobblers@communities.com">Bob</A>?).  The master
+Demographics Processor could then determine such information as <B><I>"How
+many people ages 32-67 visited </I>www.barbie.com<I> in the 3rd quarter of
+1999"</I></B>.</P>
+
+<A NAME="Firewalls"></A>
+<H4>Clients Behind Firewalls</H4>
+
+<P>ComCom <B><I>clients</I></B> behind firewalls cannot receive UDP
+location updates from a <B><I>server</I></B>, and in some cases cannot
+send UDP packets either.  Such <B><I>clients</I></B> must communicate via
+TCP for at least part of the interaction:  If UDP transmission is
+allowed, the <B><I>client</I></B> can send regular UDP location messages; if
+not, then these messages must be sent via TCP.
+The <B><I>client</I></B> must let the <B><I>server</I></B> know its firewall
+status at login so that the <B><I>server</I></B> won't bother fanning to
+this <B><I>client</I></B>.</P>
+
+<P>The existence of firewalls is one of the reasons for keeping the "last
+location" data for the various ECIDs:  A <B><I>client</I></B> behind a
+firewall will have to connect via TCP every <B><I>X</I></B> minutes to download
+the <FONT COLOR="#0000FF"><B>interest</B></FONT> data it has requested
+from the <B><I>server</I></B> which it cannot receive through the regular
+UDP fan out.  The <B><I>server</I></B> can then build a message of the last
+locations for all of the ECIDs in which the <B><I>client</I></B> has expressed
+an interest and then send that message.
+</P>
+
+<P>If UDP transmission is not an option, the <B><I>client</I></B> will also
+need to send its location messages via TCP.  This could be done as a series
+of individual messages, or we could implement a "bundling" protocol for
+sending several similar messages in one bunch.  The <B><I>server</I></B> must
+then have the knowledge of how to break up such bundles into distinct
+messages.</P>
+
+<A NAME="Groupware"></A>
+<H4>Groupware: Yet Another Product</H4>
+
+<P>While discussing the possibliy of limiting the length of specific location
+interest lists to a manageable number (say 512) to prevent huge fanouts,
+<A HREF="mailto:cobblers@communities.com">Bob</A> suggested a mini-server
+with an ECID of it's own.  Users could buy the server, set up tables for
+routing to their 600 closest friends and then register the ECID of the
+mini-server with <FONT COLOR="#0000FF"><B>interests</B></FONT> with a ComCom
+<B><I>server</I></B>.  Then, when the <B><I>server</I></B> receives a tagged
+location message, it would send <I>one</I> message to the mini-server's
+ECID address, and <I>that</I> server would be responsible for the 600 message
+fanout.
+</P>
+<P>Whether or not this is a viable product, the concept of a user registering
+a group ECID with a ComCom <B><I>server</I></B> and then doing something
+group-oriented with the single message the <B><I>server</I></B> would send to
+it is an interesting one...
+</P>
+
+<H4><A NAME="OffTheShelf">Off the shelf alternatives</A></H4>
+Hmmm...
+
+<H4><A NAME="OtherStuff">Other Design Objectives, Constraints and Assumptions</A></H4>
+<I>TBD.</I>
+
+<H2><A NAME="CurrentImplementation">Current implementation</A></H2>
+<I>TBD.</I>
+
+<H4><A NAME="Packages">Which packages on our tree does this subsystem cover?</A></H4>
+ec.comcom.server??
+
+<H4><A NAME="ImplementationOverview">Implementation overview</A></H4>
+<I>TBD.</I>
+
+<H4><A NAME="ExceptionHandling">Exception handling</A></H4>
+<I>TBD.</I>
+
+<H4><A NAME="Examples">Examples</A></H4>
+<I>TBD.</I>
+
+<H4><A NAME="Performance">Performance</A></H4>
+Performance should take into account:
+<UL>
+<LI>Storing data into the interest/permission tables</LI>
+<LI>Retrieving data from the tables</LI>
+<LI>Checking "timeouts" and flushing tables</LI>
+<LI>Fanning out messages to hundreds or thousands of targets</LI>
+<LI>Load balancing across multiple servers</LI>
+<LI>More TBD</LI>
+</UL>
+
+<H4><A NAME="Testing">Testing Strategy and Debugging</A></H4>
+TBD. Testing will include load testing of the server using load test drivers.
+
+<H4><A NAME="Interactions">Interactions and dependencies with other subsystems</A></H4>
+At this point, the only other subsystem with which the ComCom server interacts
+is the ComCom client.
+
+<H2><A NAME="DesignIssues">Design Issues</A></H2>
+
+<H4><A NAME="ResolvedIssues">Resolved Issues</A></H4>
+
+<P><FONT COLOR="#FF0000">98/08/12 <A HREF="mailto:karl@communities.com">Karl</A>:
+<B><I>This is no longer an issue:  <B>Clients</B> tell the <B>server</B> their
+permissions over a secure connection, so the security of the connection
+provides the protection that cookies were supposed to.</I></B></FONT>
+<BR><A NAME="ComComCookies"></A><B><I>ComCom "Cookies":</I></B>
+<BR>As the ComCom
+server talks only with ComCom clients, it has no access to the authentication
+system provided by ECID. However, the server is granting capabilities to
+various clients to monitor other clients. In the background this is actually
+done by ECID to ECID communication which the ComCom server knows nothing
+about</P>
+<P>When a Bob wishes to watch what URLs Alice is visiting, Bob's ComCom
+client asks his local ECID daemon for the capability. Bob's daemon uses
+Alice's ECID to talk to the appropriate daemon on the Alice's machine to
+request the capability. Alice's daemon checks with Alice's ComCom client
+to see if Alice has (or will) granted Bob such a capability through the
+ComCom client UI (by checking boxes, probably). If she has, then Alice's
+ECID daemon tells Bob's ECID daemon to go ahead. Bob's ComCom client then
+tells the ComCom server that he has the capability to see what URLs Alice
+is visiting.
+
+<P>As you can see, the ComCom server knows nothing about the above transaction
+and just gets some message from Bob saying "I can do this," and, as the
+server communicates only with ComCom clients, there is no way it to check
+with any ECID daemon for such a claim's validity. Randy's idea is for ComCom
+servers to mint magic cookies for each ECID upon <FONT COLOR="#009900">first
+time</FONT> connection. Thus, when Alice's ComCom client is asked by its
+ECID daemon if Bob can watch URLs, it can pass back its cookie as part
+of the "OK" message. This cookie will get back to Bob's ComCom client,
+which can include it as part of its "I can do this" message, which the
+ComCom server can then check against the cookie which it minted for Alice
+in the first place.
+
+<P><I>Option:</I> As I wrote this, it seemed there must be an easier way.
+Or maybe I'm just being too simplistic. The ComCom server only talks with
+ComCom clients. Fair enough. How about this: When Bob's client says "I
+want to see what URLs Alice is visiting," why doesn't the server just ask
+Alice's client if this is okay? If her client isn't up, the request will
+have to be queued, so Bob can't do anything for now, but this is true in
+the ECID to ECID scheme above too. We've already gone to the trouble of
+building a secure (for some definition of the word :-) connection to both
+Bob and Alice, so why won't this simpler scheme work? <I><FONT COLOR="#009900">[True,
+any application can mint a capability. But ECID is the center of inter-application
+traffic and is the only application that can control which applications
+get which messages/capabilities. ComCom can and will make it's own capabilities
+(such as the shared secret for validating the UDP traffic), but its capabilities
+aren't controlled/accessible by ECID, and therefore aren't shared with
+other applications. So the question is: are the monitoring capabilities
+granted by ECID to ComCom 100% unique to ComCom? I think the answer is
+clearly no: The first two Palace Pager Plugin capability requests I think
+are potentially generic to all apps: "Can See Where You Are" and "Can Send
+Telepathy To Me". These are in common with ComCom, and may be requested
+by other applications, like The Palace.]</FONT></I><P>
+
+<H4><A NAME="OpenIssues">Open Issues</A></H4>
+
+<P><I>TBD.</I></P>
+
+<BR><A HREF="../index.html">Return to ECID &amp; ComCom Home Page</A>
+<BR><A HREF="../Components.html">Return to ECID/ComCom Project Components Page</A>
+
+<H2><A NAME="UpdateHistory">Update History</A></H2>
+
+98/08/04 <A HREF="mailto:karl@communities.com">Karl</A> - Original version.
+<BR>98/08/06 <A HREF="mailto:randy@communities.com">Randy</A> - Feedback
+	in <FONT COLOR="#009900">green.</FONT>
+<BR>98/08/12 <A HREF="mailto:karl@communities.com">Karl</A> - Answers to feedback and distillation of
+	<A HREF="ComComDesignNotes.html">ComCom Design Meeting Notes</A>
+<UL>
+<LI><A HREF="#PAO">Proposed Architecture Overview</A> with pictures</LI>
+<LI>Description of types of <A HREF="#DataDescription">data</A></LI>
+<LI>Description of types of <A HREF="#MessageDescription">messages</A></LI>
+<LI><A HREF="#MessageTraffic">Message traffic</A> in the ComCom system with
+	an example</LI>
+<LI><A HREF="#Timeouts">Timeouts</A> section</LI>
+<LI>Description of types of <A HREF="#ServerTables">server data tables</A></LI>
+</UL>
+
+
+</BODY>
+</HTML>

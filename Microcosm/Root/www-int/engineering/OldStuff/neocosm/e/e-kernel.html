@@ -1,0 +1,270 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!--last modified on Wednesday, September 23, 1998 06:42 PM -->
+<HTML>
+
+<HEAD>
+	<META NAME="GENERATOR" Content="Visual Page 1.0 for Windows">
+	<META NAME="Author" Content="Mark S. Miller">
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html;CHARSET=iso-8859-1">
+	<TITLE>E Kernel Language</TITLE>
+</HEAD>
+
+<BODY BACKGROUND="wood.gif">
+
+<H1 ALIGN="CENTER">E Kernel Language</H1>
+<P ALIGN="CENTER"><FONT SIZE="4"><I>&quot;Similar Things Should Be Made Either The Same Or Very Different&quot;</I></FONT></P>
+
+<P ALIGN="CENTER"><FONT SIZE="4">--Alan Kay</FONT></P>
+<H2>Kernel Expressions</H2>
+
+
+<BLOCKQUOTE>
+	<P>
+	<TABLE BORDER="1" CELLPADDING="8" CELLSPACING="0" WIDTH="60%" BGCOLOR="#FFFFFF">
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>expr &quot;<B>\n</B>&quot; expr</TT></FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2"><TT>Sequence</TT></FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>noun &quot;<B>:=</B>&quot; expr</TT></FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">Assignment</FONT></PRE>
+		</TD>
+	</TR>
+	<TR>
+		<TD><FONT SIZE="2"><TT>&quot;<B>define</B>&quot; pattern &quot;<B>:=</B>&quot; expr</TT></FONT></TD>
+		<TD><FONT SIZE="2">Definition</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;<B>define</B>&quot; param &quot;<B>{</B>&quot;
+    method*
+    matcher?
+&quot;<B>}</B>&quot;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">Object-lambda. Capture the current lexical environment, and evaluate to an object that responds
+			to messages by executing the first matching method or matcher in that environment.</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;<B>define</B>&quot; param matcher</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">Plumbing-lambda. Capture the current lexical environment, and evaluate to an object that responds
+			to messages by executing the first matching method or matcher in that environment.</FONT></TD>
+	</TR>
+	<TR>
+		<TD><FONT SIZE="2"><TT>expr &quot;<B>=~</B>&quot; pattern</TT></FONT></TD>
+		<TD><FONT SIZE="2"><TT>Pattern-match</TT></FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>expr verb &quot;<B>(</B>&quot; argList &quot;<B>)</B>&quot;</TT></FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>Synchronous-call</TT></FONT></PRE>
+		</TD>
+	</TR>
+	<TR>
+		<TD><FONT SIZE="2"><TT>expr &quot;<B>&lt;-</B>&quot; verb &quot;<B>(</B>&quot; argList &quot;<B>)</B>&quot;</TT></FONT></TD>
+		<TD><FONT SIZE="2"><TT>Asynchronous-send</TT></FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">Identifier</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">Noun. Evaluates in the current scope.</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;<B>&amp;</B>&quot; Identifier</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">Slot. Evaluates in the current scope.</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">Literal</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">Literal. Evaluates to the designated value</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;<B>scope</B>&quot;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">Point-of-view. Reifies the current scope as a Scope object.</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;<B>escape</B>&quot; param &quot;<B>{</B>&quot;
+    expr
+&quot;<B>}</B>&quot;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">Escape-clause. Match param to an EscapeHatch for exiting, and evaluate expr in the resulting scope.
+			If escaping, evaluate to hatch argument.</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;<B>hide</B>&quot; &quot;<B>{</B>&quot;
+    expr
+&quot;<B>}</B>&quot;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">Nested-scope. Evaluate expr in a new lexical child of the current scope.</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;<B>loop</B>&quot; &quot;<B>{</B>&quot;
+    expr
+&quot;<B>}</B>&quot;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">Loop. Repeatedly evaluate expr in a new lexical child of the current scope.</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;<B>throw</B>&quot; expr</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">Throw. Evaluate expr and throw the resulting value as an exception.</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>&quot;<B>if</B>&quot; &quot;<B>(</B>&quot; expr &quot;<B>)</B>&quot; &quot;<B>{</B>&quot;
+    expr
+&quot;<B>}</B>&quot; &quot;<B>else</B>&quot; &quot;<B>{</B>&quot;
+    expr
+&quot;<B>}</B>&quot;</TT></FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">If-expression</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;<B>try</B>&quot; &quot;<B>{</B>&quot;
+    expr
+&quot;<B>}</B>&quot; (&quot;<B>catch</B>&quot; pattern &quot;<B>{</B>&quot;
+    expr
+&quot;<B>}</B>&quot;)? (&quot;<B>finally</B>&quot; &quot;<B>{</B>&quot;
+    expr
+&quot;<B>}</B>&quot;)?</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">Exception-handler.</FONT></TD>
+	</TR>
+	</TABLE>
+</P>
+
+</BLOCKQUOTE>
+
+<H2>Kernel Patterns</H2>
+
+
+<BLOCKQUOTE>
+	<P>
+	<TABLE BORDER="1" CELLPADDING="8" CELLSPACING="0" WIDTH="60%" BGCOLOR="#FFFFFF">
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">Identifier</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">Definer. The only defining occurrence of an Identifier. Always matches and binds to this Identifier
+			in current scope</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;<B>final</B>&quot; Identifier</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">Final-Definer. The only defining occurrence of an Identifier. Always matches and binds to this Identifier
+			in current scope</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;<B>&amp;</B>&quot; Identifier</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">Slot-Definer. The only defining occurrence of an Identifier. Always matches and binds to this Identifier
+			in current scope</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;<B>_</B>&quot;</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">Ignore pattern. Always matches but binds nothing</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">pattern &quot;<B>?</B>&quot; <TT>expr</TT></FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">Such-that. Match pattern, and if successful, see of expr evaluates to <TT>true</TT> in the resulting
+			scope</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">&quot;<B>[</B>&quot; patternList &quot;<B>]</B>&quot; &quot;<B>+</B>&quot; pattern</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">Tuple-pattern. Match tuple elements to corresponding patterns, and match the remaining sub-tuple
+			to the last pattern</FONT></TD>
+	</TR>
+	</TABLE>
+</P>
+
+</BLOCKQUOTE>
+
+<H2>Helper Productions</H2>
+
+
+<BLOCKQUOTE>
+	<P>
+	<TABLE BORDER="1" CELLPADDING="8" CELLSPACING="0" WIDTH="60%" BGCOLOR="#FFFFFF">
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">patternList</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">[ pattern (&quot;<B>,</B>&quot; pattern)* ]</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">Like a parameter list, but each parameter can be an arbitrary pattern.</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">argList</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">[ expr (&quot;<B>,</B>&quot; expr)* ]</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">Argument list of an invocation</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">verb</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">Identifier</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">Name of operation requested</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">method</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>&quot;<B>to</B>&quot; verb &quot;<B>(</B>&quot; patternList &quot;<B>)</B>&quot; &quot;<B>{</B>&quot;
+    expr
+&quot;<B>}</B>&quot;</TT></FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">Each method matches a message by verb-name and arity, and then executes a body</FONT></TD>
+	</TR>
+	<TR>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2">matcher</FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP">
+			<PRE><FONT SIZE="2"><TT>&quot;<B>match</B>&quot; pattern &quot;<B>{</B>&quot;
+    expr
+&quot;<B>}</B>&quot;</TT></FONT></PRE>
+		</TD>
+		<TD VALIGN="TOP"><FONT SIZE="2">Each matcher matches using general pattern match, and then executes a body.</FONT></TD>
+	</TR>
+	</TABLE>
+
+	</BLOCKQUOTE>
+
+</BODY>
+
+</HTML>

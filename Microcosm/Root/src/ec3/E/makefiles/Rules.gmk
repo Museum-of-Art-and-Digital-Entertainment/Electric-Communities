@@ -1,0 +1,357 @@
+PASS1NORMALCOMP =	\
+	$(EC) -clearclasspath -esystem -classpath "$(JAVA_CLASSPATH)" \
+ 		-d $(BUILD_DRIVE)$(BUILD)$(VAT_TARGET)/classes \
+		$(ECFLAGS) \
+		$(shell if [ -s $(PASS1PLCLASSLIST) ]; then \
+			cat $(PASS1PLCLASSLIST); fi; ) \
+		$(shell if [ -s $(PASS1CLASSLIST) ]; then \
+			cat $(PASS1CLASSLIST); fi; ) ;
+
+PASS1JAVACOMP =	javac -deprecation -classpath "$(JAVA_CLASSPATH)" \
+		    -d $(BUILD_DRIVE)$(BUILD)$(VAT_TARGET)/classes \
+		    $(JAVACFLAGS) \
+		    $(shell if [ -s $(PASS1JCLASSLIST) ]; then \
+				cat $(PASS1JCLASSLIST); fi) ;
+
+NORMALCOMP =	\
+	$(EC) -clearclasspath -esystem -classpath "$(JAVA_CLASSPATH)" \
+ 		-d $(BUILD_DRIVE)$(BUILD)$(VAT_TARGET)/classes \
+		$(ECFLAGS) \
+		$(shell if [ -s $(PLCLASSLIST) ]; then \
+			cat $(PLCLASSLIST); fi; ) \
+		$(shell if [ -s $(CLASSLIST) ]; then \
+			cat $(CLASSLIST); fi; ) ;
+
+SPECIALCOMP =	$(EC) -clearclasspath -e2jdone -classpath "$(JAVA_CLASSPATH)" \
+		    -d $(BUILD_DRIVE)$(BUILD)$(VAT_TARGET)/classes \
+		    $(ECFLAGS) \
+		    $(shell if [ -s $(SPCLASSLIST) ]; then \
+				cat $(SPCLASSLIST); fi) ;
+
+JAVACOMP =	javac -deprecation -classpath "$(JAVA_CLASSPATH)" \
+		    -d $(BUILD_DRIVE)$(BUILD)$(VAT_TARGET)/classes \
+		    $(JAVACFLAGS) \
+		    $(shell if [ -s $(JCLASSLIST) ]; then \
+				cat $(JCLASSLIST); fi) ;
+
+.PHONY:\
+	.pass1.delete.classlist \
+	.delete.classlist \
+	.compile.classlist \
+	.compile.spclasslist \
+	.post.thisdir \
+	classes \
+	rclasses
+
+.pass1.delete.classlist:
+	@$(RM) -f $(PASS1CLASSLIST)
+	@$(RM) -f $(PASS1TOUCHLIST)
+	@$(RM) -f $(PASS1JCLASSLIST)
+	@$(RM) -f $(PASS1JTOUCHLIST)
+	@$(RM) -f $(PASS1PLCLASSLIST)
+	@$(RM) -f $(PASS1PLTOUCHLIST)
+
+.delete.classlist:
+	@$(RM) -f $(CLASSLIST)
+	@$(RM) -f $(TOUCHLIST)
+	@$(RM) -f $(JCLASSLIST)
+	@$(RM) -f $(JTOUCHLIST)
+	@$(RM) -f $(SPCLASSLIST)
+	@$(RM) -f $(SPTOUCHLIST)
+
+#KSS Can we shove the .unit files into $(CLASSLIST)
+.compile.pass1.classlist:
+	@if [ -f $(PASS1CLASSLIST) ]; \
+	then \
+	    echo $(PASS1NORMALCOMP) \
+	    $(PASS1NORMALCOMP) \
+	fi
+	@if [ -s $(PASS1TOUCHLIST) ]; then \
+	    touch $(shell if [ -s $(PASS1TOUCHLIST) ]; then cat $(PASS1TOUCHLIST); fi); \
+	fi
+
+.compile.pass1.jclasslist:
+	@if [ -s $(PASS1JCLASSLIST) ]; \
+	then \
+	    echo $(PASS1JAVACOMP) \
+	    $(PASS1JAVACOMP) \
+	fi
+	@if [ -s $(PASS1JTOUCHLIST) ]; then \
+	    touch $(shell if [ -s $(PASS1JTOUCHLIST) ]; then \
+				cat $(PASS1JTOUCHLIST); fi); \
+	fi
+
+# note: mods to $(CLASSLIST) file must be in different rule than usage
+.compile.genjava:
+	@if [ -n "$(FILES.genjava)" ]; \
+	then \
+		echo $(FILES.genjava) >> $(CLASSLIST); \
+	fi
+
+.compile.classlist: .compile.genjava
+	@if [ -f $(CLASSLIST) ]; \
+	then \
+	    echo $(NORMALCOMP) \
+	    $(NORMALCOMP) \
+	fi
+	@if [ -s $(TOUCHLIST) ]; then \
+	    touch $(shell if [ -s $(TOUCHLIST) ]; then cat $(TOUCHLIST); fi); \
+	fi
+
+.compile.jclasslist:
+	@if [ -s $(JCLASSLIST) ]; \
+	then \
+	    echo $(JAVACOMP) \
+	    $(JAVACOMP) \
+	fi
+	@if [ -s $(JTOUCHLIST) ]; then \
+	    touch $(shell if [ -s $(JTOUCHLIST) ]; then \
+				cat $(JTOUCHLIST); fi); \
+	fi
+
+.compile.spclasslist:
+	@if [ -s $(SPCLASSLIST) ]; \
+	then \
+	    echo $(SPECIALCOMP) \
+	    $(SPECIALCOMP) \
+	fi
+	@if [ -s $(SPTOUCHLIST) ]; then \
+		touch $(shell if [ -s $(SPTOUCHLIST) ]; then \
+				cat $(SPTOUCHLIST); fi); \
+	fi
+
+.post.thisdir:
+	@echo $@ >> $(JAVADIRLIST)
+
+rclasses: $(FILES.eextt) $(FILES.javat) $(FILES.et) .post.thisdir
+
+$(CLASSDIR):
+	@mkdir -p $@ 
+
+ifeq ($(USEJNI), no)
+$(FULLSTUBNAME): $(dir $(FULLSTUBNAME))  $(FILES.java) $(STUBPREAMBLE)
+	-@$(RM) -f $(CLASSSTUBDIR)/$(MODNAME)/*\.c
+	$(JAVAH) -classpath "$(JAVA_CLASSPATH)" -d $(BUILD_DRIVE)$(CLASSSTUBDIR)/$(MODNAME) \
+	   -stubs $(CLASSES.export)
+	@cat $(STUBPREAMBLE) $(CLASSSTUBDIR)/$(MODNAME)/*c > $@
+$(CHEADERSTATE): $(CHEADERDIR) $(FILES.java)
+	$(JAVAH) -classpath "$(JAVA_CLASSPATH)" -d $(BUILD_DRIVE)$(CHEADERDIR) $(CLASSES.export)
+	touch $(CHEADERSTATE)
+else
+$(FULLSTUBNAME): $(dir $(FULLSTUBNAME))  $(FILES.java) $(STUBPREAMBLE)
+	-@$(RM) -f $(CLASSSTUBDIR)/$(MODNAME)/*\.c
+	touch $@
+$(CHEADERSTATE): $(CHEADERDIR) $(FILES.java)
+	$(JAVAH) -jni -classpath "$(JAVA_CLASSPATH)" -d $(BUILD_DRIVE)$(CHEADERDIR) $(CLASSES.export)
+	touch $(CHEADERSTATE)
+endif
+
+
+$(CHEADERDIR):
+	@mkdir -p $@
+
+$(dir $(FULLSTUBNAME)):
+	@mkdir -p $@
+
+pass1purejava:
+	@if [ "$(_PUREJAVA)" = "true" ]; then \
+	    echo braunie $(BUILD)/PureJava $(FILES.pass1.java)$(FILES.pass1.javac) $(FILES.pass1.e); \
+	    braunie $(BUILD)/PureJava $(FILES.pass1.java)$(FILES.pass1.javac) $(FILES.pass1.e); \
+	fi
+purejava:
+	@if [ "$(_PUREJAVA)" = "true" ]; then \
+	    echo braunie $(BUILD)/PureJava $(FILES.java) $(FILES.javac) $(FILES.spjava) $(FILES.eext) $(FILES.e); \
+	    braunie $(BUILD)/PureJava $(FILES.java) $(FILES.javac) $(FILES.spjava) $(FILES.eext) $(FILES.e); \
+	fi
+
+ifeq ($(HACK_DEPENDS), true)
+pass1basics:
+	@echo HackDepends $(_PUREJAVA) $(FILES.pass1.java)$(FILES.pass1.javac) $(FILES.pass1.e) $(FILES.pass1.plu)
+	@java -classpath "$(BUILD_DRIVE)$(BUILD)/classes;$(HACKDEPENDSDIR)\classes;$(JAVADIR)\lib\classes.zip" HackDepends $(_PUREJAVA) \
+			"FULLPATH=$(BUILD_DRIVE)$(FULLPATH)" \
+			"LISTPATH=$(LISTPATH)" \
+			CLASSLIST=$(PASS1CLASSLIST) \
+			"EC=$(EC)" \
+			ALT_JAVAC=$(ALT_JAVAC) \
+			"JAVA_CLASSPATH=$(JAVA_CLASSPATH)" \
+			"CLASSPATH=$(CLASSPATH)" \
+			BUILD=$(BUILD) \
+			VAT_TARGET=$(VAT_TARGET) \
+			BUILD_DRIVE=$(BUILD_DRIVE) \
+			"ECFLAGS=$(ECFLAGS)" \
+			"JAVACFLAGS=$(JJIT) $(JAVACFLAGS)" \
+			"PLFLAGS=$(PLFLAGS)" \
+			OUTPUT=$(OUTPUT) \
+			"DIR_SEPARATOR=$(DIR_SEPARATOR)" \
+			PLUNITDIRS=$(PLUNITDIRS) \
+			PROPSEND \
+			$(FILES.pass1.java) JAVAEND $(FILES.pass1.javac) JAVACEND SPJAVAEND $(FILES.pass1.e) EEND $(FILES.pass1.plu) PLEND ; \
+	if [ "$(_PUREJAVA)" = "true" ]; then \
+	    echo braunie $(BUILD)/PureJava ; \
+	    braunie $(BUILD)/PureJava ; \
+	fi
+basics:
+	@echo HackDepends $(_PUREJAVA) $(FILES.java) $(FILES.javac) $(FILES.spjava) $(FILES.eext) $(FILES.e) $(FILES.plu)
+	@java -classpath "$(BUILD_DRIVE)$(BUILD)/classes;$(HACKDEPENDSDIR)\classes;$(JAVADIR)\lib\classes.zip" HackDepends $(_PUREJAVA) \
+			"FULLPATH=$(BUILD_DRIVE)$(FULLPATH)" \
+			"LISTPATH=$(LISTPATH)" \
+			CLASSLIST=$(CLASSLIST) \
+			"EC=$(EC)" \
+			ALT_JAVAC=$(ALT_JAVAC) \
+			"JAVA_CLASSPATH=$(JAVA_CLASSPATH)" \
+			"CLASSPATH=$(CLASSPATH)" \
+			BUILD=$(BUILD) \
+			VAT_TARGET=$(VAT_TARGET) \
+			BUILD_DRIVE=$(BUILD_DRIVE) \
+			"ECFLAGS=$(ECFLAGS)" \
+			"JAVACFLAGS=$(JJIT) $(JAVACFLAGS)" \
+			"PLFLAGS=$(PLFLAGS)" \
+			OUTPUT=$(OUTPUT) \
+			"DIR_SEPARATOR=$(DIR_SEPARATOR)" \
+			PLUNITDIRS=$(PLUNITDIRS) \
+			PROPSEND \
+			$(FILES.java) $(FILES.genjava) JAVAEND $(FILES.javac) JAVACEND $(FILES.spjava) $(FILES.eext) SPJAVAEND $(FILES.e) EEND $(FILES.plu) PLEND
+	if [ "$(_PUREJAVA)" = "true" ]; then \
+	    echo braunie $(BUILD)/PureJava ; \
+	    braunie $(BUILD)/PureJava ; \
+	fi
+else
+pass1basics: basic_mkdirs pass1purejava pass1classes
+basics: basic_mkdirs purejava classes
+endif
+
+pass1: pass1basics
+
+pass2: basics
+
+pass1classes: $(CLASSDIR) .pass1.delete.classlist $(FILES.pass1.javat) $(FILES.pass1.et) $(FILES.pass1.javact) pass1plurimake .compile.pass1.jclasslist .compile.pass1.classlist
+
+classes: $(CLASSDIR) .delete.classlist $(FILES.eextt) $(FILES.javat) $(FILES.et) $(FILES.spjavat) $(FILES.javact) plurimake .compile.spclasslist .compile.jclasslist .compile.classlist
+
+basic_mkdirs:
+	 @mkdir -p $(FULLPATH)
+	 @mkdir -p $(LISTPATH)
+
+pass1plurisetup:
+	@$(RM) -f $(PASS1PLCLASSLIST)
+	@$(RM) -f $(PASS1PLPROCLIST)
+	@mkdir -p $(dir $(PASS1PLCLASSLIST))
+	@touch $(PASS1PLCLASSLIST)
+
+pass1plurimake: pass1plurisetup $(FILES.pass1.plut)
+	@echo ""
+
+plurisetup:
+	@$(RM) -f $(PLCLASSLIST)
+	@$(RM) -f $(PLPROCLIST)
+	@mkdir -p $(dir $(PLCLASSLIST))
+	@touch $(PLCLASSLIST)
+
+plurimake: plurisetup $(FILES.plut)
+	@echo ""
+
+########################################################################
+# For every compilable file, if the file is newer than it's comparable
+# touch file (of if the touch file does not exist):
+#   1) Make the touch file's path (in case it doesn't exist)
+#   2) Store the name of the compileable file into the appropriate list
+#       (Note, in the case of Pluribus files, compile the .plu file and
+#        use the -s option to write the name of the .unit file into the
+#        right list)
+#   3) Store the name of the touch file into the appropriate list
+########################################################################
+  # Regular .java file to be ecomp'ed (FILES.java)
+$(FULLPATH)%.pass1.javat: %.java
+	@mkdir -p $(dir $@)
+	@echo $? >> $(PASS1CLASSLIST)
+	@echo $@ >> $(PASS1TOUCHLIST)
+
+  # Regular .java file to be javac'ed (FILES.javac)
+$(FULLPATH)%.pass1.javact: %.java
+	@mkdir -p $(dir $@)
+	@echo $? >> $(PASS1JCLASSLIST)
+	@echo $@ >> $(PASS1JTOUCHLIST)
+
+  # Regular .e file to be ecomp'ed (FILES.e)
+$(FULLPATH)%.pass1.et: %.e
+	@mkdir -p $(dir $@)
+	@echo $? >> $(PASS1CLASSLIST)
+	@echo $@ >> $(PASS1TOUCHLIST)
+
+  # Pluribus file, compiled to .unit to be ecomp'ed (FILES.plu)
+$(OUTPUT)/%.pass1.plut: %.plu
+	@mkdir -p $(dir $@)
+	plprep $(BUILD_DRIVE)$(PASS1PLPROCLIST) $(BUILD_DRIVE)$(OUTPUT) $?
+	pl $(PLFLAGS) -s $(BUILD_DRIVE)$(PASS1CLASSLIST) -d "$(BUILD_DRIVE)$(OUTPUT)" -u "$(BUILD_DRIVE)$(OUTPUT)$(DIR_SEPARATOR)$(BUILD_DRIVE)$(PLUNITDIRS)" `cat $(BUILD_DRIVE)$(PASS1PLPROCLIST)`
+	@echo $@ >> $(PASS1TOUCHLIST)
+
+
+
+  # Regular .java file to be ecomp'ed (FILES.java)
+$(FULLPATH)%.javat: %.java
+	@mkdir -p $(dir $@)
+	@echo $? >> $(CLASSLIST)
+	@echo $@ >> $(TOUCHLIST)
+
+  # Regular .java file to be javac'ed (FILES.javac)
+$(FULLPATH)%.javact: %.java
+	@mkdir -p $(dir $@)
+	@echo $? >> $(JCLASSLIST)
+	@echo $@ >> $(JTOUCHLIST)
+
+  # Special .java file to be ecomp'ed with -e2jdone (FILES.spjava)
+$(FULLPATH)%.spjavat: %.java
+	@mkdir -p $(dir $@)
+	@echo $? >> $(SPCLASSLIST)
+	@echo $@ >> $(SPTOUCHLIST)
+
+  # Regular .e file to be ecomp'ed (FILES.e)
+$(FULLPATH)%.et: %.e
+	@mkdir -p $(dir $@)
+	@echo $? >> $(CLASSLIST)
+	@echo $@ >> $(TOUCHLIST)
+
+  # Ecomp source file .eext to be ecomp'ed (FILES.eext)
+$(FULLPATH)%.eextt: %.eext
+	@mkdir -p $(dir $@)
+	@echo $? >> $(SPCLASSLIST)
+	@echo $@ >> $(SPTOUCHLIST)
+
+  # Pluribus file, compiled to .unit to be ecomp'ed (FILES.plu)
+$(OUTPUT)/%.plut: %.plu
+	@mkdir -p $(dir $@)
+	plprep $(BUILD_DRIVE)$(PLPROCLIST) $(BUILD_DRIVE)$(OUTPUT) $?
+	pl $(PLFLAGS) -s $(BUILD_DRIVE)$(CLASSLIST) -d "$(BUILD_DRIVE)$(OUTPUT)" -u "$(BUILD_DRIVE)$(OUTPUT)$(DIR_SEPARATOR)$(BUILD_DRIVE)$(PLUNITDIRS)" `cat $(BUILD_DRIVE)$(PLPROCLIST)`
+	@echo $@ >> $(TOUCHLIST)
+########################################################################
+########################################################################
+
+$(OBJDIRS):
+	mkdir -p $@
+
+$(BUILD)/objs/$(MODNAME)/%.o: %.c
+	$(CC) -g -o $@ $(CFLAGS) -c $<
+
+$(BUILD)/objs/$(MODNAME)_g/%.o: %.c
+	$(CC) -g -o $@ $(CFLAGS) -c $<
+
+$(BUILD)/objs/$(MODNAME)/%.o: %.cpp
+	$(CC) -g -o $@ $(CFLAGS) -c $<
+
+$(BUILD)/objs/$(MODNAME)_g/%.o: %.cpp
+	$(CC) -g -o $@ $(CFLAGS) -c $<
+
+vpath %.c .
+vpath %.c $(CLASSSTUBDIR)
+
+basic_clean:
+	-$(RM) -rf $(FULLPATH)
+	-$(RM) -rf $(DISTDIR)
+	-$(RM) -rf $(LISTPATH)
+	-$(RM) -rf $(OUTPUT)
+	-$(RM) -rf $(FILES.pass1.javact) $(FILES.pass1.javat) $(FILES.pass1.et) $(FILES.pass1.plut)
+	-$(RM) -rf $(PASS1CLASSLIST) $(PASS1TOUCHLIST)
+	-$(RM) -rf $(FILES.eextt) $(FILES.javact) $(FILES.javat) $(FILES.et) $(FILES.plut)
+	-$(RM) -rf $(CLASSLIST) $(TOUCHLIST)
+
+-include $(TOP)/E/makefiles/$(PLATFORM_OS)Rules.gmk

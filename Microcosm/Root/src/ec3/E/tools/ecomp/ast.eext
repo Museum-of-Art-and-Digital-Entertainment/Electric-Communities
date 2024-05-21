@@ -1,0 +1,552 @@
+# 1 "ec/ecomp/ast.java" 
+/* ************************************************************************
+ * Espresso! Abstract syntax tree root classes and environments.
+ * Copyright 1995, 1996, 1997 Martin Odersky. All rights reserved.
+ * 
+ * Author     : Martin Odersky, Michael Philippsen
+ * Last change: 13-November-97
+ *************************************************************************/
+
+
+package ec.ecomp;
+
+
+
+
+/* Abstract Syntax:
+ * 
+ * unit           = [Package] {Import} {ClassDef}
+ * stat           = FunDef(FUNDEF)
+ *                | VarDef
+ *                | Exec
+ *                | Block
+ *                | ForLoop
+ *                | WhileLoop
+ *                | DoLoop
+ *                | Conditional(stat)
+ *                | Return
+ *                | Throw
+ *                | Labelled
+ *                | Try
+ *                | Synchronized
+ *                | Switch
+ *                | Break
+ *                | Continue
+#ifdef EEXT 
+ *      // E-Extension
+ *                | eTry
+ *                | eWhen
+ *                | eThrow
+#endif 
+ * expr           = Ident
+ *                | Select(expr)
+ *                | Apply(expr)
+ *                | Subscript(expr)
+ *                | New
+ *                | Aggregate
+ *                | Conditional(expr)
+ *                | Literal
+ *                | Self
+ *                | Binop
+ *                | Assignop
+ *                | Typeop
+ *                | Unop
+ *                | FunDef(LAMBDA)
+ *                | Sequence
+ * type           = qualid
+ *                | Subscript(type)
+ *                | <FunctionType>
+ *                | <AnnotType>
+ * constr         = Apply(qualid)
+ *                | Subscript(constr)
+ *                | qualid
+ * qualid         = Ident
+ *                | Select(qualid)
+ * 
+ * Aggregate      = AGGREGATE elems:{expr}
+ * Apply(A)       = APPLY fun:A args:{expr}
+ * Assignop       = anASSIGNOP left:expr right:expr
+ * Binop          = aBINOP left:expr right:expr
+ * Block          = BLOCK mods:int stats:{stat}
+ * Break          = BREAK label:[Name]
+ * Case           = CASE pat:[expr] stats:{stat}
+ * ClassDef       = CLASSDEF name:Name mods:int extending:[qualid] 
+ *                     implementing:{qualid} body:Block
+ * Conditional(A) = COND(A) cond:expr thenpart:A elsepart:A
+ * Continue       = CONTINUE label:[Name]
+ * DoLoop         = DOLOOP cond:expr body:stat                  
+ * Exec           = EXEC expr:expr
+ * ForLoop        = FORLOOP e1:[expr] e2:[expr] e3:[expr] body:stat
+ * FunDef(A)      = A name:[Name] mods:int dcltyp:[type] 
+ *                       params:{VarDef} thrown:{type} [body:Block]
+ * Ident          = IDENT name:Name
+#ifdef EEXT 
+ * anImport       = Import | eImport                    // E-Extension
+#else 
+ * anImport       = Import
+#endif 
+ * Import         = IMPORT pid:qualid
+#ifdef EEXT 
+ * eImport        = eIMPORT pid:qualid                  // E-Extension
+#endif 
+ * Labelled       = LABELLED label:Name stat:stat
+ * Literal        = aLITERAL val:Object
+ * New            = NEW constr
+ * Package        = PACKAGE pid:qualid
+ * Return         = RETURN expr:[expr]
+ * Select(A)      = SELECT struc:A name:Name
+ * Self           = aSELF
+ * Subscript(A)   = SUBSCRIPT struc:A index:[expr]
+ * Sequence       = SEQ Block
+ * Switch         = SWITCH sel:expr cases:{Case}
+ * Synchronized   = SYNCHRON lock:expr stat:stat
+ * Throw          = THROW expr:expr
+ * Try            = TRY body:Block catchers:{FunDef(CATCH)}
+ *                  finalizer:[Block]
+ * Typeop         = aTYPEOP expr:expr dcltyp:type
+ * Unop           = aUNOP operand:expr
+ * VarDef         = VARDEF name:Name mods:int dcltyp:type init:[expr]
+ * WhileLoop      = WHILELOOP cond:expr body:stat        
+ * FunctionType   = FUNCTIONTYPE dcltyp:type typargs:{type} thrown:{type}
+ *
+#ifdef EEXT 
+ * // E-Extension:
+ * eTry           = eTRY body:Block catchers:{FunDef}
+ * eThrow         = eTHROW expr:expr
+ * eWhen          = eWITH withobj:expr todo:FunDef
+#endif 
+ */
+
+/** Tag constants for AST nodes and kinds:
+ */
+
+class AST implements Constants {
+
+/** the position of this node in the source.
+    format: line-number << Constants.LINESHIFT + column-number
+ */
+    int pos;
+
+/** the tag field.
+ */
+    int tag;
+
+/** the type of this node; set by attr method.
+ */
+    Typ typ; // attributed
+
+/** an error node.
+ */
+    static AST error = new AST(-1, ERROR);
+
+/** the constructor.
+ */
+    AST(int p, int t) {
+        pos = p;
+        tag = t;
+    }
+
+/** can this node syntactically be an expression?
+ */
+    boolean isExpr() {
+        return false;
+    }
+
+/** can this node syntactically be a type?
+ */
+    boolean isType() {
+        return false;
+    }
+
+/** is this node a constant expression?
+ */
+    boolean isConstant() {
+        return false;
+    }
+
+/** enter object defined by this node into symbol table. Only meaningful 
+ *  for Def and Package nodes; does nothing for all other nodes.
+ */
+    void enter(Env e) {
+    }
+
+
+/** enter objects local to this node into symbol table. Only meaningful 
+    for ClassDef and Import nodes; does nothing for all other nodes.
+ */
+    void enterFields(Env e) {
+    }
+
+/** attribute this node. Should be redefined in all subclasses.
+ */
+    Typ attr(Env e, int kind, Typ pt) {
+        if (tag == ERROR) {
+            typ = Typ.errTyp;
+            return typ;
+        } else
+            throw new CompilerError("attr ("+tag+")");
+    }
+
+/** enter numbers of valriables captured by a closure into capt.
+ *  only called when -extended is set.
+ */
+    void markCaptured(Bits capt) {
+    }
+
+/** simplify by expanding closures into low-level code.
+ *  only called when -extended is set.
+ */
+    AST simplify() {
+        throw new CompilerError("simplify");
+    }
+
+/** generate code for this node. Should be redefined in all subclasses.
+ */
+    Item gen() {
+        throw new CompilerError("gen");
+    }
+
+/** generate code to load on stack.
+ */
+    void genLoad() {
+        gen().load(typ);
+    }
+
+/** generate code without loading result on stack
+ */
+    void genDrop() {
+        gen().drop(typ);
+    }
+
+/** write code and symbol data to output classfile
+ */
+    void output() {
+    }
+
+
+/** print an AST as a substatement (e.g., a "then" part or loop body)--that is,
+ *  in general, indent and print as a statement. Block overrides this, though.
+ */
+    void printAsSubstatement() {
+      System.out.println();
+      Pretty.indent();
+      Pretty.align();
+      print();
+      printEndStatement();
+      Pretty.undent();
+    }
+
+/** print an AST as an "else" part--that is, in general,
+ *  indent and print as a statement. Block and "if" override this, though.
+ */
+    void printAsElse() {
+      System.out.println();
+      Pretty.indent();
+      Pretty.align();
+      print();
+      printEndStatement();
+      Pretty.undent();
+    }      
+
+/** print the end of a statement--that is, in general, spit out a semicolon.
+ *  Some statements have implicit termination, though (E.g., ifs and
+ *  blocks), so they override this to instead print nothing at all.
+ */
+    void printEndStatement() {
+      System.out.println(";");
+    }
+
+
+/** print AST rooted in this node.
+ */
+    void print() {
+        print(noPrec);
+    }
+
+/** print AST rooted in this node; prec is inherited precedence.
+ */
+    void print(int prec) {
+        System.out.print("an AST ("+tag+")");
+    }
+
+/** print an array of AST's, with commas between them.
+ */
+    static void printSeq(AST elems[]) {
+        if (elems.length > 0) {
+            elems[0].print();
+            for (int i = 1; i < elems.length; i++) {
+                System.out.print(", ");
+                elems[i].print();
+            }
+        }
+    }
+
+/** print an array of AST's representing a statement sequence.
+ */
+    static void printStats(AST stats[]) {
+        for (int i = 0; i < stats.length; i++) {
+            Pretty.align();
+            stats[i].print();
+
+            stats[i].printEndStatement();
+
+
+
+        }
+    }
+}
+
+/** Class for references to, and definitions of, identifers.
+ */
+class IdRef extends AST {
+    Name name; // the name of the identifier; generated.
+
+    Obj obj;   // the object representing the identifier; attributed.
+  
+
+  boolean useImpl = false; // during e2j IdRef eclass refering names are changed
+                           // In general an _Intf is appended, unless, useImpl 
+                           // is true, in which case _Impl is appended. 
+  boolean e2jdone = false; // Some identifiers are visited several times during
+                           // e2j transformation. To make sure, that these are
+                           // changed only once this flag is used. Example:
+                           // SomeEclass x, y, z; Will declare three variables.
+                           // SomeEclass is replaced with SomeEclass_Intf and not
+                           // with SomeEclass_Intf_Intf_Intf.
+
+
+    IdRef(int p, int t, Name name) {
+        super(p, t);
+        this.name = name;
+    }
+
+/** overrides AST
+ */
+    boolean isConstant() {
+        return obj != null && obj.isConstant();
+    }
+
+/** return the full name of the reference or definition, including any
+ *  package prefix.
+ */
+    Name fullName() {
+        return name;
+    }
+}
+
+/** A class for identifier definitions.
+ */
+class Def extends IdRef {
+    int mods;     // the modifier prefix of the definition; generated.
+
+    Env localEnv; // the environment of the defining code; attributed.
+
+    Def(int p, int t, Name name, int mods) {
+        super(p, t, name);
+        this.mods = mods;
+    }
+}
+
+/** flexible arrays of AST's:
+ */
+class ASTS {
+    AST[] elems;
+    int length;
+
+/** the empty array; immutable
+ */
+    static ASTS empty = new ASTS();
+
+/** construct a fresh, empty array.
+ */
+    ASTS() {
+        elems = new AST[1];
+        length = 0;
+    }
+
+/** construct arrays with 1 - 3 elements.
+ */
+    ASTS(AST t) {
+        elems = new AST[1];
+        elems[0] = t;
+        length = 1;
+    }
+
+    ASTS(AST t1, AST t2) {
+        elems = new AST[2];
+        elems[0] = t1;
+        elems[1] = t2;
+        length = 2;
+    }
+
+    ASTS(AST t1, AST t2, AST t3) {
+        elems = new AST[3];
+        elems[0] = t1;
+        elems[1] = t2;
+        elems[2] = t3;
+        length = 3;
+    }
+
+
+    ASTS(AST t1, AST t2, AST t3, AST t4) {
+        elems = new AST[4];
+        elems[0] = t1;
+        elems[1] = t2;
+        elems[2] = t3;
+        elems[3] = t4;
+        length = 4;
+    }
+
+
+/** construct an array with a given initial list of elements.
+ */
+    ASTS(AST[] ts) {
+        if (ts.length == 0) elems = new AST[1];
+        else elems = ts;
+        length = ts.length;
+    }
+
+/** append an AST to this array.
+ */
+    void append(AST t) {
+        if (length == elems.length) {
+            AST[] newelems = new AST[length * 2];
+            System.arraycopy(elems, 0, newelems, 0, length);
+            elems = newelems;
+        }
+        elems[length++] = t;
+    }
+
+/** append another array to this array.
+ */
+    void append(ASTS ts) {
+        for (int i = 0; i < ts.length; i++)
+            this.append(ts.elems[i]);
+    }
+
+
+/** prepend an AST to this array.
+ */
+
+  void prepend(AST t) {
+    append(t);  // to get length right
+    for (int i = length-1; i > 0; i--)
+      elems[i] = elems[i-1];
+    elems[0] = t;
+  }
+
+
+/** return all defined AST's in this array as a fixed-length array.
+ */
+    AST[] shrink() {
+        if (length < elems.length) {
+            AST[] data = new AST[length];
+            System.arraycopy(elems, 0, data, 0, length);
+            return data;
+        } else {
+            return elems;
+        }
+    }
+
+
+/** return a Block that contains the statements of this if they are more than
+ *  one. Otherwise, the single statement is returned.
+ */
+  AST blockOrStmt(int pos) {
+    AST[] arr = shrink();
+    if (arr.length == 0)
+      return null;
+    else if (arr.length == 1)
+      return arr[0];
+    else
+      return (new Block(pos, this));
+  }
+
+}
+
+/** Environments collect most inherited attributes during tree attribution.
+ */
+class Env implements Constants {
+    Env next;            // the next-outer environment
+    AST parent;          // the node that defines this environment
+    TopLevel toplevel;   // the toplevel AST node
+    FunDef enclFun;      // the closest enclosing method, lambda, or catch definition
+    FunDef enclMeth;     // the closest enclosing method definition
+
+    eKeep enclKeep;      // surrounding ekeep.
+
+    ClassDef enclClass;  // the closest enclosing class definition
+    Name packageName;    // the name of the current package
+    Scope scope;         // the scope of the objects defined here
+//FIX 11/11/96: no need for globalScope anymore
+//    Scope globalScope;   // the scope that contains all global definitions
+//FIX 21/10/96: importScope is gone, has been split an moved to TopLevel
+    TypSet reported;     // the set of all exceptions that are either caught
+                         // or declared to be thrown.
+    boolean isStatic;    // is program code a static block or initializer?
+    boolean isSelfCall;  // are we evaluating arguments of a this(...)
+                         // or super(...) constructor?
+//FIX 11/11/96
+    boolean selectSuper; // are we selecting from super?
+  
+/** construct an initial environment.
+ */
+    Env(TopLevel parent) {
+        this.next = null;
+        this.parent = parent;
+        this.toplevel = parent;
+        this.enclFun = null;
+        this.enclMeth = null;
+
+        this.enclKeep = null;
+
+        this.enclClass = null;
+        this.packageName = Name.fromString("");
+        this.scope = new Scope(null, null);
+//FIX 11/11/96: no need for globalScope anymore
+//  this.globalScope = this.scope;
+        this.reported = null;
+        this.isStatic = false;
+        this.isSelfCall = false;
+//FIX 11/11/96
+        this.selectSuper = false;
+    }
+
+/** construct an environment nested within e, copying all of e's attributes
+ *  except parent.
+ */
+    Env(Env e, AST parent) {
+        this.next = e;
+        this.parent = parent;
+        this.toplevel = e.toplevel;
+        this.enclFun = e.enclFun;
+        this.enclMeth = e.enclMeth;
+
+        this.enclKeep = e.enclKeep;
+
+        this.enclClass = e.enclClass;
+        this.packageName = e.packageName;
+        this.scope = e.scope;
+//FIX 11/11/96: no need for globalScope anymore
+//      this.globalScope = e.globalScope;
+        this.reported = e.reported;
+        this.isStatic = e.isStatic;
+        this.isSelfCall = e.isSelfCall;
+//FIX 11/11/96
+        this.selectSuper = e.selectSuper;
+    }
+
+/** construct an environment nested within e with the given scope, 
+ *  copying all of e's attributes except parent and scope.
+ */
+    Env(Env e, AST parent, Scope scope) {
+        this(e, parent);
+        this.scope = scope;
+    }
+
+/** does the environment belong to an interface definition?
+ */
+    boolean isInterface() {
+        return parent.tag == CLASSDEF && (enclClass.mods & INTERFACE) != 0;
+    }
+}

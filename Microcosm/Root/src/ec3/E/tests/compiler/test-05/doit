@@ -1,0 +1,4 @@
+#!/bin/sh
+
+ecomp -d . if.e
+java ec.tests.eiffer.Main

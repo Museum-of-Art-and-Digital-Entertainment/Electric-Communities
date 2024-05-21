@@ -1,0 +1,17 @@
+#!/bin/csh -f
+#
+# This will copy over win32 bin and libs into the build, but only
+# if it hasn't been done before--it checks for $BUILD/objs/.win32copy-done
+# and will touch it when it's done.
+
+if (-e $BUILD/objs/.win32copy-done) then
+    echo "(win32 bin and libs already copied)"
+else
+    echo "(copying win32 bin and libs from pre-built version)"
+    mkdir -p $BUILD/win32/bin
+    mkdir -p $BUILD/win32/lib
+    cp -r $EDIR/win32/bin/* $BUILD/win32/bin
+    cp -r $EDIR/win32/lib/* $BUILD/win32/lib
+    mkdir -p $BUILD/objs
+    touch $BUILD/objs/.win32copy-done
+endif

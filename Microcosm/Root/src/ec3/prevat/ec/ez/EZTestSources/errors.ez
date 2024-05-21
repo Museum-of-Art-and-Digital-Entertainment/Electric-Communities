@@ -1,0 +1,19 @@
+// Fails because defining a name to be null apparently does not properly store
+// a nullwrapper into the name table.
+define HeapTreeNode := to make (myValue) {
+    define myLeft := null
+    define myRight := null
+    object {
+        to value {myValue}
+        to left  {myLeft}
+        to right {myRight}
+        to setValue (myVal) {myValue := myVal}
+        to setLeft (myL)  {myLeft := myL}
+        to setRight (myR) {myRight := myR}
+}   }
+define cat:= HeapTreeNode make(7)
+cat setLeft(33)
+
+
+5 << 1
+

@@ -1,0 +1,471 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>ComCom System Architecture</TITLE>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="Author" CONTENT="Bill Frantz">
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; U) [Netscape]">
+</HEAD>
+<BODY>
+
+<H1 ALIGN=CENTER>ComCom System Architecture</H1>
+
+<CENTER><P>Copyright &copy;1998, Electric Communities, All Rights Reserved.
+Proprietary and Confidential. Do not distribute. </P></CENTER>
+
+<P>For the overall ComCom information, see <A HREF="index.html">ECID &amp;
+ComCom Home Page</A>.</P>
+
+<H3>Messages</H3>
+
+<H4>Messages to/from ComCom Servers (from ComCom clients):</H4>
+
+<UL>
+<LI><TT>MSG.Register</TT> me as a ComCom user &middot; An ECID is the unique
+identifier &middot; Once per ID only, sets up a user record &middot; Initializes
+lightweight authentication protocol &middot; To balance load, the server
+sends back a search list of ComCom servers, custom prioritized.</LI>
+
+<LI><TT>MSG.Here</TT> are the monitoring capabilities I have (My contact/locations
+list) &middot; Sent once per session (reboot-day) &middot; These capabilities
+are sufficient to allow the server to forward location messages to the
+user. &middot; What exact form do these capabilities take? (Bill/MarkM
+have a proposal) &middot; Should this be cached to disk on the server,
+so only deltas need be sent?</LI>
+
+<LI><TT>MSG.Location</TT> message (This ID is/is not at X:Y location) &middot;
+Sent once per location change in compatible browser (palace, www) &middot;
+Expected to be less than 1 per user minute. &middot; Authenticated using
+lightweight protocol &middot; UDP message (can be lost, can be out of order)
+We expect millions/minute. &middot; Fanned out to buddies (who have presented
+capability) &middot; Added to aggregate count for location, removed from
+aggregate count for previous location &middot; Location monitors get notified
+based on scaling heuristic &middot; Sent off to aggregation databases</LI>
+
+<LI><TT>MSG.Logout</TT> &middot; Decrement aggregates. &middot; Is this
+needed? Should we do pings/exception handling instead?</LI>
+</UL>
+
+<H3>Reference Architecture</H3>
+
+<P>This reference architecture is designed to be easy to understand and
+reason about. In <B><I>section-xxxx</I></B> we discuss ways to improve
+the performance of the reference architecture. The reference architecture
+is based on the E runtime libary and point-to-point comm system. Note that
+all return values are returned thru the Promise mechanism.</P>
+
+<P><TT>MSG.Register</TT> - A <TT>ClientControl </TT>object is created,
+and a sturdyRef for that object is returned to the client. The <TT>ClientControl
+</TT>object allows the client to create new <TT>ClientInformation </TT>objects.
+Each kind of information whose distribution needs to be separately controlled
+needs a separate <TT>ClientInformation </TT>object. The <TT>ClientInformation
+</TT>object allows the client to get a <TT>ClientInformationChange </TT>noticer
+object. The <TT>ClientInformation </TT>object implements the <TT>MSG.Location</TT>
+message. <TT>ClientInformationChange </TT>implements the <TT>MSG.Here</TT>
+message.</P>
+
+<P><TT>MSG.Here</TT> - This message acts to inform the target <TT>ClientInformationChange
+</TT>object that a ComCom client wants to be informed of a change in the
+information. The <TT>MSG.Here</TT> message includes the version of the
+information that the ComCom client knows. The first message sent by a ComCom
+client uses version number 0. When the current version of the <TT>ClientInformation
+</TT>is greater than the version requested, the <TT>ClientInformationChange
+</TT>object sends to the response object with the current version number
+and the current information. If the version number sent is the same as
+the current version, the response object goes on a list of pending responses.
+If the information changes, the version number is incremented, and all
+the response objects are notified of the new version and value.</P>
+
+<P><TT>MSG.Location</TT> - This message informs the target <TT>ClientInformation
+</TT>object about a change in the information it is distributing. It increments
+the version number of the information and notifies the pending response
+objects.</P>
+
+<P><TT>MSG.Logout</TT> - This messages causes the <TT>ClientInformation
+</TT>object to change the information to &quot;offline&quot; and notify
+the waiting response objects. <TT>MSG.Here</TT> requests with the version
+number of the &quot;offline&quot; information will remain pending until
+the next time the ComCom client sends a <TT>MSG.Location</TT> message.</P>
+
+<H4>Objects and Messages</H4>
+
+<UL>
+<LI>ClientControl</LI>
+
+<UL>
+<LI>ClientInformation getNewClientInformation(); // Returns a new ClientInformation
+object - uses Promise</LI>
+</UL>
+
+<LI>ClientInformation</LI>
+
+<UL>
+<LI>ClientInformationChange getClientInformationChange(); // Gets an object
+for distribution to the friends - uses Promise</LI>
+
+<LI>void location(String where); // Inform ComCom of the new location</LI>
+
+<LI>void logout(); // Inform ComCom the client is offline</LI>
+</UL>
+
+<LI>ClientInformationChange</LI>
+
+<UL>
+<LI>String here(long version, Response reply); // Be informed of changes
+in the information - uses Promise</LI>
+</UL>
+</UL>
+
+<H3>Performance Optimizations</H3>
+
+<P>There are three heavy-weight pieces to the reference protocol, TCP,
+permanent objects, and public key encryption. We use TCP for reliable,
+in-order messaging, and public key encryption for privacy and authentication.
+We need privacy to protect the representation of capabilities on the wire.
+We need authentication to protect against various hijacking and spoofing
+attacks.</P>
+
+<H4>Representation of Capabilities</H4>
+
+<P>The E protocol represents a capability as the combnation of a vatID
+and a Swiss Number. Each of these is a 20 byte number. Anyone who knows
+these numbers holds the capability. As such they must be encrypted in transmission
+to protect them from being stolen. In the reference protocol description,
+each message includes the capability being invoked, so each message needs
+to be protected.</P>
+
+<P>Since there is only one legitmate holder of the ClientInformation object,
+we can short-cut the representation of that capability if we authenticate
+the message. This allows us to avoid having to encrypt the MSG.Location
+and MSG.Logoff messages. See <A HREF="#Optimized Messages">Optimized Messages</A>
+for details.</P>
+
+<P>Since the transfer of ClientInformationChange capabilities is relatively
+rare, we can steal an idea from the E point to point protocol. If the holder
+of one of these capabilities must register it (using a heavy weight protocol)
+with the ComCom server before it is used, and we authenticate the MSG.Here
+message, we can replace the capability with a &quot;registered objects&quot;
+table index in that message.  See <A HREF="#Optimized Messages">Optimized
+Messages</A> for details.</P>
+
+<P>These capability representation transformations place an additional
+burden on the server. It must, for each ComCom user, maintain the values
+of that user's ClientInformation object table and ClientInformationChange
+table. There must be a protocol for when the client and server get out
+of sync about the contents of this table. This data must persist over server
+restarts, or there will be a heavy reregistration load after a restart.
+The resyncing logic may allow the server to discard infrequently used tables.</P>
+
+<H4>Using UDP to replace TCP</H4>
+
+<P>TCP provides four services that UDP does not: </P>
+
+<UL>
+<LI>flow control</LI>
+
+<LI>elimination of duplicate messages</LI>
+
+<LI>in-order delivery</LI>
+
+<LI>reliable delivery</LI>
+</UL>
+
+<P>If a particular message needs only a few of these services, it may be
+cheaper to build them in to the application.</P>
+
+<H4>Message Services needed by ComCom</H4>
+
+<P>ComCom's need for each of the TCP services plus privacy and authentication
+is message dependent.</P>
+
+<TABLE BORDER=1 >
+<TR>
+<TD>Message</TD>
+
+<TD>flow<BR>
+control</TD>
+
+<TD>duplicate<BR>
+messages</TD>
+
+<TD>in order<BR>
+delivery</TD>
+
+<TD>reliable<BR>
+delivery</TD>
+
+<TD>privacy</TD>
+
+<TD>authentication</TD>
+</TR>
+
+<TR>
+<TD>MSG.Register</TD>
+
+<TD>
+<CENTER><P>?</P></CENTER>
+</TD>
+
+<TD>
+<CENTER><P>?</P></CENTER>
+</TD>
+
+<TD>
+<CENTER><P>?</P></CENTER>
+</TD>
+
+<TD>
+<CENTER><P>yes</P></CENTER>
+</TD>
+
+<TD>
+<CENTER><P>yes</P></CENTER>
+</TD>
+
+<TD>
+<CENTER><P>yes</P></CENTER>
+</TD>
+</TR>
+
+<TR>
+<TD>MSG.Location</TD>
+
+<TD>
+<CENTER><P>no</P></CENTER>
+</TD>
+
+<TD>
+<CENTER><P>no</P></CENTER>
+</TD>
+
+<TD>
+<CENTER><P>yes</P></CENTER>
+</TD>
+
+<TD>
+<CENTER><P>no</P></CENTER>
+</TD>
+
+<TD>
+<CENTER><P>capa</P></CENTER>
+</TD>
+
+<TD>
+<CENTER><P>yes</P></CENTER>
+</TD>
+</TR>
+
+<TR>
+<TD>MSG.Here</TD>
+
+<TD>
+<CENTER><P>no</P></CENTER>
+</TD>
+
+<TD>
+<CENTER><P>no<SUP>1</SUP></P></CENTER>
+</TD>
+
+<TD>
+<CENTER><P>no<SUP>2</SUP></P></CENTER>
+</TD>
+
+<TD>
+<CENTER><P>yes<SUP>3</SUP></P></CENTER>
+</TD>
+
+<TD>
+<CENTER><P>capa</P></CENTER>
+</TD>
+
+<TD>
+<CENTER><P>no</P></CENTER>
+</TD>
+</TR>
+
+<TR ALIGN=CENTER VALIGN=CENTER>
+<TD>MSG.Logoff</TD>
+
+<TD>
+<CENTER><P>no</P></CENTER>
+</TD>
+
+<TD>
+<CENTER><P>no</P></CENTER>
+</TD>
+
+<TD>
+<CENTER><P>yes</P></CENTER>
+</TD>
+
+<TD>
+<CENTER><P>no</P></CENTER>
+</TD>
+
+<TD>
+<CENTER><P>capa</P></CENTER>
+</TD>
+
+<TD>
+<CENTER><P>no</P></CENTER>
+</TD>
+</TR>
+</TABLE>
+
+<P>(capa) means that the representation of capabilities needs to be protected.
+No other data needs to be protected.</P>
+
+<P>(1) MSG.Here does not need protection against duplicate messages because
+each change to the data has a serial number. The ComCom server can just
+respond to each duplicate message using its normal protocol. The ComCom
+client must use the serial number to detect and discard duplicate responses
+from the server to eliminate packet storms.</P>
+
+<P>(2) MSG.Here does not need in-order delivery because there will be at
+most one outstanding message between a client and the server at a time.</P>
+
+<P>(3) Reliable delivery for the MSG.Here message can be acheived by changing
+the server logic to always immediatly respond to a MSG.Here message. This
+response is either the normal, &quot;here is the new value of the data&quot;
+message, or it is a &quot;I got your message &lt;serial number&quot; message.
+Upon receipt of this second message, the client knows that the server has
+received the request.  The server should re-send its delayed response if
+it does not receive a new MSG.Here message from the client to protect against
+their loss.</P>
+
+<P>Every UDP implementation is required to accept packets up to 576 bytes.
+If we can keep our message size below this, we are assured that our protocols
+will be portable.</P>
+
+<H4><A NAME="MAC Authentication"></A>Using symmetric authentication to
+replace public key operations</H4>
+
+<P>If the two ends of the connection have a shared secret, they can use
+it to authenticate messages with a HMAC. If we compute a SHA1 hash of (key,
+pad, message, key) each machine which shares the secret can validate that
+the message came from one of the machines that share the secret. (The pad
+extends the key to the size of a hash block, 64 bytes for SHA1 or MD5.)
+What we lose is the knowledge of which of the sharing machines generated
+the message.</P>
+
+<P>As a matter of cryptographic hygiene, we should have a way of changing
+this key periodically. I (wsf) think for ComCom like data, once a year
+would be enough.</P>
+
+<P>When the client registers with the MSG.Register message, the ComCom
+server and the client can agree on a shared secret. This secret should
+be on the order of 12-20 bytes. The MSG.Register message can either be
+carried by a secure E connection, in which case the client can generate
+the key and sent it to the host, or the registration can occur with an
+insecure connection and the key can be generated using a signed Diffie
+Hellmann exchange. (See ec.elib.net.data.StartUpProtocol, methods firstDH()
+and isSecondDKOK() for key generation; and ec.elib.net.data.SendThread,
+method computeMAC() for HMAC calculation.)</P>
+
+<H4><A NAME="Optimized Messages"></A>Optimized Messages</H4>
+
+<P>MSG.Register message:</P>
+
+<UL>
+<P>This message will use the full E/TCP protocol. It will be used to register
+a new ECID, and to register new ClientInformationChange capabilities. Each
+time a connection is made for this message, the shared secret authentication
+value should be changed.</P>
+</UL>
+
+<P>MSG.Location and MSG.Logoff messages:</P>
+
+<OL>
+<LI>message type (1 byte)</LI>
+
+<LI>vatID of the sender (20 bytes)</LI>
+
+<LI>ClientInformation object index (1 - 4 bytes)</LI>
+
+<LI>Message sequence number (2 bytes) - To eliminate out of order messages.
+This short value requires wrap around greater/less than processing.</LI>
+
+<LI>Location (variable)</LI>
+
+<LI><A HREF="#MAC Authentication">MAC</A> (20 bytes)</LI>
+</OL>
+
+<P>MSG.Here message</P>
+
+<OL>
+<LI>message type (1 byte)</LI>
+
+<LI>vatID of the sender (20 bytes)</LI>
+
+<LI>ClientInformationChange object index (1 - 4 bytes)</LI>
+
+<LI>Information version number (4 bytes) - This short value requires wrap
+around greater/less than processing.</LI>
+
+<LI><A HREF="#MAC Authentication">MAC </A>(20 bytes)</LI>
+</OL>
+
+<P>MSG.HereResponse message</P>
+
+<OL>
+<LI>message type (1 byte)</LI>
+
+<LI>vatID of the ECID whose information has changed.</LI>
+
+<LI>Information version number (4 bytes) - This short value requires wrap
+around greater/less than processing.</LI>
+
+<LI>Location (variable)</LI>
+
+<LI><A HREF="#MAC Authentication">MAC</A> (20 bytes) - Do we need to authenticate
+responses? It will stop some spoofing attacks on clients.</LI>
+</OL>
+
+<H3><A NAME="ComCom client"></A>ComCom “People &amp; Places” client <FONT SIZE=-2>&lt;&lt;required
+for most strategies&gt;&gt;</FONT></H3>
+
+<P>This is an important evolution of “Buddy List” applications. Besides
+the usual instant messaging, chat, and group management, ComCom adds important
+identity security features (by being closely linked with ECID). It also
+adds new “Favorite Places List” functions: Not only can you see your friends,
+you can see where they are (what web pages, what virtual worlds, etc.)
+Users can also monitor traffic at favorite locations (web pages, worlds,
+rooms) and click-to-connect to those communities.&nbsp; This would be new
+work, all done by EC, but would NOT have the security requirements that
+ECID does, so can be developed using tools other than Java. See <A HREF="SampleScreens.html">sample
+screens</A>. </P>
+
+<P>Subsystems: </P>
+
+<BLOCKQUOTE>
+<P>&nbsp;Buddies list &amp; management <BR>
+&nbsp;Locations list &amp; management <BR>
+&nbsp;Group list &amp; management <BR>
+&nbsp;Application launching (click-to-join) <BR>
+&nbsp;&nbsp; Application viewer plug-ins <I>[Is this needed?]</I> <BR>
+&nbsp;Instant messaging <BR>
+&nbsp;Peer chat <I>[Use DynaChat?]</I> <BR>
+&nbsp;Web tours</P>
+</BLOCKQUOTE>
+
+<H3><A NAME="ComCom"></A>ComCom Server <FONT SIZE=-2>&lt;&lt;required for
+most strategies&gt;&gt;</FONT></H3>
+
+<P>The ComCom Server handles <A HREF="#ComCom client">ComCom client</A>
+connections, and tracks status and location information gathered from ECID.
+It then passes this information to ComCom clients that provide the correct
+capabilities. This is all new software. </P>
+
+<P>Subsystems: </P>
+
+<BLOCKQUOTE>
+<P><I>[TBD!!!]</I></P>
+</BLOCKQUOTE>
+
+<P>
+<HR WIDTH="100%"><BR>
+This page is maintained by <A HREF="mailto:frantz@communities.com">Bill</A>.
+</P>
+
+</BODY>
+</HTML>

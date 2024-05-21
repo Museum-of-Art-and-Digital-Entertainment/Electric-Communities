@@ -1,0 +1,148 @@
+<HTML>
+<BODY>
+
+<h1><i>Pluribus Run Time and Compiler Re-Engineering</i></h1>
+
+<h2>Introduction</h2>
+
+<i>
+
+The Pluribus reengineering effort has resulted in a new set of run time
+classes (fondly termed "Plubar" for "PLUribused Beyond All Recognition")
+which are much simpler than the previous run time classes and which will
+obviate the need for a Pluribus compiler completely.  Pluribus will no
+longer be a language in and of itself and has become merely the
+Unum/Presence/Ingredient model around which we have designed the new,
+100% Java (so far) classes.
+
+</i>
+
+<h4>Related Documents</h4>
+
+<i>Javadoc output for the various classes.</i>
+
+<h2>Architecture</h2>
+
+<h4>Architecture Overview</h4>
+
+<i>
+
+The new Plubar model is based upon a table-driven unum which routes
+messages to its constituent ingredients using the names of methods and
+the ingredients to which they are sent.
+
+<p>
+
+Creating a Plubar unum consists of two steps; 1) defining the structure of the
+unum and 2) creating an instance of an unum with the defined structure.
+
+<p>
+
+The definition of an unum is handled in a new run time class called,
+surprisingly enough, UnumDefinition, which contains the structural
+information about an unum.  This class consists mainly of four tables
+and interfaces for modifying them.  The first table contains a list of
+ingredients in this unum definition stored as Strings.  These Strings
+are just the names or roles of the ingredients and do not signify any
+Class or Interface.  The next three tables hold routing information for
+unum, host presence and client presence messages respectively.  The
+tables are based on pairs of Strings, the name of the message and the
+name of the target ingredient to which the message is to be delivered.
+Note that an UnumDefinition contains information only, and not any
+actual instances of objects which would force some sort of
+implementation.
+
+<p>
+
+The Unum class contains an UnumDefinition and a table of actual Java
+objects linked to the role names of the ingredients in the
+UnumDefinition.  To create an instance of a defined unum, you
+instantiate an Unum with an UnumDefinition and then initialize each of
+the ingredient roles with an instance of a Java Object.  This Object can
+be a normal Java Class or an E Class (until E goes away, of course).
+
+</i>
+
+<h4>Design Objectives, Constraints and Assumptions</h4>
+
+<i>
+
+Getting rid of Pluribus compiler.<p>
+
+Getting rid of Pluribus language.<p>
+
+Simplifying the interface for the Pluribus programmer.<p>
+
+Cleaning up the Pluribus run time.<p>
+
+Reducing RAM bloat: The unum definition for, say, Prop can be written
+and compiled <b>one time</b> and all of the naming and routing info for
+any Prop is stored in a central place rather than being copied into
+every instance of a Prop unum.<p>
+
+Reducing Class bloat: All kinds of una are now just instances of class
+Unum, rather than being GenericProp$ui, Sticky3DFloor$ui, etc.<p>
+
+</i>
+
+
+<h2>Detailed Design</h2>
+
+For now, this section simply provides links to Javadoc created pages for
+the new ec.pl.runtime:
+<p>
+<A href="Package-ec.pl.runtime.html">The Package</a><p>
+<A href="tree.html">Class Hierarchy</a><p>
+<A href="AllNames.html">Index of all Fields and Methods</a><p>
+<A href="ec.pl.runtime.Ingredient.html">Ingredient</a><p>
+<A href="ec.pl.runtime.Presence.html">Presence</a><p>
+<A href="ec.pl.runtime.Unum.html">Unum</a><p>
+<A href="ec.pl.runtime.UnumDefinition.html">UnumDefinition</a><p>
+<p>
+
+<h4>Testing and Debugging</h4>
+
+<i>
+
+Currently (2/26/98) there is one example for testing purposes in
+</i><b>ec3/Pluribus/Runtime/Plubar/Tests</b><i> which consists of a
+simple Unum with a Color Ingredient and a Shape Ingredient and about 10
+messages delivered betwixt them.
+
+<p>
+
+I am about to start work on converting the Prop and Swatch una to Plubar
+notation, along with a few of their ingredients.
+
+</i>
+
+
+<h2>Design Issues</h2>
+
+<h4>Resolved Issues</h4>
+
+<i>
+
+
+</i>
+
+<h4>Open Issues</h4>
+
+<i>
+
+Add/replace methods for tweaking message routing<p>
+
+Redirecting messages a la original </i><b>"deliver foo to bar"</b><i>
+methodology<p>
+
+Defining and creating una in one line per Crock's </i><b>"keep life simple
+for the average unum programmer"</b><i> proposal; should probably be
+done by adding a level of indirection, i.e. a tool which makes several
+Plubar calls for the programmer.<p>
+
+</i>
+
+<p>
+<A href="/engineering/design_notes/">Back to the index</a>
+</BODY>
+</HTML>

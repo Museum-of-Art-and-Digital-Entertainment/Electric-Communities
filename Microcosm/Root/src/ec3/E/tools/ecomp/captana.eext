@@ -1,0 +1,348 @@
+# 1 "ec/ecomp/captana.java" 
+/* ************************************************************************
+ * Espresso! data flow analysis to mark variables captured by a closure
+ * Copyright 1995, 1996 Martin Odersky. All rights reserved.
+ * 
+ * Author     : Martin Odersky.
+ * Last change: 12-Nov-96
+ *************************************************************************/
+
+
+package ec.ecomp;
+# 13 "ec/ecomp/captana.java" 
+
+
+import java.util.*;
+
+class CaptureAnalysis implements /*imports*/ Constants {
+
+    static void markCaptured(Aggregate t, Bits capt) {
+        for (int i = 0; i < t.elems.length; i++)
+          markCaptured(t.elems[i], capt);
+    }
+
+    static void markCaptured(Apply t, Bits capt) {
+        markCaptured(t.fn, capt);
+        for (int i = 0; i < t.args.length; i++)
+            markCaptured(t.args[i], capt);
+    }
+
+    static void markCaptured(Assignop t, Bits capt) {
+        markCaptured(t.left, capt);
+        markCaptured(t.right, capt);
+        if (t.left.tag == IDENT) {
+            VarObj v = (VarObj)((Ident)t.left).obj;
+//          System.out.println("assigning " + v + " in " + v.owner + " " + 
+//              v.vnum + " " + capt.member(v.vnum));
+            if (v.owner != null && v.owner instanceof FunObj &&
+                capt.member(v.vnum))
+              v.passByRef = true;
+        }
+    }
+
+    static void markCaptured(Binop t, Bits capt) {
+        markCaptured(t.left, capt);
+        markCaptured(t.right, capt);
+    }
+
+    static void markCaptured(New t, Bits capt) {
+        markCaptured(t.constr, capt);
+    }
+
+    static void markCaptured(Select t, Bits capt) {
+        markCaptured(t.struc, capt);
+    }
+
+    static void markCaptured(Subscript t, Bits capt) {
+        markCaptured(t.struc, capt);
+        if (t.index != null) markCaptured(t.index, capt);
+    }
+
+    static void markCaptured(Typeop t, Bits capt) {
+        markCaptured(t.expr, capt);
+    }
+
+    static void markCaptured(Unop t, Bits capt) {
+        markCaptured(t.operand, capt);
+        if (t.tag >= PREINC && t.operand.tag == IDENT) {
+            VarObj v = (VarObj)((Ident)t.operand).obj;
+            if (v.owner != null && v.owner instanceof FunObj &&
+                capt.member(v.vnum))
+              v.passByRef = true;
+        }
+    }
+
+    static void markCaptured(Break t, Bits capt) {
+        t.markCaptured(capt);
+        t.target.exitCapt.orSet(capt);
+//      capt.clear();
+    }
+
+    static void markCaptured(Case t, Bits capt) {
+        for (int i = 0; i < t.stats.length; i++)
+            markCaptured(t.stats[i], capt);
+    }
+
+    static void markCaptured(Conditional t, Bits capt) {
+        markCaptured(t.cond, capt);
+        Bits capt1 = capt.dup();
+        markCaptured(t.thenpart, capt);
+        if (t.elsepart != null) {
+            markCaptured(t.elsepart, capt1);
+            capt.orSet(capt1);
+        }
+    }
+
+    static void markCaptured(Continue t, Bits capt) {
+        t.markCaptured(capt);
+        t.target.contCapt.orSet(capt);
+//      capt.clear();
+    }
+
+    static void markCaptured(DoLoop t, Bits capt) {
+        capt.orSet(t.contCapt);
+        markCaptured(t.body, capt);
+        markCaptured(t.cond, capt);
+        t.contCapt.orSet(capt);
+        capt.orSet(t.exitCapt);
+    }
+
+    static void markCaptured(Exec t, Bits capt) {
+        markCaptured(t.expr, capt);
+    }
+
+    static void markCaptured(ForLoop t, Bits capt) {
+        for (int i = 0; i < t.e1.length; i++)
+            markCaptured(t.e1[i], capt);
+        capt.orSet(t.contCapt);
+        if (t.e2 != null)
+            markCaptured(t.e2, capt);
+        t.exitCapt.orSet(capt);
+        markCaptured(t.body, capt);
+        for (int i = 0; i < t.e3.length; i++)
+            markCaptured(t.e3[i], capt);        
+        t.contCapt.orSet(capt);
+        capt.assign(t.exitCapt);
+    }
+
+    static void markCaptured(Labelled t, Bits capt) {
+        markCaptured(t.stat, capt);
+        capt.orSet(t.exitCapt);
+    }
+
+    static void markCaptured(Return t, Bits capt) {
+        if (t.expr != null)
+            markCaptured(t.expr, capt);
+        t.markCaptured(capt);
+//      capt.clear();
+    }
+
+    static void markCaptured(Switch t, Bits capt) {
+        markCaptured(t.sel, capt);
+        Bits capt1 = capt.dup();
+        for (int i = 0; i < t.cases.length; i++) {
+            capt.orSet(capt1);
+            markCaptured(t.cases[i], capt);
+        }
+        capt.orSet(t.exitCapt);
+    }
+
+    static void markCaptured(Synchronized t, Bits capt) {
+        markCaptured(t.lock, capt);
+        markCaptured(t.body, capt);
+    }
+
+    static void markCaptured(Throw t, Bits capt) {
+        markCaptured(t.expr, capt);
+        t.markCaptured(capt);
+//      capt.clear();
+    }
+
+    static void markCaptured(Try t, Bits capt) {
+        markCaptured(t.body, capt);
+        // collect stuff after execution of catchers
+        capt.orSet(t.captured); 
+        // start set for all catchers
+        Bits capt1 = capt.dup(); 
+        // where to compute stuff caught by catchers:
+        Bits capt2 = new Bits(); 
+        for (int i = 0; i < t.catchers.length; i++) {
+            capt2.assign(capt1);
+            markCaptured(t.catchers[i], capt2);
+            capt.orSet(capt2);
+        }
+        if (t.finalizer != null)
+            markCaptured(t.finalizer, capt);
+        }
+
+    static void markCaptured(WhileLoop t, Bits capt) {
+        capt.orSet(t.contCapt);
+        markCaptured(t.cond, capt);
+        t.exitCapt.orSet(capt);
+        markCaptured(t.body, capt);
+        t.contCapt.orSet(capt);
+        capt.assign(t.exitCapt);
+    }
+
+    static void markCaptured(Sequence t, Bits capt) {
+        markCaptured(t.body, capt);
+    }
+
+    static void markCaptured(Block t, Bits capt) {
+        for (int i = 0; i < t.stats.length; i++)
+            markCaptured(t.stats[i], capt);
+    }
+
+    static void markCaptured(FunDef t, Bits capt) {
+        switch (t.tag) {
+        case FUNDEF:
+            if (t.body != null) markCaptured(t.body, new Bits());
+            break;
+        case LAMBDA:
+            for (Enumeration e = ((FunObj)t.obj).freevars.elements(); 
+                e.hasMoreElements();) {
+               VarObj v = (VarObj)e.nextElement();
+//             System.out.println("capturing " + v + " " + v.vnum);//DEBUG
+               capt.incl(v.vnum);
+            }
+            markCaptured(t.body, capt);
+            break;
+        case CATCH:
+            markCaptured(t.body, capt);
+            break;
+        }
+    }
+        
+    static void markCaptured(VarDef t, Bits capt) {
+        if (t.init != null) markCaptured(t.init, capt);
+//    System.out.println("defining " + ((VarObj)t.obj) + " " + ((VarObj)t.obj).vnum);//DEBUG
+        capt.excl(((VarObj)t.obj).vnum);
+    }
+
+    static void markCaptured(AST t, Bits capt) {
+        switch (t.tag) {
+        case AGGREGATE:
+            markCaptured((Aggregate)t, capt);
+            break;
+        case APPLY:
+            markCaptured((Apply)t, capt);
+            break;
+        case ASSIGN:
+        case ABITOR:
+        case ABITXOR:
+        case ABITAND:
+        case ASL:
+        case ASR:
+        case ALSR:
+        case APLUS:
+        case AMINUS:
+        case ATIMES:
+        case ADIV:
+        case AMOD:
+            markCaptured((Assignop)t, capt);
+            break;
+        case OR:
+        case AND:
+        case EQ:
+        case NE:
+        case LT:
+        case GT:
+        case LE:
+        case GE:
+        case BITOR:
+        case BITXOR:
+        case BITAND:
+        case SL:
+        case SR:
+        case LSR:
+        case PLUS:
+        case MINUS:
+        case TIMES:
+        case DIV:
+        case MOD:
+            markCaptured((Binop)t, capt);
+            break;
+        case NEW:
+            markCaptured((New)t, capt);
+            break;
+        case SELECT:
+            markCaptured((Select)t, capt);
+            break;
+        case SUBSCRIPT:
+            markCaptured((Subscript)t, capt);
+            break;
+        case TYPETEST:
+        case CAST:
+            markCaptured((Typeop)t, capt);
+            break;
+        case POS:
+        case NEG:
+        case NOT:
+        case COMPL:
+        case PREINC:
+        case PREDEC:
+        case POSTINC:
+        case POSTDEC:
+            markCaptured((Unop)t, capt);
+            break;
+        case BREAK:
+            markCaptured((Break)t, capt);
+            break;
+        case CASE:
+            markCaptured((Case)t, capt);
+            break;
+        case CONDEXPR: case CONDSTAT:
+            markCaptured((Conditional)t, capt);
+            break;
+        case CONTINUE:
+            markCaptured((Continue)t, capt);
+            break;
+        case DOLOOP:
+            markCaptured((DoLoop)t, capt);
+            break;
+        case EXEC:
+            markCaptured((Exec)t, capt);
+            break;
+        case FORLOOP:
+            markCaptured((ForLoop)t, capt);
+            break;
+        case LABELLED:
+            markCaptured((Labelled)t, capt);
+            break;
+        case RETURN:
+            markCaptured((Return)t, capt);
+            break;
+        case SWITCH:
+            markCaptured((Switch)t, capt);
+            break;
+        case SYNCHRON:
+            markCaptured((Synchronized)t, capt);
+            break;
+        case THROW:
+            markCaptured((Throw)t, capt);
+            break;
+        case TRY:
+            markCaptured((Try)t, capt);
+            break;
+        case WHILELOOP:
+            markCaptured((WhileLoop)t, capt);
+            break;
+        case SEQ:
+            markCaptured((Sequence)t, capt);
+            break;
+        case BLOCK:
+            markCaptured((Block)t, capt);
+            break;
+        case FUNDEF: case LAMBDA: case CATCH:
+            markCaptured((FunDef)t, capt);
+            break;
+        case VARDEF:
+            markCaptured((VarDef)t, capt);
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+

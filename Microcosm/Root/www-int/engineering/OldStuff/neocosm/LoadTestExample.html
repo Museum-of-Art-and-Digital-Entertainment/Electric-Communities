@@ -1,0 +1,44 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>LoadTestExample</TITLE>
+<META NAME="Version" CONTENT="8.0.3410">
+<META NAME="Date" CONTENT="10/11/96">
+<META NAME="Template" CONTENT="E:\Program Files\Microsoft Office\Office\HTML.DOT">
+</HEAD>
+<BODY TEXT="#000000" BGCOLOR="#ffffff">
+
+<I><P>A quick copy of a Perl load test script.  It essentially issues commands like "Destination moveto" and waits for a reply matching a string.  In r167, not all commands produce replies.  When functions have two arguments, the second is the string awaited.</P>
+<P>I will add documentation upon request.</P>
+</I><P>&nbsp;</P>
+<P>&amp;command("To_Great_Round_Square_West moveto");</P>
+<P>expect("automation: Region change completed");</P>
+<P>&amp;command("'Here I am on tour $tourCount");</P>
+<P>&amp;putat("Ancient_stone_floor");</P>
+<P>&amp;pickup($pickupName);</P>
+<P>&amp;command("facewest");</P>
+<P>&amp;command("perform Bow");</P>
+<P>&nbsp;</P>
+<P>&amp;teleportto("Lighthouse", "automation: Region change completed");</P>
+<P>&amp;command("'Here I am on tour $tourCount");</P>
+<P>&amp;putat("Lighthouse_Deck");</P>
+<P>&amp;command("faceeast");</P>
+<P>&amp;command("perform Kick");</P>
+<P>&amp;pickup($pickupName);</P>
+<P>&nbsp;</P>
+<P>&amp;teleportto("The City", "automation: Region change completed");</P>
+<P>&amp;putat("Street");</P>
+<P>&amp;pickup($pickupName);</P>
+<P>&amp;command("'Here I am on tour $tourCount");</P>
+<P>&amp;command("perform Dance");</P>
+<P>&nbsp;</P>
+<P>&amp;teleportto("Great Round Square", "automation: Region change completed");</P>
+<P>&amp;command("'Here I am on tour $tourCount");</P>
+<P>&amp;putat("Ancient_stone_floor");</P>
+<P>&amp;pickup($pickupName);</P>
+<P>&amp;command("perform Shrug");</P>
+<P>&nbsp;</P>
+<P>&nbsp;</P>
+<P>&nbsp;</P></BODY>
+</HTML>

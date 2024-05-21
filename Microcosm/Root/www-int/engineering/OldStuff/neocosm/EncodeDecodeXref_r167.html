@@ -1,0 +1,199 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.03 [en] (WinNT; U) [Netscape]">
+   <TITLE>External Interface for ec.e.db in r167</TITLE>
+</HEAD>
+<BODY>
+
+<H1>
+External Interface for ec.e.db in r167</H1>
+<B>Last updated:</B><I> [98/05/22 Bill]</I>
+
+<P>Author: <A HREF="mailto:frantz@communities.com">Bill Frantz</A>
+<H2>
+Introduction</H2>
+This document contains a cross reference of the classes and methods called
+from outside the ec.e.db package. See <A HREF="EncodeDecodeOverview.html">Encode/Decode</A>
+for information about that package.
+<BR>&nbsp;
+<H2>
+Cross Reference</H2>
+
+<PRE><TT>ec.e.db.RtDecoderDataInputStream
+&nbsp;&nbsp;&nbsp; &lt;init>((Ljava/io/InputStream;Ljava/util/Hashtable;)V)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.db.RtStandardDecoder
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.net.MsgReceiver
+ec.e.db.RtDecodingException
+&nbsp;&nbsp;&nbsp; &lt;init>((Ljava/lang/String;)V)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.db.RtDecodingManagerDefault
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.db.RtStandardDecoder
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.net.MsgReceiver
+ec.e.db.RtDecodingParameters
+&nbsp;&nbsp;&nbsp; &lt;init>(()V)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.net.Registrar
+&nbsp;&nbsp;&nbsp; put((Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.net.Registrar
+ec.e.db.RtEncoderDataOutputStream
+&nbsp;&nbsp;&nbsp; &lt;init>((Ljava/io/OutputStream;Ljava/util/Hashtable;)V)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.db.RtStandardEncoder
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.net.MsgSender
+ec.e.db.RtEncodingParameters
+&nbsp;&nbsp;&nbsp; &lt;init>(()V)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.net.Registrar
+&nbsp;&nbsp;&nbsp; put((Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.net.Registrar
+ec.e.db.RtStandardDecoder
+&nbsp;&nbsp;&nbsp; &lt;init>((Lec/e/db/RtDecodingManager;Lec/e/db/TypeTable;[BLec/e/db/RtDecodingParameters;ZLjava/util/Hashtable;)V)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.net.MsgReceiver
+&nbsp;&nbsp;&nbsp; decodeGraph(()Ljava/lang/Object;)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.net.MsgReceiver
+&nbsp;&nbsp;&nbsp; decodeObject(()Ljava/lang/Object;)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.BaseFacet_$_Impl
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.PresentationState
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.eInterestFacet_$_Impl
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.eUnumContextFacet_$_Impl
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.eUnumFacet_$_Impl
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.eUnumKeyFacet_$_Impl
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.eeChangeRegionException
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.eeTOSAddUnumFailed
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.eeTOSSetContainerFailed
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.istContainership
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.jRealmTOSException
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.jRootUnumTree
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.jUnumKey
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.jUnumTree
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.jeTOSCheckFailed
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.ui.presenter.PSPropertyException
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.db.RtSpecialCoder
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.net.SturdyRef
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.openers.RefOpener
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.run.RtEnvelope
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.run.RtExceptionEnv
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.identity.IdentityException
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.pl.runtime.PresenceRouter
+&nbsp;&nbsp;&nbsp; delay((ILjava/lang/Runnable;)V)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.openers.Chef
+&nbsp;&nbsp;&nbsp; readBoolean(()Z)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.istContainership
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.jUnumTree
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.openers.BooleanOpener
+&nbsp;&nbsp;&nbsp; readByte(()B)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.net.MsgReceiver
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.openers.ByteOpener
+&nbsp;&nbsp;&nbsp; readChar(()C)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.openers.CharOpener
+&nbsp;&nbsp;&nbsp; readDouble(()D)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.openers.DoubleOpener
+&nbsp;&nbsp;&nbsp; readFloat(()F)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.openers.FloatOpener
+&nbsp;&nbsp;&nbsp; readFully(([B)V)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.db.RtSwissNumberGenerator
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.openers.ByteOpener
+&nbsp;&nbsp;&nbsp; readInt(()I)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.jUnumKey
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.db.RtSpecialCoder
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.db.RtSwissNumberGenerator
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.db.TypeTable
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.openers.ArrayOpener
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.openers.IntOpener
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.quake.StableStore
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.serial.Unserializer
+&nbsp;&nbsp;&nbsp; readLong(()J)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.db.RtSwissNumberGenerator
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.net.MsgReceiver
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.openers.LongOpener
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.pl.runtime.PresenceRouter
+&nbsp;&nbsp;&nbsp; readShort(()S)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.openers.ShortOpener
+&nbsp;&nbsp;&nbsp; readUTF(()Ljava/lang/String;)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.db.RtSpecialCoder
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.db.TypeTable
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.net.SturdyRef
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.openers.StringOpener
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.run.RtSealer
+&nbsp;&nbsp;&nbsp; resetStreamWithBytes(([B)V)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.net.MsgReceiver
+ec.e.db.RtStandardEncoder
+&nbsp;&nbsp;&nbsp; &lt;init>((Lec/e/db/RtEncodingManager;Lec/e/db/TypeTable;Lec/e/db/RtEncodingParameters;Ljava/util/Hashtable;ZLjava/util/Hashtable;)V)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.net.MsgSender
+&nbsp;&nbsp;&nbsp; encodeGraph((Ljava/lang/Object;)V)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.net.MsgSender
+&nbsp;&nbsp;&nbsp; encodeObject((Ljava/lang/Object;)V)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.BaseFacet_$_Impl
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.PresentationState
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.eInterestFacet_$_Impl
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.eUnumContextFacet_$_Impl
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.eUnumFacet_$_Impl
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.eUnumKeyFacet_$_Impl
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.eeChangeRegionException
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.eeTOSAddUnumFailed
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.eeTOSSetContainerFailed
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.istContainership
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.jRealmTOSException
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.jRootUnumTree
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.jUnumKey
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.jUnumTree
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.jeTOSCheckFailed
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.ui.presenter.PSPropertyException
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.db.RtSpecialCoder
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.net.SturdyRef
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.openers.RefOpener
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.run.RtEnvelope
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.run.RtExceptionEnv
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.identity.IdentityException
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.pl.runtime.PresenceRouter
+&nbsp;&nbsp;&nbsp; getBytesAndClose(()[B)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.net.MsgSender
+&nbsp;&nbsp;&nbsp; resetStream(()V)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.net.MsgSender
+&nbsp;&nbsp;&nbsp; write(([B)V)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.openers.ByteOpener
+&nbsp;&nbsp;&nbsp; writeBoolean((Z)V)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.istContainership
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.jUnumTree
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.openers.BooleanOpener
+&nbsp;&nbsp;&nbsp; writeByte((I)V)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.net.MsgSender
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.openers.ByteOpener
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.serial.Serializer
+&nbsp;&nbsp;&nbsp; writeBytes((Ljava/lang/String;)V)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.quake.StableStore
+&nbsp;&nbsp;&nbsp; writeChar((I)V)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.openers.CharOpener
+&nbsp;&nbsp;&nbsp; writeDouble((D)V)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.openers.DoubleOpener
+&nbsp;&nbsp;&nbsp; writeFloat((F)V)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.openers.FloatOpener
+&nbsp;&nbsp;&nbsp; writeInt((I)V)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.cosm.objects.jUnumKey
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.db.RtSpecialCoder
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.db.RtSwissNumberGenerator
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.db.TypeTable
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.openers.ArrayOpener
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.openers.IntOpener
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.quake.StableStore
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.serial.Serializer
+&nbsp;&nbsp;&nbsp; writeLong((J)V)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.db.RtSwissNumberGenerator
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.net.MsgSender
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.openers.LongOpener
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.pl.runtime.PresenceRouter
+&nbsp;&nbsp;&nbsp; writeShort((I)V)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.openers.ShortOpener
+&nbsp;&nbsp;&nbsp; writeUTF((Ljava/lang/String;)V)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.db.RtSpecialCoder
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.db.TypeTable
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.net.SturdyRef
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.openers.StringOpener
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.run.RtSealer
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.run.UnknownSealer
+ec.e.db.TypeTable
+&nbsp;&nbsp;&nbsp; &lt;init>(()V)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.net.MsgReceiver
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.net.MsgSender
+&nbsp;&nbsp;&nbsp; registerClassByName((Ljava/lang/String;I)Z)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ec.e.net.MsgReceiver</TT></PRE>
+
+</BODY>
+</HTML>

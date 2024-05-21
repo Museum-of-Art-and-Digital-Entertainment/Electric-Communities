@@ -1,0 +1,90 @@
+<html>
+
+<head>
+<title>ComCom Design Meeting Notes</title>
+</head>
+
+<body bgcolor="#FFFFFF">
+
+<h1>ComCom Design Meeting Notes</h1>
+
+<p><b>Last updated: 1998/08/07</b> by <a href=mailto:bob@communities.com><i>Bob</i></a><i> </i></p>
+
+<p><i>98/08/07 <a href="mailto:karl@communities.com">Karl</a> - Original version.</i></p>
+
+<P>Also see the <A HREF="ComComServer.html">ComCom Server Design</A>
+
+<h2>Login and Connection Dialogue</h2>
+
+<ol>
+<li>Make secure authenticated connection for server (use EC datacomm so that the server knows it really is me)</li>
+<li>Client sends list of requested traffic (EC DataComm)</li>
+	<ul type=circle>
+	<li>Stuff I want</li>
+	<li>people and what they can have [ECID, list of message classes]</li>
+	<li>minimal "profile"?</li>
+	</ul>
+<li>Server dumps client's ECID from tables (if any)</li>
+<li>Client and server set up shared secret for authentication (EC DataComm)</li>
+	<ul type=circle>
+	<li>"real" shared secret for authenticated UDP "location" (client->server) messages</li>
+	<li>"cheap" authentication (XOR or similar) for server->client traffic</li>
+	<li>Server tells client what the "Time Out" X is</li>
+	</ul>
+<li>Client listens for UDP traffic from server and displays it (UDP)</li>
+	<ul type=circle>
+	<li>server runs "cheap" XOR on message (hence not "clear")</li>
+	</ul>
+<li>Client gets "location" messages from ElCid clients, signs them, XORs them (not "clear" again), and sends a UDP message to server (UDP)</li>
+<li>Client->client2 request for permission (EC DataComm)</li>
+<li>Client2->server permission message [ECID, list of messages classes] (EC DataComm)</li>
+<li>"Time Out"</li>
+	<ul type=circle>
+	<li>If the server receives no traffic from a client in X amount of time (X should have a minimum and maximum), dump all the tables associated with that ECID</li>
+	<li>Client can send PING to itself through the server as a timeout avoidance</li>
+	<li>If the client receives no traffic from the server in X amount of time, reconnect (setps 1, 2, 3 & 4)</li>
+	</ul>
+</ol>
+
+<h2>UDP Messages</h2>
+
+<ol>
+<li>PING </li>
+	<ul type=circle>
+	<li> lets client know server is "up" (in case of no other traffic) </li>
+	<li> also lets other clients with permission to receive them that your client is "online" </li>
+	</ul>
+<li>LOGOUT </li>
+	<ul type=circle>
+	<li> shuts down server "connection" cleanly (dumps tables, etc.) (EC DataComm from client actually logging out to server) </li>
+	<li> also lets clients who can get this message that you've gone "offline" (UDP from server to interested clients) </li>
+	</ul>
+<li>"Here"	- class for each "kind" of location </li>
+	<ul type=circle>
+	<li> URLS </li>
+	<li> Palaces </li>
+	<li> MOOs/MUDs </li>
+	<li> etc. </li>
+	</ul>
+</ol>
+
+<h3>Palace/MOO/URL Message Formats</h3>
+
+<ul>
+<li> ECID is at location (lets client do "friends" at location) </li>
+<li> # of ECIDs at location </li>
+</ul>
+
+<h2>ComCom Client picture:</h2>
+
+Client is:
+<UL>
+<LI> C++ program: UI and security for authetication with server</LI>
+<LI> Java object inside VM for ElCid communication</LI>
+<LI> UDP "high" volume traffic to server</LI>
+<LI> secure authenticated "low" volume traffic to server through EC DataComm</LI>
+</UL>
+<IMG SRC="ComComClientArch.gif" ALT="Overview of archictecture for the ComCom client" WIDTH="400" HEIGHT="292" HSPACE="0" VSPACE="0">
+
+</body>
+</html>

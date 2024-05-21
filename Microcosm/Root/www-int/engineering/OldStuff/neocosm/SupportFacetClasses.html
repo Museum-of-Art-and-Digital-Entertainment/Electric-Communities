@@ -1,0 +1,481 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.04 [en] (Win95; U) [Netscape]">
+   <META NAME="Author" CONTENT="Rob Jellinghaus">
+   <TITLE>Support &amp; Facet Classes</TITLE>
+</HEAD>
+<BODY>
+Revisions to the document should be reflected
+in the last updated field on top of the document and tagged comment of
+the form <I>[yy/mm/dd reviser]. (suggestions for other ammendment marking
+notation welcome)</I>
+<H1>
+<I>Support &amp; Facet Classes Overview - Containership/Composition/TOS</I></H1>
+<B>Last updated:</B><I> [RobJ 24 June 98]</I>
+
+<P><I>Author(s): <A HREF="mailto:robj@communities.com">RobJ</A>, <A HREF="mailto:arturo@communities.com">Arturo</A></I>
+<H2>
+Introduction</H2>
+This doc describes at a very high level of detail the purpose and function
+of most of the support and facet classes used in containership, composition,
+and TOS.
+
+<P>The items covered are:
+<UL>
+<LI>
+Containership facet classes: these implement various relationships between
+elements in a containment hierarchy.</LI>
+
+<LI>
+Presentation classes: these describe the presented state of an in-world
+object in a TOS-checkable way.</LI>
+
+<LI>
+Location classes: these describe the in-container location of an object.&nbsp;
+(There is much unused stuff in here.)</LI>
+</UL>
+
+<H4>
+Related Documents</H4>
+<A HREF="containment/Introduction.htm">The containership introduction</A>
+describes the uses of a lot of these pieces.
+<H2>
+Requirements</H2>
+Since this is explaining three different pieces, I'll lay out the requirements
+for each.
+<OL>
+<LI>
+Containership facet classes:&nbsp; These generally need to fulfill one
+of four requirements in the containership protocol.</LI>
+
+<OL>
+<LI>
+Queueing messages that need to be held until the current object is no longer
+"in transition".&nbsp; (Generally we queue incoming messages.)&nbsp; (QueueingFacet)</LI>
+
+<LI>
+Providing a wrapper capability that encapsulates an identifying key.&nbsp;
+(IdentiFacet)</LI>
+
+<LI>
+Entering a revoked state after which messages can no longer be sent via
+that facet.&nbsp; (RevokableFacet)</LI>
+
+<LI>
+Routing all messages from one facet to another.&nbsp; (RouterTether)</LI>
+</OL>
+
+<LI>
+Presentation classes:&nbsp; The presentation state must contain the complete
+information (name, scale, appearance file(s), swatched information) needed
+to depict an object on-screen.&nbsp; Appearance-based TOS checking is done
+based on the state of this object as presented by an unum requesting entry
+to a region.</LI>
+
+<LI>
+Location classes:&nbsp; These need to describe the complete state of where
+an object is in a container, whether that container is a 3D container (like
+a region), or a slotted container (like an avatar or a table).&nbsp; They
+also started out being a basis for a demented half-baked form of path planning.</LI>
+</OL>
+
+<H2>
+Architecture</H2>
+
+<H3>
+Oldocosm Architecture Overview</H3>
+Once again, in three parts:
+<H4>
+Containership facet classes</H4>
+
+<OL>
+<LI>
+Each interface which is associated with a facet currently defines an explicit
+wrapper class for that facet.&nbsp; Up until the invention of deflectors
+in old-E, an explicit class per facet was needed.&nbsp; And in fact it
+was worse than that:&nbsp; you needed an explicit class for each combination
+of {interface &amp; facet properties}.&nbsp; In containership, we had two
+interfaces (container-to-containable and containable-to-container) and
+about three sets of properties (routing, queueing, identifying), resulting
+in six facet classes.</LI>
+
+<LI>
+eRevokableFacet is the superclass of revokable facets.</LI>
+
+<LI>
+eFacetInterest is an oddball class that allows you to register interest
+in a proxy dying via E messages sent into a channel.&nbsp; (The scenario
+is, you have a channel that will eventually get forwarded to a proxy, and
+you want to know when the proxy it eventually gets forwarded to goes away.&nbsp;
+So you forward a by-copy eFacetInterest instance to the channel.&nbsp;
+Then you send an E notification message into the channel, and the eFacetInterest
+intercepts it and hangs your callback off of its contained proxy.)&nbsp;
+This is all way more complexity than should be needed.</LI>
+
+<LI>
+ECbsupCRouterTether is an example of a facet that routes messages from
+one facet to another.&nbsp; It receives messages sent to a containable's
+facet, and relays those messages via a generic routing method to the unum
+router of the containable.&nbsp; In other words, it lets messages get relayed
+to an unum router from a containership facet.&nbsp; This is so a container
+can send unum messages to things it contains.</LI>
+</OL>
+
+<H4>
+Presentation classes</H4>
+There is one class, PresentationState, which contains all the relevant
+presentation state.&nbsp; It is a historical amalgam of various pieces
+of state, and is severely underdocumented.
+<BR>The PresentationState currently contains:
+<OL>
+<LI>
+presenterType (prop, compositor prop (i.e. prop-with-children), or avatar)</LI>
+
+<LI>
+another presenter flag indicating whether this object should display its
+children in a list or not</LI>
+
+<LI>
+a vector of the dataholders comprising the base appearance of the object</LI>
+
+<LI>
+a hashtable mapping texture-slot names to dataholders (this is the swatching
+table)</LI>
+
+<LI>
+the object's scale</LI>
+
+<LI>
+the object's name</LI>
+
+<LI>
+the object's spatial state--i.e. bounding box (not currently used)</LI>
+
+<LI>
+a sequence number used in making changes to PresentationState</LI>
+
+<LI>
+a string referencing the thumbnail image for this object</LI>
+
+<LI>
+a flag indicating whether the object is stationary (not pickupable) --
+this should probably not be in PresentationState</LI>
+
+<LI>
+something called myStartupDataMaker which I have no idea what it is</LI>
+
+<LI>
+the object's initial location -- this arguably should also not be in PresentationState,
+but is there currently as a crufty way of initializing the object's location</LI>
+</OL>
+All TOS checking of appearances is done on the vector of base appearance
+dataholders as well as the hashtable of applied texture dataholders.
+<BR>The security model <I>should</I> be that the region contains the PresentationStates
+which are used to present all objects in the region, so any changes to
+those PresentationStates can only happen if the region allows them.&nbsp;
+In particular, this means that objects do not get full capabilities to
+change the state of the presenters that the region gives them; the region
+creates presenters based solely on PresentationState, and if the object
+wants to change its presentation, it needs to update its PresentationState
+and send it to the region.
+<BR>This means that any aspect of presentation that can be subject to region-level
+TOS should be in the PresentationState.
+<H4>
+Location classes</H4>
+The current classes have way more state than is actually used.
+<BR>The SpatialState object describes an unum's extent in the world.&nbsp;
+Its state is:
+<OL>
+<LI>
+The object's radius</LI>
+
+<LI>
+The object's origin (a comment says "relevant mainly for floors" but I
+can't remember why)</LI>
+
+<LI>
+The object's area (as a Polygon2DFloat, which is one of the geometry support
+classes)</LI>
+
+<LI>
+A flag indicating whether the object is a floor whose area denotes the
+floor's outer edges, or an object whose area denotes the object's boundary</LI>
+</OL>
+The FloorPlane object describes one (of many?!) floor planes in a containing
+space.&nbsp; 'Nuff said since we don't have multiple floors and this was
+TERRIBLY half-baked.
+<BR>The SpaceMap object describes a set of FloorPlanes and connections
+between them.&nbsp; See FloorPlane.
+<BR>The Location object, on the other hand, is actually used.&nbsp; It
+contains the position of an object within its container; this position
+may be either a 3D point or a (String-valued) slot name.&nbsp; The Location
+also contains the object's orientation within that container.&nbsp; (It
+didn't use to, but it was clearly the right thing for this to go here,
+since orientation should generally be just as consistent as position.)
+<BR>The SurfaceLocation object was intended to help support spaces with
+more than one floor; it gave you a way to say which floor a given Location
+was located on.&nbsp; Yes, this was and is crufty, and in fact the additional
+state of a SurfaceLocation is totally unused right now.
+<BR>The SurfacePath object describes a path along a (set of) surface(s).&nbsp;
+Also mostly unused now.
+<BR>There are also a set of 2D-geometry Java support classes in j_Space.java,
+such as Polygon2DFloat, Line2DFloat, PolygonSet2DFloat, etc., which are
+one conceivable starting point for better path planning.
+<H3>
+Proposed Architecture Overview</H3>
+
+<H4>
+Containership facets</H4>
+The eFacetInterest business is subsumed by some much simpler new-E machinery
+(namely the resolution() and whenBroken() calls).
+<BR>The class bloat for different types of facets can be almost totally
+ameliorated by using El Cheapo deflectors deflecting to generic queueing/revokable/identification
+facet tethers.&nbsp; (i.e. you just have a generic El Cheapo object which
+routes messages to a generic facet that handles them in a generic way.)&nbsp;
+You could even define an identifacet version that prepends a key argument
+to all the methods in the interface.
+<BR>Many of the router tethers are half-baked and should probably not be
+necessary in a rethought overall design.
+
+<P>Actually almost all of these go away in the <A HREF="containment/Containment.html">current
+containership proposal</A> since there are no longer direct relationships
+between containers and containables as such; there are DObject facets between
+presences, but there are not direct facets between the base host presences.&nbsp;
+Scott's BasicContainable/BasicContainer DObject facets are more likely
+the replacement for most of these.&nbsp; But the above implementation notes
+are still germane if we do need "host-to-host" facets.
+<H4>
+Presentation state</H4>
+The PresentationState class is still very much a good idea, but needs some
+generification.
+
+<P>I propose that PresentationState become a generic superclass.&nbsp;
+ECHabitatPresentationState will be the concrete subclass for EC's variety
+of presentation state.&nbsp; This would allow the containership protocol
+to be more generic with respect to the EC Habitats application.
+
+<P>The specific fields of ECHabitatPresentationState should be (this is
+mostly unchanged from above):
+<OL>
+<LI>
+presenterType (prop, compositor prop (i.e. prop-with-children), or avatar)</LI>
+
+<LI>
+another presenter flag indicating whether this object should display its
+children in a list or not</LI>
+
+<UL>
+<LI>
+This one may be debatable... this should probably just be rolled into the
+presenterType.</LI>
+</UL>
+
+<LI>
+a vector of the dataholders comprising the base appearance of the object</LI>
+
+<LI>
+a hashtable mapping texture-slot names to dataholders (this is the swatching
+table)</LI>
+
+<LI>
+the object's scale</LI>
+
+<LI>
+the object's name</LI>
+
+<UL>
+<LI>
+The scale and name are not handled consistently throughout the code at
+present.&nbsp; We can fix this by making scale and name both be handled
+by the same presentation-state-change TOS path as all other presentation
+state.&nbsp; This would both make scale and name be TOS-checkable, and
+would eliminate the potential for divergent state handling and its related
+bugs.</LI>
+
+<LI>
+Note that name should potentially be internationalizable!!!</LI>
+</UL>
+
+<LI>
+the object's spatial state--i.e. bounding box</LI>
+
+<UL>
+<LI>
+See below for proposals on changes to the location information.</LI>
+</UL>
+
+<LI>
+a string referencing the thumbnail image for this object</LI>
+
+<UL>
+<LI>
+If we had a way to dynamically generate thumbnails for an object given
+only its base appearance information, this would not be necessary.&nbsp;
+However it isn't generally convenient to do so... though we should probably
+look into this again.</LI>
+</UL>
+</OL>
+The following items should be extricated from PresentationState altogether,
+and moved outside into supporting data structures or protocols.&nbsp; The
+object's initial location is especially problematic.
+<OL>
+<LI>
+a sequence number used in making changes to PresentationState</LI>
+
+<UL>
+<LI>
+It is not clear that this is necessary.&nbsp; In fact this should be external
+to the PresentationState itself.&nbsp; The reason for having this at all
+is that if a particular change to presentation state is rejected, the code
+then needs to roll back to some prior presentation state.&nbsp; However,
+if a subsequent change has been requested before the first change was rejected,
+then rollback confusion can occur; only the most recent change should be
+rolled back.</LI>
+</UL>
+
+<LI>
+a flag indicating whether the object is stationary (not pickupable)</LI>
+
+<UL>
+<LI>
+This should likely not be in PresentationState at all.</LI>
+</UL>
+
+<LI>
+something called myStartupDataMaker which I have no idea what it is</LI>
+
+<LI>
+the object's initial location</LI>
+
+<UL>
+<LI>
+Again, this has no real place in PresentationState; it is there simply
+as a crufty way of putting the object's initial location into some data
+structure bound to the object, since location is and will forever be the
+peskiest sort of extrinsic context.&nbsp; In some sense the location of
+an object in its container is rather like the hints information of a dataholder;
+in both cases the location/hints are not properly part of the object but
+are information <I>about</I> the object, yet in the code it is frequently
+more convenient to couple them.</LI>
+</UL>
+</OL>
+
+<H5>
+PresentationStateDeltas</H5>
+There is one additional piece of functionality that the PresentationState
+base class should declare and that all subclasses should implement.&nbsp;
+The PresentationState, as a single object describing the complete presentation
+state, is the right abstraction for presenting a set of objects to a brand
+new context; all the information needed is encapsulated in the one object.&nbsp;
+However, when requesting <I>changes</I> to a given PresentationState, typically
+only a few fields are actually changing.&nbsp; In that case, shipping the
+entire PresentationState object around is very wasteful.
+<BR>So there needs to be another class, PresentationStateDelta, which completely
+encapsulates the difference between one PresentationState object and another.&nbsp;
+Given a PresentationState, it should be possible to call pstate.makeDelta(otherpstate)
+on it, obtaining a PresentationStateDelta.&nbsp; This can then be applied
+to a PresentationState via pstate.applyDelta(pstateDelta) (which should
+likely return a new PresentationState rather than side-effecting pstate
+itself).
+<BR>This would be moderately painful to maintain, but very convenient to
+use... subclasses, such as ECHabitatPresentationState, could still expose
+their fields as simple methods; and changes to presentation state could
+be shipped around far more minimally.&nbsp; Typically the only place PresentationStateDelta
+objects would appear in the protocol is in the methods supporting changes
+to presentation state.
+<H4>
+Location state</H4>
+The Location and spatial classes need extensive revisiting in light of
+what sorts of path-planning and positional security we want in the product.
+<BR>At a minimum, the base Location class should be extended with the name
+of the "destination object".&nbsp; This would <I>greatly</I> improve the
+usability of console mode, if the Location was named in a human-readable
+way.&nbsp; Currently it is very easy to know the name of the destination
+object at the time that a Location is constructed by that object; but we
+simply throw that state away.&nbsp; We shouldn't continue to do so.
+<H5>
+Path planning plans</H5>
+In general, I am going to continue on the assumption that we have no path
+planning to speak of... changes in renderer or in customer requirements
+would make almost anything we set out to do rapidly obsolete.
+<BR>HOWEVER, if I <I>were</I> going to do something, here's what it would
+be:
+<OL>
+<LI>
+Use SpatialState to define a 2D bounding polygon for each object.</LI>
+
+<LI>
+Define one floor plane for each space.</LI>
+
+<LI>
+Use something like the current path-planning code to make avatars walk
+around objects.</LI>
+
+<LI>
+If an avatar attempts to walk into the middle of an object, let it do so.</LI>
+
+<LI>
+Do nothing to prevent avatars walking through each other.</LI>
+</OL>
+The main reason for the latter two points is that doing otherwise opens
+up the possibility of incredibly annoying behavior on the part of other
+avatars--they could block your way from getting where you want to go, etc.&nbsp;
+Actually it's arguable that this should be dealt with just by leaving,
+since we already have other hacks (i.e. creating enormous objects that
+block off particular camera views) that have similar irritating effects.&nbsp;
+Generally it's probably not worth spending much time on this though, at
+least not without particular requirements from a customer with a world
+in mind.
+<H3>
+Off the shelf alternatives</H3>
+None to speak of in this particular space.&nbsp; Facets are a problem all
+our own; presentation almost certainly likewise (whatever renderer we use
+will still take some combo of 3D info and texture info, both of which will
+still be certified and recorded in some way); and location is potentially
+open for discussion, at the risk of major feature creep.
+<H2>
+Current implementation</H2>
+<I>This section should give details of the major classes and interfaces.</I>
+<H4>
+Which directories on our tree does this subsystem cover?</H4>
+
+<UL>
+<LI>
+Containership facet classes: cosm1/objects/ingredients/containership/Containership_facet.plu</LI>
+
+<LI>
+Presentation classes: cosm1/objects/ingredients/support/j_Utilities.java</LI>
+
+<LI>
+Location classes: cosm1/objects/ingredients/support/{j_Utilities.java,j_Space.java}</LI>
+</UL>
+
+<H4>
+Is it JavaDoc'ed?</H4>
+No, and likely never will be, as much of it is Pluribus code.
+<H4>
+Examples</H4>
+None... well actually there is, or was, a small test app for some of the
+2D polygon stuff.&nbsp; RobJ might be hard pressed to lay hands on it,
+though.
+<H4>
+Testing and Debugging</H4>
+<I>(Optional) Lists any tests and debugging utilities which are to be developed
+to help test the design (e.g. test classes, trace categories, etc)</I>
+<H2>
+Design Issues</H2>
+
+<H4>
+Resolved Issues</H4>
+What does appearance TOS checking mean? -- resolved via the PresentationState-managed-by-region
+pattern.
+<BR>How do we layer disconnection handling with optimistic channel machinery?
+-- resolved by the (too-complex) eFacetInterest pattern.
+<H4>
+Open Issues</H4>
+Not really very many other than those above... mainly around the location
+model and the path planning bit.
+<BR>&nbsp;
+</BODY>
+</HTML>

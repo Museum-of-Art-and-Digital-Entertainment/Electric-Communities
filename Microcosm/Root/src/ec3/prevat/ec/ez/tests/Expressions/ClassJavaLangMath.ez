@@ -1,0 +1,759 @@
+// File     Expressions\ClassJavaLangMath.doc
+// Summary  Testing methods defined in java.lang.Math in EZ
+// 
+// ===== abs ====================================================
+// 
+//  001  Title    abs: abs(-byte)
+//       Result   Pass
+//       Test     
+                  println(-128 abs)
+//
+//       Expect   128
+//       Actual   128
+// 
+//  002  Title    abs: abs(boolean) negative case
+//       Result   Fail
+//       Test     
+                  println(false abs)
+//
+//       Expect   more meaningful error message
+//       Actual   abs/0
+//                ec.ez.collect.NotFoundException: abs/0
+//                null
+//                ^
+// 
+//  003  Title    abs: abs(char) negative case
+//       Result   Fail
+//       Test     
+                  println("a" abs)
+
+//       Expect   more meaningful error message
+//       Actual   abs/0
+//                ec.ez.collect.NotFoundException: abs/0
+//                null
+//                ^
+// 
+//  004  Title    abs: abs(-double)
+//       Result   Pass
+//       Test     
+                  println(-1.79E+308 abs)
+//
+//       Expect   1.79E308
+//       Actual   1.79E308
+// 
+//  005  Title    abs: abs(-float)
+//       Result   Pass
+//       Test     
+                  println(-3.4E+38 abs)
+//
+//       Expect   3.4E38
+//       Actual   3.4E38
+// 
+//  006  Title    abs: abs(-int)
+//       Result   Pass
+//       Test     
+                  println(-2147483647 abs)
+//
+//       Expect   2147483647
+//       Actual   2147483647
+// 
+//  007  Title    abs: abs(-long)
+//       Result   Pass
+//       Test     
+                  println(-9223372036854775807 abs)
+//
+//       Expect   9223372036854775807
+//       Actual   9223372036854775807
+// 
+//  008  Title    abs: abs(-short)
+//       Result   Pass
+//       Test     
+                  println(-32768 abs)
+//
+//       Expect   32768
+//       Actual   32768
+// 
+//  009  Title    abs: abs(-BigDecimal)
+//       Result   Fail
+//       Test     
+                  println(-0.111222333444555666777888999 abs)
+//
+//       Expect   0.111222333444555666777888999
+//       Actual   0.11122233344455566
+// 
+//  010  Title    abs: abs(-BigInteger)
+//       Result   Pass
+//       Test     
+                  println(-999888777666555444333222111 abs)
+//
+//       Expect   999888777666555444333222111
+//       Actual   999888777666555444333222111
+// 
+//  011  Title    abs: abs(string) negative case
+//       Result   Fail
+//       Test     
+                  println("-128" abs)
+//
+//       Expect   more meaningful error message
+//       Actual   abs/0
+//                ec.ez.collect.NotFoundException: abs/0
+//                null
+//                ^
+// 
+//  012  Title    abs: abs(0)
+//       Result   Pass
+//       Test     
+                  println(0 abs)
+//
+//       Expect   0
+//       Actual   0
+// 
+//  013  Title    abs: abs(-1)
+//       Result   Pass
+//       Test     
+                  println(-1 abs)
+//
+//       Expect   1
+//       Actual   1
+// 
+//  014  Title    abs: abs(1)
+//       Result   Pass
+//       Test     
+                  println(1 abs)
+//
+//       Expect   1
+//       Actual   1
+// 
+// ===== acos ===================================================
+// 
+//  015  Title    acos: acos(-1.0)
+//       Result   Fail
+//       Test     
+                  println(-1.0 acos)
+//
+//       Expect   3.141592653589793
+//       Actual   -0.0
+// 
+//  016  Title    acos: acos(0.0)
+//       Result   Pass
+//       Test     
+                  println(0.0 acos)
+//
+//       Expect   1.5707963267948966
+//       Actual   1.5707963267948966
+// 
+//  017  Title    acos: acos(1.0)
+//       Result   Pass
+//       Test     
+                  println(1.0 acos)
+//
+//       Expect   0.0
+//       Actual   0.0
+// 
+// 
+// ===== asin ====================================================
+// 
+//  018  Title    asin: asin(-1.0)
+//       Result   Pass
+//       Test     
+                  println(-1.0 asin)
+//
+//       Expect   -1.5707963267948966
+//       Actual   -1.5707963267948966
+// 
+//  019  Title    asin: 0.0 asin
+//       Result   Pass
+//       Test     
+                  println(0.0 asin)
+//
+//       Expect   0.0
+//       Actual   0.0
+// 
+//  020  Title    asin: asin(1.0)
+//       Result   Pass
+//       Test     
+                  println(1.0 asin)
+//
+//       Expect   1.5707963267948966
+//       Actual   1.5707963267948966
+// 
+// ===== atan ====================================================
+// 
+//  021  Title    atan: atan(-1.0)
+//       Result   Pass
+//       Test     
+                  println(-1.0 atan)
+//
+//       Expect   -0.7853981633974483
+//       Actual   -0.7853981633974483
+// 
+//  022  Title    atan: atan(0.0)
+//       Result   Pass
+//       Test     
+                  println(0.0 atan)
+//
+//       Expect   0.0
+//       Actual   0.0
+// 
+//  023  Title    atan: atan(1.0)
+//       Result   Pass
+//       Test     
+                  println(1.0 atan)
+//
+//       Expect   0.7853981633974483
+//       Actual   0.7853981633974483
+// 
+// ===== atan2 ====================================================
+// 
+//  024  Title    atan2: atan2(-1.0,-1.0)
+//       Result   Pass
+//       Test     
+                  println(-1.0 atan2 (-1.0))
+//
+//       Expect   -2.356194490192345
+//       Actual   -2.356194490192345
+// 
+//  025  Title    atan2: atan2(0.0,0.0)
+//       Result   Pass
+//       Test     
+                  println(0.0 atan2 (0.0))
+//
+//       Expect   0.0
+//       Actual   0.0
+// 
+//  026  Title    atan2: atan2(1.0,1.0)
+//       Result   Pass
+//       Test     
+                  println(1.0 atan2 (1.0))
+//
+//       Expect   0.7853981633974483
+//       Actual   0.7853981633974483
+// 
+// ===== cos ====================================================
+// 
+//  027  Title    cos: cos(-1.0)
+//       Result   Pass
+//       Test     
+                  println(-1.0 cos)
+//
+//       Expect   0.5403023058681398
+//       Actual   0.5403023058681398
+// 
+//  028  Title    cos; cos(0.0)
+//       Result   Pass
+//       Test     
+                  println(0.0 cos)
+//
+//       Expect   1.0
+//       Actual   1.0
+// 
+//  029  Title    cos: cos(1.0)
+//       Result   Pass
+//       Test     
+                  println(1.0 cos)
+//
+//       Expect   0.5403023058681398
+//       Actual   0.5403023058681398
+// 
+// 
+// ===== sin ====================================================
+// 
+//  030  Title    sin: sin(-1.0)
+//       Result   Pass
+//       Test     
+                  println(-1.0 sin)
+//
+//       Expect   -0.8414709848078965
+//       Actual   -0.8414709848078965
+// 
+//  031  Title    sin: sin(0.0)
+//       Result   Pass
+//       Test     
+                  println(0.0 sin)
+//
+//       Expect   0.0
+//       Actual   0.0
+// 
+//  032  Title    sin: sin(1.0)
+//       Result   Pass
+//       Test     
+                  println(1.0 sin)
+//
+//       Expect   0.8414709848078965
+//       Actual   0.8414709848078965
+// 
+// ===== tan ====================================================
+// 
+//  033  Title    tan: tan(-1.0)
+//       Result   Pass
+//       Test     
+                  println(-1.0 tan)
+//
+//       Expect   -1.5574077246549023
+//       Actual   -1.5574077246549023
+// 
+//  034  Title    tan: tan(0.0)
+//       Result   Pass
+//       Test     
+                  println(0.0 tan)
+//
+//       Expect   0.0
+//       Actual   0.0
+// 
+//  035  Title    tan: tan(1.0)
+//       Result   Pass
+//       Test     
+                  println(1.0 tan)
+//
+//       Expect   1.5574077246549023
+//       Actual   1.5574077246549023
+// 
+// 
+// ===== ceil =====================================================
+// 
+//  036  Title    ceil: ceil (1.)
+//       Result   Pass
+//       Test     
+                  println(1. ceil)
+//
+//       Expect   1
+//       Actual   1
+// 
+//  037  Title    ceil: ceil(1)
+//       Result   Fail
+//       Test     
+                  println(1 ceil)
+//
+//       Expect   1
+//       Actual   ceil/0
+//                ec.ez.collect.NotFoundException: ceil/0
+//                null
+//                ^
+// 
+//  038  Title    ceil: ceil(-987654321.123456789)
+//       Result   Fail
+//       Test     
+                  println(-987654321.123456789 ceil)
+//
+//       Expect   -987654321
+//       Actual   -987654321
+// 
+//  039  Title    ceil: ceil(-1.5)
+//       Result   Pass
+//       Test     
+                  println(-1.5 ceil)
+//
+//       Expect   -1
+//       Actual   -1
+// 
+//  040  Title    ceil: ceil(-1.0)
+//       Result   Pass
+//       Test     
+                  println(-1.0 ceil)
+//
+//       Expect   -1
+//       Actual   -1
+// 
+//  041  Title    ceil: ceil(-0.5)
+//       Result   Pass
+//       Test     
+                  println(-0.5 ceil)
+//
+//       Expect   0
+//       Actual   0
+// 
+//  042  Title    ceil: ceil(0.0)
+//       Result   Pass
+//       Test     
+                  println(0.0 ceil)
+//
+//       Expect   0
+//       Actual   0
+// 
+//  042  Title    ceil: ceil(0.5)
+//       Result   Pass
+//       Test     
+                  println(0.5 ceil)
+//
+//       Expect   1
+//       Actual   1
+// 
+//  044  Title    ceil: ceil(1.5)
+//       Result   Pass
+//       Test     
+                  println(1.5 ceil)
+//
+//       Expect   2
+//       Actual   2
+// 
+//  045  Title    ceil: ceil(987654321.123456789)
+//       Result   Pass
+//       Test     
+                  println(987654321.123456789 ceil)
+//
+//       Expect   987654322
+//       Actual   987654322
+// 
+// ===== exp =====================================================
+// 
+//  046  Title    exp: exp(1.0)
+//       Result   Pass
+//       Test     
+                  println(1.0 exp)
+//
+//       Expect   2.718281828459045
+//       Actual   2.718281828459045
+// 
+//  047  Title    exp: exp(0.0)
+//       Result   Pass
+//       Test     
+                  println(0.0 exp)
+//
+//       Expect   1.0
+//       Actual   1.0
+// 
+//  048  Title    exp: exp(1.0)
+//       Result   Pass
+//       Test     
+                  println(1.0 exp)
+//
+//       Expect   2.718281828459045
+//       Actual   2.718281828459045
+// 
+// ===== floor =====================================================
+// 
+//  049  Title    floor: floor(-987654321.123456789)
+//       Result   Fail
+//       Test     
+                  println(-987654321.123456789 floor)
+//
+//       Expect   -987654322
+//       Actual   -987654322
+// 
+//  050  Title    floor: floor(-1.5)
+//       Result   Pass
+//       Test     
+                  println(-1.5 floor)
+//
+//       Expect   -2
+//       Actual   -2
+// 
+//  051  Title    floor: floor(-1.0)
+//       Result   Pass
+//       Test     
+                  println(-1.0 floor)
+//
+//       Expect   -1
+//       Actual   -1
+// 
+// 
+//  052  Title    floor: floor(-0.5)
+//       Result   Fail
+//       Test     
+                  println(-0.5 floor)
+//
+//       Expect   -1
+//       Actual   -1
+// 
+//  053  Title    floor: floor(0.0)
+//       Result   Pass
+//       Test     
+                  println(0.0 floor)
+//
+//       Expect   0
+//       Actual   0
+// 
+//  054  Title    floor: floor(0.5)
+//       Result   Pass
+//       Test     
+                  println(0.5 floor)
+//
+//       Expect   0
+//       Actual   0
+// 
+//  055  Title    floor: floor(1.5)
+//       Result   Pass
+//       Test     
+                  println(1.5 floor)
+//
+//       Expect   1
+//       Actual   1
+// 
+//  056  Title    floor: floor(987654321.123456789)
+//       Result   Pass
+//       Test     
+                  println(987654321.123456789 floor)
+//
+//       Expect   987654321
+//       Actual   987654321
+// 
+// ===== log ======================================================
+// 
+//  057  Title    log: log(-1.0)
+//       Result   Fail
+//       Test     
+                  println(-1.0 log)
+//
+//       Expect   NaN
+//       Actual   log/0
+//                ec.ez.collect.NotFoundException: log/0
+//                null
+//                ^
+//
+//  058  Title    log: log(0/0)
+//       Result   Fail
+//       Test     
+                  println(0/0 log)
+//
+//       Expect   NaN
+//       Actual   log/0
+//                ec.ez.collect.NotFoundException: log/0
+//                null
+//                ^
+// 
+//  059  Title    log: log(-0.0)
+//       Result   Fail
+//       Test     
+                  println(-0.0 log)
+//
+//       Expect   -Infinity
+//       Actual   log/0
+//                ec.ez.collect.NotFoundException: log/0
+//                null
+//                ^
+// 
+//  060  Title    log: log(+0.0)
+//       Result   Fail
+//       Test     
+                  println(+0.0 log)
+//
+//       Expect   -Infinity
+//       Actual   nothing printed
+// 
+//  061  Title    log: log(2.0/0.0)
+//       Result   Fail
+//       Test     
+                  println(2.0/0.0 log)
+//
+//       Expect   Infinity
+//       Actual   log/0
+//                ec.ez.collect.NotFoundException: log/0
+//                null
+//                ^
+// 
+//  062  Title    log: log(1.0)
+//       Result   Fail
+//       Test     
+                  println(1.0 log)
+//
+//       Expect   0.0
+//       Actual   log/0
+//                ec.ez.collect.NotFoundException: log/0
+//                null
+//                ^
+// 
+//  063  Title    log: log(2.0)
+//       Result   Fail
+//       Test     
+                  println(2.0 log)
+//
+//       Expect   0.301029995664
+//       Actual   log/0
+//                ec.ez.collect.NotFoundException: log/0
+//                null
+//                ^
+// 
+//  064  Title    log: log(4.0)
+//       Result   Fail
+//       Test     
+                  println(4.0 log)
+//
+//       Expect    0.602059991328
+//       Actual   log/0
+//                ec.ez.collect.NotFoundException: log/0
+//                null
+//                ^
+// 
+//  065  Title    log: log(8.0)
+//       Result   Fail
+//       Test     
+                  println(8.0 log)
+//
+//       Expect   0.9030899869919
+//       Actual   log/0
+//                ec.ez.collect.NotFoundException: log/0
+//                null
+//                ^
+// 
+//  066  Title    log: log(16.0)
+//       Result   Fail
+//       Test     
+                  println(16.0 log)
+//
+//       Expect   1.204119982656
+//       Actual   log/0
+//                ec.ez.collect.NotFoundException: log/0
+//                null
+//                ^
+// 
+// ===== max ======================================================
+// 
+//  067  Title    max: max(2147483646,2147483647)
+//       Result   Pass
+//       Test     
+                  println(2147483646 max (2147483647))
+//
+//       Expect   2147483647
+//       Actual   2147483647
+// 
+//  068  Title    max: max(9223372036854775806,9223372036854775807)
+//       Result   Pass
+//       Test     
+                  println(9223372036854775806 max (9223372036854775807))
+//
+//       Expect   9223372036854775807
+//       Actual   9223372036854775807
+// 
+//  069  Title    max: max(3.40282346e+38,3.40282347e+38)
+//       Result   Pass
+//       Test     
+                  println(3.40282346e+38 max (3.40282347e+38))
+//
+//       Expect   3.40282347E38
+//       Actual   3.40282347E38
+// 
+//  070  Title    max: max(1.797693134862314e308,1.797693134862315e308)
+//       Result   Pass
+//       Test     
+                  println(1.797693134862314e308 max (1.797693134862315e308))
+//
+//       Expect   1.797693134862315E308
+//       Actual   1.797693134862315E308
+// 
+// ===== min ======================================================
+// 
+//  071  Title    min: min(2147483646,2147483647)
+//       Result   Pass
+//       Test     
+                  println(2147483646 min (2147483647))
+//
+//       Expect   2147483646
+//       Actual   2147483646
+// 
+//  072  Title    min: min(9223372036854775806,9223372036854775807)
+//       Result   Pass
+//       Test     
+                  println(9223372036854775806 min (9223372036854775807))
+//
+//       Expect   9223372036854775806
+//       Actual   9223372036854775806
+// 
+//  073  Title    min: min(3.40282346e+38,3.40282347e+38)
+//       Result   Pass
+//       Test     
+                  println(3.40282346e+38 min (3.40282347e+38))
+//
+//       Expect   3.40282346E38
+//       Actual   3.40282346E38
+// 
+//  074  Title    min: min(1.797693134862314e308,1.797693134862315e308)
+//       Result   Pass
+//       Test     
+                  println(1.797693134862314e308 min (1.797693134862315e308))
+//
+//       Expect   1.797693134862314E308
+//       Actual   1.797693134862314E308
+// 
+// ===== pow ======================================================
+// 
+//  075  Title    pow: pow(2,2)
+//       Result   Pass
+//       Test     
+                  println(2 pow (2))
+//
+//       Expect   4
+//       Actual   4
+// 
+//  076  Title    pow: pow(2.0,2.0)
+//       Result   Pass
+//       Test     
+                  println(2.0 pow (8.0))
+//
+//       Expect   256.0
+//       Actual   256.0
+// 
+// ===== random ===================================================
+//       
+//  077  Title    random: random()
+//       Result   Fail
+//       Test     
+                  println(random)
+//
+//       Expect   some number
+//       Actual   ec.ez.collect.NotFoundException: random
+//                null
+//                ^
+// 
+// ===== rint =====================================================
+// 
+//  078  Title    rint: rint(145.5)
+//       Result   Fail
+//       Test     
+                  println(145.5 rint)
+//
+//       Expect   146.0
+//       Actual   rint/0
+//                ec.ez.collect.NotFoundException: rint/0
+//                null
+//                ^
+// 
+//  079  Title    rint: rint(146.5)
+//       Result   Fail
+//       Test     
+                  println(146.5 rint)
+//
+//       Expect   147.0
+//       Actual   rint/0
+//                ec.ez.collect.NotFoundException: rint/0
+//                null
+//                ^
+//
+// ===== round ====================================================
+//  
+//  080  Title    round: round(3.40282346e+38)
+//       Result   Pass (?)
+//                java error?
+//       Test     
+                  println(3.40282346e+38 round)
+//
+//       Expect   9223372036854775807
+//       Actual   9223372036854775807
+// 
+//  081  Title    round: round(1.79769313486231569e308)
+//       Result   Pass 
+//                java error?
+//       Test     
+                  println(1.79769313486231569e308 round)
+//
+//       Expect   9223372036854775807
+//       Actual   9223372036854775807
+// 
+// ===== sqrt  ====================================================
+//  
+//  082  Title    sqrt: sqrt(2)
+//       Result   Pass
+//       Test     
+                  println(2 sqrt)
+//
+//       Expect   1.4142135623730951
+//       Actual   1.4142135623730951
+// 
+//  083  Title    sqrt: sqrt(360)
+//       Result   Pass
+//       Test     
+                  println(360 sqrt)
+//
+//       Expect   18.973665961010276
+//       Actual   18.973665961010276
+//
+

@@ -1,0 +1,45 @@
+== test
+test: Assertion does not fire because b is true
+== test
+Internal program error: Test assertion fires.
+== testNoString
+testNoString: Assertion does not fire because b is true
+== testNoString
+Internal program error: Assertion failed.
+== fail
+Internal program error: Test assertion fires.
+== failNoString
+Internal program error: 'Unreachable' code was reached.
+== test with 2 explanation args
+test: Assertion does not fire because b is true
+== test with 3 explanation args
+test: Assertion does not fire because b is true
+== test with 4 explanation args
+test: Assertion does not fire because b is true
+== test with 5 explanation args
+test: Assertion does not fire because b is true
+== test with 6 explanation args
+test: Assertion does not fire because b is true
+== test with 7 explanation args
+test: Assertion does not fire because b is true
+== test with 8 explanation args
+test: Assertion does not fire because b is true
+== test with 2 explanation args
+Internal program error: Test assertion fires.2
+== test with 3 explanation args
+Internal program error: Test assertion fires.23
+== test with 4 explanation args
+Internal program error: Test assertion fires.234
+== test with 5 explanation args
+Internal program error: Test assertion fires.2345
+== test with 6 explanation args
+Internal program error: Test assertion fires.234[]6
+== test with 7 explanation args
+Internal program error: Test assertion fires.234[]67
+== test with 8 explanation args
+Internal program error: Test assertion fires.234[]678.0
+=== Finishing: Expect stack trace.
+ec.util.assertion.AssertionFailed: Internal program error: 'Unreachable' code was reached.
+	at ec.util.assertion.Assertion.fail(Assertion.java:231)
+	at Tests.tests(Tests.java:55)
+	at Tests.main(Tests.java:8)

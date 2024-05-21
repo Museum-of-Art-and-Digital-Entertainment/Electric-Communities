@@ -1,0 +1,2460 @@
+<HTML>
+<HEAD>
+<TITLE>Unum Specifications</TITLE>
+</HEAD>
+<BODY>
+<UL>
+
+<P>This file is derived from the Filemaker Unum Spec DB. Note: some fields
+
+are missing, and this version hasn't been proofed yet. An html-ized version
+
+of the Unum Operations are listed <A HREF="#OPERATIONS">here</A>.</P>
+<LI><A HREF="#Avatar_Identity">Avatar_Identity</A>
+
+<LI><A HREF="#Public_access_container">Public_access_container</A>
+
+<LI><A HREF="#Prop">Prop</A>
+
+<LI><A HREF="#Private_access_Container (Pocket)">Private_access_Container (Pocket)</A>
+
+<LI><A HREF="#Walkable">Walkable</A>
+
+<LI><A HREF="#Basic Region">Basic Region</A>
+
+<LI><A HREF="#Basic Realm">Basic Realm</A>
+
+<LI><A HREF="#Basic Portal">Basic Portal</A>
+
+<LI><A HREF="#ActivePoster">ActivePoster</A>
+
+<LI><A HREF="#Avatar">Avatar</A>
+
+<LI><A HREF="#Observer">Observer</A>
+
+<LI><A HREF="#Seat">Seat</A>
+
+<LI><A HREF="#Skeet_gun">Skeet_gun</A>
+
+<LI><A HREF="#Skeet_judge">Skeet_judge</A>
+
+<LI><A HREF="#Skeet_target">Skeet_target</A>
+
+<LI><A HREF="#Texturizer/Swatch/paint">Texturizer/Swatch/paint</A>
+
+<LI><A HREF="#Stateful Prop">Stateful Prop</A>
+
+</UL>
+
+<A NAME="Avatar_Identity"></A>
+
+<P><HR SIZE=4 WIDTH="100%"></P>
+<P><B><I><FONT SIZE=+3> Avatar Identity (aka Session)</FONT></I></B></P>
+
+<P><B><I><FONT SIZE=+1>Description</FONT></I></B></P>
+<UL><P>The real world's understanding of identity.  An (the?) owner.  The abstract object that represents the user's session. <B><U>May</B></U> be associated with a body (i.e., Avatar or Observer).  Knows its host info and Swiss number (hands out facets to this object).  Interface events come here and get sent to body.</P></UL>
+
+<P><B><I><FONT SIZE=+1>Operations</FONT></I></B></P>
+<UL><P>
+
+<LI><A HREF="#ADDRESSABLE_OPS">Addressable_ops</A>
+
+<LI><A HREF="#ADDRESSER_OPS">Addresser_ops</A>
+
+<LI><A HREF="#BEHAVIOR_TOS_OPS">Behavior_TOS_ops</A>
+
+<LI><A HREF="#BODY_CONNECTOR_OPS">Body_connector_ops</A>
+
+<LI><A HREF="#MAINTAINABLE_OPS">Maintainable_ops</A>
+
+<LI><A HREF="#MEMBERABLE_OPS">Memberable_ops</A>
+
+<LI><A HREF="#OWNER_OPS">Owner_ops</A>
+
+<LI><A HREF="#SESSIONABLE_OPS">Sessionable_ops</A>
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>States</FONT></I></B></P>
+<UL><P>
+
+<LI>Addressable_state
+
+<LI>Behavior_TOS_state
+
+<LI>Body_connector_state
+
+<LI>Maintainable_state
+
+<LI>Memberable_state
+
+<LI>Owner_state
+
+<LI>Sessionable_state
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Supporting Operations Used</FONT></I></B></P>
+<UL><P>
+
+<LI><B>???</B>: Sup_addresser_ops
+
+<LI>Avatars: Sup_addressable_ops
+
+<LI>Body: Sup_body_connectable_ops
+
+<LI>Clubs: Sup_memberer_ops
+
+<LI>Other: Sup_ownable_ops
+
+<LI>World: Sup_sessioner_ops
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Direct Verbs</FONT></I></B></P>
+<UL><P>
+
+<LI>None
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Indirect Verbs</FONT></I></B></P>
+<UL><P>
+
+<LI>None
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Animation Names</FONT></I></B></P>
+<UL><P>
+
+<LI>None
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Sound Names</FONT></I></B></P>
+<UL><P>
+
+<LI>None
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Samples</FONT></I></B></P>
+<UL><P>
+
+</P></UL>
+
+<A NAME="Public_access_container"></A>
+
+<P><HR SIZE=4 WIDTH="100%"></P>
+<P><B><I><FONT SIZE=+3> Public_access_container </FONT></I></B></P>
+
+<P><B><I><FONT SIZE=+1>Description</FONT></I></B></P>
+<UL><P>Holds objects.  User can open/close it.  It can be locked open or locked closed... which we are now calling "stuck open" or "stuck closed".  The contents can be locked: when the container is open it can be configured such that the objects cannot be removed.  Get and Put can be "locked" independently: e.g. The container can be set such that objects can be Put In the container, but not removed.  Likewise, the container may allow objects to be removed, but objects cannot be placed in the container.  It may display its contents in a viewer window, or in the main window.  You can look at it, carry it, give it, glue it, move it, name it, own it, can make a cyclical animation and a cyclical ambient sound (set at instantiation time).</P></UL>
+
+<P><B><I><FONT SIZE=+1>Operations</FONT></I></B></P>
+<UL><P>
+
+<LI><A HREF="#CONTAINABLE_OPS">Containable_ops</A>
+
+<LI><A HREF="#LOCATION_OPS">Location_ops</A>
+
+<LI><A HREF="#DISPLAY_OPS">Display_ops</A>
+
+<LI><A HREF="#OWNABLE_OPS">ownable_ops</A>
+
+<LI><A HREF="#PORTABILITY_OPS">portability_ops</A>
+
+<LI><A HREF="#TOS_ELEMENT_OPS">TOS_element_ops</A>
+
+<LI><A HREF="#USERINTERFACE_OPS">UserInterface_ops</A>
+
+<LI><A HREF="#CONTAINER_OPS">Container_ops</A>
+
+<LI><A HREF="#CONTENTS_DISPLAY_OPS">Contents_display_ops</A>
+
+<LI><A HREF="#SUP_CONTAINABLE_OPS">Sup_containable_ops</A>
+
+<LI><A HREF="#SUP_CONTAINER_OPS">Sup_container_ops</A>
+
+<LI><A HREF="#TOS_CONTEXT_OPS">TOS_context_ops</A>
+
+<LI><A HREF="#MAINTAINABLE_OPS">Maintainable_ops</A>
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>States</FONT></I></B></P>
+<UL><P>
+
+<LI>Containable_state
+
+<LI>TOS_state
+
+<LI>Descriptive_state
+
+<LI>Display_state
+
+<LI>Portability_state
+
+<LI>Ownable_state
+
+<LI>Container_state (opened_state, closed_state)
+
+<LI>Location_state/spatial_state
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Supporting Operations Used</FONT></I></B></P>
+<UL><P>
+
+<LI>Actor: avatar_support_ops (avatar_containable_anim_sounds), observer_support_ops, Container(bend over/rummage/etc.)
+
+<LI>Owner: Owner_support_ops
+
+<LI>TOS Root: TOS_element_support_ops
+
+<LI>Escrow_agent: Escrow_support_ops
+
+<LI>Maintainer: maintainer_support_ops
+
+<LI>Contents: container_support_ops
+
+<LI>Container: Containable_support_ops/state, TOS_context_ops/state
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Direct Verbs</FONT></I></B></P>
+<UL><P>
+
+<LI>Pick up
+
+<LI>Describe
+
+<LI>Modify
+
+<LI>Recall
+
+<LI>Glue/Unglue
+
+<LI>Walk To
+
+<LI>Open/Close
+
+<LI>Lock/Unlock
+
+<LI>Look In/Get From
+
+<LI>b
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Indirect Verbs</FONT></I></B></P>
+<UL><P>
+
+<LI>Give/Lend
+
+<LI>Put at/Put In
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Animation Names</FONT></I></B></P>
+<UL><P>
+
+<LI>closing
+
+<LI>opened
+
+<LI>closed
+
+<LI>locking
+
+<LI>locked
+
+<LI>unlocking
+
+<LI>unlocked
+
+<LI>put
+
+<LI>get
+
+<LI>opening
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Sound Names</FONT></I></B></P>
+<UL><P>
+
+<LI>closing
+
+<LI>opened-ambient
+
+<LI>closed-ambient
+
+<LI>locking
+
+<LI>locked-ambient
+
+<LI>put
+
+<LI>get
+
+<LI>Containable_sounds(put/get)
+
+<LI>opening
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Samples</FONT></I></B></P>
+<UL><P>
+
+<LI>Table (stuck_open, unlocked, main_view (displays contents in the main window), non_portable, static, null get/put animations, might be a put/get sound)
+
+<LI>FishBowl (stuck_open, locked, get_locked, put_locked, main_view, portable, Open_animation, open_sound)
+
+<LI>Depository (Stuck_closed, put_unlocked, get_locked, window_view, non-portable, put_in_animation, put_in_sound)
+
+<LI>ServingTray (Stuck_open, unlocked get/put, main_view, portable, no animations, no sound)
+
+<LI>DisplayCase (Stuck_open, get_locked, put_locked, main_view, non-portable, no animations, no sounds)
+
+<LI>Box (Openable, Unlocked, WindowView (displays contents in a window), portable, static_animation, <animations and sounds>)
+
+</P></UL>
+
+<A NAME="Prop"></A>
+
+<P><HR SIZE=4 WIDTH="100%"></P>
+<P><B><I><FONT SIZE=+3> Prop </FONT></I></B></P>
+
+<P><B><I><FONT SIZE=+1>Description</FONT></I></B></P>
+<UL><P>The Generic Object.  You can look at it, carry it, give it, glue it, move it, name it, own it.  The prop can make a cyclical animation and a cyclical ambietn sound (set at instantiation time).</P></UL>
+
+<P><B><I><FONT SIZE=+1>Operations</FONT></I></B></P>
+<UL><P>
+
+<LI><A HREF="#DISPLAY_OPS">Display_ops</A>
+
+<LI><A HREF="#LOCATION_OPS">Location_ops</A>
+
+<LI><A HREF="#OWNABLE_OPS">ownable_ops</A>
+
+<LI><A HREF="#MAINTAINABLE_OPS">Maintainable_ops</A>
+
+<LI><A HREF="#PORTABILITY_OPS">portability_ops</A>
+
+<LI><A HREF="#TOS_ELEMENT_OPS">TOS_element_ops</A>
+
+<LI><A HREF="#USERINTERFACE_OPS">UserInterface_ops</A>
+
+<LI><A HREF="#CONTAINABLE_OPS">Containable_ops</A>
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>States</FONT></I></B></P>
+<UL><P>
+
+<LI>TOS_state
+
+<LI>Descriptive_state
+
+<LI>Display_state
+
+<LI>Portability_state
+
+<LI>Ownable_state
+
+<LI>Spatialer_state
+
+<LI>Containable_state
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Supporting Operations Used</FONT></I></B></P>
+<UL><P>
+
+<LI>Actor: avatar_support_ops (avatar_containable_anim_sounds), observer_support_ops
+
+<LI>Owner: Owner_support_ops
+
+<LI>TOS Root: TOS_element_support_ops
+
+<LI>Escrow_agent: Escrow_support_ops
+
+<LI>Maintainer: maintainer_support_ops
+
+<LI>Container: Containable_support_ops/state, TOS_context_ops/state
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Direct Verbs</FONT></I></B></P>
+<UL><P>
+
+<LI>Displayable_dverbs Describe)
+
+<LI>Maintainable_dverbs (Modify)
+
+<LI>Ownable_dverbs (Recall)
+
+<LI>Portability_dverbs (Glue, unglue) ?
+
+<LI>Container_dverbs (Open, Close, Lock, Unlock, Look in/Get from(?))
+
+<LI>WalkToAble (Walk to)
+
+<LI>Containable_dverbs (Get)
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Indirect Verbs</FONT></I></B></P>
+<UL><P>
+
+<LI>Ownable_iverbs (Give, Lend)
+
+<LI>Containable_iverbs (Put at, Put in)
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Animation Names</FONT></I></B></P>
+<UL><P>
+
+<LI>closing_animation
+
+<LI>opened_animation
+
+<LI>closed_animation
+
+<LI>locking_animation
+
+<LI>locked_animation
+
+<LI>unlocking_animation
+
+<LI>unlocked_animation
+
+<LI>put_animation
+
+<LI>get_animation
+
+<LI>opening_animation
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Sound Names</FONT></I></B></P>
+<UL><P>
+
+<LI>Opening_sound
+
+<LI>Closing_sound
+
+<LI>Opened_ambient_sound
+
+<LI>Closed_ambient_sound
+
+<LI>Locking_sound
+
+<LI>Locked_ambient_sound
+
+<LI>Put_sound
+
+<LI>Get_sound
+
+<LI>Containable_sounds (put/get)
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Samples</FONT></I></B></P>
+<UL><P>
+
+<LI>Table (stuck_open, unlocked, main_view (displays contents in the main window), non_portable, static, null get/put animations, might be a put/get sound)
+
+<LI>FishBowl (stuck_open, locked, get_locked, put_locked, main_view, portable, Open_animation, open_sound)
+
+<LI>Depository (Stuck_closed, put_unlocked, get_locked, window_view, non-portable, put_in_animation, put_in_sound)
+
+<LI>ServingTray (Stuck_open, unlocked get/put, main_view, portable, no animations, no sound)
+
+<LI>DisplayCase (Stuck_open, get_locked, put_locked, main_view, non-portable, no animations, no sounds)
+
+<LI>Box (Openable, Unlocked, WindowView (displays contents in a window), portable, static_animation, <animations and sounds>)
+
+</P></UL>
+
+<A NAME="Private_access_Container (Pocket)"></A>
+
+<P><HR SIZE=4 WIDTH="100%"></P>
+<P><B><I><FONT SIZE=+3> Private_access_Container (Pocket) </FONT></I></B></P>
+
+<P><B><I><FONT SIZE=+1>Description</FONT></I></B></P>
+<UL><P>Holds an avatar's objects.  Is only reachable by the avatar. It always displays its contents in a viewer window.  TOS Rooted at avatar (not region).  Pocket is accessed indirectly from the avatar.</P></UL>
+
+<P><B><I><FONT SIZE=+1>Operations</FONT></I></B></P>
+<UL><P>
+
+<LI><A HREF="#CONTAINABLE_OPS">Containable_ops</A>
+
+<LI><A HREF="#TOS_ELEMENT_OPS">TOS_element_ops</A>
+
+<LI><A HREF="#USERINTERFACE_OPS">UserInterface_ops</A>
+
+<LI><A HREF="#CONTAINER_OPS">Container_ops</A>
+
+<LI><A HREF="#CONTENTS_DISPLAY_OPS">Contents_display_ops</A>
+
+<LI><A HREF="#SUP_CONTAINABLE_OPS">Sup_containable_ops</A>
+
+<LI><A HREF="#SUP_CONTAINER_OPS">Sup_container_ops</A>
+
+<LI><A HREF="#TOS_CONTEXT_OPS">TOS_context_ops</A>
+
+<LI><A HREF="#DISPLAY_OPS">Display_ops</A>
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>States</FONT></I></B></P>
+<UL><P>
+
+<LI>TOS_state
+
+<LI>Display_state
+
+<LI>Container_state (at least contents, and locations for the contents)
+
+<LI>Containable_state
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Supporting Operations Used</FONT></I></B></P>
+<UL><P>
+
+<LI>Actor: avatar_support_ops, observer_support_ops, Container(pocket)
+
+<LI>TOS Root: TOS_element_support_ops
+
+<LI>Contents: container_support_ops
+
+<LI>(TOS_Root and Container are related to Identity)
+
+<LI>Container: Containable_support_ops/state, TOS_context_ops/state
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Direct Verbs</FONT></I></B></P>
+<UL><P>
+
+<LI>Displayable_dverbs (Describe)
+
+<LI>Container_dverbs (Look in/Get from(?))
+
+<LI>[Via Avatar: put_in pocket verb]
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Indirect Verbs</FONT></I></B></P>
+<UL><P>
+
+<LI>Ownable_iverbs (Give, Lend)
+
+<LI>Containable_iverbs (Put at, Put in)
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Animation Names</FONT></I></B></P>
+<UL><P>
+
+<LI>(See avatar for related animations)
+
+<LI>None
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Sound Names</FONT></I></B></P>
+<UL><P>
+
+<LI>Un_pocketing_sound
+
+<LI>Pocketing_sound
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Samples</FONT></I></B></P>
+<UL><P>
+
+<LI>Pocket
+
+</P></UL>
+
+<A NAME="Walkable"></A>
+
+<P><HR SIZE=4 WIDTH="100%"></P>
+<P><B><I><FONT SIZE=+3> Walkable </FONT></I></B></P>
+
+<P><B><I><FONT SIZE=+1>Description</FONT></I></B></P>
+<UL><P>Prop + walkable.  Floors, walls, etc.</P></UL>
+
+<P><B><I><FONT SIZE=+1>Operations</FONT></I></B></P>
+<UL><P>
+
+<LI><A HREF="#DISPLAY_OPS">Display_ops</A>
+
+<LI><A HREF="#LOCATION_OPS">Location_ops</A>
+
+<LI><A HREF="#OWNABLE_OPS">ownable_ops</A>
+
+<LI><A HREF="#MAINTAINABLE_OPS">Maintainable_ops</A>
+
+<LI><A HREF="#PORTABILITY_OPS">portability_ops</A>
+
+<LI><A HREF="#TOS_ELEMENT_OPS">TOS_element_ops</A>
+
+<LI><A HREF="#USERINTERFACE_OPS">UserInterface_ops</A>
+
+<LI><A HREF="#WALKABLE_OPS">Walkable_ops</A>
+
+<LI><A HREF="#CONTAINABLE_OPS">Containable_ops</A>
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>States</FONT></I></B></P>
+<UL><P>
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Supporting Operations Used</FONT></I></B></P>
+<UL><P>
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Direct Verbs</FONT></I></B></P>
+<UL><P>
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Indirect Verbs</FONT></I></B></P>
+<UL><P>
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Animation Names</FONT></I></B></P>
+<UL><P>
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Sound Names</FONT></I></B></P>
+<UL><P>
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Samples</FONT></I></B></P>
+<UL><P>
+
+</P></UL>
+
+<A NAME="Basic Region"></A>
+
+<P><HR SIZE=4 WIDTH="100%"></P>
+<P><B><I><FONT SIZE=+3> Basic Region </FONT></I></B></P>
+
+<P><B><I><FONT SIZE=+1>Description</FONT></I></B></P>
+<UL><P>The generic region -- The main user context.  Users play here.  Part of a Realm.  More of a reactive object.  Keeper and distributor of all unum facets.  Keeper of the Root TOS. Holds all user contexts: conversations, spatial, entry/exit,path planning, and contents.(We still need to account for spatiality in the region spec/design.  It is not yet handled here.)</P></UL>
+
+<P><B><I><FONT SIZE=+1>Operations</FONT></I></B></P>
+<UL><P>
+
+<LI><A HREF="#CONTENTS_DISPLAY_OPS">Contents_display_ops</A>
+
+<LI><A HREF="#TOS_CONTEXT_OPS">TOS_context_ops</A>
+
+<LI><A HREF="#SPECIAL_ENTRY_EXIT_OPS">Special_entry_exit_ops</A>
+
+<LI><A HREF="#DISPLAY_OPS">Display_ops</A>
+
+<LI><A HREF="#SUP_CONTAINABLE_OPS">Sup_containable_ops</A>
+
+<LI><A HREF="#OWNABLE_OPS">Ownable_ops</A>
+
+<LI><A HREF="#REALMABLE_OPS">Realmable_ops</A>
+
+<LI><A HREF="#MAINTAINABLE_OPS">Maintainable_ops</A>
+
+<LI><A HREF="#UNUM_FACET_MGR_OPS">Unum_facet_mgr_ops</A>
+
+<LI><A HREF="#CONVERSATION_MGR_OPS">Conversation_mgr_ops</A>
+
+<LI><A HREF="#PATH_PLANNER_OPS">Path_planner_ops</A>
+
+<LI><A HREF="#REGION_SERVICE_OPS">Region_service_ops</A>
+
+<LI><A HREF="#CONTAINER_OPS">Container_ops</A>
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>States</FONT></I></B></P>
+<UL><P>
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Supporting Operations Used</FONT></I></B></P>
+<UL><P>
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Direct Verbs</FONT></I></B></P>
+<UL><P>
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Indirect Verbs</FONT></I></B></P>
+<UL><P>
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Animation Names</FONT></I></B></P>
+<UL><P>
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Sound Names</FONT></I></B></P>
+<UL><P>
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Samples</FONT></I></B></P>
+<UL><P>
+
+</P></UL>
+
+<A NAME="Basic Realm"></A>
+
+<P><HR SIZE=4 WIDTH="100%"></P>
+<P><B><I><FONT SIZE=+3> Basic Realm </FONT></I></B></P>
+
+<P><B><I><FONT SIZE=+1>Description</FONT></I></B></P>
+<UL><P>The generic Realm.  A collection of Regions and Realms.  Mostly for TOS and Demographic stuff.  Spatiality?</P></UL>
+
+<P><B><I><FONT SIZE=+1>Operations</FONT></I></B></P>
+<UL><P>
+
+<LI><A HREF="#INTER_REALM_OPS">Inter_realm_ops</A>
+
+<LI><A HREF="#TOS_CONTEXT_OPS">TOS_context_ops</A>
+
+<LI><A HREF="#DISPLAY_OPS">Display_ops</A>
+
+<LI><A HREF="#OWNABLE_OPS">Ownable_ops</A>
+
+<LI><A HREF="#REALMABLE_OPS">Realmable_ops</A>
+
+<LI><A HREF="#SUP_REALMABLE_OPS">Sup_Realmable_ops</A>
+
+<LI><A HREF="#SUP_REALMER_OPS">Sup_realmer_ops</A>
+
+<LI><A HREF="#MAINTAINABLE_OPS">Maintainable_ops</A>
+
+<LI><A HREF="#REGION_FACET_MGR_OPS">Region_facet_mgr_ops</A>
+
+<LI><A HREF="#REALM_SERVICE_OPS">Realm_service_ops</A>
+
+<LI><A HREF="#REALMER_OPS">Realmer_ops</A>
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>States</FONT></I></B></P>
+<UL><P>
+
+<LI>Realm_state (contents)
+
+<LI>Ownable_state
+
+<LI>TOS_state
+
+<LI>Demographic_state (who, what, when)
+
+<LI>Region_facets_state
+
+<LI>Display_state
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Supporting Operations Used</FONT></I></B></P>
+<UL><P>
+
+<LI>Region/Realm: Realmer_support_ops
+
+<LI>Actor: Maintainable_support_ops
+
+<LI>Owner: Ownable_support_ops
+
+<LI>Realm: Realmable_support_ops, TOS_context_ops
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Direct Verbs</FONT></I></B></P>
+<UL><P>
+
+<LI>Maintainable_dverbs (Modify)
+
+<LI>Displayable_dverbs (Describe  -- is displayed maybe in balloon)
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Indirect Verbs</FONT></I></B></P>
+<UL><P>
+
+<LI>None.
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Animation Names</FONT></I></B></P>
+<UL><P>
+
+<LI>None.
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Sound Names</FONT></I></B></P>
+<UL><P>
+
+<LI>None.
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Samples</FONT></I></B></P>
+<UL><P>
+
+<LI>Regions, Turfs
+
+</P></UL>
+
+<A NAME="Basic Portal"></A>
+
+<P><HR SIZE=4 WIDTH="100%"></P>
+<P><B><I><FONT SIZE=+3> Basic Portal </FONT></I></B></P>
+
+<P><B><I><FONT SIZE=+1>Description</FONT></I></B></P>
+<UL><P>The Generic Portal.  "Prop+".  A prop (yes") which lets you travel through it, either departing or arriving.  Either a capability portal or a URL portal, pointing at a region via a revokable capability.  (Teleporters are "non-prop" protal access.)</P></UL>
+
+<P><B><I><FONT SIZE=+1>Operations</FONT></I></B></P>
+<UL><P>
+
+<LI><A HREF="#DISPLAY_OPS">Display_ops</A>
+
+<LI><A HREF="#LOCATION_OPS">Location_ops</A>
+
+<LI><A HREF="#OWNABLE_OPS">ownable_ops</A>
+
+<LI><A HREF="#MAINTAINABLE_OPS">Maintainable_ops</A>
+
+<LI><A HREF="#PORTABILITY_OPS">portability_ops</A>
+
+<LI><A HREF="#TOS_ELEMENT_OPS">TOS_element_ops</A>
+
+<LI><A HREF="#USERINTERFACE_OPS">UserInterface_ops</A>
+
+<LI><A HREF="#PORTALTRANSIT_OPS">PortalTransit_ops</A>
+
+<LI><A HREF="#CONTAINABLE_OPS">Containable_ops</A>
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>States</FONT></I></B></P>
+<UL><P>
+
+<LI>Portal_state (maintaining the destination)
+
+<LI>Target: capability or URL & destination/arrival location
+
+<LI>Prop_state
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Supporting Operations Used</FONT></I></B></P>
+<UL><P>
+
+<LI>Region - port_entry_support_ops
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Direct Verbs</FONT></I></B></P>
+<UL><P>
+
+<LI>Go
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Indirect Verbs</FONT></I></B></P>
+<UL><P>
+
+<LI>None
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Animation Names</FONT></I></B></P>
+<UL><P>
+
+<LI>Arrival_animation
+
+<LI>Departure_animation
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Sound Names</FONT></I></B></P>
+<UL><P>
+
+<LI>Arrival_sound
+
+<LI>Departure_sound
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Samples</FONT></I></B></P>
+<UL><P>
+
+<LI>Teleporters
+
+<LI>Doors (stuck_animating)
+
+</P></UL>
+
+<A NAME="ActivePoster"></A>
+
+<P><HR SIZE=4 WIDTH="100%"></P>
+<P><B><I><FONT SIZE=+3> ActivePoster </FONT></I></B></P>
+
+<P><B><I><FONT SIZE=+1>Description</FONT></I></B></P>
+<UL><P>Click on this to lauch a URL: either teleport or web page.  Can be texturized.</P></UL>
+
+<P><B><I><FONT SIZE=+1>Operations</FONT></I></B></P>
+<UL><P>
+
+<LI><A HREF="#TEXTURIZER_OPS">Texturizer_ops</A>
+
+<LI><A HREF="#SUP_TEXTURIZER_OPS">Sup_Texturizer_ops</A>
+
+<LI><A HREF="#EXTERNAL_REFERENCE_OPS">External_reference_ops</A>
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>States</FONT></I></B></P>
+<UL><P>
+
+<LI>External_reference_state (url)
+
+<LI>Texturizable_state (ref to unum?, ref to bits?)
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Supporting Operations Used</FONT></I></B></P>
+<UL><P>
+
+<LI>Texturizer: Sup_texturable_ops
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Direct Verbs</FONT></I></B></P>
+<UL><P>
+
+<LI>Ext_ref_dverb (goto URL, set URL)
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Indirect Verbs</FONT></I></B></P>
+<UL><P>
+
+<LI>None
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Animation Names</FONT></I></B></P>
+<UL><P>
+
+<LI>None
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Sound Names</FONT></I></B></P>
+<UL><P>
+
+<LI>None
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Samples</FONT></I></B></P>
+<UL><P>
+
+<LI>teleporting sign
+
+<LI>Advertising Banner
+
+</P></UL>
+
+<A NAME="Avatar"></A>
+
+<P><HR SIZE=4 WIDTH="100%"></P>
+<P><B><I><FONT SIZE=+3> Avatar </FONT></I></B></P>
+
+<P><B><I><FONT SIZE=+1>Description</FONT></I></B></P>
+<UL><P>One of the user's representation in various worlds - especially microcosm.  Holds private stuff (e.g. pocket, Address book).  Manipulates other objects.  Can carry one something.  Can wear objects.  Can gesture.  Can walk.  The avatar is a TOS context.  Know's where it lives - where's its turf is.  Can become an observer.</P></UL>
+
+<P><B><I><FONT SIZE=+1>Operations</FONT></I></B></P>
+<UL><P>
+
+<LI><A HREF="#DISPLAY_OPS">Display_ops</A>
+
+<LI><A HREF="#MAINTAINABLE_OPS">Maintainable_ops</A>
+
+<LI><A HREF="#CONTAINABLE_OPS">Containable_ops</A>
+
+<LI><A HREF="#TOS_ELEMENT_OPS">TOS_element_ops</A>
+
+<LI><A HREF="#TOS_CONTEXT_OPS">TOS_context_ops</A>
+
+<LI><A HREF="#USERINTERFACE_OPS">UserInterface_ops</A>
+
+<LI><A HREF="#WEARER_OPS">Wearer_ops</A>
+
+<LI><A HREF="#HOLDER_OPS">Holder_ops</A>
+
+<LI><A HREF="#GESTURE_OPS">Gesture_ops</A>
+
+<LI><A HREF="#SUP_CONTAINER_OPS">Sup_container_ops</A>
+
+<LI><A HREF="#REGION_CONVERSER_OPS">Region_converser_ops</A>
+
+<LI><A HREF="#SUP_AVATAR_ACTION_OPS">Sup_avatar_action_ops</A>
+
+<LI><A HREF="#OBSERVE_OPS">Observe_ops</A>
+
+<LI><A HREF="#SEATABLE_OPS">Seatable_ops</A>
+
+<LI><A HREF="#LOCATION_OPS">Location_ops</A>
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>States</FONT></I></B></P>
+<UL><P>
+
+<LI>Map_unum_ref
+
+<LI>Observer_unum_ref
+
+<LI>Region_unum_ref
+
+<LI>AddressBookUnum_ref
+
+<LI>TurfUnum_ref
+
+<LI>Wearer_state
+
+<LI>Hodler_state
+
+<LI>Containable_state
+
+<LI>Maintainable_state
+
+<LI>TOS_context_state
+
+<LI>TOS_element_state
+
+<LI>Location_state
+
+<LI>Gesture_state
+
+<LI>Region_converser_state
+
+<LI>Action/Sound/Animation_state
+
+<LI>Pocket_unum_ref
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Supporting Operations Used</FONT></I></B></P>
+<UL><P>
+
+<LI>Pocket: Container_ops
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Direct Verbs</FONT></I></B></P>
+<UL><P>
+
+<LI>		
+
+<LI>Avatar_them_verbs (Follow, Stop Following, Send telepathy, set group)
+
+<LI>Note: If you click on another avatar, you can't select holding or wearing.
+
+<LI>Avatar_you_verbs (Observe, Open Pocket, modify (Set TOS context), teleport to)
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Indirect Verbs</FONT></I></B></P>
+<UL><P>
+
+<LI>None
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Animation Names</FONT></I></B></P>
+<UL><P>
+
+<LI>See how other una wants to use the avatar.
+
+<LI>Become observer animation
+
+<LI>Become avatar animation
+
+<LI>Sit animation
+
+<LI>Put object in pocket animation
+
+<LI>Gun Reloading animation
+
+<LI>Gun Shooting animation
+
+<LI>Lots.  
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Sound Names</FONT></I></B></P>
+<UL><P>
+
+<LI>See how other una wants to use the avatar.
+
+<LI>Become observer sound
+
+<LI>Become Avatar sound
+
+<LI>Put object in pocket sound
+
+<LI>Lots.. 
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Samples</FONT></I></B></P>
+<UL><P>
+
+</P></UL>
+
+<A NAME="Observer"></A>
+
+<P><HR SIZE=4 WIDTH="100%"></P>
+<P><B><I><FONT SIZE=+3> Observer </FONT></I></B></P>
+
+<P><B><I><FONT SIZE=+1>Description</FONT></I></B></P>
+<UL><P>One of the user's representations.  Represents more than one user.  Can become avatar, It the region allows.  If the region supports observers, then the observer unum always exists.  As an observer, the user can bring up his pocket contents, the map, addressbook, etc.</P></UL>
+
+<P><B><I><FONT SIZE=+1>Operations</FONT></I></B></P>
+<UL><P>
+
+<LI><A HREF="#SUP_OBSERVER_OPS">Sup_observer_ops</A>
+
+<LI><A HREF="#REGISTER_OBSERVER_OPS">Register_observer_ops</A>
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>States</FONT></I></B></P>
+<UL><P>
+
+<LI>Observer_count
+
+<LI>Sesson_unum_ref (holds local avatar ref)
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Supporting Operations Used</FONT></I></B></P>
+<UL><P>
+
+<LI>Avatar: Materialize_ops, Open_Pocket_ops, Address_book_ops, Teleport_ops.
+
+<LI>Region: Sup_observeable_ops
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Direct Verbs</FONT></I></B></P>
+<UL><P>
+
+<LI>    How many observers?, 
+
+<LI>    Become avatar, 
+
+<LI>    Open Pocket, 
+
+<LI>    Open Addressbook, 
+
+<LI>    Teleport to
+
+<LI>Observer_dverbs
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Indirect Verbs</FONT></I></B></P>
+<UL><P>
+
+<LI>None.
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Animation Names</FONT></I></B></P>
+<UL><P>
+
+<LI>Observer_image
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Sound Names</FONT></I></B></P>
+<UL><P>
+
+<LI>None.
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Samples</FONT></I></B></P>
+<UL><P>
+
+<LI>The Observer, Ghost, etc.
+
+</P></UL>
+
+<A NAME="Seat"></A>
+
+<P><HR SIZE=4 WIDTH="100%"></P>
+<P><B><I><FONT SIZE=+3> Seat </FONT></I></B></P>
+
+<P><B><I><FONT SIZE=+1>Description</FONT></I></B></P>
+<UL><P>Avatars can sit on it.  Also holds things.  Much like a container.  (Note: we noted that containers like chests and boxes can not perform double duty as seats.  The issue of what happens when you "open the seat" comes up.)</P></UL>
+
+<P><B><I><FONT SIZE=+1>Operations</FONT></I></B></P>
+<UL><P>
+
+<LI><A HREF="#DISPLAY_OPS">Display_ops</A>
+
+<LI><A HREF="#LOCATION_OPS">Location_ops</A>
+
+<LI><A HREF="#OWNABLE_OPS">ownable_ops</A>
+
+<LI><A HREF="#MAINTAINABLE_OPS">Maintainable_ops</A>
+
+<LI><A HREF="#PORTABILITY_OPS">portability_ops</A>
+
+<LI><A HREF="#TOS_ELEMENT_OPS">TOS_element_ops</A>
+
+<LI><A HREF="#USERINTERFACE_OPS">UserInterface_ops</A>
+
+<LI><A HREF="#SEATER_OPS">Seater_ops</A>
+
+<LI><A HREF="#CONTAINER_OPS">Container_ops</A>
+
+<LI><A HREF="#TEXTURIZABLE_OPS">Texturizable_ops</A>
+
+<LI><A HREF="#SUP_SEATABLE_OPS">Sup_seatable_ops</A>
+
+<LI><A HREF="#SUP_CONTAINABLE_OPS">Sup_containable_ops</A>
+
+<LI><A HREF="#SUP_TEXTURIZER_OPS">Sup_Texturizer_ops</A>
+
+<LI><A HREF="#CONTAINABLE_OPS">Containable_ops</A>
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>States</FONT></I></B></P>
+<UL><P>
+
+<LI>Container_state ?
+
+<LI>Texturizable_state
+
+<LI>Seater_state (Max avatars, avatar list)
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Supporting Operations Used</FONT></I></B></P>
+<UL><P>
+
+<LI>Avatar: sup_seater_ops
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Direct Verbs</FONT></I></B></P>
+<UL><P>
+
+<LI>Subset of Container_dverbs.
+
+<LI>Seater_dverbs(sit here) 
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Indirect Verbs</FONT></I></B></P>
+<UL><P>
+
+<LI>None.
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Animation Names</FONT></I></B></P>
+<UL><P>
+
+<LI>Sit down
+
+<LI>Get up
+
+<LI>Container_animations
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Sound Names</FONT></I></B></P>
+<UL><P>
+
+<LI>Sit down
+
+<LI>Get up
+
+<LI>Container sounds
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Samples</FONT></I></B></P>
+<UL><P>
+
+<LI>Chairs (1 seat slot), Couches/Benches (multiple seat slots)
+
+</P></UL>
+
+<A NAME="Skeet_gun"></A>
+
+<P><HR SIZE=4 WIDTH="100%"></P>
+<P><B><I><FONT SIZE=+3> Skeet_gun </FONT></I></B></P>
+
+<P><B><I><FONT SIZE=+1>Description</FONT></I></B></P>
+<UL><P>Destroys skeets, reloading/limited shots, other normal functions.  Mouse click on the Skeet target destroys the target while the gun is held.</P></UL>
+
+<P><B><I><FONT SIZE=+1>Operations</FONT></I></B></P>
+<UL><P>
+
+<LI><A HREF="#DISPLAY_OPS">Display_ops</A>
+
+<LI><A HREF="#LOCATION_OPS">Location_ops</A>
+
+<LI><A HREF="#OWNABLE_OPS">ownable_ops</A>
+
+<LI><A HREF="#MAINTAINABLE_OPS">Maintainable_ops</A>
+
+<LI><A HREF="#PORTABILITY_OPS">portability_ops</A>
+
+<LI><A HREF="#TOS_ELEMENT_OPS">TOS_element_ops</A>
+
+<LI><A HREF="#USERINTERFACE_OPS">UserInterface_ops</A>
+
+<LI><A HREF="#SKEETER_OPS">Skeeter_ops</A>
+
+<LI><A HREF="#RELOADABLE_OPS">Reloadable_ops</A>
+
+<LI><A HREF="#SUP_RELOADABLE_OPS">Sup_reloadable_ops</A>
+
+<LI><A HREF="#CONTAINABLE_OPS">Containable_ops</A>
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>States</FONT></I></B></P>
+<UL><P>
+
+<LI>Skeeter_state(number of pellets, trigger_delay)
+
+<LI>Prop_state
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Supporting Operations Used</FONT></I></B></P>
+<UL><P>
+
+<LI>Avatar: Avatar_shooting_animation, Avatar_reloading_animation
+
+<LI>Skeet_range, Gun_shop: Sup_reloader_ops
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Direct Verbs</FONT></I></B></P>
+<UL><P>
+
+<LI>None.
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Indirect Verbs</FONT></I></B></P>
+<UL><P>
+
+<LI>		Reloader_Iverbs(Reload)
+
+<LI>Skeeter_Iverbs (Shoot [Default] *on non-skeetable too" - except floor)
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Animation Names</FONT></I></B></P>
+<UL><P>
+
+<LI>Empty_Fire_animation (?)
+
+<LI>Reload_animation
+
+<LI>Empty_animation
+
+<LI>Fire_animation
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Sound Names</FONT></I></B></P>
+<UL><P>
+
+<LI>Empty_Fire_sound
+
+<LI>Reload_sound
+
+<LI>Empty_sound	
+
+<LI>Fire_sounds
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Samples</FONT></I></B></P>
+<UL><P>
+
+<LI>All sorts of target based guns.
+
+</P></UL>
+
+<A NAME="Skeet_judge"></A>
+
+<P><HR SIZE=4 WIDTH="100%"></P>
+<P><B><I><FONT SIZE=+3> Skeet_judge </FONT></I></B></P>
+
+<P><B><I><FONT SIZE=+1>Description</FONT></I></B></P>
+<UL><P>Context for a multiplayer game of  target practice, other normal functions. Sells bullets, can make & launch & register targets.  Targets can register with the skeet_range.  (Bullets might be redeemable, however we'll sort this out later.)</P></UL>
+
+<P><B><I><FONT SIZE=+1>Operations</FONT></I></B></P>
+<UL><P>
+
+<LI><A HREF="#DISPLAY_OPS">Display_ops</A>
+
+<LI><A HREF="#LOCATION_OPS">Location_ops</A>
+
+<LI><A HREF="#OWNABLE_OPS">ownable_ops</A>
+
+<LI><A HREF="#MAINTAINABLE_OPS">Maintainable_ops</A>
+
+<LI><A HREF="#PORTABILITY_OPS">portability_ops</A>
+
+<LI><A HREF="#TOS_ELEMENT_OPS">TOS_element_ops</A>
+
+<LI><A HREF="#USERINTERFACE_OPS">UserInterface_ops</A>
+
+<LI><A HREF="#SKEETJUDGER_OPS">SkeetJudger_ops</A>
+
+<LI><A HREF="#RELOADER_OPS">Reloader_ops</A>
+
+<LI><A HREF="#SUP_RELOADABLE_OPS">Sup_reloadable_ops</A>
+
+<LI><A HREF="#SUP_SKEETJUDGABLE_OPS">Sup_SkeetJudgable_ops</A>
+
+<LI><A HREF="#CONTAINABLE_OPS">Containable_ops</A>
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>States</FONT></I></B></P>
+<UL><P>
+
+<LI>Game characteristics
+
+<LI>    - create targets
+
+<LI>    - Total targets
+
+<LI>    - Refresh targets
+
+<LI>    - Score reset criteria
+
+<LI>    - Exit conditions
+
+<LI>Table of  [ammo, score, name]
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Supporting Operations Used</FONT></I></B></P>
+<UL><P>
+
+<LI>Gun: Sup_Skeetable_ops ?
+
+<LI>Skeet_range, Gun_shop: Sup_SkeetJudgeable_ops
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Direct Verbs</FONT></I></B></P>
+<UL><P>
+
+<LI>SkeetJudgable_dverb(Start_game)
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Indirect Verbs</FONT></I></B></P>
+<UL><P>
+
+<LI>SkeetJudger_iverbs(Register_target, unregister_target)
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Animation Names</FONT></I></B></P>
+<UL><P>
+
+<LI>End_game
+
+<LI>Launch_Target
+
+<LI>Score_update
+
+<LI>Sell_bullets
+
+<LI>Register_target
+
+<LI>Start_game
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Sound Names</FONT></I></B></P>
+<UL><P>
+
+<LI>End_game
+
+<LI>Launch_Target
+
+<LI>Score_update
+
+<LI>Sell_bullets
+
+<LI>Register_target
+
+<LI>Start_game
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Samples</FONT></I></B></P>
+<UL><P>
+
+<LI>Gallery (zero created targets, non-destroy, no scoring)
+
+<LI>Skeet (five flying targets, destructable, reset on start)
+
+</P></UL>
+
+<A NAME="Skeet_target"></A>
+
+<P><HR SIZE=4 WIDTH="100%"></P>
+<P><B><I><FONT SIZE=+3> Skeet_target </FONT></I></B></P>
+
+<P><B><I><FONT SIZE=+1>Description</FONT></I></B></P>
+<UL><P>Potentially destroyable target, may move around, other normal functions.  May react to hits.</P></UL>
+
+<P><B><I><FONT SIZE=+1>Operations</FONT></I></B></P>
+<UL><P>
+
+<LI><A HREF="#DISPLAY_OPS">Display_ops</A>
+
+<LI><A HREF="#LOCATION_OPS">Location_ops</A>
+
+<LI><A HREF="#OWNABLE_OPS">ownable_ops</A>
+
+<LI><A HREF="#MAINTAINABLE_OPS">Maintainable_ops</A>
+
+<LI><A HREF="#PORTABILITY_OPS">portability_ops</A>
+
+<LI><A HREF="#TOS_ELEMENT_OPS">TOS_element_ops</A>
+
+<LI><A HREF="#USERINTERFACE_OPS">UserInterface_ops</A>
+
+<LI><A HREF="#SKEETABLE_OPS">Skeetable_ops</A>
+
+<LI><A HREF="#SKEETJUDGABLE_OPS">SkeetJudgable_ops</A>
+
+<LI><A HREF="#SUP_SKEETER_OPS">Sup_skeeter_ops</A>
+
+<LI><A HREF="#SUP_SKEETJUDGER_OPS">Sup_SkeetJudger_ops</A>
+
+<LI><A HREF="#CONTAINABLE_OPS">Containable_ops</A>
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>States</FONT></I></B></P>
+<UL><P>
+
+<LI>    Destroy (for targets that disappear when hit)
+
+<LI>    Play Animation (for targets that change when hit) 
+
+<LI>    Nothing (for background scenery that is shootable, but nothing happens)
+
+<LI>Hit_reaction_state 
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Supporting Operations Used</FONT></I></B></P>
+<UL><P>
+
+<LI>Gun: Sup_Skeetable_ops ?
+
+<LI>Skeet_range, Gun_shop: Sup_SkeetJudgeable_ops
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Direct Verbs</FONT></I></B></P>
+<UL><P>
+
+<LI>None
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Indirect Verbs</FONT></I></B></P>
+<UL><P>
+
+<LI>None
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Animation Names</FONT></I></B></P>
+<UL><P>
+
+<LI>Hit Animation
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Sound Names</FONT></I></B></P>
+<UL><P>
+
+<LI>Hit Sounds
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Samples</FONT></I></B></P>
+<UL><P>
+
+<LI>Targets
+
+<LI>Skeet range background
+
+</P></UL>
+
+<A NAME="Texturizer/Swatch/paint"></A>
+
+<P><HR SIZE=4 WIDTH="100%"></P>
+<P><B><I><FONT SIZE=+3> Texturizer/Swatch/paint </FONT></I></B></P>
+
+<P><B><I><FONT SIZE=+1>Description</FONT></I></B></P>
+<UL><P>A device that changes textures on other texturizable things.</P></UL>
+
+<P><B><I><FONT SIZE=+1>Operations</FONT></I></B></P>
+<UL><P>
+
+<LI><A HREF="#DISPLAY_OPS">Display_ops</A>
+
+<LI><A HREF="#LOCATION_OPS">Location_ops</A>
+
+<LI><A HREF="#OWNABLE_OPS">ownable_ops</A>
+
+<LI><A HREF="#MAINTAINABLE_OPS">Maintainable_ops</A>
+
+<LI><A HREF="#PORTABILITY_OPS">portability_ops</A>
+
+<LI><A HREF="#TOS_ELEMENT_OPS">TOS_element_ops</A>
+
+<LI><A HREF="#USERINTERFACE_OPS">UserInterface_ops</A>
+
+<LI><A HREF="#STATE_CHANGE_OPS">State_change_ops</A>
+
+<LI><A HREF="#TEXTURIZER_OPS">Texturizer_ops</A>
+
+<LI><A HREF="#TEXTURIZABLE_OPS">Texturizable_ops</A>
+
+<LI><A HREF="#CONTAINABLE_OPS">Containable_ops</A>
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>States</FONT></I></B></P>
+<UL><P>
+
+<LI>Texturizer_state (pattern, Texture or paint)
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Supporting Operations Used</FONT></I></B></P>
+<UL><P>
+
+<LI>Avatar: texturizing animation	
+
+<LI>Target object: sup_texturizer_ops
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Direct Verbs</FONT></I></B></P>
+<UL><P>
+
+<LI>None.
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Indirect Verbs</FONT></I></B></P>
+<UL><P>
+
+<LI>Texturize_iverb (apply texture)
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Animation Names</FONT></I></B></P>
+<UL><P>
+
+<LI>Paint animation
+
+<LI>Texturize animation
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Sound Names</FONT></I></B></P>
+<UL><P>
+
+<LI>Paint sound
+
+<LI>Texturize sound
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Samples</FONT></I></B></P>
+<UL><P>
+
+<LI>Swatch: (Texture, Denim)
+
+<LI>Paint can: (Paint, Blue)
+
+</P></UL>
+
+<A NAME="Stateful Prop"></A>
+
+<P><HR SIZE=4 WIDTH="100%"></P>
+<P><B><I><FONT SIZE=+3> Stateful Prop </FONT></I></B></P>
+
+<P><B><I><FONT SIZE=+1>Description</FONT></I></B></P>
+<UL><P>This is a prop that maintains some state.  User can change the state though a menu action, which results in the prop displaying a different image representing the new state.  There can be N states.  To possible controls for the next state are:		- increment		- decrement		- choose specific state.Additionally: optional animation/sound sequence between state changes, where the animation can be specific to the current state and new state.</P></UL>
+
+<P><B><I><FONT SIZE=+1>Operations</FONT></I></B></P>
+<UL><P>
+
+<LI><A HREF="#DISPLAY_OPS">Display_ops</A>
+
+<LI><A HREF="#LOCATION_OPS">Location_ops</A>
+
+<LI><A HREF="#OWNABLE_OPS">ownable_ops</A>
+
+<LI><A HREF="#MAINTAINABLE_OPS">Maintainable_ops</A>
+
+<LI><A HREF="#PORTABILITY_OPS">portability_ops</A>
+
+<LI><A HREF="#TOS_ELEMENT_OPS">TOS_element_ops</A>
+
+<LI><A HREF="#USERINTERFACE_OPS">UserInterface_ops</A>
+
+<LI><A HREF="#STATE_CHANGE_OPS">State_change_ops</A>
+
+<LI><A HREF="#CONTAINABLE_OPS">Containable_ops</A>
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>States</FONT></I></B></P>
+<UL><P>
+
+<LI>State_to_Verb (table) [contains verbs and target states]
+
+<LI>Current_State (value)
+
+<LI>Number_of_States (Value)
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Supporting Operations Used</FONT></I></B></P>
+<UL><P>
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Direct Verbs</FONT></I></B></P>
+<UL><P>
+
+<LI>Change_state_dverb
+
+<LI>      ((State_to_Verb(Current_State))
+
+<LI>Prop_verbs
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Indirect Verbs</FONT></I></B></P>
+<UL><P>
+
+<LI>None
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Animation Names</FONT></I></B></P>
+<UL><P>
+
+<LI>State_image(s)  (one per state)
+
+<LI>Change_state_animation(s)
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Sound Names</FONT></I></B></P>
+<UL><P>
+
+<LI>State_sound(s)  (one per state)
+
+<LI>Change_state_animation(s)
+
+</P></UL>
+
+<P><B><I><FONT SIZE=+1>Samples</FONT></I></B></P>
+<UL><P>
+
+<LI>Othello piece (states: black & white, verbs: flip (to black), flip (to white)
+
+<LI>Chess piece (states:Pawn & Rook & ..., verbs: Promote (to next))
+
+<LI>Slide Show (states: Slide 1 & 2 &..., verbs: Next Image (to next))
+
+<LI>Decorative Lamp (states: off & on, verbs: Turn on, Turn off)
+
+<LI>Snow globe(states: Idle & Shaken, verbs: Shake (to Shaken, returns to Idle))
+
+<LI>Fireworks(states: Inert & Lit & Exploding, verbs: Light (to lit to explode to inert)
+
+<LI>Checker piece (states/images: normal & kinged, state to verb:King me, Remove king)
+
+</P></UL>
+
+</BODY>
+</HTML>
+
+<A NAME="OPERATIONS"></A>
+
+<P><HR SIZE=4 WIDTH="100%"></P>
+<TABLE BORDER=1>
+
+<P><B><I><FONT SIZE=+1>Unum Operations</FONT></I></B></P>
+
+<TR>
+
+<TD><B>Operation Name</B></TD>
+
+<TD><B>Op Type</B></TD>
+
+<TD><B>Description</B></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="ADDRESSABLE_OPS"></A>Addressable_ops</TD>
+
+<TD>able_ops</TD>
+
+<TD>Telepathy, etc.</TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="ADDRESSER_OPS"></A>Addresser_ops</TD>
+
+<TD>er_ops</TD>
+
+<TD>Address book.</TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="BEHAVIOR_TOS_OPS"></A>Behavior_TOS_ops</TD>
+
+<TD>able_ops <B>(???)</B></TD>
+
+<TD>What others can ask for.</TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="BODY_CONNECTOR_OPS"></A>Body_connector_ops</TD>
+
+<TD>er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="CONTAINABLE_OPS"></A>Containable_ops</TD>
+
+<TD>able_ops</TD>
+
+<TD>Operations for unums that can be placed in a container.</TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="CONTAINER_OPS"></A>Container_ops</TD>
+
+<TD>er_ops</TD>
+
+<TD>Operations presented by objects that can contain other objects.</TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="CONTENTS_DISPLAY_OPS"></A>Contents_display_ops</TD>
+
+<TD>Er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="CONVERSATION_MGR_OPS"></A>Conversation_mgr_ops</TD>
+
+<TD>ZOther</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="DISPLAY_OPS"></A>Display_ops</TD>
+
+<TD>Er_ops</TD>
+
+<TD>Operations to get and set presentation related information.  </TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="EXTERNAL_REFERENCE_OPS"></A>External_reference_ops</TD>
+
+<TD>Er_ops</TD>
+
+<TD>Operations that enable URLs to the web and/or microcosm destinations.</TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="GESTURE_OPS"></A>Gesture_ops</TD>
+
+<TD>Er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="HOLDER_OPS"></A>Holder_ops</TD>
+
+<TD>er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="INTER_REALM_OPS"></A>Inter_realm_ops</TD>
+
+<TD>Er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="LOCATION_OPS"></A>Location_ops</TD>
+
+<TD>Er_ops</TD>
+
+<TD>Operations to control and change the location in 3 space of an object.</TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="MAINTAINABLE_OPS"></A>Maintainable_ops</TD>
+
+<TD>able_ops</TD>
+
+<TD>Operations to modify normally internal state of an object.  </TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="MEMBERABLE_OPS"></A>Memberable_ops</TD>
+
+<TD>able_ops</TD>
+
+<TD>Clubs.  </TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="OBSERVE_OPS"></A>Observe_ops</TD>
+
+<TD>Er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="OWNABLE_OPS"></A>Ownable_ops</TD>
+
+<TD>able_ops</TD>
+
+<TD>Operations presented by an object that can be owned.</TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="OWNER_OPS"></A>Owner_ops</TD>
+
+<TD>er_ops</TD>
+
+<TD>Operations presented by an object that owns.</TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="PATH_PLANNER_OPS"></A>Path_planner_ops</TD>
+
+<TD>Er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="PORTABILITY_OPS"></A>Portability_ops</TD>
+
+<TD>Able_ops</TD>
+
+<TD>Operations presented by objects that can be moved, and stuck in place.</TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="PORTALTRANSIT_OPS"></A>PortalTransit_ops</TD>
+
+<TD>Er_ops</TD>
+
+<TD>Implements the operations to enable an avatar to transfer from one region to another.</TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="REALM_SERVICE_OPS"></A>Realm_service_ops</TD>
+
+<TD>Er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="REALMABLE_OPS"></A>Realmable_ops</TD>
+
+<TD>able_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="REALMER_OPS"></A>Realmer_ops</TD>
+
+<TD>er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="REGION_CONVERSER_OPS"></A>Region_converser_ops</TD>
+
+<TD>Er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="REGION_FACET_MGR_OPS"></A>Region_facet_mgr_ops</TD>
+
+<TD>Er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="REGION_SERVICE_OPS"></A>Region_service_ops</TD>
+
+<TD>Er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="REGISTER_OBSERVER_OPS"></A>Register_observer_ops</TD>
+
+<TD>Er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="RELOADABLE_OPS"></A>Reloadable_ops</TD>
+
+<TD>able_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="RELOADER_OPS"></A>Reloader_ops</TD>
+
+<TD>er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="SEATABLE_OPS"></A>Seatable_ops</TD>
+
+<TD>able_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="SEATER_OPS"></A>Seater_ops</TD>
+
+<TD>er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="SKEETABLE_OPS"></A>Skeetable_ops</TD>
+
+<TD>able_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="SKEETER_OPS"></A>Skeeter_ops</TD>
+
+<TD>er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="SKEETJUDGABLE_OPS"></A>SkeetJudgable_ops</TD>
+
+<TD>able_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="SKEETJUDGER_OPS"></A>SkeetJudger_ops</TD>
+
+<TD>er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="SPECIAL_ENTRY_EXIT_OPS"></A>Special_entry_exit_ops</TD>
+
+<TD>Er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="STATE_CHANGE_OPS"></A>State_change_ops</TD>
+
+<TD>Er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="SUP_AVATAR_ACTION_OPS"></A>Sup_avatar_action_ops</TD>
+
+<TD>Supp_er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="SUP_CONTAINABLE_OPS"></A>Sup_containable_ops</TD>
+
+<TD>Supp_able_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="SUP_CONTAINER_OPS"></A>Sup_container_ops</TD>
+
+<TD>Supp_er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="SUP_OBSERVER_OPS"></A>Sup_observer_ops</TD>
+
+<TD>Supp_er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="SUP_REALMABLE_OPS"></A>Sup_Realmable_ops</TD>
+
+<TD>Supp_able_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="SUP_REALMER_OPS"></A>Sup_realmer_ops</TD>
+
+<TD>Supp_er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="SUP_RELOADABLE_OPS"></A>Sup_reloadable_ops</TD>
+
+<TD>Supp_able_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="SUP_SEATABLE_OPS"></A>Sup_seatable_ops</TD>
+
+<TD>Supp_able_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="SESSIONABLE_OPS"></A>Sessionable_ops</TD>
+
+<TD>Supp_able_ops</TD>
+
+<TD>Can login with TOS check</TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="SUP_SKEETER_OPS"></A>Sup_skeeter_ops</TD>
+
+<TD>Supp_er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="SUP_SKEETJUDGABLE_OPS"></A>Sup_SkeetJudgable_ops</TD>
+
+<TD>Supp_able_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="SUP_SKEETJUDGER_OPS"></A>Sup_SkeetJudger_ops</TD>
+
+<TD>Supp_er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="SUP_TEXTURIZER_OPS"></A>Sup_Texturizer_ops</TD>
+
+<TD>Supp_er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="TEXTURIZABLE_OPS"></A>Texturizable_ops</TD>
+
+<TD>able_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="TEXTURIZER_OPS"></A>Texturizer_ops</TD>
+
+<TD>er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="TOS_CONTEXT_OPS"></A>TOS_context_ops</TD>
+
+<TD>Er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="TOS_ELEMENT_OPS"></A>TOS_element_ops</TD>
+
+<TD>Er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="UNUM_FACET_MGR_OPS"></A>Unum_facet_mgr_ops</TD>
+
+<TD>Er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="USERINTERFACE_OPS"></A>UserInterface_ops</TD>
+
+<TD>Er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="WALKABLE_OPS"></A>Walkable_ops</TD>
+
+<TD>Able_ops</TD>
+
+<TD>Operations on an object that enables an avatar to walk to the object.  Props and just about any object can be walked to.</TD>
+
+</TR>
+
+<TR>
+
+<TD><A NAME="WEARER_OPS"></A>Wearer_ops</TD>
+
+<TD>er_ops</TD>
+
+<TD></TD>
+
+</TR>
+
+</TABLE>
+</BODY>
+</HTML>
+

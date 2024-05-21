@@ -1,0 +1,1842 @@
+# 1 "ec/ecomp/eparser.java" 
+
+/* ************************************************************************
+ * E Parser
+ * Copyright 1996, 1997 Michael Philippsen. All rights reserved.
+ *
+ * Author     : Michael Philippsen.
+ * Last change: 15-December-97
+ *************************************************************************/
+
+package ec.ecomp;
+
+class Parser implements /* imports */ Constants {
+
+/** syntax class tags:
+ */
+    private static final int TYPE = 1;
+    private static final int EXPR = 2;
+
+/** the number of precedence levels of infix operators:
+ */
+    private static final int infixPrecedenceLevels = 10;
+
+/** the scanner that yields the input symbol stream.
+ */
+    private Scanner S;
+
+/** assorted names:
+ */
+    private static Name byteS    = Name.fromString("byte");
+    private static Name booleanS = Name.fromString("boolean");
+    private static Name charS    = Name.fromString("char");
+    private static Name doubleS  = Name.fromString("double");
+    private static Name floatS   = Name.fromString("float");
+    private static Name intS     = Name.fromString("int");
+    private static Name longS    = Name.fromString("long");
+    private static Name shortS   = Name.fromString("short");
+    private static Name voidS    = Name.fromString("void");
+    private static Name nullS    = Name.fromString("null");
+    private static Name starS    = Name.fromString("*");
+    private static Name initS    = Name.fromString("<init>");
+
+    // E-Extension
+    private static Name eobjectS     = Name.fromString("EObject");
+    private static Name eIntfS       = Name.fromString("EObject_$_Intf");
+    private static Name intfS        = Name.fromString("_$_Intf");
+    private static Name econdS;      // Name.fromString("e_$_if");
+    private static int  econdNumber  = 0;
+    private static Name asyncS       = Name.fromString("$async");
+    private static Name etrueS       = Name.fromString("ETrue");
+    private static Name trueValS     = Name.fromString("trueValue");
+    private static Name efalseS      = Name.fromString("EFalse");
+    private static Name falseValS    = Name.fromString("falseValue");
+    private static Name enullS       = Name.fromString("ENull");
+    private static Name nullValS     = Name.fromString("nullValue");
+    private static Name myKeeperS    = Name.fromString("myKeeper");
+    private static Name sealerS      = Name.fromString("sealer");
+
+//EEXT: sealer(T <- foo(typeList)
+    private boolean sealerMode = false;
+
+/** constructor:
+ */
+    Parser(Scanner sc) {
+        S = sc;
+    }
+
+/** skip forward until a suitable stop symbol is found:
+ */
+    private void skip() {
+        int nbraces = 0;
+        int nparens = 0;
+        while (true) {
+            switch (S.sym) {
+            case EofSy: case ClassSy:
+            case eClassSy:
+                return;
+            case Semicolon: 
+                if (nbraces == 0 && nparens == 0) return;
+                break;
+            case Rbrace:
+                if (nbraces == 0) return;
+                nbraces--;
+                break;
+            case Rparen:
+                if (nparens > 0) nparens--;
+                break;
+            case Lbrace:
+                nbraces++;
+                break;
+            case Lparen: 
+                nparens++;
+                break;
+            default:
+            }
+            S.nextsym();
+        }
+    }
+
+/** generate a syntax error unless there was one at current position.
+ * Then skip. In the first form, error pos is indicated as a parameter.
+ */
+    private void syntaxError(String msg, int pos) {
+        if (S.pos != S.errPos)
+            Report.error(pos, msg);
+        skip();
+        S.errPos = S.pos;
+    }
+
+    private void syntaxError(String msg) {
+        syntaxError(msg, S.pos);
+    }
+
+/** error if S.sym != sym:
+ */
+    private void accept(int sym) {
+            if (S.sym == sym) S.nextsym();
+            else {
+            int pos;
+            if (S.pos >>> LINESHIFT > S.lastpos >>> LINESHIFT)
+                pos = S.lastpos;
+            else
+                pos = S.pos;
+            syntaxError(S.sym2string(sym) + " expected", pos);
+            if (S.sym == sym) S.nextsym();
+        }
+    }
+
+/** read an identifier
+ */
+    private Name ident() {
+            if (S.sym == Id) {
+                Name name = S.name;
+                S.nextsym();
+                return name;
+            } else {
+                accept(Id);
+                return Name.fromString("<error>");
+            }
+    }
+
+/** qualident = ident {"." ident}
+ */
+    private IdRef qualident () {
+            int pos = S.pos;
+            IdRef t = new Ident(pos, ident());
+            while (S.sym == Period) {
+                S.nextsym(); 
+
+                if (S.sym == ClassSy) {
+                  // 1.1 style FOO.class
+                  S.nextsym();
+                  return new DotClass(pos, t);
+                } else
+
+                  t = new Select(pos, t, ident());
+            }
+            return t;
+    }
+
+/** typeident = qualident | BYTE | BOOLEAN | CHAR | DOUBLE | FLOAT | INT |
+ *              LONG | SHORT | VOID
+ */
+    private IdRef typeident() {
+            int pos = S.pos;
+            switch (S.sym) {
+            case Id:
+                return qualident();
+            case ByteSy:
+                S.nextsym(); return new TypeIdent(pos, byteS);
+            case BooleanSy:
+                S.nextsym(); return new TypeIdent(pos, booleanS);
+            case CharSy:
+                S.nextsym(); return new TypeIdent(pos, charS);
+            case DoubleSy:
+                S.nextsym(); return new TypeIdent(pos, doubleS);
+            case FloatSy:
+                S.nextsym(); return new TypeIdent(pos, floatS);
+            case IntSy:
+                S.nextsym(); return new TypeIdent(pos, intS);
+            case LongSy:
+                S.nextsym(); return new TypeIdent(pos, longS);
+            case ShortSy:
+                S.nextsym(); return new TypeIdent(pos, shortS);
+            case VoidSy:
+                S.nextsym(); return new TypeIdent(pos, voidS);
+            default:
+                syntaxError("illegal start of type");
+                return new TypeIdent(pos, Name.fromString("<error>"));
+            }
+    }
+
+
+
+/** modifiers = { PRIVATE | PROTECTED | PUBLIC | STATIC | TRANSIENT | 
+ *                  ABSTRACT | NATIVE | VOLATILE | SYNCHRONIZED | LOCAL //cbm}
+ */
+    private int modifiers(int initmods) {
+        int mods = initmods;
+        while (true) {
+            int mod;
+            switch (S.sym) {
+            case PrivateSy     : mod = PRIVATE; break;
+            case ProtectedSy   : mod = PROTECTED; break;
+            case PublicSy      : mod = PUBLIC; break;
+            case StaticSy      : mod = STATIC; break;
+            case TransientSy   : mod = TRANSIENT; break;
+            case FinalSy       : mod = FINAL; break;
+            case AbstractSy    : mod = ABSTRACT; break;
+            case NativeSy      : mod = NATIVE; break;
+            case VolatileSy    : mod = VOLATILE; break;
+            case SynchronizedSy: mod = SYNCHRONIZED; break;
+            case eLocalSy      : mod = ELOCAL | PUBLIC; break; //cbm
+            case eKeepSy       : // IGNORE!
+              S.nextsym();
+              continue;
+            default: return mods;
+            }
+            if ((mods & mod) != 0) Report.error(S.pos, "repeated modifier");
+            mods = mods | mod;
+            S.nextsym();
+        }
+    }
+
+/** terms can be either expressions or types. The sort argument 
+ *  determines which is expected:
+ *     sort = EXPR       : an expression
+ *     sort = TYPE       : a type
+ *     sort = EXPR | TYPE: either
+ *  
+ *  expr = expr1 [assignop expr]
+ *  assignop = "=" | "+=" | "-=" | "*=" | "/=" |  "&=" | "|=" | "^=" |
+ *               "%=" | "<<=" | ">>=" | ">>>="
+ *             | "<-"  // E-Extension
+ *  type = type1
+ */
+    private AST term(int sort) {
+        AST t = term1(sort);
+        if ((S.sym == Equals || 
+             S.sym == eSend  ||         // E-Extension
+             PlusEquals <= S.sym && 
+             S.sym <= GreaterGreaterGreaterEquals) &&
+            (sort & EXPR) != 0 && 
+            t.isExpr()) {
+            int pos = S.pos;
+            int sym = S.sym;
+            S.nextsym();
+            t = makeAssignment(pos, sym, t, term(EXPR));
+        }
+        return t;
+    }
+
+/** expr1 = expr2 ["?" expr1 ":" expr1]
+ *  type1 = type2
+ */
+    private AST term1(int sort) {
+        AST t = term2(sort);
+        if (S.sym == Questionmark &&
+            (sort & EXPR) != 0 && t.isExpr()) {
+            int pos = S.pos;
+            S.nextsym();
+            AST t1 = term1(EXPR);
+            accept(Colon);
+            AST t2 = term1(EXPR);
+            t = new Conditional(pos, CONDEXPR, t, t1, t2);
+        }
+        return t;
+    }
+
+/** expr2 = expr3 {infixop expr3}
+ *  infixop = "||" 
+ *          | "&&" 
+ *          | "|"
+ *          | "^"
+ *          | "&"
+ *          | "==" | "!="
+ *          | "<" | ">" | "<=" | ">="
+ *          | "<<" | ">>" | ">>>"
+ *          | "+" | "-"
+ *          | "*" | "/" | "%"
+ *  type2 = type3
+ */
+    private AST term2(int sort) {
+        AST t = term3(sort);
+        if (prec[S.sym] >= 0 &&
+            (sort & EXPR) != 0 && t.isExpr()) {
+            AST[] odstack = new AST[infixPrecedenceLevels + 1];
+            int[] opstack = new int[infixPrecedenceLevels];
+            int top = 0;
+            odstack[top] = t;
+            while (prec[S.sym] >= 0) {
+                opstack[top] = S.sym;
+                top++;
+                int pos = S.pos;
+                S.nextsym();
+                odstack[top] = term3(EXPR);
+                while (top > 0 && prec[opstack[top-1]] >= prec[S.sym]) {
+                    odstack[top-1] = makeBinop(pos,
+                                               opstack[top-1], 
+                                               odstack[top-1], 
+                                               odstack[top]);
+                    top--;
+                }
+            }
+            t = odstack[top];
+        }
+        return t;
+    }
+
+    private static int prec[] = new int[lastSy+1];
+    static {
+        for (int i = 0; i <= lastSy; i++) prec[i] = -1;
+        prec[BarBar] = 0;
+        prec[AmpersandAmpersand] = 1;
+        prec[Bar] = 2;
+        prec[Uparrow] = 3;
+        prec[Ampersand] = 4;
+        prec[EqualsEquals] = 5;
+        prec[BangEquals] = 5;
+        prec[Less] = 6;
+        prec[Greater] = 6;
+        prec[LessEquals] = 6;
+        prec[GreaterEquals] = 6;
+        prec[LessLess] = 7;
+        prec[GreaterGreater] = 7;
+        prec[GreaterGreaterGreater] = 7;
+        prec[Plus] = 8;
+        prec[Minus] = 8;
+        prec[Star] = 9;
+        prec[Slash] = 9;
+        prec[Percent] = 9;
+    }
+
+/** expr3 = expr4 [INSTANCEOF type] 
+ *  type3 = type4
+ */
+    private AST term3(int sort) {
+        AST t = term4(sort);
+        if (S.sym == InstanceofSy &&
+            (sort & EXPR) != 0 && t.isExpr()) {
+            int pos = S.pos;
+            S.nextsym();
+            t = new Typeop(pos, TYPETEST, t, type());
+        }; 
+        return t;
+    }
+
+/** expr4 = prefixop expr4
+ *        | ( NEW constructor | parExprOrCast | qualident | THIS | SUPER
+ *          | stringlit | charlit | intlit | longlit | floatlit | doublelit
+ *          | NULL | aggregate | lambda | SEQ block )
+ *          {"." ident | "[" expr "]" | "(" argList ")" | "++" | "--"}
+ *  prefixop = "++" | "--" | "!" | "~" | "+" | "-"
+ *             | "&"  // E-Extension
+ *  type4 = (typeident | parType) {"[" "]"}
+ */
+    private AST term4(int sort) {
+        if ((sort & EXPR) != 0)
+            switch (S.sym) {
+            case PlusPlus: case MinusMinus: case Bang: case Tilde:
+            case Ampersand:             // E-Extension
+            case Plus: case Minus: { 
+                int sym = S.sym;
+                int pos = S.pos;
+                S.nextsym();
+                return makePreop(pos, sym, term4(EXPR));
+            } 
+            default:
+            }
+        int pos = S.pos;
+        AST t;
+        if (S.sym == Lparen && ((sort & EXPR) != 0 | Switches.extended))
+            t = parTerm(sort);
+        else if ((sort & TYPE) != 0 &&
+            (S.sym == Id || BooleanSy <= S.sym && S.sym <= VoidSy))
+            t = typeident();
+        else if ((sort & EXPR) != 0) {
+            switch (S.sym) {
+            case NewSy:
+                S.nextsym();
+                // t = new New(pos, constructor());
+                // Changed to accept 1.1 style aggregate constructors
+                AST constr = constructor();
+                if (constr instanceof Aggregate)
+                  t = constr;
+                else
+                  t = new New(pos, constr);
+                break;
+
+            case eDeflectSy:
+              if (E2j.done)
+                syntaxError("deflect cannot be used in e2jdone mode");
+              S.nextsym();
+              Apply a = new Apply(S.pos, typeident(), argList());
+              IdRef fnid = ((IdRef)a.fn);
+              Name fnname = fnid.name;
+              while (fnid instanceof Select) {
+                fnid = (IdRef)(((Select)fnid).struc);
+                fnname = fnid.name.append(Name.fromString(".")).append(fnname);
+              }
+              if (a.args.length != 2)
+                syntaxError("deflect "+fnname+"(<target>, <key>) expected",
+                            pos);
+              // add _$_Deflector to innermost Ident.
+              fnid = ((IdRef)a.fn);
+              fnid.name = fnid.name.append(E2j.deflectS);
+              t = new eDeflect(pos, a, fnname);
+              break;
+              
+            case Id:
+                t = qualident(); 
+                break;
+            case ThisSy: 
+                t = new Self(S.pos, THIS);
+                S.nextsym(); 
+                break;
+            case SuperSy: 
+                t = new Self(S.pos, SUPER);
+                S.nextsym(); 
+                break;
+            case StringLit: 
+                t = new Literal(S.pos, STRINGLIT, S.name); 
+                S.nextsym(); 
+                break;
+            case CharLit: 
+                t = new Literal(S.pos, CHARLIT,        
+                                new Integer((int)S.intVal));
+                S.nextsym(); 
+                break;
+            case IntLit:
+                if (Integer.MIN_VALUE <= S.intVal && 
+                    S.intVal <= Integer.MAX_VALUE)
+                    t = new Literal(S.pos, INTLIT, new Integer((int)S.intVal));
+                else
+                    t = new Literal(S.pos, LONGLIT, new Long(S.intVal));
+                S.nextsym(); 
+                break;
+            case LongLit:
+                t = new Literal(S.pos, LONGLIT,        new Long(S.intVal));
+                S.nextsym(); 
+                break;
+            case FloatLit: 
+                t = new Literal(S.pos, FLOATLIT, new Float((float)S.floatVal));
+                S.nextsym(); 
+                break;
+            case DoubleLit:
+                t = new Literal(S.pos, DOUBLELIT, new Double(S.floatVal));
+                S.nextsym(); 
+                break;
+            case NullSy:
+                t = new Ident(S.pos, nullS);
+                S.nextsym();
+                break;
+            case eNullSy:
+                Ident nid = new Ident(S.pos, enullS);
+                nid.useImpl = true;
+                t = new Select(S.pos, nid, nullValS);
+                S.nextsym();
+                break;
+            case eTrueSy:
+                Ident tid = new Ident(S.pos, etrueS);
+                tid.useImpl = true;
+                // t = new New(S.pos, new Apply(S.pos, tid, new ASTS()));
+                t = new Select(S.pos, tid, trueValS);
+                S.nextsym();
+                break;
+            case eFalseSy:
+                Ident fid = new Ident(S.pos, efalseS);
+                fid.useImpl = true;
+                // t = new New(S.pos, new Apply(S.pos, fid, new ASTS()));
+                t = new Select(S.pos, fid, falseValS);
+                S.nextsym();
+                break;
+            case FunSy:
+                t = lambda();
+                break;
+            case SeqSy:
+                S.nextsym();
+                t = new Sequence(pos, block());
+                break;
+            default:
+                if (Switches.extended && S.sym == Lbrace)
+                    t = aggregate(null);
+                else {
+                    t = AST.error;
+                    syntaxError("illegal start of expression");
+                }
+            }
+        } else {
+            t = AST.error;
+            syntaxError("illegal start of type");
+        }
+        Loop: while (true) {
+            switch (S.sym) {
+            case Period:
+                if ((sort & EXPR) != 0 && t.isExpr()) {
+                    pos = S.pos;
+                    S.nextsym();
+                    t = new Select(pos, t, ident());
+                } else break Loop;
+                break;
+            case Lbrack:
+                S.nextsym();
+                if (S.sym == Rbrack && 
+                    (sort & TYPE) != 0 && t.isType()) {
+                    S.nextsym();
+                    t = new Subscript(t.pos, t, null);
+                } else {
+                    t = new Subscript(S.pos, t, term(narrow(sort, t)));
+                    accept(Rbrack);
+                }
+                break;
+            case Lparen:
+                //if ((sort & EXPR) != 0 && t.isExpr())
+                //  t = new Apply(S.pos, t, argList());
+                if ((sort & EXPR) != 0 && t.isExpr()) {
+                  //sealer(T <- foo(...))
+                  //when sealer is encountered sealerMode flag is set
+                  //when foo is encountered, the flag is still set.
+                  //then we accept a typelist instead of an arglist.
+                  if (t instanceof IdRef) {
+                    if (((IdRef)t).name.equals(sealerS)) {
+                      sealerMode = true;
+                    } else {
+                      if (sealerMode) {
+                        t = new Apply(S.pos, t, typList());
+                        sealerMode = false;
+                        break;
+                      }
+                    }
+                  }     
+                  t = new Apply(S.pos, t, argList());
+                  sealerMode = false;
+                }
+                else break Loop;
+                break;
+            case PlusPlus: case MinusMinus:
+                if ((sort & EXPR) != 0 && t.isExpr()) {
+                    t = makePostop(S.pos, S.sym, t);
+                    S.nextsym();
+                } else break Loop;
+                break;
+            case FunSy:
+                if ((sort & TYPE) != 0 && t.isType()) {
+                    pos = S.pos;
+                    S.nextsym();
+                    ASTS ts = typargs();
+                    ASTS thrown = throwsDcl();
+                    t = new FunctionType(pos, t, ts, thrown);
+                } else  break Loop;
+                break;
+            default:
+                break Loop;
+            }
+        }
+        // E-Extension:
+        // a call to myKeeper() is replaced by output of E2j.myKeeper()
+        if (t instanceof Apply) {
+          Apply apl = (Apply)t;
+          if (   (apl.fn instanceof Ident) 
+              && (((Ident)(apl.fn)).name == myKeeperS)
+              && (apl.args.length == 0)) {
+            t = E2j.myKeeper(apl.pos, 0);
+          }
+        }
+        return t;
+    }
+
+    private AST expr() {
+        return term(EXPR);
+    }
+
+    private AST type() {
+        return term(TYPE);
+    }
+
+/** parExpr = "(" expr ")"
+ */
+    private AST parExpr() {
+        accept(Lparen);
+        AST t = expr();
+        accept(Rparen);
+        return t;
+    }
+
+/** argList = "(" [expr {"," expr}] ")"
+ */
+    private ASTS argList() {
+        int pos = S.pos;
+        accept(Lparen);
+        ASTS ts = new ASTS();
+        if (S.sym != Rparen) {
+            ts.append(expr());
+            while (S.sym == Comma) {
+                S.nextsym();
+                ts.append(expr());
+            }
+        }
+        accept(Rparen);
+        return ts;
+    }
+
+// EEXT: needed for sealer(T <- foo(int, Object))
+/** typList = "(" [typeident {"," typeident}] ")"
+ */
+    private ASTS typList() {
+        int pos = S.pos;
+        accept(Lparen);
+        ASTS ts = new ASTS();
+        AST t;
+        if (S.sym != Rparen) {
+            t = typeident();
+            while (S.sym == Lbrack) {
+                pos = S.pos;
+                S.nextsym();
+                accept(Rbrack);
+                t = new Subscript(pos, t, null);                  
+            }
+            ts.append(t);
+            while (S.sym == Comma) {
+                S.nextsym();
+                t = typeident();
+                while (S.sym == Lbrack) {
+                    pos = S.pos;
+                    S.nextsym();
+                    accept(Rbrack);
+                    t = new Subscript(pos, t, null);
+                }
+                ts.append(t);
+            }
+        }
+        accept(Rparen);
+        return ts;
+    }
+
+/** constructor = typeident ( "[" expr "]" {"[" expr "]"} {"[" "]"}
+ *                          | argList )
+ */
+    private AST constructor() {
+        AST t = typeident();
+        ((IdRef)t).useImpl = true;
+        if (S.sym == Lbrack) {
+          /*
+            int pos = S.pos;
+            S.nextsym();
+            t = new Subscript(pos, t, expr());
+            accept(Rbrack);
+            */
+            boolean isAggregate = true;
+            while (S.sym == Lbrack) {
+                int pos = S.pos;
+                S.nextsym();
+                if (S.sym == Rbrack) {
+                    t = new Subscript(pos, t, null);
+                    S.nextsym();
+                    while (S.sym == Lbrack) {
+                        t = new Subscript(pos, t, null);
+                        S.nextsym();
+                        accept(Rbrack);
+                    }
+                    if (isAggregate) {
+                      // an aggregate must follow
+                      t = aggregate(((Subscript)t).struc);
+                    }                 
+                } else {
+                    t = new Subscript(pos, t, expr());
+                    isAggregate = false;
+                    accept(Rbrack);
+                }
+            }
+        } else if (S.sym == Lparen) {
+            t = new Apply(S.pos, t, argList());
+        } else {
+            t = AST.error;
+            syntaxError("'(' or '[' expected");
+        }
+        return t;
+    }
+
+/* parExprOrCast = "(" type ")" expr4 // with disambiguation by first 
+ *                                             symbol of expr4
+ *               | "(" expr ")"
+ * parType       = "(" type [{"," type} arrowtype] | arrowtype ")"
+ */
+    private AST parTerm(int sort) {
+        int pos = S.pos;
+        accept(Lparen);
+        AST t;
+        if (Switches.extended && 
+            S.sym == RightArrow && (sort & TYPE) != 0) {
+            t = arrowtype(new ASTS());
+            accept(Rparen);
+        } else {
+            t = term(sort | TYPE);
+            if (Switches.extended && 
+                (S.sym == Comma || S.sym == RightArrow) &&
+                (sort & TYPE) != 0 && t.isType()) {
+                ASTS argtyps = new ASTS(t);
+                while (S.sym == Comma) {
+                    S.nextsym();
+                    argtyps.append(type());
+                }
+                t = arrowtype(argtyps);
+                accept(Rparen);
+            } else {
+                accept(Rparen);
+                if (t.isType() && (sort & EXPR) != 0) {
+                    switch (S.sym) {
+                    case Lparen: case Id:
+                    case CharLit: case StringLit: 
+                    case IntLit: case LongLit:
+                    case FloatLit: case DoubleLit:
+                    case NewSy: case ThisSy: 
+                    case SuperSy: case NullSy:
+                    case Tilde: case Bang:
+                    case FunSy:
+
+                    case eDeflectSy:
+
+                        t = new Typeop(pos, CAST, term4(EXPR), t);
+                        break;
+                    case Plus: case Minus:
+                    case PlusPlus: case MinusMinus:
+                        if (!t.isExpr())
+                            t = new Typeop(pos, CAST, term4(EXPR), t);
+                        break;
+                    default:
+                    }
+                }
+            }
+        }
+        return t;
+    }
+
+/** arrowtype = "->" type throwsDcl
+ */
+    private AST arrowtype(ASTS argtyps) {
+        int pos = S.pos;
+        accept(RightArrow);
+        return new FunctionType(pos, type(), argtyps, throwsDcl());
+    }
+
+/** aggregate = "{" [initializer {"," initializer} [","]] "}"
+ */
+    private AST aggregate(AST targetType) {
+        //targetType used for anonymous Array declarations.
+        //this allows for proper error messages if elements cannot
+        //be casted to it. If targetType == null, then espresso
+        //determins the element type as common super type.
+        AST subType = null;
+        if (targetType instanceof Subscript)
+          subType = ((Subscript)targetType).struc;
+        int pos = S.pos;
+        S.nextsym();
+        ASTS elems = new ASTS();
+        if (S.sym != Rbrace) {
+            elems.append(initializer(subType));
+            while (S.sym == Comma) {
+                S.nextsym();
+                if (S.sym == Rbrace) break;
+                elems.append(initializer(subType));
+            }
+        }
+        accept(Rbrace);
+        return new Aggregate(pos, elems, targetType);
+    }
+
+/** initializer = aggregate | expr
+ */
+    private AST initializer(AST targetType) {
+        //targetType used for anonymous array declarations
+        if (S.sym == Lbrace) return aggregate(targetType);
+        else return expr();
+    }
+
+/** cases = {CASE expr ":" stats | DEFAULT ":" stats}
+ */
+    private ASTS cases() {
+        ASTS cs = new ASTS();
+        while (S.sym == CaseSy || S.sym == DefaultSy) {
+            int pos = S.pos;
+            int sym = S.sym;
+            S.nextsym();
+            AST pat = null;
+            if (sym == CaseSy) pat = expr();
+            accept(Colon);
+            ASTS ss = stats();
+            cs.append(new Case(pos, pat, ss));
+        }
+        return cs;
+    }
+
+/** forInit = [type varDefs | expr {"," expr}]
+ */
+    private ASTS forInit() {
+        ASTS inits = new ASTS();
+        if (S.sym != Semicolon) {
+            AST t1 = term(TYPE | EXPR);
+            if (S.sym == Id && t1.isType()) {
+                return varDefs(0, t1);
+            } else {
+                if (checkExpr(t1)) inits.append(t1);
+                while (S.sym == Comma) {
+                    S.nextsym();
+                    inits.append(expr());
+                }
+            }
+        }
+        return inits;
+    }
+
+/** forIncr = [expr {"," expr}]
+ */
+    private ASTS forIncr() {
+        ASTS incrs = new ASTS();
+        if (S.sym != Rparen) {
+            incrs.append(expr());
+            while (S.sym == Comma) {
+                S.nextsym();
+                incrs.append(expr());
+            }
+        }
+        return incrs;
+    }
+
+/** stat = block 
+ *       | IF parExpr stat [ELSE stat]
+ *       | FOR "(" forInit ";" [expr] ";" forIncr ")" stat
+ *       | WHILE parExpr stat
+ *       | DO stat WHILE parExpr
+ *       | TRY block {CATCH "(" type varDcl ")" block} [FINALLY block]
+ *       | SWITCH parExpr "{" cases "}"
+ *       | SYNCHRONIZED parExpr stat
+ *       | RETURN [expr] ";"
+ *       | THROW expr ";"
+ *       | BREAK [ident] ";"
+ *       | CONTINUE [ident] ";"
+ *       | ";"
+ *       | ident ":" stat
+ *       | type varDefs ";"
+ *       | exprStat ";"
+ * E-Extensions
+ *       | ETRY block {CATCH "(" type varDcl ")" block}
+ *       | ETHROW expr ";"
+ *       | EWHEN expr "(" type varDcl ")" stat
+ *       | EIF "(" expr ")" stat [ELSE stat]
+ */
+    private ASTS addStat(ASTS ts) {
+        int pos = S.pos;
+        switch (S.sym) {
+        case Lbrace:
+            ts.append(block());
+            break;
+        case IfSy: {
+            S.nextsym();
+            AST cond = parExpr();
+            AST thenpart = substat();
+            AST elsepart = null;
+            if (S.sym == ElseSy) {
+                S.nextsym();
+                elsepart = substat();
+            }
+            ts.append(new Conditional(pos, CONDSTAT, 
+                                      cond, thenpart, elsepart));
+            break; 
+        }
+        case ForSy: {
+            S.nextsym();
+            accept(Lparen);
+            ASTS t1 = forInit();
+            accept(Semicolon);
+            AST t2 = null;
+            if (S.sym != Semicolon) t2 = expr();
+            accept(Semicolon);
+            ASTS t3 = forIncr();
+            accept(Rparen);
+            ts.append(new ForLoop(pos, t1, t2, t3, substat())); 
+            break; }
+        case WhileSy: {
+            S.nextsym();
+            AST cond = parExpr();
+            ts.append(new WhileLoop(pos, cond, substat())); 
+            break; }
+        case DoSy: {
+            S.nextsym();
+            AST body = substat();
+            accept(WhileSy);
+            ts.append(new DoLoop(pos, body, parExpr())); 
+            accept(Semicolon);
+            break; }
+        case TrySy: {
+            S.nextsym();
+            Block body = block();
+            ASTS catchers = new ASTS();
+            while (S.sym == CatchSy) {
+                int catchpos = S.pos;
+                S.nextsym();
+                accept(Lparen);
+                ASTS formals = new ASTS();
+                formals.append(varDcl(0, type()));
+                accept(Rparen);
+                Block catchbody = block();
+                catchers.append(
+                    new eFunDef(catchpos, CATCH, null, 0, null, 
+                               formals, new ASTS(), catchbody));
+            }
+            Block finalizer = null;
+            if (S.sym == FinallySy) {
+                S.nextsym();
+                finalizer = block();
+            }
+            ts.append(new Try(pos, body, catchers, finalizer)); 
+            if (catchers.length == 0 && finalizer == null)
+                Report.error(pos, "'try' without 'catch' or 'finally'");
+            break; }
+        case eTrySy: {
+            // E-Extension
+            if (E2j.done)
+              syntaxError("etry cannot be used in e2jdone mode");
+            S.nextsym();
+            Name closureName = null;
+            if (S.sym != Lbrace) {
+              closureName = ident();
+            }
+            Block body = block();
+            ASTS catchers = new ASTS();
+            while (S.sym == eCatchSy) {
+                int catchpos = S.pos;
+                S.nextsym();
+                accept(Lparen);
+                ASTS formals = new ASTS();
+                formals.append(varDcl(0, type()));
+                accept(Rparen);
+                Block catchbody = block();
+                catchers.append(new eFunDef(catchpos, CATCH, null, 0, null,
+                                            formals, new ASTS(), catchbody));
+            }
+            eTry result = new eTry(pos, body, catchers); 
+            result.closureLabel = closureName;
+            ts.append(result);
+            if (catchers.length == 0)
+                Report.error(pos, "'etry' without 'ecatch'");
+            break; }
+        case SwitchSy: {
+            S.nextsym();
+            AST selector = parExpr();
+            accept(Lbrace);
+            ts.append(new Switch(pos, selector, cases()));
+            accept(Rbrace); 
+            break; }
+        case SynchronizedSy: {
+            S.nextsym();
+            AST lock = parExpr();
+            AST body = substat();
+            ts.append(new Synchronized(pos, lock, body)); 
+            break; }
+        case ReturnSy: {
+            S.nextsym();
+            AST result = null;
+            if (S.sym != Semicolon) result = expr();
+            ts.append(new eReturn(pos, result));
+            accept(Semicolon); 
+            break; }
+        case ThrowSy: {
+            S.nextsym();
+            AST exc = expr();
+            ts.append(new Throw(pos, exc));
+            accept(Semicolon); 
+            break; }
+        case eThrowSy: {
+            // E-Extension
+            if (E2j.done)
+              syntaxError("ethrow cannot be used in e2jdone mode");
+            S.nextsym();
+            AST exc = expr();
+            ts.append(new eThrow(pos, exc));
+            accept(Semicolon); 
+            break; }
+        case BreakSy:
+            S.nextsym();
+            if (S.sym == Id) {
+                ts.append(new Break(pos, S.name));
+                S.nextsym();
+            } else 
+                ts.append(new Break(pos, null));
+            accept(Semicolon);
+            break;
+        case ContinueSy:
+            S.nextsym();
+            if (S.sym == Id) {
+                ts.append(new Continue(pos, S.name));
+                S.nextsym();
+            } else 
+                ts.append(new Continue(pos, null));
+            accept(Semicolon);
+            break;
+        case Semicolon:
+            S.nextsym();
+            break;
+        case ElseSy:
+            syntaxError("'else' without 'if'");
+            break;
+        case FinallySy:
+            syntaxError("'finally' without 'try'");
+            break;
+        case CatchSy:
+            syntaxError("'catch' without 'try'");
+            break;
+        case eWhenSy: {
+            // E-Extension
+            if (E2j.done)
+              syntaxError("ewhen cannot be used in e2jdone mode");
+            // ewhen-target ::= identifier | array-expr | parenthesized-expr
+            int ewhenpos = S.pos;
+            ASTS withobjects = new ASTS();
+            ASTS todos = new ASTS();
+            do {
+              S.nextsym();
+              if (S.sym == Lparen) {
+                withobjects.append(parExpr());
+              } else {
+                IdRef idr = qualident();
+                if (S.sym == Lbrack) {
+                  accept (Lbrack);
+                  withobjects.append(new Subscript(S.pos, idr, expr()));
+                  accept(Rbrack);
+                } else {
+                  withobjects.append(idr);
+                }
+              }
+              accept(Lparen);
+              ASTS formals = new ASTS();
+              formals.append(varDcl(0, type()));
+              accept(Rparen);
+              Name closureName = null;
+              if (S.sym != Lbrace) {
+                closureName = ident();
+              }
+              Block body = block();
+              eFunDef newfd = new eFunDef(ewhenpos, CATCH, null, 0, null,
+                                          formals, new ASTS(), body);
+              newfd.closureLabel = closureName;
+              todos.append(newfd);
+            } while (S.sym == eOrWhenSy);
+            ts.append(new eWhen(pos, withobjects, todos, null));
+            break;}
+        case eWheneverSy: {
+            // E-Extension
+            if (E2j.done)
+              syntaxError("ewhenever cannot be used in e2jdone mode");
+            int ewhenpos = S.pos;
+            ASTS withobjects = new ASTS();
+            ASTS todos = new ASTS();
+            S.nextsym();
+              if (S.sym == Lparen) {
+                withobjects.append(parExpr());
+              } else {
+                IdRef idr = qualident();
+                if (S.sym == Lbrack) {
+                  accept (Lbrack);
+                  withobjects.append(new Subscript(S.pos, idr, expr()));
+                  accept(Rbrack);
+                } else {
+                  withobjects.append(idr);
+                }
+              }
+            accept(Lparen);
+            ASTS formals = new ASTS();
+            formals.append(varDcl(0, type()));
+            accept(Rparen);
+            Name closureName = null;
+            if (S.sym != Lbrace) {
+              closureName = ident();
+            }
+            Block body = block();
+            eFunDef newfd = new eFunDef(ewhenpos, CATCH, null, 0, null,
+                                        formals, new ASTS(), body);
+            newfd.closureLabel = closureName;
+            todos.append(newfd);
+            eWhen ew = new eWhen(pos, withobjects, todos, null);
+            ew.is_whenever = true;
+            ts.append(ew);
+            break;}
+        case eIfSy: {
+            // E-Extension
+            if (E2j.done)
+              syntaxError("eif cannot be used in e2jdone mode");
+            ASTS withobjects = new ASTS();
+            ASTS todos = new ASTS();
+            // do {
+              S.nextsym();
+              withobjects.append(parExpr());
+              Name closureName = null;
+              if (S.sym != Lbrace) {
+                closureName = ident();
+              }
+              AST thenpart = stat();
+              econdS = Name.fromString("e_if_$_"+econdNumber);
+              econdNumber = econdNumber + 1;
+              AST cond = new Ident(pos, econdS);
+              AST ifstmt = new Conditional(pos,CONDSTAT,cond,thenpart,null);
+              ASTS formals = new ASTS();
+              AST typ = new Ident(pos, booleanS);
+              ASTS stats = new ASTS();
+              stats.append(ifstmt);
+              Block body = new Block(pos, stats);
+              formals.append(new VarDef(pos, econdS, 0, brackets(typ), null));
+              eFunDef newfd = new eFunDef(pos, CATCH, null, 0, null,
+                                          formals, new ASTS(), body);
+              newfd.closureLabel = closureName;
+              todos.append(newfd);
+            // } while (S.sym == eOrIfSy);
+            AST elsepart = null;
+            if (S.sym == ElseSy) {
+              S.nextsym();
+              elsepart = stat();
+            }
+            eWhen ew = new eWhen(pos, withobjects, todos, elsepart);
+            ew.is_eif = true;
+            ts.append(ew);
+            break;}
+        case eDebugSy: {
+            // E-Extension
+            if (E2j.done)
+              syntaxError("edebug cannot be used in e2jdone mode");
+            S.nextsym();
+            Block blck = block();
+            if (Switches.WithDebugCode)
+              ts.append(blck);
+            // else ignore
+            break;}
+        case eKeepSy: {
+            // E--Exension
+            if (E2j.done)
+              syntaxError("ekeep cannot be used in e2jdone mode");
+            S.nextsym();
+            eKeep ek = new eKeep(pos, parExpr(), stat());
+              ts.append(ek);
+            break;}
+        default:
+/*            int mods = modifiers();
+            if (mods == 0) {
+*/
+            int mods = 0;
+            AST t = term(TYPE | EXPR);
+            if (t.tag == IDENT && S.sym == Colon) {
+                S.nextsym();
+                ts.append(new Labelled(pos, ((Ident)t).name, stat()));
+            } else if (S.sym == Id && t.isType()) {
+                pos = S.pos;
+                Name name = ident();
+                ts = addVarDefiners(ts, pos, name, mods, t, false);
+                accept(Semicolon);
+            } else {
+                checkExprStat(t);
+                ts.append(new Exec(pos, t));
+                accept(Semicolon);
+            }
+/*            } else {
+                 AST t = type();
+                pos = S.pos;
+                Name name = ident();
+                ts = addVarDefiners(ts, pos, name, mods, t, false);
+                accept(Semicolon); 
+            }
+*/
+        }
+        return ts;
+    }
+
+    private AST stat() {
+        int pos = S.pos;
+        ASTS ts = addStat(new ASTS());
+        if (ts.length == 1) return ts.elems[0];
+        else return new Block(pos, ts);
+    }
+
+/** same as stat, but open a new scope if there is a local definition
+ */
+    private AST substat() {
+        int pos = S.pos;
+        ASTS ts = addStat(new ASTS());
+        if (ts.length == 1 && !(ts.elems[0] instanceof Def)) 
+            return ts.elems[0];
+        else return new Block(pos, ts);
+    }
+
+/** stats = {stat}
+ */
+    private ASTS stats () {
+        ASTS ts = new ASTS();
+        while (true)
+            switch (S.sym) {
+            case Rbrace: case EofSy: case ClassSy: case InterfaceSy:
+            case CaseSy: case DefaultSy:
+                return ts;
+            default:
+                ts = addStat(ts);
+            }
+    }
+
+/** block = "{" stats "}"
+ */
+    private Block block() {
+        int pos = S.pos;
+        accept(Lbrace);
+        Block t = new Block(pos, stats ());
+        if (S.sym == CaseSy || S.sym == DefaultSy)
+            syntaxError("orphaned " + S.sym2string(S.sym));
+        accept(Rbrace);
+        return t;
+    }
+
+/** brackets = {"[" "]"}
+ */
+    private AST brackets(AST typ) {
+        while (S.sym == Lbrack) {
+            int pos = S.pos;
+            S.nextsym();
+            accept(Rbrack);
+            typ = new Subscript(pos, typ, null);
+        }
+        return typ;
+    }
+
+/** varDcl = ident
+ */
+    private AST varDcl(int modifiers, AST typ) {
+        int pos = S.pos;
+        Name name = ident();
+        return new VarDef(pos, name, modifiers, brackets(typ), null);
+    }
+
+/** varDefiner  = brackets ["=" initializer]
+ *  varDefiner' = brackets "=" initializer
+ */
+    private AST varDefiner(int pos, Name name, int modifiers, AST typ, 
+                           boolean reqInit) {
+        typ = brackets(typ);
+        AST init = null;
+        if (S.sym == Equals)  {
+            S.nextsym();
+            init = initializer(null);
+        } else if (reqInit)
+            syntaxError("missing initializer");
+        return new VarDef(pos, name, modifiers, typ, init);
+    }
+
+/** varDefiners = varDefiner {"," ident varDefiner}
+ *  varDefiners' = varDefiner' {"," ident varDefiner'}
+ */
+    private ASTS addVarDefiners(ASTS ts, 
+                                int pos, Name name, int modifiers, 
+                                AST typ, boolean reqInit) {
+        ts.append(varDefiner(pos, name, modifiers, typ, reqInit));
+        while (S.sym == Comma) {
+            S.nextsym();
+            int pos1 = S.pos;
+            Name name1 = ident();
+            AST newtyp = clone(typ);
+            ts.append(varDefiner(pos1, name1, modifiers, newtyp, reqInit));
+        }
+        return ts;
+    }
+
+  private static AST clone(AST ast) {
+    // see similar routine in e2j.
+    AST result;
+    if (ast instanceof VarDef) {
+      VarDef vd = (VarDef)ast;
+      result = new VarDef(vd.pos, vd.name, vd.mods, clone(vd.dcltyp),
+                                 vd.init);
+    } else if (ast instanceof Ident) {
+      Ident id = (Ident)ast;
+      result = new Ident(id.pos, id.name);
+    } else if (ast instanceof Select) {
+      Select sel = (Select)ast;
+      result = new Select(sel.pos, clone(sel.struc), sel.name);
+    } else if (ast instanceof Subscript) {
+      Subscript sub = (Subscript)ast;
+      result = new Subscript(sub.pos, clone(sub.struc), clone(sub.index));
+    } else {
+      // don't clone, simply duplicate reference
+      return ast;
+    }
+    return result;
+  }
+  
+/** varDefs = ident varDefiners
+ */
+    private ASTS varDefs(int mods, AST typ) {
+        return addVarDefiners(new ASTS(), S.pos, ident(), mods, typ, false);
+    }
+
+/** formals = "(" [type varDcl {"," type varDcl}] ")"
+ */
+    private ASTS formals() {
+        ASTS ps = new ASTS();
+        accept(Lparen);
+        if (S.sym != Rparen) {
+            ps.append(varDcl(0, type()));
+            while (S.sym == Comma) {
+                S.nextsym();
+                ps.append(varDcl(0, type()));
+            }
+        }
+        accept(Rparen);
+        return ps;
+    }
+
+/** typargs = "(" [type {"," type}] ")"
+ */
+    private ASTS typargs() {
+        ASTS ts = new ASTS();
+        accept(Lparen);
+        if (S.sym != Rparen) {
+            ts.append(type());
+            while (S.sym == Comma) {
+                S.nextsym();
+                ts.append(type());
+            }
+        }
+        accept(Rparen);
+        return ts;
+    }
+
+/** throwsDcl = [THROWS type {"," type}]
+ */
+    private ASTS throwsDcl() {
+        ASTS thrown = new ASTS();
+        if (S.sym == ThrowsSy) {
+            S.nextsym();
+            thrown.append(type());
+            while (S.sym == Comma) {
+                S.nextsym();
+                thrown.append(type());
+            }
+        }
+        return thrown;
+    }
+
+/** lambda = FUN formals throwsDcl block
+ */
+    private FunDef lambda() {
+        int pos = S.pos;
+        S.nextsym();
+        //in E code fun() definitions may have an additional name
+        Name closureName = null;
+        if (S.sym != Lparen) {
+          closureName = ident();
+        }
+        ASTS ps = formals();
+        ASTS thrown = throwsDcl();
+        Block body = block();
+        eFunDef result = new eFunDef(pos, LAMBDA, null, 0, null, ps, thrown, body);
+        result.closureLabel = closureName;
+        return result;
+    }
+
+/** funDefiner  = formals brackets throwsDcl (";" | block)
+ */
+    private FunDef funDefiner(int pos, Name name, int mods, AST typ) {
+        ASTS ps = formals();
+        typ = brackets(typ);
+        ASTS thrown = throwsDcl();
+        Block body = null;
+        if (S.sym == Semicolon) S.nextsym();
+        else body = block();
+        return new eFunDef(pos, FUNDEF, name, mods, typ, ps, thrown, body);
+    }
+
+/** def  = ";"
+ *       | STATIC block
+ *       | modifiers ident funDefiner
+ *       | modifiers type ident (funDefiner | varDefiners)
+ *       | ident funDefiner         // E-Extension: eMessages in protocol
+ *       | emethod ident funDefiner // E-Extension: eMethod in eclass
+ * def'  = ";"
+ *       | STATIC block
+ *       | modifiers ident funDefiner
+ *       | modifiers type ident (funDefiner | varDefiners')
+ *       | ident funDefiner         // E-Extension: eMessages in protocol
+ *       | emethod ident funDefiner // E-Extension: eMethod in eclass
+ */
+
+    private ASTS addDef(ASTS defs,
+                        Name className, 
+                        boolean isInterface,
+                        boolean isEExtension) {
+      if (S.sym == Semicolon) {
+        S.nextsym();
+        return defs;
+      }
+      
+      int mods = 0;
+      if (S.sym == StaticSy) {
+        S.nextsym();
+        if (S.sym == Lbrace) {
+          Block b = block();
+          b.mods = STATIC;
+          defs.append(b);
+          return defs;
+        } else 
+          mods = mods | STATIC;
+      }
+      
+      mods = modifiers(mods);
+      int pos = S.pos;
+      AST typ = null;
+      // TypeIdent emtdT = new TypeIdent(pos, emethodTypS);
+      TypeIdent emtdT = new TypeIdent(pos, voidS);
+      if (S.sym != eMethodSy) {
+        //if (S.sym == eForallSy) {
+        //  if (E2j.done)
+        //    syntaxError("eforall cannot be used in e2jdone mode");
+        //  typ = new Ident(pos,eforallS);
+        //  S.nextsym();
+        //} else {
+        if (isInterface && isEExtension) {
+          typ = emtdT;
+        } else {
+          typ = type();
+        }
+        //}
+        if (S.sym == Lparen &&
+            typ.tag == IDENT && ((Ident)typ).name.equals(className)) {
+          // Constructor
+          FunDef fdtmp = funDefiner(pos, initS, mods, null);
+          if (fdtmp.dcltyp == emtdT)
+            fdtmp.name = fdtmp.name.append(asyncS);
+          defs.append(fdtmp);
+          return defs;
+        }
+      }
+      // E-Extension
+      if (isEExtension) {
+        TypeIdent voidT = new TypeIdent(pos, voidS);
+        if (S.sym == Lparen) {
+          // eMessage in einterface and eforall in eclass
+          //if ((typ instanceof Ident) && ((Ident)typ).name.equals(eforallS)) {
+          //  if (isInterface) {
+          //    syntaxError("eforall cannot be used in einterfaces");
+          //    return defs;
+          //  } else
+          //    mods = mods | EFORALL;
+          //} else
+          if (isInterface) {
+            // do not need keyword "emethod"
+            mods = mods | InterfaceMethMods;
+          } else {
+            // was no constructor -> must be illegal constructor like start
+            syntaxError("illegal method start");
+            return defs;
+          }
+          TypeIdent tp = voidT;
+          //if ((mods & EFORALL) == 0)
+          tp = emtdT;
+          FunDef fdtmp = funDefiner(pos, ((Ident)typ).name,mods | EMethMods,tp);
+          if (fdtmp.dcltyp == emtdT)
+            fdtmp.name = fdtmp.name.append(asyncS);
+          defs.append(fdtmp);
+          return defs;
+        } else if (S.sym == eMethodSy) {
+          if (E2j.done)
+            syntaxError("emethod cannot be used in e2jdone mode");
+          // emethod in eclass
+          if (mods != 0) {
+            syntaxError("modifiers not allowed for eMethods");
+            return defs;
+          }
+          // set default values here;
+          mods = EMethMods;
+          typ = emtdT;
+          S.nextsym();
+        }
+      }
+      // everything else, including emethod in eclass
+      pos = S.pos;
+      Name name = ident();
+      if (S.sym == Lparen) {
+        if (isInterface && isEExtension)
+          mods = mods | EMethMods | InterfaceMethMods;
+        FunDef fdtmp = funDefiner(pos, name, mods, typ);
+        if (fdtmp.dcltyp == emtdT)
+          fdtmp.name = fdtmp.name.append(asyncS);
+        defs.append(fdtmp);
+      } else {
+        defs = addVarDefiners(defs, pos, name, mods, typ,
+                              isInterface);
+        accept(Semicolon);
+      }
+      return defs;
+    }
+
+/** classBlock = "{" {def} "}"
+ *  classBlock' = "{" {def'} "}"
+ */
+
+  //    private Block classBlock (Name className, boolean isInterface) {
+  //      return classBlock(className, isInterface, false);
+  //    }
+    
+    private Block classBlock (Name className, boolean isInterface,
+                              boolean isEExtension) {
+        int pos = S.pos;
+        accept(Lbrace);
+        ASTS defs = new ASTS();
+        while (S.sym != Rbrace && S.sym != EofSy && S.sym != ClassSy &&
+               S.sym != eClassSy && S.sym != eInterfaceSy &&  // E-Extension
+               S.sym != InterfaceSy) {
+             defs = addDef(defs, className, isInterface, isEExtension);
+        }
+        accept(Rbrace);
+        return new Block(pos, defs);
+    }
+
+      
+/** E-Extension
+ * [e]classDef = [E]CLASS ident [EXTENDS qualident] 
+ *             IMPLEMENTS qualident {"," qualident}]
+ *             classBlock       
+ */
+
+  private AST classDef(int mods) {
+    int pos = S.pos;
+    S.nextsym();
+    Name name = ident();
+    AST extending = null;
+    boolean isEclass = ((mods & ECLASS) != 0);
+    if (S.sym == ExtendsSy) {
+      S.nextsym();
+      extending = qualident();
+      if (isEclass)
+        ((IdRef)extending).useImpl = true;
+    }
+    else if (isEclass) {
+      // EObject is default extension for eclasses, except for EObject itself
+      if (! name.equals(eobjectS)) {
+        extending = new Ident(pos, eobjectS);
+        ((Ident)extending).useImpl = true;
+      }
+    }
+    ASTS implementing = new ASTS();
+    if (S.sym == ImplementsSy) {
+      S.nextsym();
+      implementing.append(qualident());
+      while (S.sym == Comma) {
+        S.nextsym();
+        implementing.append(qualident());
+      }
+    }
+    if (isEclass && !E2j.done) {
+      // an eclass X implements X_$_Intf
+      implementing.append(new Ident(pos, name.append(intfS)));
+    }
+
+    Block body = classBlock(name, false, isEclass);
+    return new eClassDef(pos, name, mods, 
+                         extending, implementing, body);
+  }
+  
+/** interfaceDef = INTERFACE ident [EXTENDS qualident {"," qualident}]
+ *                 classBlock'
+ */
+    private AST interfaceDef(int mods) {
+        int pos = S.pos;
+        S.nextsym();
+        Name name = ident();
+        ASTS extending = new ASTS();
+        boolean isEclass = ((mods & ECLASS) != 0);
+        if (S.sym == ExtendsSy) {
+            S.nextsym();
+            extending.append(qualident());
+            while (S.sym == Comma) {
+                S.nextsym();
+                extending.append(qualident());
+            }
+        } else if (isEclass) {
+          // EObject is default extension for eclasses.
+          Ident defaultintf = new Ident(pos, eIntfS);
+          defaultintf.e2jdone = true;
+          extending.append(defaultintf);
+        }
+        if (isEclass && !E2j.done) {
+          // an einterface X extendss X_$_Intf
+          extending.append(new Ident(pos, name.append(intfS)));
+        }
+        Block body = classBlock(name, true, isEclass);
+        return new eClassDef(pos, name, mods | INTERFACE, null,
+                            extending, body);
+    }
+
+/** topDef = ";"
+ *         | modifiers ( [e]classDef | [e]interfaceDef )
+ */
+    private ASTS addTopDef (ASTS defs) {
+        if (S.pos == S.errPos)
+            while (S.sym != ClassSy && S.sym != InterfaceSy &&
+                   S.sym != eClassSy && S.sym != eInterfaceSy &&
+                   S.sym != EofSy) S.nextsym();
+        if (S.sym == Semicolon) {
+            S.nextsym();
+        } else {
+            int mods = modifiers(0);
+            if (S.sym == ClassSy) 
+                defs.append(classDef(mods));
+            else if (S.sym == InterfaceSy)
+                defs.append(interfaceDef(mods));
+            // E-Extension
+            else if (S.sym == eClassSy) {
+                if (E2j.done)
+                  syntaxError("eclass cannot be used in e2jdone mode");
+                eClassDef cl = (eClassDef)classDef(mods | ECLASS);
+                eClassDef cli = null;
+                // an Eclass X implements X_$_Intf. Therefore, we have
+                // to implicitly declare an empty X_$_Intf;
+                if (!E2j.done) {
+                  cli = new eClassDef(cl.pos, cl.name.append(intfS),
+                                      cl.mods | INTERFACE | PUBLIC, null,
+                                      new ASTS(),
+                                      new Block(cl.pos, new ASTS()));
+                  cli.mods = cli.mods & ~ECLASS;
+                  cl.correspondingIntf = cli;
+                  defs.append(cli);
+                }
+                defs.append(cl);
+                // ePredef.needs_e2j = true;
+            } else if (S.sym == eInterfaceSy) {
+                if (E2j.done)
+                  syntaxError("einterface cannot be used in e2jdone mode");
+                eClassDef cl = (eClassDef)interfaceDef(mods | ECLASS);
+                eClassDef cli = null;
+                // an Einterface X implements X_$_Intf. Therefore, we have
+                // to implicitly declare an empty X_$_Intf;
+                if (!E2j.done) {
+                  cli = new eClassDef(cl.pos, cl.name.append(intfS),
+                                      cl.mods | INTERFACE | PUBLIC, null,
+                                      new ASTS(),
+                                      new Block(cl.pos, new ASTS()));
+                  cli.mods = cli.mods & ~ECLASS;
+                  cl.correspondingIntf = cli;
+                  defs.append(cli);
+                }
+                defs.append(cl);
+                // ePredef.needs_e2j = true;
+            }
+            else {
+                syntaxError("'class', 'eclass', 'interface', or 'einterface' expected");
+                while (S.sym == Rbrace) S.nextsym();
+            }
+        }
+        return defs;
+    }
+
+/** [e]importClause = IMPORT ident {"." ident} ["." "*"] ";"
+ */
+    private AST importClause() {
+        int icpos = S.pos;
+        S.nextsym();
+        int pos = S.pos;
+        IdRef pid = new Ident(pos, ident());
+        while (S.sym == Period) {
+            S.nextsym();
+            if (S.sym == Star) {
+                S.nextsym();
+                pid = new Select(pos, pid, starS);
+                break;
+            } else
+                pid = new Select(pos, pid, ident());
+        }
+        accept(Semicolon);
+        return new Import(icpos,pid);
+    }
+
+/** compilationUnit = [PACKAGE qualident ";"] {importClause} {topDef}
+ */
+    ASTS compilationUnit() {
+        int pos = S.pos;
+        ASTS defs = new ASTS();
+        if (S.sym == PackageSy) {
+            S.nextsym();
+            IdRef pid = qualident();
+            accept(Semicolon);
+            defs.append(new Package(pos, pid));
+        }
+        while (S.sym == ImportSy) {
+            defs.append(importClause());
+        }
+        while (S.sym != EofSy) {
+            defs = addTopDef(defs);
+        }
+        return defs;
+    }
+
+//--------------------------------------------------------------------
+
+/** check that an AST is a legal expression:
+ */
+    private boolean checkExpr(AST t) {
+        if (t.isExpr() || t.tag == ERROR) {
+            return true;
+        } else if (t.isType()) {
+            Report.error(t.pos, "malformed declaration");
+        } else {
+//            t.print(); System.out.println();
+            Report.error(t.pos, "malformed expression");
+        }
+        return false;
+    }
+
+/** check that an AST is a legal expression statement:
+ */
+    private boolean checkExprStat(AST t) {
+        if (checkExpr(t)) {
+          if (ASSIGN <= t.tag && t.tag <= LastASSIGNOP ||
+                PREINC <= t.tag && t.tag <= POSTDEC ||
+                t.tag == APPLY ||
+                t.tag == NEW ||
+                t.tag == ERROR)
+                return true;
+            Report.error(t.pos, "not a statement");
+        }
+        return false;
+    }
+
+/** narrow sort down to the possible syntax classes of t
+ */ 
+    private int narrow(int sort, AST t) {
+        return sort & ((t.isType() ? TYPE : 0) |
+                       (t.isExpr() ? EXPR : 0));
+    }
+
+/** create binary operation:
+ */
+    private AST makeBinop(int pos, int sym, AST l, AST r) {
+        int op;
+        switch (sym) {
+        case BarBar: op = OR; break;
+        case AmpersandAmpersand: op = AND; break;
+        case Bar: op = BITOR; break;
+        case Uparrow: op = BITXOR; break;
+        case Ampersand: op = BITAND; break;
+        case EqualsEquals: op = EQ; break;
+        case BangEquals: op = NE; break;
+        case Less: op = LT; break;
+        case Greater: op = GT; break;
+        case LessEquals: op = LE; break;
+        case GreaterEquals: op = GE; break;
+        case LessLess: op = SL; break;
+        case GreaterGreater: op = SR; break;
+        case GreaterGreaterGreater: op = LSR; break;
+        case Plus: op = PLUS; break;
+        case Minus: op = MINUS; break;
+        case Star: op = TIMES; break;
+        case Slash: op = DIV; break;
+        case Percent: op = MOD; break;
+        default: throw new CompilerError("makeBinop");
+        }
+        return new Binop(pos, op, l, r);
+    }
+
+/** create assignment operation
+ */
+    private AST makeAssignment(int pos, int sym, AST l, AST r) {
+        int op;
+        switch (sym) {
+        case Equals: op = ASSIGN; break;
+        case BarEquals: op = ABITOR; break;
+        case UparrowEquals: op = ABITXOR; break;
+        case AmpersandEquals: op = ABITAND; break;
+        case LessLessEquals: op = ASL; break;
+        case GreaterGreaterEquals: op = ASR; break;
+        case GreaterGreaterGreaterEquals: op = ALSR; break;
+        case PlusEquals: op = APLUS; break;
+        case MinusEquals: op = AMINUS; break;
+        case StarEquals: op = ATIMES; break;
+        case SlashEquals: op = ADIV; break;
+        case PercentEquals: op = AMOD; break;
+        case eSend: {
+          // E-Extension
+          op = ESEND;
+          // ePredef.needs_e2j = true;
+          break;}
+        default: throw new CompilerError("makeAssignment");
+        }
+        return new eAssignop(pos, op, l, r);
+    }
+
+/** create prefix operation:
+ */
+   private AST makePreop(int pos, int sym, AST od) {
+        int op;
+        switch (sym) {
+        case Plus: op = POS; break;
+        case Minus: 
+            switch (od.tag) {
+            case INTLIT:
+                ((Literal)od).val = 
+                    new Integer(-((Integer)((Literal)od).val).intValue());
+                return od;
+            case LONGLIT:
+                ((Literal)od).val = 
+                    new Long(-((Long)((Literal)od).val).longValue());
+                return od;
+            case FLOATLIT:
+                ((Literal)od).val = 
+                    new Float(-((Float)((Literal)od).val).floatValue());
+                return od;
+            case DOUBLELIT:
+                ((Literal)od).val = 
+                    new Double(-((Double)((Literal)od).val).doubleValue());
+                return od;
+            default:
+                op = NEG;
+            }
+            break;
+        case Bang: op = NOT; break;
+        case Tilde: op = COMPL; break;
+        case PlusPlus: op = PREINC; break;
+        case MinusMinus: op = PREDEC; break;
+        case Ampersand: {
+          op = EDISTRIB;
+          // ePredef.needs_e2j = true;
+          break;}
+        default: throw new CompilerError("makePreop");
+        }
+        return new eUnop(pos, op, od);
+    } 
+
+/** create postfix operation:
+ */
+    private AST makePostop(int pos, int sym, AST od) {
+        int op;
+        switch (sym) { 
+        case PlusPlus: op = POSTINC; break;
+        case MinusMinus: op = POSTDEC; break;
+        default: throw new CompilerError("makePostop");
+        }
+        return new eUnop(pos, op, od);
+    }
+}
+

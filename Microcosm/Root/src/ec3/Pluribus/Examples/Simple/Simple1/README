@@ -1,0 +1,11 @@
+
+This is a _very_ simple example unum which demonstrates 
+
+o the most basic kind of unum start-up, and 
+o the sending of a single message to the unum
+
+It doesn't demonstrate unum registration or multiple presences.
+
+It doesn't demonstrate how to use a user interface factory.
+
+-Felix

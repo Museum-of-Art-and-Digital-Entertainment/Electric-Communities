@@ -1,0 +1,120 @@
+<HTML>
+<HEAD>
+    <TITLE>Setting Up And Building On Unix</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Setting Up And Building On Unix</H1>
+
+<em>This page is maintained by <A HREF="mailto:trev@communities.com">Trev</A>.
+Please let me know of any errors ASAP so I can fix them.
+<br>
+<b>Warning:</b> these pages change frequently. If you've looked at them
+recently hit "reload" on your browser to make sure you're seeing the
+latest version.
+</em>
+<p>
+<b>Warning; this page still needs updating - I'm not sure how to build and run
+HabiFoo on Solaris as of 12/9/97</b>
+
+<h2>Assumed Knowledge</h2>
+
+<ul>
+<li>A familiarity with UNIX, including some exposure to shell programming
+<LI>Know how to use at least one UNIX editor </LI>
+<LI>Basic knowledge of the MAKE utility</LI></UL>
+</ul>
+
+<h2>Before You Start</h2>
+
+<ul>
+
+<li>Speak with Rob Kinninmont, our most benevolent and beloved systems administrator, about getting a UNIX login.
+
+<li>Request that Rob set up <code>tcsh</code> as your default shell.
+
+<li>To get access to Unix from your Windows box, install CRT (our
+standard Windows terminal program) by running
+<A HREF="file:///\\alexandria/public/windows/Telnet_CRT20.exe">\\alexandria\public\windows\Telnet_CRT20.exe</A>
+<p>
+Here is the registration information for CRT, which you can cut and paste from this document.
+<blockquote>
+  Name: 25 User Right To Use License
+<br>
+  Company: Electric Communities
+<br>
+  Serial Number: 01-11-100115
+<br>
+  Expiration: Never
+<br>
+  xKey: p29m vb29 uai0 vn73 8crv uvj2 ehuu 74hm
+</blockquote>
+
+<li>Read the <a HREF="../CVSMakeBash/cvsdoc/cvs-primer.html">CVS Primer</a>
+
+<li>For reference you can see the
+<A HREF="../../../userdoc/third_party/cvs_1_9_14/cvs_toc.html">CVS Manual</A>
+
+</ul>
+
+<h2>Setting Up A Solaris Development Environment</h2>
+This is very similar to setting up a windows development environment.
+
+<ul>
+
+<li>Log into your favorite Solaris machine (e.g., harpo) and edit the
+<code>.cshrc </code> file in your home directory. Add the following
+line to the end of this file.
+<br>
+<code>source /home/eng/unix/ECEnvironment</code>
+
+<LI>At the command line prompt, type the following commands:
+<blockquote>
+  cd
+<br>
+  source ~/.cshrc
+</blockquote>
+
+<LI>Check out a copy of the current source tree by entering the following commands in your unix shell:
+<blockquote>
+cd
+<br>
+mkdir cvs
+<br>
+cd cvs
+<br>
+cvs co src media
+</blockquote>
+Note that "media" is optional. You needn't check it out unless you want to
+build repositories.
+
+</ul>
+
+<h2>Building and Running HabiFoo on Solaris</h2>
+
+<b>Warning; this probably still needs updating - I'm not sure how to run
+HabiFoo on Solaris any more</b>
+<p>
+At a UNIX command prompt, type the following commands:
+<blockquote>
+cd $COSM
+<br>
+gnumake
+</blockquote>
+This will build the HabiFoo application, which takes about fifteen minutes.
+When this process is complete, type
+<blockquote>
+cd $COSM/start
+<br>
+gnumake
+<br>
+cd $BUILD/Release
+<br>
+./console OneRegion
+</blockquote>
+This will start Microcosm in console mode. It's really much more interesting on Windows.
+
+<p>
+<A href="index.html">Back to the index</a>
+</BODY>
+</HTML>

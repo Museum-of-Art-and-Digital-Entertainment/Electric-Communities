@@ -1,0 +1,170 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>GUI Framework</TITLE>
+<META NAME="Template" CONTENT="C:\Program Files\Microsoft Office\Office\html.dot">
+</HEAD>
+<BODY LINK="#0000ff" VLINK="#800080">
+
+<I><H1>GUI Framework</H1>
+</I><ADDRESS>This page was originally written by <A HREF="mailto:claire@communities.com">Claire</A>.</ADDRESS>
+<B><P>Last updated:</B><I> [98/06/01 </I><A HREF="mailto:claire@communities.com"><I>Claire</I></A><I>]</I> </P>
+<H2>Introduction</H2>
+<P>The GUI Framework is a graphical implementation of the </P>
+<H4>Related Documents</H4>
+<ADDRESS><A HREF="GUIFrameworkOverview.html">GUIFramework Overview</A></ADDRESS>
+<ADDRESS><A HREF="UIFramework.html">UI Framework</A></ADDRESS>
+<ADDRESS><A HREF="ConsoleFramework.html">Console Framework</A></ADDRESS>
+<ADDRESS>UIDocument</ADDRESS>
+<H2>Requirements</H2>
+<P>A graphical framework that relies on one or more windows with 2- or 3- dimensional display technology to present world objects to users.  Users may manipulate an object directly by clicking on the object and selecting a menu item.  Additional windows are used to display detailed information about an object or state of the world as a whole.</P>
+<H2>Architecture</H2>
+<I><P>Diagrams.</I> </P>
+<H4>Current Architecture Overview</H4>
+<P>The GUI implementations of the factories return GUI specific versions of the requested presenter. The presenters include all of the in-world presentation objects such as dynamos, menus and labels as well as external windows. The current behavior of the graphical UI is defined in the UI Document.</P>
+<H5>Main window</H5>
+<P>The main window is constructed from a canvas inside of a Java AWT window and the AnyChannel Render engine.  At start-up, the user is shown a login dialog. He can enter a password if necessary. On acceptance, the user will have a main window that displays a graphical representation of the current scene. All objects are represented as 2D or 3D dynamos. Commands are sent by clicking on an object, selecting a menu item on an objects menu or clicking on a button on the main windows border. All main window border buttons are forwarded to the avatar. Text is entered by simply typing while the main window has the focus. When &lt;enter&gt; or &lt;return&gt; is hit the message is forwarded to the avatar, which then forwards it to the dynamics engine to display in the upper half of the main window. The session may in addition display messages to the user on the left-hand side of the screen.</P>
+<H5>External Windows</H5>
+<P>There is also a collection of windows that allow a user to perform various tasks. The current list of windows include all of those required by the UI Factories as well as those necessary to support general messages and input by the user like the log window or preferences window. The implementations of the external windows rely heavily on the Stonelook and adapted netscape.application classes to provide a common look and feel. In general, the factories are used to create a particular presenter object. Methods on the presenter object are used to handle state information between the window and the Unum ingredient. Because of the complexities of keeping guest and crew seperated, there are intermediary data objects used to convert between the two states. This adds lots of complexity and runtime overhead.</P>
+<H5>Unum-UI message handling</H5>
+<P>The majority of the work in building menus and labels are handled by the CommonUnumUIFactory. Likewise, the majority of the work needed to support messages is handled by the CommonUnumUIPresenter. This allows for a great deal of code sharing. There is a duplicate factory and presenter structure to support the list or container window implementation. This should be corrected. There is support class the GUIHandlerMgr which provides a central gateway for all scene generated message forwarding. It is responsible for swapping the menu and labels on context updates as well as forwarding any widget or key based messages. External windows communicate with the Unum through the presenter's methods and data objects.</P>
+<H4>&nbsp;</H4>
+<H4>Proposed Architecture Overview</H4>
+<H4>Off the shelf alternatives</H4>
+<P>None. This is how we define ourselves as a graphical application. </P>
+<H4>Other Design Objectives, Constraints and Assumptions</H4>
+<H2>Current implementation</H2>
+<P>The GUI UI Framework consists of the graphical implementation of the FrameworkOwner and Framework, the four factories. The standard presenters except the UnumUIPresenter are destributed throughout other packages. This includes a description of the classes in the framework package:</P>
+<H5>Basic Framework:</H5>
+
+<UL>
+<LI>GUIFrameworkOwner: implements a PresenterFrameworkOwner which mainly is used for creating a </LI>
+<LI>GUIFramework: implements the UIFramework and the application framework for Microcosm. This class calls on other GUI subsystems and Audio to initialize on startup. It also allows a subsystem to register to be called on shutdown. Some of the work of this class was broken up into support classes to prevent it from becoming overly complicated. Since this class is readily available a large number of it methods are for passing information to and from other subsystems.</LI></UL>
+
+<P>&nbsp;</P>
+<H5>GUI Factories:</H5>
+
+<UL>
+<LI>GUIPresenterFactory: The GUI implementation of the UI Presenter factory used to create external UI Presenters that do not need to be closely held by the avatar or region. This includes alerts, catalogs, etc. The presenters can be found in the ec.cosm.gui.uipresenter or in ec.cosm.gui.windows package. </LI>
+<LI>GUISessionPresenterFactory: The GUI implementation of the UI Session Presenter factory used to create external UI Presenters that do need to be closely held by the avatar or region or only created once per session. The presenters can be found in the ec.cosm.gui.uipresenter or in ec.cosm.gui.windows package. </LI>
+<LI>GUIUnaPresenterFactory: The GUI implementation of the UnaPresenterFactory used to create the in-world representation of an Unum. The presenters can be found in the ec.cosm.gui.dynamics package. </LI>
+<LI>GUIUnumUIPresenterFactory: Used to create the GUI version Unum's UI presenters, in other words it's piemenu and label. This class will also create any inworld widget. The presenters can be found in the ec.cosm.gui.scenewidget package.</LI></UL>
+
+<P>&nbsp;</P>
+<H5>Framework Support classes</H5>
+
+<UL>
+<LI>CosmWindowManager: a subclass of the WindowManager that creates and manages the layout of Microcosm's standard windows </LI>
+<LI>GUIHandlerManager: Maintains the event handler and main window widget creation and command flow </LI>
+<LI>GUINotificationManager: support class for handling notifications to the user </LI>
+<LI>GUICommandPresenterEvent: gui implementation of the CommandPresenterEvent that holds on to all of the information known about an event</LI></UL>
+
+<P>&nbsp;</P>
+<H5>GUI Notifications:</H5>
+
+<UL>
+<LI>GUINotifcation: base class for GUI Notifications used to hold the framework and notification manager. This would be unnecessary if there weren't the steward build boundary. </LI>
+<LI>CursorNotification: this will change the cursor with a push/pop </LI>
+<LI>TransitionNotification: this will perform a "transition" effect </LI>
+<LI>MessageNotification: this will display a simple message </LI>
+<LI>UpdateableMessageNotification: this will display a message that can be changed as needed. </LI>
+<LI>ProgressMessageNotification: this will display a progress dialog </LI>
+<LI>SaveNotification: a notification to display when auto-saving the application</LI></UL>
+
+<P>&nbsp;</P>
+<H5>KeyEvent Handlers:</H5>
+
+<UL>
+<LI>BalloonKeyHandler: key handler responsible for the display and dispatch of text as it is entered into a balloon. </LI>
+<LI>NavKeyHandler: key event handler responsible for 3-D Navigation and the camera </LI>
+<LI>WinKeyHandler: key event handler responsible for main window ui not part of the balloon text input</LI></UL>
+
+<P>&nbsp;</P>
+<H5>GUI Presenters:</H5>
+
+<UL>
+<LI>GUIPresenterHandler: The GUI implementation of the UnumUIPresenter. This is the only presenter created within the GUI framework package. The majority of the work was moved to CommonUnumUIPresenter.</LI></UL>
+
+<H5>&nbsp;</H5>
+<H5>GUIUnaListPresenters:</H5>
+
+<UL>
+<LI>CompositableListPresenter: presenter which represents one entry in a contents list window </LI>
+<LI>CompositorListPresenter: presenter which represents one entry with children in a contents list window </LI>
+<LI>SlottedCompositorListPresenter: ditto, really </LI>
+<LI>AvatarListPresenter: not yet defined! </LI>
+<LI>PropListPresenter: CompositableListPresenter + UI handling </LI>
+<LI>CompositorPropListPresenter: as above </LI>
+<LI>RegionListPresenter: holds an InventoryPresenter which it updates </LI>
+<LI>TextureListPresenter: not yet defined!</LI></UL>
+
+<P>&nbsp;</P>
+<H5>Miscellaneous:</H5>
+
+<UL>
+<LI>MicrocosmExiter: the e class used by the exit dialog to forward exit dialog selection to framework </LI>
+<LI>MicrocosmErrorDisplayer: the e class used for the error dialog to return the selected button</LI></UL>
+
+<P>&nbsp;</P>
+<P>The external windows found in ec.cosm.gui.windows and ec.cosm.gui.uipresenter are as follows:</P>
+<H5>UIPresenter windows</H5>
+
+<UL>
+<LI>GUIAddressBookPresenter: the address book</LI>
+<LI>GUIAlertPresenter: a standard alert with resizing for long or short messages</LI>
+<LI>GUICatalogListPresenter: window used to display the current list of catalogs.</LI>
+<LI>GUICatalogPresenter: the catalog window used to display a catalog</LI>
+<LI>GUIChangePrivileges: the change privileges window</LI>
+<LI>GUIConsolePresenter: the console window</LI>
+<LI>GUIContainerWindow: a container window for scene display (not used)</LI>
+<LI>GUIInventoryPresenter: the inventory window</LI>
+<LI>GUIListPresenter: a list window (the container window)</LI>
+<LI>GUIPropertySheetPresenter: the property sheet used to display and change an objects properties</LI>
+<LI>GUITeleportListPresenter: the teleport list window</LI>
+<LI>GUITradePresenter: the trading window (not used)</LI>
+<LI>GUIVoxChatPresenter: the vox chat window</LI></UL>
+
+<P>&nbsp;</P>
+<H5>Gui.windows</H5>
+
+<UL>
+<LI>ConnectionStatsWindow: used to display the current stats for a connection (debugging support)</LI>
+<LI>LogWindow: the log window</LI>
+<LI>PreferencesWindow: the preferences window</LI>
+<LI>ProgressDialog: a progress bar dialog window</LI>
+<LI>VoxChatPreferencesWindow: the vox chat preferences window</LI></UL>
+
+<P>&nbsp;</P>
+<H4>Which directories on our tree does this subsystem cover?</H4>
+<P>Current directories: </P>
+
+<UL>
+<LI>ec\cosm1\ui\gui\framework. </LI>
+<LI>ec\cosm1\ui\gui\uipresenter </LI>
+<LI>ec\cosm1\ui\gui\windows </LI>
+<LI>ec\cosm1\ui\gui\login </LI>
+<LI>ec\cosm1\ui\gui\dynamics</LI></UL>
+
+<P>&nbsp;</P>
+<P>Current Packages: </P>
+
+<UL>
+<LI>ec.cosm.gui.framework </LI>
+<LI>ec.cosm.gui.uipresenter </LI>
+<LI>ec.cosm.gui.windows </LI>
+<LI>ec.cosm.gui.login </LI>
+<LI>ec.cosm.gui.dynamics</LI></UL>
+
+<P>&nbsp;</P>
+<H4>Is it JavaDoc'ed?</H4>
+<P>Yes.</P>
+<H4>Examples</H4>
+<H4>Testing and Debugging</H4>
+<H2>Design Issues</H2>
+<H4>Resolved Issues</H4>
+<H4>Open Issues</H4>
+<P>Eliminate the vestiges of the steward/crew/guest boundary. This added a lot of needless complexity. </P>
+<P>Eliminate the need for GUIUnaListPresenters. Most of the methods in these classes are stubs.</P>
+<P>Clean up message handling between the avatar and the main window buttons. This is mostly being handled directly. Allow buttons to be mapped more dynamically.</P></BODY>
+</HTML>

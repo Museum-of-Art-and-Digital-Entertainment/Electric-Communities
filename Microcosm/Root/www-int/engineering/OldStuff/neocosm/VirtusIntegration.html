@@ -1,0 +1,118 @@
+<HTML>
+<HEAD>
+<TITLE>Virtus Integration</TITLE>
+</HEAD>
+
+<H1>Virtus Integration</H1>
+<B>Last updated: </B>[1 July 1998] <A HREF="mailto:tony@communities.com">Tony</A>]
+
+<P>Author(s): <A HREF="mailto:Tony@communities.com">Tony</A>
+
+
+<H2>Related Documents</H2>
+<A HREF="RendererAnalysis.html">Renderer Analysis</A> An overview document, Its 
+recommendation is to stick with AnyChannel-- a conclusion that was reached before
+talks with Virtus began.
+<HR>
+<H2>Overview</H2>
+The Virtus renderer is a C++ based component architecture. It appears to be 
+very fast, and quite complete. This document attempts to list potential snags in
+migrating to this new renderer.
+
+<HR>
+<H3>If it aint broke...</H3>
+A simple point here... we have a renderer that works. Integrating a new renderer means
+changing lots of code. Clearly, there can be benefits from a new renderer: technical,
+aesthetic, and strategic. The cost of work should not be underestimated, however.
+
+<H3>C++ and Java</H3>
+Their renderer is in C++. We're a Java house. We'll need to be extremely careful about
+where we draw the boundary between our two codebases and how we integrate. Will our code 
+"drive" their components through scripting (i.e. Sit on top of the Guard) or should we
+write a networking component that drops into their container like everything else? One
+abstraction I've heard mentioned is that their code represents everything from the Dynamics
+Engine and below. I'm a little nervous about the messaging betwen all these objects going
+from Component->Java->Comm->Java->Component and how this might impact responsiveness.
+<P>
+One potential solution to avoid the Java/C++ problem would be to write a Networking component
+in C++. This should at least be considered as an option.
+
+<H3>2 1/2D support</H3>
+Our current renderer and dynamos support 2 1/2D art. 2D cutout sprites that scale and 
+swap bitmaps depending on their orientation to the camera. We'd likely have to rewrite 
+this into their component architecture.
+
+<H3>Pixel perfect art, GUI plane</H3>
+We also have support for "pixel perfect" art. This is art that can be described in
+pixel coordinates rather than world coordinates. Our GUI plane which supports much of 
+our UI (word balloons, watermarks, toolbars, pie menus) depends on this. We'd have to
+be sure that Virtus can let us do all these things as we need to.
+
+<H3>Snapshotting</H3>
+We get a huge permance benefit from snapshotting. This is a method of converting objects
+in a 3D scene that haven't changed in awhile into a 2D bitmap. It provides a huge 
+performance gain for us. It's hard to know if such a solution would be possible in
+Virtus' renderer, and if we'd want to do the work to support it.
+
+<H3>3D acceleration in a window</H3>
+It's been a hard product requirement of ours for a long time that we be able to run
+inside a window, and not take over full screen. Part of this was that we needed/wanted
+to integrate with a web broswer, and also because we have many support windows that
+are meant to float separate from the main window.
+<P>
+Changing this requirement means changing *a lot* of UI.
+<P>
+Continuing to support this requirement raises the following issue:
+<P>
+To gain the benefits of the Virtus renderer, we need to be running on machines
+with 3D hardware. There's a marketing issue about whether or not we can
+reasonably expect to find 3D acceleartor boards on out target paltform machines.
+Given our timeframe, that's probably acceptable. 
+<P>
+However, there's still a problem. There are still very few cards that can do
+3D acceleration in a window. Virtus happens to demo using one of them, but I don't
+believe that the average consumer PC with a bargain 3D card will have this support.
+<P>
+Here's some more info from Russ (copied from the Renderer Analysis page):
+<P>
+<I>
+The AnyChannel renderer currently has 3D accelerator support in it for 3Dfx, ATI
+and I think PowerVR.  The problem comes with wanting to run in a window.
+Some of these cards flat out don't support running in a window (I think
+it will be 2-3 years before the installed base of 3D cards that support
+windowing outnumber the installed base of 3D cards that don't).  Even
+ignoring that, 3D cards have hard memory constraints.  Running in
+full-screen mode, regions would need to be designed with these
+constraints in mind.  But wait, it gets worse!  If your user is running
+their desktop at 1280x1024x16bit, they're chewing up 2MB of video RAM.
+You'll need to allocate a front-buffer, back-buffer, and z-buffer for
+uCosm, and then whatever scraps of memory are left can be used for
+textures.  It really sucks that the application can know ahead of time
+how much memory will actually be available (in fact, the user can even
+change resolutions while the app is running).  Probably the best thing
+to come along to help this pathetic situation is AGP.  AGP allows system
+RAM to be used for textures (however, this RAM is like a disk buffer,
+it's a fixed size that is allocated at boot time and cannot be used for
+anything other than graphics).  This means that the front/back/z-buffers
+can live on the card, what's left over on the card can be used for
+textures, and then whatever memory has been set aside from the system
+RAM can be used for extra textures.  It still won't be painless, but I
+think it becomes possible.
+<I>
+<H3>Cartoon styles</H3>
+This is another AnyChannel-specific feature we support. We haven't used it much,
+but it's there, and we'd need to do some work to migrate this over to a new renderer.
+
+<H3>Picking</H3>
+From Alan:<P>
+We've got some support for world coordinate picking in the renderer as well as the 
+ability to return the 'tag' of a picked piece of geometry (which maps it to its 
+Java object ID, which is how we figure out which object got picked).
+<P>
+We'll need comparable picking support.
+
+<H3>Transparency & Translucency</H3>
+We make heavy use of them. I'd be surprised if Virtus didn't support this, but presumptions 
+are evil. Facts are good. We should make sure.
+
+</HTML>

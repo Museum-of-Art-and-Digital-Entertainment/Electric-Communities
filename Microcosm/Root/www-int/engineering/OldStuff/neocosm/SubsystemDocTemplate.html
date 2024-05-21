@@ -1,0 +1,185 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.03 [en] (Win95; U) [Netscape]">
+   <TITLE>Design Document Template</TITLE>
+</HEAD>
+<BODY>
+
+<H1>
+Subsystem Document Template</H1>
+<I>This page was originally written by Trev and is now maintained by <A HREF="mailto:arturo@communities.com">Arturo</A>
+with the help of <A HREF="mailto:claire@communities.com">Claire</A></I>
+<BR><I>Please let me know of any errors ASAP so I can fix them.</I>
+
+<P><B><U>Last updated:</U></B>
+<BR>[98/06/11] Added items to deal with future usage:
+<UL>
+<LI>
+Removed the (Optional) from the testing section. Every subsystem needs
+to have a testing strategy. This might include tools, instructions, issues.</LI>
+
+<LI>
+Added a Performance issues section, here you will be able to add tradeoffs,
+goals, things to watch out for.</LI>
+</UL>
+<I><B>Warning:</B> these pages change frequently. If you've looked at them
+recently hit "reload" on your browser to make sure you're seeing the latest
+version.</I>
+
+<P>This template is an aid for writing our subsystem inventory documentation.
+The first version of these documents are intended to capture what we have
+today and it is very important that we keep them updated. The implementation
+details may not be filled in but the design details should be checked in.
+It's OK not to know everything to check the documentation as "what I know
+now, about this subheading", as well as indicating areas that still need
+documenting.
+
+<P>These documents are stored on the internal web site as a permanent record
+of our design decisions. The parts of the system that move forward will
+go through the design review process started by Trev.
+
+<P>If the subsystem in question already has documentation please see if
+you can fit it in this format, as Trev reminded us having a standard format
+makes the documents easier to read for everyone while avoiding having to
+make a number of trivial decisions.
+
+<P>Remember that documents are written once and read many times. Writing
+a thorough, concise document is like writing good code - it will save you
+and the people who use it a lot of time later on (and will make the design
+inspection process much easier). Consult with Lani and Amy for help with
+writing. Also, see their <A HREF="../../general/write/writetoc.htm">Documentation
+Standards</A> pages.
+
+<P>Everything below this paragraph, apart from the final link back to the
+index, is part of the template. All the text in italics is to be replaced
+by your (non italicized) text.
+
+<P>Revisions to the document should be reflected in the last updated field
+on top of the document and tagged comment of the form <I>[yy/mm/dd reviser].
+(suggestions for other amendment marking notation welcome)</I>
+<H1>
+<I>Title of Document - Name of Subsystem</I></H1>
+<B>Last updated:</B><I> [98/05/11 Arturo]</I>
+
+<P><I>Author(s) List email addresses of authors. Even after a design inspection
+other readers may find more bugs in</I>
+<BR><I>the document and need to contact the author. Use the HTML email
+tag, e.g. <A HREF="mailto:somebody@communities.com">Somebody</A>. Also
+include a reference to the subsystem's original author.</I>
+<H2>
+Introduction</H2>
+<I>The introduction should give a brief very high level overview of what
+the design is for and how it fits with other components. It should be possible
+for someone to read just the introduction and get a good sense of whether
+they need to read the rest of the document. The introduction sets the scene,
+but doesn't fill it in at all</I>
+<H4>
+Related Documents</H4>
+<I>(Optional) list any related design documents</I>
+<H2>
+Requirements</H2>
+<I>Listing the subsystem's initial requirements, also please add notes
+on requirements that are met by the current version of the system, as well
+as known not-met potential requirements, e.g. firewall support, etc.</I>
+<H2>
+Architecture</H2>
+<I>Diagrams are strongly encouraged; a few diagrams can do wonders for
+clarifying an architecture. If you don't know how to add diagrams consult
+Lani and Amy.</I>
+<H4>
+Current Architecture Overview</H4>
+<I>The introduction set the scene; this section gives the key properties
+of the current design. It may mention classes and some important interfaces
+but it doesn't go into details. Someone should be able to read just the
+overviews of our design documents and get a good understanding of how the
+system works and fits together, without knowing the full details.</I> <I>Also
+include any insights gained from experience like design bugs or expense
+discovered in usage.</I>
+<H4>
+Proposed Architecture Overview</H4>
+<I>This section is not urgent for the first version of this document, you
+should capture what direction you feel this subsystem ought to take. As
+we start addressing specific systems this section will grow into the core
+of the design document.</I>
+<H4>
+Off the shelf alternatives</H4>
+<I>Any notes about potential off the shelf technologies that could be used,
+and their trade-offs.</I>
+<H4>
+Other Design Objectives, Constraints and Assumptions</H4>
+<I>Lists any special objectives and assumptions of the code e.g. reusability,
+thread safety, security, performance, use of resources, compatibility with
+existing code etc. This section gives important context for reviewers</I>
+<H2>
+Current implementation</H2>
+<I>This section should give details of the major classes and interfaces.</I>
+<H4>
+Which packages on our tree does this subsystem cover?</H4>
+<I>For example ec4/javasrc/ec/...</I>
+<H4>
+Implementation overview</H4>
+<I>In many cases, this section can link to JavaDoc output from actual Java
+classes and interfaces. This saves writing documentation twice (the designers
+will have to JavaDoc their interfaces anyway). The JavaDoc should be linked
+into the design document. <A HREF="../tools/javadoc.html">Chip's JavaDoc
+style guidelines</A> explain how to use JavaDoc effectively.</I>
+<H4>
+Exception handling</H4>
+<I>For any clients of the subsystem this section discusses in general the
+exceptions that this subsystem can throw in usage, this section should
+also link to the corresponding JavaDoc.</I>
+<H4>
+Examples</H4>
+<I>Are there examples?</I>
+<H4>
+Performance</H4>
+<I>Lists performance issues, targets, considerations and tradeoffs for
+this subsystem. These issues can include: class bloat, runtime resource
+consumption and usage/invocation cost. Here are some questions to consider:</I>
+<UL>
+<LI>
+<I>Is this code doing the minimum possible for TheProduct?</I></LI>
+
+<LI>
+<I>Could this code be native?</I></LI>
+
+<LI>
+<I>Should this code be native?</I></LI>
+
+<LI>
+<I>What do you see as the most likely performance bottlenecks in this code?</I></LI>
+
+<LI>
+<I>Is there another way to write them so they're not bottlenecks?</I></LI>
+</UL>
+
+<H4>
+Testing Strategy and Debugging</H4>
+<I>Describes the testing strategy for this subsystem. List if it is possible
+to stress test this code outside TheProduct. Lists the testing API, any
+tests and debugging utilities which are to be developed to help test the
+design (e.g. test classes, trace categories, etc.).</I>
+<H4>
+Interactions and dependencies with other subsystems</H4>
+<I>Describes the testing strategy for this subsystem. Lists any tests and
+debugging utilities which are to be developed to help test the design (e.g.
+test classes, trace categories, etc.)</I>
+<BR>&nbsp;
+<H2>
+Design Issues</H2>
+
+<H4>
+Resolved Issues</H4>
+<I>History of issues raised and resolved during initial design, or during
+design inspections. Can also include alternative designs, with the reasons
+why they were rejected</I>
+<H4>
+Open Issues</H4>
+<I>This section of the document is used by the authors and moderator to
+store any incomplete information - issues identified during a design inspection
+but not yet resolved (the task list), notes that aren't ready to be put
+into the main text, etc.</I>
+<BR>&nbsp;
+</BODY>
+</HTML>

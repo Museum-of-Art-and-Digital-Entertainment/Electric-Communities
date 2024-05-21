@@ -1,0 +1,9 @@
+export unit interfaces {
+
+  package ec.pl.examples.simple;
+
+  export interface iAcceptMessage {
+    acceptMessageAndAddSomething(int argument);
+  }
+
+}

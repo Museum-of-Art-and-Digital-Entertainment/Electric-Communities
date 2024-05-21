@@ -1,0 +1,30 @@
+#!/bin/sh
+
+# to check on a running process location server, run this command with the
+# name of the control file as the argument:
+#
+# /home/eng/pls-location/checkup /home/eng/pls-location/pls-gracie-1666.control
+#
+
+JAVA_DIR=/home/eng/java-1.1.3/solaris/java-1.1.3
+#BUILD_DIR=/home/eng/e-stable
+BUILD_DIR=/home/eric/Build.pls
+
+CLASSPATH=$JAVA_DIR/lib/classes.zip:$BUILD_DIR/classes:$BUILD_DIR/compute/classes:$BUILD_DIR/crew/classes:$BUILD_DIR/guest/classes:$BUILD_DIR/steward/classes
+
+LD_LIBRARY_PATH=/usr/lib:/usr/ucblib:$JAVA_DIR/lib/sparc:$BUILD_DIR/lib:$BUILD_DIR/solaris/lib
+
+export JAVA_DIR CLASSPATH LD_LIBRARY_PATH
+
+case x$1 in
+*.control)
+	if [ -f $1 ]; then
+		$JAVA_DIR/bin/java ec.e.start.EBoot ec.e.net.PLSController PLS=$1 SearchPath=dontbother
+	else
+		echo $1: file not found
+	fi
+	;;
+*)
+	echo usage $0 file.control
+	;;
+esac

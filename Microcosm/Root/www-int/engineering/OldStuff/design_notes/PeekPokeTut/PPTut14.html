@@ -1,0 +1,64 @@
+<!--NewPage-->
+<!-- Created by Masa Maeda on 05.14.97  -->
+<!-- Copyright 1997 Electric Communitites. -->
+<!-- All rights reserved worldwide.  -->
+<!-- Proprietary and confidential. -->
+<HTML>
+<HEAD>
+<pre>
+<a href="PPTut13.html">Previous</a>  <a
+href="PPTut15.html">Next</a>  <a
+href="PPTutI.html">Index</a>  <a
+href="PPTut1.html">Home</a></pre>
+<TITLE>The PeekPoke Tutorial</TITLE>
+</HEAD>
+<BODY>
+<P><HR WIDTH="100%" SIZE=2></P>
+<P>&nbsp;</P>
+
+<B><P>Step 9. The go() method</P>
+</B>
+<P>Now that the una for PeekablePokeable and PeekerPoker have been coded, the next
+step is to code the class that will start it all. The main class—<FONT
+FACE="Courier">PeekPokeShip</FONT>—consists of a go() method which will simply create
+the Peekable, Pokeable, Peeker, and Poker una, and then send messages from the
+‘...able’ to the ‘...er’ una.</P>
+
+<P><HR WIDTH="80%" SIZE=2></P>
+<PRE>
+
+     public eclass PeekPokeShip implements Agent {
+       emethod go (EEnvironment env) {
+         System.out.println("In PeekPokeShip.go()");
+		 kind ukPeekable myPeekable = new unum uiPeekablePokeable();
+		 kind ukPeeker myPeeker = new unum uiPeekerPoker();
+		 kind ukPokeable myPokeable = new unum uiPeekablePokeable();
+		 kind ukPoker myPoker = new unum uiPeekerPoker();
+ 		 myPoker &lt - uPokeUnum(myPokeable, "The Poker");
+ 		 myPeeker &lt - uPeekUnum(myPeekable, "The Peeker");
+         System.out.println("End of PeekPokeShip.go()");
+        }
+    }
+
+<P><HR WIDTH="100%" SIZE=2></P>
+<pre>
+<a href="PPTut13.html">Previous</a>  <a
+href="PPTut15.html">Next</a>  <a
+href="PPTutI.html">Index</a>  <a
+href="PPTut1.html">Home</a></pre>
+
+</HTML>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,232 @@
+# 1 "ec/ecomp/report.java" 
+/* ************************************************************************
+ * Espresso! Error reporting
+ * Copyright 1995, 1996, 1997 Martin Odersky. All rights reserved.
+ * 
+ * Author     : Martin Odersky, Michael Philippsen
+ * Last change: 17-December-97
+ *************************************************************************/
+
+
+package ec.ecomp;
+
+
+
+
+import java.io.*;
+
+class Report implements /* imports */ Constants {
+
+/** A position for errors that happen outside of any input file
+*/
+    static int noPos = -1;
+
+/** The name of the file that's currently translated:
+ */
+    public static String filename = "<input>";
+
+/** a variable that determines whether error messages are emitted or not.
+ */
+    static boolean silent = false;
+
+/** number of errros/warnings so far:
+ */
+    static int nerrors = 0;
+    static int nwarnings = 0;
+
+/** the file that's currently translated:
+ */
+    private static RandomAccessFile infile = null;
+
+/** the faulty line:
+ */
+    private static String errLine = null;
+
+/** and its line number:
+ */
+    private static int lineNum = 0;
+
+/** prompt user after each error; used for debugging.
+ */
+    private static void prompt() {
+        if (Switches.promptOnError) {
+            System.out.println("R)esume, A)bort>");
+            char ch;
+            try {
+                while (true) {
+                    switch (System.in.read()) {
+                    case 'a': case 'A':
+                        throw new CompilerError("user abort");
+                    case 'r': case 'R':
+                        return;
+                    default:
+                    }
+                }
+            } catch (IOException e) {
+                throw new CompilerError("input read error");
+            }
+        }
+    }
+
+/** print the faulty line and point to the error:
+ */
+    private static void printErrLine(int l, int c) {
+        try {
+            if (infile == null) {
+                infile = new RandomAccessFile(filename, "r");
+                lineNum = 0;
+                errLine = "";
+            } else if (lineNum > l) {
+                infile.seek(0);
+                lineNum = 0;
+                errLine = "";
+            }
+            if (infile != null) {
+                while (lineNum < l && errLine != null) {
+                    errLine = infile.readLine();
+                    lineNum++;
+                }
+                if (errLine != null) {
+                    System.out.println(errLine);
+                    for (int i = 1; i < c; i++) System.out.write(' ');
+                    System.out.println("^");
+                }
+            }
+        } catch (IOException e) {}
+    }
+
+/** print an error or warning message:
+ */
+    private static void printError(int pos, String msg) {
+        if (pos == noPos) {
+           System.out.println("error: " + msg);
+        } else {
+           int line = pos >>> LINESHIFT;
+           int col  = pos - (line << LINESHIFT);
+           System.out.print(filename + ":");
+           System.out.print(line);
+           // System.out.print(".");
+           // System.out.print(col);
+           System.out.print(": ");
+
+           int posintf = 0;
+           if (E2j.done) {
+             while ((posintf = msg.indexOf("_$_Impl")) != -1) {
+               String part1 = msg.substring(0,posintf);
+               String part2 = msg.substring(posintf+7);
+               msg = part1;
+               if (part2 != null)
+                 msg = msg.concat(part2);
+             }
+           }
+           if (!E2j.done) {
+             while ((posintf = msg.indexOf("_$_Intf")) != -1) {
+               String part1 = msg.substring(0,posintf);
+               String part2 = msg.substring(posintf+7);
+               msg = part1;
+               if (part2 != null)
+                 msg = msg.concat(part2);
+             }
+             int posasync = 0;
+             while ((posasync = msg.indexOf("$async")) != -1) {
+               String part1 = msg.substring(0,posasync);
+               String part2 = msg.substring(posasync+6);
+               msg = part1;
+               if (part2 != null)
+                 msg = msg.concat(part2);
+               int posfunction;
+               if ((posfunction = msg.indexOf("function ")) != -1) {
+                 part1 = msg.substring(0,posfunction);
+                 part2 = msg.substring(posfunction+9);
+                 msg = part1.concat("emethod ");
+                 if (part2 != null)
+                   msg = msg.concat(part2);
+               }
+             }
+           }
+
+           System.out.println(msg);
+           printErrLine(line, col);
+           prompt();
+       }
+    }
+
+/** report an error:
+ */
+    static void error(int pos, String msg) {
+        if (!silent && nerrors < 100) {
+            printError(pos, msg);
+            nerrors++;
+        }
+    }
+ 
+/** report a warning:
+ */
+    static void warning(int pos, String msg) {
+        if (!Switches.noWarn && !silent && nwarnings < 100) {
+            printError(pos, "warning: " + msg);
+            nwarnings++;
+        }
+    }
+
+/** prepare to report on new source file:
+ */
+    static void open(String fn) {
+        filename = fn;
+    }
+
+/** release resources:
+ */
+    static void close() {
+        if (infile != null) { 
+            try {
+                infile.close(); 
+                infile = null;
+            } catch (IOException e) {
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

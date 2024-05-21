@@ -1,0 +1,40 @@
+export unit DieRollKind {
+  
+  package ec.pl.examples.dieroll;
+  
+  import ec.e.lang.ELong;
+  import ec.e.quake.TimeMachine;
+
+  // Kind declarations for unum, presence, and ingredient.
+  export kind DieRoll_uk {
+    setupUI(DieRollController controller);
+    setTimeMachine(TimeMachine timeMachine);
+  }
+  
+  export kind DieRoll_usk {
+    implements Unum;
+    kind DieRoll_uk;
+  }
+  
+  export kind DieRoll_pk {
+    rollWithMe (long product, ELong otherPart, EResult myProduct,
+    EResult myPart);
+    rollon(Vector presences);
+    setup(EResult ready, int theWaitCount);
+    hostroll();
+  }
+  
+  export kind DieRoll_psk {
+    implements Presence;
+    implements PresenceHost;
+    kind DieRoll_pk;
+  }
+  
+  // Since there is only a single ingredient, we must declare it to handle
+  // both unum and presence messages.
+  export kind DieRoll_ik {
+    kind DieRoll_uk;
+    kind DieRoll_pk;
+    init (istDieRoll theState);
+  }
+}

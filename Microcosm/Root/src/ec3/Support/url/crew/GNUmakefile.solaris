@@ -1,0 +1,7 @@
+JAVA_HOME = $(JAVADIR)
+
+OTHER_LIBS = -L$(JAVA_HOME)/lib/sparc -lc 
+
+INCLDIRS += -I/usr/openwin/share/include -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/solaris -I$(JAVA_HOME)/src/solaris/sun -I$(JAVA_HOME)/src/solaris/java/include 
+
+CFLAGS = -DSPARC 

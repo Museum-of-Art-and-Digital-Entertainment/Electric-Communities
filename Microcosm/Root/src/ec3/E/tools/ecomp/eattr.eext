@@ -1,0 +1,72 @@
+# 1 "ec/ecomp/eattr.java" 
+
+/* ************************************************************************
+ * E Utility routines for attribution
+ * Copyright 1996 Michael Philippsen. All rights reserved.
+ * 
+ * Author     : Michael Philippsen
+ * Last change: 16-Apr-97
+ *************************************************************************/
+
+package ec.ecomp;
+
+class Eattr implements Constants {
+  // static Name eforallS    = Name.fromString("eforall");
+
+/* some E-Statements may only be used inside of EClasses
+ */
+  
+  static boolean stmtInEclass(int pos, Env env) {
+    ClassObj c = Attr.currentClass(env);
+    if (!c.subclass(ePredef.EobjectClass)) {
+      Report.error(pos,"e-statement can only be used in eclasses");
+      return false;
+    }
+    return true;
+  }
+
+/* handle acceptable and inaceptable uses of &
+ */
+  
+  static boolean checkEitherAmpersandOrAssign(AST operand,
+                                              byte operation) {
+
+    // If the lhs of this assignment is a un-initialized variable
+    // make sure that the distributor is not taken of this variable.
+    // If the operand of this unop is a un-initialized variable
+    // make sure that the distributor is not taken of this variable.
+    // If the operand of this unop is a initialized variable
+    // the distributor can not be taken.
+
+    if (operand instanceof IdRef) {
+      IdRef id = (IdRef)operand;
+      if (id.obj instanceof VarObj) {
+        VarObj vobj = (VarObj)(id.obj);
+        Typ    vtyp = vobj.typ;
+        if (   vtyp.subtype(ePredef.EobjectIntfTyp)
+            || vtyp.subtype(ePredef.E$interfaceTyp)
+            || vtyp.subtype(ePredef.EobjectTyp)) {
+          if (!vtyp.subtype(ePredef.EchannelTyp)) {
+            if (((operation == VarObj.ASSIGNED_TO) &&
+                 (vobj.init_state == VarObj.DISTRIBUTOR_TAKEN)) ||
+                ((operation == VarObj.DISTRIBUTOR_TAKEN) &&
+                 (vobj.init_state == VarObj.ASSIGNED_TO))) {
+              Report.error(operand.pos, "cannot both assign to "+id.name+
+                           " and use &"+id.name);
+              return false;
+            } else
+              vobj.init_state = operation;
+          } else { 
+            // this is an Echannel -> we need to know whether the
+            // distributor is taken somewhere
+            if (operation == VarObj.DISTRIBUTOR_TAKEN)
+              vobj.init_state = operation;
+          }
+        }
+      }
+    }
+    return true;
+  }
+}
+
+

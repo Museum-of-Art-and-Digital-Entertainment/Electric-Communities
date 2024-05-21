@@ -1,0 +1,3 @@
+This test's output assumes you've only done a minimal-make of the
+E runtime. Expect the test to fail if you've actually done a full E
+library (ec3) build.

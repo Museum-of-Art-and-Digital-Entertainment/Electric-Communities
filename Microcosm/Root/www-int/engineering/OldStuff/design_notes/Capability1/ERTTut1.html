@@ -1,0 +1,76 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>Exclusive Rights Transfer Tutorial: Page 1Exclusive Rights Transfer Tutorial</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY>
+
+<P><!--NewPage--><!-- Created by Masa Maeda on 05.14.97  --><!-- Copyright 1997 Electric Communitites. --><!-- All rights reserved worldwide.  --><!-- Proprietary and confidential. --></P>
+
+<PRE>          <A HREF="ERTTut2.html">Next</A>  <A HREF="ERTTutI.html">Index</A>  <A HREF="http://www-int.communities.com">EC internal web page</A></PRE>
+
+<P>
+<HR WIDTH="100%" SIZE=2></P>
+
+<P><B><FONT SIZE=+3>Exclusive Rights Transfer Tutorial</FONT></B></P>
+
+<P><FONT SIZE=-1>Copyright 1997 Electric Communities, all rights reserved.
+Proprietary and Confidential.</FONT></P>
+
+<P>&nbsp;</P>
+
+<P><B>Introduction</B></P>
+
+<P>Secure transactions on the Internet rely, in general, on security mechanisms
+that give too much responsibility or too much freedom to users. This implies
+an undesirable high risk factor to people interested on secured transactions.
+E offers capability-based security concepts that allow true security. This
+tutorial introduces a simple true security mechanism for exclusive-rights
+transfer.</P>
+
+<P>&nbsp;</P>
+
+<P><B>The right over <FONT FACE="Courier">Receiver</FONT></B></P>
+
+<P>The case described here consists on three objects, <FONT FACE="Courier">Sender1</FONT>,
+<FONT FACE="Courier">Sender2</FONT> and <FONT FACE="Courier">Receiver</FONT>
+(see Figure 1). <FONT FACE="Courier">Sender1</FONT> and <FONT FACE="Courier">Sender2</FONT>
+both send independent messages to <FONT FACE="Courier">Receiver</FONT>,
+but since only <FONT FACE="Courier">Sender1</FONT> has capability, exclusive
+rights, over <FONT FACE="Courier">Receiver</FONT>, all messages from <FONT FACE="Courier">Sender2</FONT>
+cannot be sent and accumulate in the corresponding channel (see Figure
+1). The capability <FONT FACE="Courier">Sender1</FONT> has over <FONT FACE="Courier">Receiver</FONT>
+is actually granted by a trusted third party object <FONT FACE="Courier">Truster1</FONT>,
+which gets a message and forwards it to <FONT FACE="Courier">Receiver</FONT>.</P>
+
+<P>
+<HR WIDTH="80%" SIZE=2></P>
+
+<H2><IMG SRC="ERTFig1.gif" HSPACE=80 HEIGHT=200 WIDTH=220></H2>
+
+<CENTER><P>Figure 1. Sender1 has rights over Receiver</P></CENTER>
+
+<P>
+<HR WIDTH="80%" SIZE=2></P>
+
+<P>To send messages in E it is necessary to store a message in a channel
+and send it via a distributor. In Figure 1, channels are represented as
+funnels and distributors as triangle-shaped nozzles. So for <FONT FACE="Courier">Sender1</FONT>
+the message in its channel is sent through its funnel-nozzle to <FONT FACE="Courier">Truster1</FONT>
+and from there to <FONT FACE="Courier">Receiver</FONT>. On the other hand,
+<FONT FACE="Courier">Sender2</FONT> cannot send the message contained in
+its channel due to the lack of rights, thus no nozzle, to send its message.</P>
+
+<P>&nbsp;</P>
+
+<P>For details on capability-based security consult: <A HREF="http://www.communities.com/company/papers/security/">Introduction
+to Capability Based Security</A>.</P>
+
+<P>
+<HR WIDTH="100%" SIZE=2></P>
+
+<PRE>          <A HREF="ERTTut2.html">Next</A>  <A HREF="ERTTutI.html">Index</A>  <A HREF="http://www-int.communities.com">EC internal web page</A></PRE>
+
+</BODY>
+</HTML>

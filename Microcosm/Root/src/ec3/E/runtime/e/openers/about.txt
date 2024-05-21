@@ -1,0 +1,33 @@
+XXX Need commentary
+
+
+    Class Hierarchy          files
+   -----------------        -------
+
+VarOpener                  VarOpener.java
+    BooleanOpener             "
+    ...                       "
+    DoubleOpener              "
+    RefOpener              RefOpener.java
+
+OpenerID                   OpenerID.java
+    NormalOpenerID            "
+    ArrayOpenerID             "
+    StringOpenerID            "
+
+ObjOpener                  ObjOpener.java
+    StringOpener              "
+    ArrayOpener               "
+    Chef                   Recipe.java
+    Surgeon                Surgeon.java
+
+Recipe                     Recipe.java
+    OpenerRecipe           OpenerRecipe.java
+    ClassRecipe            ClassRecipe.java
+    DictionaryRecipe       HashtableRecipe.java
+        HashtableRecipe       "
+        PEHashtableRecipe     "
+    ObjKeyTableRecipe         "
+
+FieldKnife                 Surgeon.java
+

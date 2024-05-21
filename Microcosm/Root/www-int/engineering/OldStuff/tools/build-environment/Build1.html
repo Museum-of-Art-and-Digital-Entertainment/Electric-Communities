@@ -1,0 +1,153 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>Using BUILD1</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; I) [Netscape]">
+</HEAD>
+<BODY>
+
+<H1>Using BUILD1</H1> 
+BUILD1 is a computer dedicated to help you as Build Buddy. The underlying idea is
+to use it whenever none of our engineers is available to assist you as build buddy, 
+to use it as a third build buddy, or simply to try things on a machine other than 
+your own. It is currently located at the cube next to Alison's, by the windows.
+<A HREF="mailto:masa@communities.com">Masa</A>
+maintains this page,  please direct your questions and comments to him.<P>
+
+
+<UL>
+<LI><A HREF="#login">login</A></LI>
+<LI><A HREF="#marking">marking as busy/idle</A></LI>
+<LI><A HREF="#updating src/media">updating src and media</A></LI>
+<LI><A HREF="#tar up">tar up changes</A></LI>
+<LI><A HREF="#build and test">build and test</A></LI>
+<LI><A HREF="#clean up">clean up when done</A></LI>
+</UL>
+
+<TD>&nbsp;</TD>
+
+<a name="login"><H2>Login</H2></a>
+<UL>
+Login to BUILD1 as yourself. On the desktop you will see some useful shortcuts.
+<TABLE WIDTH=300 BORDER=0 CELLPADDING=0 CELLSPACING=0 COLS=2 >
+<TD WIDTH=90 HALIGN="LEFT"><BR>
+<BR>eng:
+<BR>microcosm:
+<BR>(C):
+<BR>CW32:
+<BR>Netscape:
+<BR>Busy:
+<BR>Idle:
+</TD>
+<TD WIDTH=350 HALIGN="LEFT"><BR>
+<BR>\\home\eng\ 
+<BR>\\home\eng\internal-releases\microcosm
+<BR>BUILD1's local hard disk
+<BR>CodeWright
+<BR>Netscape Navigator 4.0
+<BR>Bitmap image to indicate BUILD1 is being used
+<BR>Bitmap image to indicate BUILD1 is not being used
+</TD>
+</TABLE>
+</UL>
+
+<TD>&nbsp;</TD>
+
+<a name="marking"><H2>Marking BUILD1 as Busy or Idle</H2></a>
+<UL>
+It is important to let other engineers know when you are utilizing BUILD1 as well as 
+when it is available for them to use. Bitmaps 'busy' and 'idle' on the desktop can help 
+you indicate the status of BUILD1. 
+You can open them with MSPaint by double clicking their corresponding icon. 
+My recommendation is to expand the window to full screen and, using the View menu option, 
+disable Tool Box, Color Box, and Status Bar.<P>
+</UL>
+
+<TD>&nbsp;</TD>
+
+<a name="updating src/media"><H2>Updating src and Media</H2></a>
+<UL>
+To update BUILD1 and ensure it contains the latest src and media directories do the following.<P>
+<LI>Close the src and media directories. This step should not be needed if the previous user 
+did clean up before making BUILD1 idle, but doesn't hurt to double check. Then do any of the following if needed.
+<LI>Select the 4DOS (Build) icon to start up a build shell (<b>Note:</b>
+as of 12/29/97 you may get 2 messages of the form: <code>4DOS:
+eC:\EC\ECENVIRONMENT.BAT [119]  Command line too long</code>; these
+seem to be harmless).
+<LI> Update the build environment directories: 
+<blockquote>
+  cd \
+  cvs update src media
+</blockquote>
+Alternatively, you can type: 
+<blockquote>
+  cvs co src media
+</blockquote>
+just keep in mind this might take longer than cvs update.
+</UL>
+
+<TD>&nbsp;</TD>
+
+<a name="tar up"><H2>tar Up Changes</H2></a>
+<UL>
+To share your changes, independently of the cvs versions on the machines 
+you are using try savechanges.sh and applychanges.sh.<P>
+<A HREF="BuildTools.html#savechanges">
+savechanges.sh</A> packages up all the modified files in a cvs tree into 
+a single tar file. 
+<A HREF="BuildTools.html#savechanges">
+applychanges.sh</A> takes a tar file created by savechanges.sh and updates 
+a cvs tree with the modified files in the tar file.
+These scripts can be used to share changes between 
+users who each have different versions of a cvs tree.
+</UL>
+
+<TD>&nbsp;</TD>
+
+<a name="build and test"><H2>Build and Test</H2></a>
+<UL>
+<LI>If you only need to build the src/cosm1 tree (not E etc.) then 
+<A HREF="BuildHabiFoo.html">
+build HabiFoo.</a>
+ It assumes you have already checked out the EC and src directories 
+ (and the media directory if you build your own repository)
+<LI>If you need to build the entire source tree (include E, Pluribus etc.) then 
+<A HREF="BuildAll.html">
+build the entire EC world.</a>
+ It assumes you have already checked out the EC, media and src
+<P>
+<LI>There are two ways to run HabiFoo to test your changes. You can try 
+<A HREF="RunHabiFoo.html">
+Running HabiFoo</A> in stand alone mode for testing changes that don't depend 
+on host/client communication. For tests requiring host/client mode the first 
+thing to do is run habifoo in stand alone mode on the machines involved as 
+explained in 
+<A HREF="RunHabiFoo.html">
+Running HabiFoo</A> and then do:
+<UL><LI>Identify either your own computer or BUILD1 as host</LI>
+<LI>Teleport the host avatar to the turf where tests will take place</A></LI>
+<LI>Copy the corresponding turf's .mcm file to a location that can be accessed 
+by client.</A></LI>
+<LI>From client double-click host's .mcm file. This will teleport client to host's 
+turf and both host and client will be able to see and interact with each other.</LI>
+</UL>
+<P>
+<LI>If you have to leave BUILD1 alone while your test is still on progress use the 
+'Busy' bitmap image to let others know BUILD1 is *still* in use. 
+</UL>
+
+<TD>&nbsp;</TD>
+
+<a name="clean up"><H2>Clean Up When Done</H2></a>
+<UL>
+Once you are done with your testing and before you can allow others to use it make sure to 
+do the following.
+<LI>Remove all the files you generated that don't belong to current standard build.</LI>
+<LI>Close all directories.</LI>
+<LI>Empty the recycle bin.</LI>
+<LI>Go to the Start menu, click Shutdown and select 'Close all programs and log on 
+as a different user'. This ensures the next user won't login as you.</LI>
+</UL>
+
+</BODY>
+</HTML>

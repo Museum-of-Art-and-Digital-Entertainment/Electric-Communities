@@ -1,0 +1,17 @@
+all: real-all
+
+ecomp-prep:
+	copyWin32IfNecessary
+	mkdir -p $(BUILD)/bin
+	cp ecomp $(BUILD)/bin
+
+e-none-done:
+	copySolarisBitsIfNecessary
+
+copy-from-dist:
+	copyEcompIfNecessary
+	copyWin32IfNecessary
+
+ecomp-scratch-prep:
+	mkdir -p $(BUILD)/bin
+	cp ecomp $(BUILD)/bin

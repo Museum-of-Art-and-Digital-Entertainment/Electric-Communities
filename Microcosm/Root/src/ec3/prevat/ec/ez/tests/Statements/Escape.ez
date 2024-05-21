@@ -1,0 +1,707 @@
+// File     Statements\Escape.ez
+// Summary  Testing escape statement
+// 
+//  001  Title    Complete all 12 levels of embedded scopes
+//       Result   Fail
+//       Test
+                  escape level_01 {
+                      escape level_02 {
+                          escape level_03 {
+                              escape level_04 {
+                                  escape level_05 {
+                                      escape level_06 {
+                                        escape level_07 {
+                                            escape level_08 {
+                                                escape level_09 {
+                                                    escape level_10 {
+                                                        escape level_11 {
+                                                            escape level_12 {
+                                                                println( "start   of level_12" )
+                                                                println( "remains of level_12" )
+                                                              }
+                                                              println( "remains of level_11" )
+                                                          }
+                                                          println( "remains of level_10" )
+                                                      }
+                                                      println( "remains of level_09" )
+                                                  }
+                                                  println( "remains of level_08" )
+                                              }
+                                              println( "remains of level_07" )
+                                          }
+                                          println( "remains of level_06" )
+                                      }
+                                      println( "remains of level_05" )
+                                  }
+                                  println( "remains of level_04" )
+                              }
+                              println( "remains of level_03" )
+                          }
+                          println( "remains of level_02" )
+                      }
+                      println( "remains of level_01" )
+                  }    
+                  println( "end of test case" )
+//
+//       Expect   start   of level_12
+//                remains of level_12
+//                remains of level_11
+//                remains of level_10
+//                remains of level_09
+//                remains of level_08
+//                remains of level_07
+//                remains of level_06
+//                remains of level_05
+//                remains of level_04
+//                remains of level_03
+//                remains of level_02
+//                remains of level_01
+//                end of test case
+//
+//       Actual   value: end of test case
+//
+
+
+//  002  Title    Escape to level 11 of embedded scopes
+//       Result   Fail
+//       Test
+                  escape level_01 {
+                      escape level_02 {
+                          escape level_03 {
+                              escape level_04 {
+                                  escape level_05 {
+                                      escape level_06 {
+                                        escape level_07 {
+                                            escape level_08 {
+                                                escape level_09 {
+                                                    escape level_10 {
+                                                        escape level_11 {
+                                                            escape level_12 {
+                                                                println( "start   of level_12" )
+                                                                level_12 run
+                                                                println( "remains of level_12" )
+                                                              }
+                                                              println( "remains of level_11" )
+                                                          }
+                                                          println( "remains of level_10" )
+                                                      }
+                                                      println( "remains of level_09" )
+                                                  }
+                                                  println( "remains of level_08" )
+                                              }
+                                              println( "remains of level_07" )
+                                          }
+                                          println( "remains of level_06" )
+                                      }
+                                      println( "remains of level_05" )
+                                  }
+                                  println( "remains of level_04" )
+                              }
+                              println( "remains of level_03" )
+                          }
+                          println( "remains of level_02" )
+                      }
+                      println( "remains of level_01" )
+                  }
+                  println( "end of test case" )
+//
+//       Expect   start   of level_12
+//                remains of level_11
+//                remains of level_10
+//                remains of level_09
+//                remains of level_08
+//                remains of level_07
+//                remains of level_06
+//                remains of level_05
+//                remains of level_04
+//                remains of level_03
+//                remains of level_02
+//                remains of level_01
+//                end of test case
+//
+//       Actual   value: end of test case
+//
+//  003  Title    Escape to level 10 of embedded scopes
+//       Result   Fail
+//       Test
+                  escape level_01 {
+                      escape level_02 {
+                          escape level_03 {
+                              escape level_04 {
+                                  escape level_05 {
+                                      escape level_06 {
+                                        escape level_07 {
+                                            escape level_08 {
+                                                escape level_09 {
+                                                    escape level_10 {
+                                                        escape level_11 {
+                                                            escape level_12 {
+                                                                println( "start   of level_12" )
+                                                                level_11 run
+                                                                println( "remains of level_12" )
+                                                              }
+                                                              println( "remains of level_11" )
+                                                          }
+                                                          println( "remains of level_10" )
+                                                      }
+                                                      println( "remains of level_09" )
+                                                  }
+                                                  println( "remains of level_08" )
+                                              }
+                                              println( "remains of level_07" )
+                                          }
+                                          println( "remains of level_06" )
+                                      }
+                                      println( "remains of level_05" )
+                                  }
+                                  println( "remains of level_04" )
+                              }
+                              println( "remains of level_03" )
+                          }
+                          println( "remains of level_02" )
+                      }
+                      println( "remains of level_01" )
+                  }
+                  println( "end of test case" )
+//
+//       Expect   start   of level_12
+//                remains of level_10
+//                remains of level_09
+//                remains of level_08
+//                remains of level_07
+//                remains of level_06
+//                remains of level_05
+//                remains of level_04
+//                remains of level_03
+//                remains of level_02
+//                remains of level_01
+//                end of test case
+//
+//       Actual   value: end of test case
+//
+//  004  Title    Escape to level 9 of embedded scopes
+//       Result   Fail
+//       Test
+                  escape level_01 {
+                      escape level_02 {
+                          escape level_03 {
+                              escape level_04 {
+                                  escape level_05 {
+                                      escape level_06 {
+                                        escape level_07 {
+                                            escape level_08 {
+                                                escape level_09 {
+                                                    escape level_10 {
+                                                        escape level_11 {
+                                                            escape level_12 {
+                                                                println( "start   of level_12" )
+                                                                level_10 run
+                                                                println( "remains of level_12" println )
+                                                              }
+                                                              println( "remains of level_11" )
+                                                          }
+                                                          println( "remains of level_10" )
+                                                      }
+                                                      println( "remains of level_09" )
+                                                  }
+                                                  println( "remains of level_08" )
+                                              }
+                                              println( "remains of level_07" )
+                                          }
+                                          println( "remains of level_06" )
+                                      }
+                                      println( "remains of level_05" )
+                                  }
+                                  println( "remains of level_04" )
+                              }
+                              println( "remains of level_03" )
+                          }
+                          println( "remains of level_02" )
+                      }
+                      println( "remains of level_01" )
+                  }
+                  println( "end of test case" )
+//
+//       Expect   start   of level_12
+//                remains of level_09
+//                remains of level_08
+//                remains of level_07
+//                remains of level_06
+//                remains of level_05
+//                remains of level_04
+//                remains of level_03
+//                remains of level_02
+//                remains of level_01
+//                end of test case
+//
+//       Actual   value: end of test case
+//
+//  005  Title    Escape to level 8 of embedded scopes
+//       Result   Fail
+//       Test
+                  escape level_01 {
+                      escape level_02 {
+                          escape level_03 {
+                              escape level_04 {
+                                  escape level_05 {
+                                      escape level_06 {
+                                        escape level_07 {
+                                            escape level_08 {
+                                                escape level_09 {
+                                                    escape level_10 {
+                                                        escape level_11 {
+                                                            escape level_12 {
+                                                                println( "start   of level_12" )
+                                                                level_09 run
+                                                                println( "remains of level_12" )
+                                                              }
+                                                              println( "remains of level_11" )
+                                                          }
+                                                          println( "remains of level_10" )
+                                                      }
+                                                      println( "remains of level_09" )
+                                                  }
+                                                  println( "remains of level_08" )
+                                              }
+                                              println( "remains of level_07" )
+                                          }
+                                          println( "remains of level_06" )
+                                      }
+                                      println( "remains of level_05" )
+                                  }
+                                  println( "remains of level_04" )
+                              }
+                              println( "remains of level_03" )
+                          }
+                          println( "remains of level_02" )
+                      }
+                      println( "remains of level_01" )
+                  }
+                  println( "end of test case" )
+//
+//       Expect   start   of level_12
+//                remains of level_08
+//                remains of level_07
+//                remains of level_06
+//                remains of level_05
+//                remains of level_04
+//                remains of level_03
+//                remains of level_02
+//                remains of level_01
+//                end of test case
+//
+//       Actual   value: end of test case
+//
+//  006  Title    Escape to level 7 of embedded scopes
+//       Result   Fail
+//       Test
+                  escape level_01 {
+                      escape level_02 {
+                          escape level_03 {
+                              escape level_04 {
+                                  escape level_05 {
+                                      escape level_06 {
+                                        escape level_07 {
+                                            escape level_08 {
+                                                escape level_09 {
+                                                    escape level_10 {
+                                                        escape level_11 {
+                                                            escape level_12 {
+                                                                println( "start   of level_12" )
+                                                                level_08 run
+                                                                println( "remains of level_12" )
+                                                              }
+                                                              println( "remains of level_11" )
+                                                          }
+                                                          println( "remains of level_10" )
+                                                      }
+                                                      println( "remains of level_09" )
+                                                  }
+                                                  println( "remains of level_08" )
+                                              }
+                                              println( "remains of level_07" )
+                                          }
+                                          println( "remains of level_06" )
+                                      }
+                                      println( "remains of level_05" )
+                                  }
+                                  println( "remains of level_04" )
+                              }
+                              println( "remains of level_03" )
+                          }
+                          println( "remains of level_02" )
+                      }
+                      println( "remains of level_01" )
+                  }
+                  println( "end of test case" )
+//
+//       Expect   start   of level_12
+//                remains of level_07
+//                remains of level_06
+//                remains of level_05
+//                remains of level_04
+//                remains of level_03
+//                remains of level_02
+//                remains of level_01
+//                end of test case
+//
+//       Actual   value: end of test case
+//
+//  007  Title    Escape to level 6 of embedded scopes
+//       Result   Fail
+//       Test
+                  escape level_01 {
+                      escape level_02 {
+                          escape level_03 {
+                              escape level_04 {
+                                  escape level_05 {
+                                      escape level_06 {
+                                        escape level_07 {
+                                            escape level_08 {
+                                                escape level_09 {
+                                                    escape level_10 {
+                                                        escape level_11 {
+                                                            escape level_12 {
+                                                                println( "start   of level_12" )
+                                                                level_07 run
+                                                                println( "remains of level_12" )
+                                                              }
+                                                              println( "remains of level_11" )
+                                                          }
+                                                          println( "remains of level_10" )
+                                                      }
+                                                      println( "remains of level_09" )
+                                                  }
+                                                  println( "remains of level_08" )
+                                              }
+                                              println( "remains of level_07" )
+                                          }
+                                          println( "remains of level_06" )
+                                      }
+                                      println( "remains of level_05" )
+                                  }
+                                  println( "remains of level_04" )
+                              }
+                              println( "remains of level_03" )
+                          }
+                          println( "remains of level_02" )
+                      }
+                      println( "remains of level_01" )
+                  }
+                  println( "end of test case" )
+//
+//       Expect   start   of level_12
+//                remains of level_06
+//                remains of level_05
+//                remains of level_04
+//                remains of level_03
+//                remains of level_02
+//                remains of level_01
+//                end of test case
+//
+//       Actual   value: end of test case
+//
+//  008  Title    Escape to level 5 of embedded scopes
+//       Result   Fail
+//       Test
+                  escape level_01 {
+                      escape level_02 {
+                          escape level_03 {
+                              escape level_04 {
+                                  escape level_05 {
+                                      escape level_06 {
+                                        escape level_07 {
+                                            escape level_08 {
+                                                escape level_09 {
+                                                    escape level_10 {
+                                                        escape level_11 {
+                                                            escape level_12 {
+                                                                println( "start   of level_12" )
+                                                                level_06 run
+                                                                println( "remains of level_12" )
+                                                              }
+                                                              println( "remains of level_11" )
+                                                          }
+                                                          println( "remains of level_10" )
+                                                      }
+                                                      println( "remains of level_09" )
+                                                  }
+                                                  println( "remains of level_08" )
+                                              }
+                                              println( "remains of level_07" )
+                                          }
+                                          println( "remains of level_06" )
+                                      }
+                                      println( "remains of level_05" )
+                                  }
+                                  println( "remains of level_04" )
+                              }
+                              println( "remains of level_03" )
+                          }
+                          println( "remains of level_02" )
+                      }
+                      println( "remains of level_01" )
+                  }
+                  println( "end of test case" )
+//
+//       Expect   start   of level_12
+//                remains of level_05
+//                remains of level_04
+//                remains of level_03
+//                remains of level_02
+//                remains of level_01
+//                end of test case
+//
+//       Actual   value: end of test case
+//
+//  009  Title    Escape to level 4 of embedded scopes
+//       Result   Fail
+//       Test
+                  escape level_01 {
+                      escape level_02 {
+                          escape level_03 {
+                              escape level_04 {
+                                  escape level_05 {
+                                      escape level_06 {
+                                        escape level_07 {
+                                            escape level_08 {
+                                                escape level_09 {
+                                                    escape level_10 {
+                                                        escape level_11 {
+                                                            escape level_12 {
+                                                                println( "start   of level_12" )
+                                                                level_05 run
+                                                                println( "remains of level_12" )
+                                                              }
+                                                              println( "remains of level_11" )
+                                                          }
+                                                          println( "remains of level_10" )
+                                                      }
+                                                      println( "remains of level_09" )
+                                                  }
+                                                  println( "remains of level_08" )
+                                              }
+                                              println( "remains of level_07" )
+                                          }
+                                          println( "remains of level_06" )
+                                      }
+                                      println( "remains of level_05" )
+                                  }
+                                  println( "remains of level_04" )
+                              }
+                              println( "remains of level_03" )
+                          }
+                          println( "remains of level_02" )
+                      }
+                      println( "remains of level_01" )
+                  }
+                  println( "end of test case" )
+//
+//       Expect   start   of level_12
+//                remains of level_04
+//                remains of level_03
+//                remains of level_02
+//                remains of level_01
+//                end of test case
+//
+//       Actual   value: end of test case
+//
+//  010  Title    Escape to level 3 of embedded scopes
+//       Result   Fail
+//       Test
+                  escape level_01 {
+                      escape level_02 {
+                          escape level_03 {
+                              escape level_04 {
+                                  escape level_05 {
+                                      escape level_06 {
+                                        escape level_07 {
+                                            escape level_08 {
+                                                escape level_09 {
+                                                    escape level_10 {
+                                                        escape level_11 {
+                                                            escape level_12 {
+                                                                println( "start   of level_12" )
+                                                                level_04 run
+                                                                println( "remains of level_12" )
+                                                              }
+                                                              println( "remains of level_11" )
+                                                          }
+                                                          println( "remains of level_10" )
+                                                      }
+                                                      println( "remains of level_09" )
+                                                  }
+                                                  println( "remains of level_08" )
+                                              }
+                                              println( "remains of level_07" )
+                                          }
+                                          println( "remains of level_06" )
+                                      }
+                                      println( "remains of level_05" )
+                                  }
+                                  println( "remains of level_04" )
+                              }
+                              println( "remains of level_03" )
+                          }
+                          println( "remains of level_02" )
+                      }
+                      println( "remains of level_01" )
+                  }
+                  println( "end of test case" )
+//
+//       Expect   start   of level_12
+//                remains of level_03
+//                remains of level_02
+//                remains of level_01
+//                end of test case
+//
+//       Actual   value: end of test case
+//
+//  011  Title    Escape to level 2 of embedded scopes
+//       Result   Fail
+//       Test
+                  escape level_01 {
+                      escape level_02 {
+                          escape level_03 {
+                              escape level_04 {
+                                  escape level_05 {
+                                      escape level_06 {
+                                        escape level_07 {
+                                            escape level_08 {
+                                                escape level_09 {
+                                                    escape level_10 {
+                                                        escape level_11 {
+                                                            escape level_12 {
+                                                                println( "start   of level_12" )
+                                                                level_03 run
+                                                                println( "remains of level_12" )
+                                                              }
+                                                              println( "remains of level_11" )
+                                                          }
+                                                          println( "remains of level_10" )
+                                                      }
+                                                      println( "remains of level_09" )
+                                                  }
+                                                  println( "remains of level_08" )
+                                              }
+                                              println( "remains of level_07" )
+                                          }
+                                          println( "remains of level_06" )
+                                      }
+                                      println( "remains of level_05" )
+                                  }
+                                  println( "remains of level_04" )
+                              }
+                              println( "remains of level_03" )
+                          }
+                          println( "remains of level_02" )
+                      }
+                      println( "remains of level_01" )
+                  }
+                  println( "end of test case" )
+//
+//       Expect   start   of level_12
+//                remains of level_02
+//                remains of level_01
+//                end of test case
+//
+//       Actual   value: end of test case
+//
+//  012  Title    Escape to level 1 of embedded scopes
+//       Result   Fail
+//       Test
+                  escape level_01 {
+                      escape level_02 {
+                          escape level_03 {
+                              escape level_04 {
+                                  escape level_05 {
+                                      escape level_06 {
+                                        escape level_07 {
+                                            escape level_08 {
+                                                escape level_09 {
+                                                    escape level_10 {
+                                                        escape level_11 {
+                                                            escape level_12 {
+                                                                println( "start   of level_12" )
+                                                                level_02 run
+                                                                println( "remains of level_12" )
+                                                              }
+                                                              println( "remains of level_11" )
+                                                          }
+                                                          println( "remains of level_10" )
+                                                      }
+                                                      println( "remains of level_09" )
+                                                  }
+                                                  println( "remains of level_08" )
+                                              }
+                                              println( "remains of level_07" )
+                                          }
+                                          println( "remains of level_06" )
+                                      }
+                                      println( "remains of level_05" )
+                                  }
+                                  println( "remains of level_04" )
+                              }
+                              println( "remains of level_03" )
+                          }
+                          println( "remains of level_02" )
+                      }
+                      println( "remains of level_01" )
+                  }
+                  println( "end of test case" )
+//
+//       Expect   start   of level_12
+//                remains of level_01
+//                end of test case
+//
+//       Actual   value: end of test case
+//
+//  013  Title    Escape to outer most level of embedded scopes
+//       Result   Fail
+//       Test
+                  escape level_01 {
+                      escape level_02 {
+                          escape level_03 {
+                              escape level_04 {
+                                  escape level_05 {
+                                      escape level_06 {
+                                        escape level_07 {
+                                            escape level_08 {
+                                                escape level_09 {
+                                                    escape level_10 {
+                                                        escape level_11 {
+                                                            escape level_12 {
+                                                                println( "start   of level_12" )
+                                                                level_01 run
+                                                                println( "remains of level_12" )
+                                                              }
+                                                              println( "remains of level_11" )
+                                                          }
+                                                          println( "remains of level_10" )
+                                                      }
+                                                      println( "remains of level_09" )
+                                                  }
+                                                  println( "remains of level_08" )
+                                              }
+                                              println( "remains of level_07" )
+                                          }
+                                          println( "remains of level_06" )
+                                      }
+                                      println( "remains of level_05" )
+                                  }
+                                  println( "remains of level_04" )
+                              }
+                              println( "remains of level_03" )
+                          }
+                          println( "remains of level_02" )
+                      }
+                      println( "remains of level_01" )
+                  }
+                  println( "end of test case" )
+//
+//       Expect   start   of level_12
+//                end of test case
+//
+//       Actual   value: end of test case
+//
+

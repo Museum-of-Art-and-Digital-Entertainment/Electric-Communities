@@ -1,0 +1,173 @@
+The contents of this file are subject to the Electric Communities E Open
+Source Code License Version 1.0 (the "License"); you may not use this file
+except in compliance with the License. You may obtain a copy of the License
+at http://www.communities.com/EL/.
+
+Software distributed under the License is distributed on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+the specific language governing rights and limitations under the License.
+
+The Original Code is the Distributed E Language Implementation, released
+July 20, 1998.
+
+The Initial Developer of the Original Code is Electric Communities.
+Copyright (C) 1998 Electric Communities. All Rights Reserved.
+
+Contributor(s): ______________________________________.
+
+
+
+		To the Vector Belongs the Spoils
+
+1. Introducing Updoc
+
+This chapter covers the behavior of the java.util.Vector class.  This
+chapter is also an "updoc" script, so all the examples have been
+tested some time ago on some version of the system.  Before reading
+this chapter, you might want to first run it through the updoc
+interpreter to ensure accuracy for your current system.  To do this,
+extract a plain text version of this chapter into a file with
+extension ".updoc", for example "Vector.updoc".  In a bash or 4DOS
+shell, you can then check it by saying
+
+	$ updoc Vector.updoc
+	ok
+
+If there's a problem, it will print a problem report rather than "ok".
+
+Alternatively, you can read this chapter in "elmer".  Elmer allows you
+to interactively try out these examples -- or variants -- as dictated
+by your curiousity.  You run Elmer by typing
+
+	$ elmer Vector.updoc
+
+Elmer is a simple, Notepad-like text editor with one extra feature: If
+you type the Enter key at the end of a line beginning with a question
+mark (question mark is the E prompt), this line is evaluated as a
+line of E script, and the resulting output shown.  For example:
+
+	? 2 + 3
+	# value: 5
+
+Try changing the example, putting the cursor at the end of the line,
+and typing the Enter key.  When you want to stop interacting with E,
+just backspace over the new question mark.  You are now just editing
+text again.
+
+An Updoc chapter will often try to cover most of the public interface
+of an abstraction (or a closely related set of abstractions).  Such
+chapters declare early what they intend to cover, like so:
+
+	? define coverage := covering([java.util.Vector])
+
+At the end of these chapters, there's a corresponding statement of
+what parts of the public interface was and wasn't covered.
+
+
+2. Exploring Vectors
+
+To begin with, we need a sample Vector.  Vectors can be instantiated
+with the no-argument constructor, which we write in E as follows:
+
+	? define v := java.util.Vector new
+	# value: []
+
+A Vector prints by printing its elements separated by commas and
+enclosed by square brackets.  Therefore "[]" is how an empty Vector
+prints.  You can add elements to the end of a Vector like so:
+
+	? v addElement("foo")
+	? v addElement(3)
+	? v
+	# value: [foo, 3]
+
+A Vector has both a size and a capacity:
+
+	? v size
+	# value: 2
+	
+	? v capacity
+	# value: 10
+	
+The size is how big it "really" is, ie, how many elements it holds.
+The capacity is a behind-the-scenes implementation concept: it says
+how big the size can get before the Vector implementation has to do an
+expensive reallocate-and-copy operation.
+
+You can also place values at particular positions within the Vector:
+
+	? v setElementAt("bar", 1)
+	? v
+	# value: [foo, bar]
+	
+	? v setElementAt("baz", 4)
+	# problem: java.lang.ArrayIndexOutOfBoundsException: 4 >= 2
+	
+	? v setSize(5)
+	? v setElementAt("baz", 4)
+	? v
+	# value: [foo, bar, null, null, baz]
+	
+As you can see, you can only place values in the first "size"
+positions of the Vector, independent of capacity.  However, you can
+always expand the Vector first using "setSize" to ensure that it
+contains the position of interest.  "setSize" will initialize any new
+positions it creates with null.
+
+
+3. What was covered in this chapter
+
+	? coverage covered
+	# value: Vector statics:
+	#		new/0
+	#        Vector:
+	#		addElement/1
+	#		capacity/0
+	#		setElement/2
+	#		setSize/1
+	#		size/0
+
+	? coverage notCovered
+	# value: Vector statics:
+	#        Vector:
+	#        	keyType/0
+	#        	removeElement/1
+	#        	removeAllElements/0
+	#        	contains/1
+	#        	get/2
+	#        	length/0
+	#        	insertElementAt/2
+	#        	valueType/0
+	#        	isEmpty/0
+	#        	isIdentity/0
+	#        	addElement/1
+	#        	indexOf/1
+	#        	indexOf/2
+	#        	ensureCapacity/1
+	#        	each/1
+	#        	removeElementAt/1
+	#        	multiply/1
+	#        	put/2
+	#        	lastElement/0
+	#        	setElementAt/2
+	#        	trimToSize/0
+	#        	lastIndexOf/1
+	#        	lastIndexOf/2
+	#        	keys/0
+	#        	elements/0
+	#        	copyInto/1
+	#        	capacity/0
+	#        	asArray/0
+	#        	firstElement/0
+	#        	slice/1
+	#        	slice/2
+	#        	add/1
+	#        	elementAt/1
+	#        	containsKey/1
+	#        	get/1
+	#        	size/0
+	#        	setSize/1
+
+As you can see, this chapter has only touched the surface of the
+public interface of the java.util.Vector class
+

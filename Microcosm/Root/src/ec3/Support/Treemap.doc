@@ -1,0 +1,38 @@
+ec.ifc.app
+	ECApplication.java
+	ECBevelBorder.java
+	ECChecklist.java
+	ECChecklistOwner.java
+	ECComboBox.java
+	ECEvent.java
+	ECExternalWindow.java
+	ECRootView.java
+	ECScaledImageListItem.java
+	ECScrollBorder.java
+	ECTipViewOwner.java
+	ECTextField.java
+	ECTextView.java
+	ECWindowBorder.java
+	InspectorView.java
+	IFCTextViewConstants.java
+
+ec.ifc.util
+	NetscapeHashtable.java
+	NetscapeEnumeration.java
+
+ec.ifc.console
+	ConsoleWindow.java
+	InputSplitter.java
+
+ec.ifc.codable
+        WorldObjectState.java
+        WorldString.java
+
+ec.misc
+	LineInputStream.java
+
+ec.misc.graphics
+	ImageLoader.java
+	PPMLoader.java
+
+

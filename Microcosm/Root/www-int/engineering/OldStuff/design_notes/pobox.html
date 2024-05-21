@@ -1,0 +1,174 @@
+<HTML>
+<HEAD>
+    <TITLE>Capability PO Boxes</TITLE>
+</HEAD>
+<BODY>
+<H1>Capability PO Boxes</H1>
+
+<h2>Introduction</h2>
+
+This design note describes a way of handing around capabilities in a
+secure way. It is called a cabability PO box because it has several
+similarities to a real world PO box. However, as we are already
+overloaded with metaphors I'd be happy if someone can come up with
+a better name.
+
+<h2>Overview</h2>
+
+Suppose you see an advertisement in a paper which gives a name and PO
+box number. You respond to the ad, giving your name and PO box number.
+Over time you build up a relationship with the owner of the PO box
+(let's call them Alice) by sending mail to each other. Then, one day,
+you get a letter from Alice asking for a loan. At this point you have
+to decide, based on your correspondence, whether or not you trust
+Alice. But one thing you don't have to worry about is whether the
+request is really from Alice. You'll be sending the money to Alice's
+PO box, which is your only point of contact. If someone other than
+Alice is trying to scam you, all they can achieve is to give Alice an
+unexpected loan. (This assumes you can trust the postal service to
+deliver your money!).
+
+<p>
+
+The capability PO box for Microcosm works in a very similar way.  An
+avatar's manifestations in the world (e.g. body, word balloons) are
+all marked with the avatar's "PO box number" - actually an object
+reference. This number is not presented to the user directly; instead
+the avatar's chosen name is shown (more on this later). However your
+session does take note of the PO box number; your address book, for
+example, keeps track of people by PO box number, though it only shows
+you the user visible information associated with an avatar.
+
+<p>
+
+When an avatar asks for a capability (e.g. the capability to send
+telepathy to you), it accompanies the request with its PO box number.
+You then deposit the capability in the PO box. So anyone can ask you
+for a capability, but only the owner of the PO box will receive it.
+Also, when you give a capability to a PO box, you ensure that it is a
+"filler capability", marked with the PO box number. So any message
+coming in via that capability will be marked with the PO box number;
+you know that it comes from the capability you originally gave to that
+PO box.
+
+<p>
+
+Using this system you can give out capabilities and know they are
+going to the intended recipient. And when requests come in via a given
+capability, you know who is responsible. Note that the usual
+capability properties apply. If you give a capability to Alice she can
+then pass it on to Bob. If Bob uses it, the request will come in
+marked with Alice's PO box number. In this case the actual requestor
+is Bob, but the responsible party is still Alice. Part of trusting
+Alice with a capability is trusting that she won't give it to anyone
+you don't think should have it.
+
+
+<h2>Names</h2>
+
+We don't want PO box numbers turning up in the UI because they will be
+stringified object references - long, incomprehensible URLs with no
+meaning for the user.  So each avatar can choose a name which will
+accompany their PO box number. Furthermore you can choose your own
+"pet name" for each avatar you encounter. 
+
+<p>
+
+So suppose you meet an avatar called Alice (i.e. Alice is the name she
+has chosen for herself). You can then add your own pet name (e.g. "My
+buddy Alice"). Your address book will associate both names with
+Alice's PO box number. If Alice changes her name to Alicia your
+address book will still be able to identify her by her PO box number
+and can retrieve her old name and your pet name for her. Which name
+(or combination of names) gets presented in the UI is still being
+decided, but the address book will have enough information to support
+several approaches.
+
+<h2>PO Boxes and Regions</h2>
+
+The PO box isn't just useful for direct communication between
+avatars (e.g. telepathy). It's also important for communication
+within a region. When you go into a region you are trusting it
+to show you what is inside it. And you also trust it to manage
+the conversation that goes on inside the region.
+
+<p>
+
+We have to trust the region. But we don't want to trust everyone
+else within the region. How can we make sure that the avatars and
+word ballons we see are associated with the correct people? What's
+to stop Alice entering a region, claiming to be Bob? She could then
+ruin Bob's reputation by saying and doing un-Boblike things.
+
+<p>
+
+Again the PO box provides a solution. Let's take speech as an
+example. On entering the region Alice is given a facet (i.e.
+capability) that allows her to participate in the region's
+conversation. This facet makes sure that anything she said is marked
+as "coming from Alice". This fits nicely with the PO box. Alice says
+to the region "I'm Alice, I want to talk in the region, and here's my
+PO box number". The region then produces a filler facet, irreversibly
+marked with Alice's PO box number, and puts it into Alice's PO box. If
+Alice is who she says she is, she can go to her PO box, get the
+facet and thereby talk in the region.
+
+<h2>The Postal Service and the Com System</h2>
+
+Remember that the PO box approach only works if you can trust the
+postal service. In our initial example it's no good sending the
+money to Alice's PO box if the scammer can intercept the mail.
+
+<p>
+
+In Microcosm the Com System plays the part of the Postal Service.
+And the Com System is secure. An E object reference, such as
+the PO box number, has the property that no-one can pretend to
+be the object referred to by that reference. Only the real object
+will receive any messages sent to that reference.
+
+<h2>Proposed Interfaces</h2>
+
+One possible PO box interface would be:
+
+<p><code>
+    emethod giveCapability(EObject capability,
+                           EDistributor receiptDistributor);
+<p>
+    local void getCapabilityForReceipt(CapabilityReceipt receipt,
+                                       EDistributor capabilityDistributor);
+</code><p>
+
+The <code>giveCapability</code> method should be widely available -
+anyone can call it. The <code>getCapabilityForReceipt</code> should
+probably be a local Java method and access to it would be restricted;
+only the owner of the PO box should be able to use it (the two methods
+may, in fact, end up being on different objects, but conceptually
+they're public and private facets of the same PO box).
+
+<p>
+
+So suppose an avatar wants to get into a region. Some facet of the
+avatar asks some facet of the region for a conversation capability,
+giving the avatar's PO box object reference as an argument. The region
+then creates the conversation capability, marks it with the PO box
+object reference, and calls <code>giveCapability</code> on the PO
+box. In return it gets a channel to a receipt, which it gives to the
+facet of the avatar. If the avatar really does own the PO box it can
+get at the <code>getCapabilityForReceipt</code> method and can redeem
+and use the actual capability.
+
+<p>
+
+This protocol involves a round trip to set up the capability. Once the
+capability is in place, though, the avatar can use it to talk within
+the region without any further round trips or checking.
+
+<p>
+
+<A href="index.html">Back to design notes index</a>
+<br>
+<a href="../index.html">Back to Microcosm engineering main page</a>
+
+</BODY>
+</HTML>

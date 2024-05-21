@@ -1,0 +1,44 @@
+<html>
+<head>
+<TITLE>Kawa Notes</TITLE>
+</head>
+<body>
+
+<H3>Kawa Notes</H3>
+
+<p>How to use <EM>Kawa</EM> with E.
+
+<OL>
+<LI>Install Kawa [get it <A HREF="http://www.tek-tools.com/kawa">here</A>].</LI>
+<LI>Do a <b>"cvs up -d ec"</b> in <b>/src/ec4/javasrc</b>.</LI>
+<LI>Run Kawa from your Start Menu.</LI>
+<LI>It'll open up a dialog that asks you to set the directories in which to find
+    the JDK. Set them to whatever JDK installation you'd like to use.
+<LI>Set the java source directory to /src/ec4/javasrc.
+<LI>Create a new project.
+<LI>Use the ADD FILES menu to add all java files from the following directories.
+<OL>
+<LI>/src/ec4/javasrc/ec/e/evm</LI>
+<LI>/src/ec4/javasrc/ec/e/scope</LI>
+<LI>/src/ec4/javasrc/ec/e/syntax</LI>
+<LI>/src/ec4/javasrc/ec/elib/base</LI>
+<LI>/src/ec4/javasrc/ec/elib/prim</LI>
+<LI>/src/ec4/javasrc/ec/elib/quasi</LI>
+<LI>/src/ec4/javasrc/ec/tables</LI>
+<LI>/src/ec4/javasrc/ec/trace</LI>
+<LI>/src/ec4/javasrc/ec/util</LI>
+<LI>/src/ec4/javasrc/ec/util/assertion</LI>
+<LI>/src/ec4/javasrc/ec/vcache</LI>
+</OL>
+<LI>Under the <CODE>Project</CODE> menu, select <CODE>Interpreter Options...</CODE>,
+select the <CODE>Java Class Name to Run</CODE> tab and enter <CODE>ec.e.syntax.EMain</CODE>
+<LI>Under the <CODE>Project</CODE> menu, or in the environment before starting Kawa,
+set your <CODE>CLASSPATH</code> to include <CODE>/src/ec4/javasrc</CODE>.
+<LI>Rebuild All</LI>
+<LI>Under the <CODE>Build</CODE> menu, select <CODE>Run, Debug/Run, or JDB Debug.</CODE>.
+</OL>
+
+Note that I had to add the compiler option -J-mx32m to get the 1.2 compiler to compile
+all of Elib. It runs out of memory if you don't set that. You can do this from the <CODE>Project/Compiler Options...</CODE> menu.
+</body>
+</html>

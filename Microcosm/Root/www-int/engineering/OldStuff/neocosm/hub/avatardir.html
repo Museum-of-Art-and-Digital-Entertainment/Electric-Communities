@@ -1,0 +1,211 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>Avatar Directory</title>
+</head>
+
+<body bgcolor="#FFFFFF">
+
+<h1><i>Avatar Directory</i></h1>
+
+<p><b>Last updated:</b><i> [98/06/04 Jeff]</i> </p>
+
+<p><i>Author: </i><a href="mailto:jeff@communities.com"><i>Jeff</i></a></p>
+
+<h2>Introduction</h2>
+
+<p>The avatar directory is a mechanism for hub members to contact
+other registered members of the hub. Currently, the avatar
+directory lists &quot;avatars&quot; and the user name associated
+with that avatar.</p>
+
+<h4>Related Documents</h4>
+
+<p><a href="mbrdb/hubMbrDB.html">Hub Member Database</a></p>
+
+<h2>Requirements</h2>
+
+<ul>
+    <li>Directory is presented on the web.</li>
+    <li>Presentl registered avatars in the member db.</li>
+    <li>Provide a &quot;link&quot;, an href, that when clicked
+        on, opens the address book page for that avatar.</li>
+    <li>Provide a way to teleport to that avatar's turf.
+        (Currently not implemented, though one can get to the
+        turf via the address book page, if the avatar is online.)</li>
+    <li>Store the latest contents of the avatar's address book
+        &quot;me&quot; page in the database. (Not implemented.)</li>
+    <li>Display an indicator showing if that avatar is online.
+        (Not implemented.)</li>
+    <li>Turf Directories: Allow user's to publish a link to their
+        turf on a web page. (Implemented, but not being used.)</li>
+</ul>
+
+<h2>Architecture</h2>
+
+<h4>Current Architecture Overview</h4>
+
+<p>The architecture for the Avatar directory is rather
+straightforward.</p>
+
+<ul>
+    <li>When a user's &quot;adds&quot; an avatar to the member db
+        (via the hub/realm registration mechanism), the avatar
+        identity sturdy ref and avatar name is added to the
+        &quot;Idenities&quot; table in the member db schema.</li>
+    <li>The Avatar Directory is accessed either by clicking on an
+        in-world object (which launches a web URL), or by
+        navigating on the web to the Directory URL.</li>
+    <li>The Avatar Directory is actually implemented as an Active
+        Server Page (ASP), which runs on the server side and
+        generates HTML content.</li>
+    <li>The ASP performs two functions: 1) to show the entire
+        directory, and 2) provide the &quot;mcm&quot; content
+        when the user clicks on the avatar href.</li>
+</ul>
+
+<h5>Displaying the entire directory</h5>
+
+<p>If the Avatar Directory URL is invoked without parameters
+(i.e. a query string isnt specified), then the entire directory
+is displayed. The steps the Avatar Directory ASP implements for
+displaying the Directory List are as follows:</p>
+
+<ol>
+    <li>Connect to the member db.</li>
+    <li>Query the db for all avatars in the avatar table, and the
+        first name/last name fields from the account table for
+        each avatar. This is a simple SQL query: <br>
+        <br>
+        <font size="2" face="Courier">SELECT
+        identities.avatarName, identities.id, identies.identEARL,
+        persons.fname, persons.lname <br>
+        FROM identities, persons <br>
+        WHERE persons.id = identities.id ORDER BY persons.lname<br>
+        </font></li>
+    <li><font size="3">When the results are returned from the
+        database, the ASP simply processes these results and
+        formats the output in the form of an html table. The
+        avatar name is placed in an HREF tag, where the URL is an
+        HREF to the ASP with a query string. The query string
+        parameters are the indenty EARL and the avatar name. For
+        example (spaces added to improve readability):<br>
+        <br>
+        </font><font size="2" face="Courier">&lt; A HREF</font><font
+        size="1" face="Courier"> = default.asp ? e = {ident EARL}
+        &amp; n = {avatar name} &gt; </font><font size="2"
+        face="Courier">{avatar name} &lt; / A &gt;</font><font
+        size="3"><br>
+        <br>
+        where </font><font size="2" face="Courier">{ident EARL}</font><font
+        size="3"> is the EARL string returned from the query and </font><font
+        size="2" face="Courier">{avatar name}</font><font
+        size="3"> is the avatar name, also returned from the
+        query.</font></li>
+</ol>
+
+<h5>Displaying an individual avatar address book page</h5>
+
+<p>If the user selects one of the avatar HREFs, then the ASP will
+be invoked with the optional &quot;e&quot; and &quot;n&quot;
+parameters. In this case, the ASP simply builds a string
+containing the MCM file content and responds with a content type
+of <font size="2" face="Courier">application/x-microcosm</font><font
+size="3">, and the MCM file content. When the browser receives
+this content, it will see the content type and laucnh habi-cosm.
+Habi-cosm will then get the MCM file and open the address book
+page (or create a blank one) for the identity specified in the
+MCM file content.</font></p>
+
+<h4>Proposed Architecture Overview</h4>
+
+<ul>
+    <li>Use an LDAP server. A couple pieces of software would be
+        needed: <ol>
+            <li>An LDAP server would need to be installed. There
+                is some support for directories included in
+                Windows NT Server, however that implementation
+                may be inappropriate. There is a &quot;free&quot;
+                LDAP server from the University of Michigan,
+                however we would need to investigate the license
+                issue. Alternatively, a minimal LDAP server could
+                be built on top of SqlServer or another database.
+                The Univ of Mich LDAP server builds on top of
+                NDBM or GDBM, which are flat file database
+                implementations available on Unix. NDBM is
+                bundled with Solaris; GDBM is GNU software.</li>
+            <li>LDAP/Web-server integration: These must exist,
+                though I have no leads as of today.</li>
+            <li>LDAP/Java integration: JNDI seems like the
+                appropriate mechanism for this.</li>
+        </ol>
+    </li>
+    <li>An LDAP approach may be attractive to customers.</li>
+    <li>LDAP provides a more general solution for directory
+        services, hence Turf and Object directories are also
+        possible.</li>
+</ul>
+
+<h4>Off the shelf alternatives</h4>
+
+<p>The LDAP approach would use alot of off-the-shelf
+technologies, though the risk would be that these technologies
+are not mature. However, given the somewhat straightforward
+requirements of the directory services, its possible that what's
+available is sufficent.</p>
+
+<p>The current implementation using the SqlServer DB and an ASP
+is also very much off-the-shelf. Though maybe more lightweight
+than an LDAP approach, the current approach suffers from not
+being general enough. E.g., we can't easily use it for Turf
+Directories.</p>
+
+<h4>Other Design Objectives, Constraints and Assumptions</h4>
+
+<p><i>Lists any special objectives and assumptions of the code
+e.g. reusability, thread safety, security, performance, use of
+resources, compatibility with existing code etc. This section
+gives important context for reviewers</i> </p>
+
+<h2>Current implementation</h2>
+
+<h4>Which directories on our tree does this subsystem cover?</h4>
+
+<p>The Avatar Directory ASP currently lives with the beta web
+content.</p>
+
+<h4>Is it JavaDoc'ed?</h4>
+
+<p>No. Actually, there isnt much Java code involved in the Avatar
+Directory implementation. The ASP is written Visual Basic. Java
+is also available, however error handling with respect to
+database queries using Java is weak compared to the Visual Basic
+error handling. The ASP code is documented.</p>
+
+<h4>Examples</h4>
+
+<p>See <a href="http://www.communities.com/directories/">http://www.communities.com/directories/</a></p>
+
+<h4>Testing and Debugging</h4>
+
+<p>No testing and debugging utilities were developed to debug the
+directory. This is actually a simple ASP problem.</p>
+
+<h2>Design Issues</h2>
+
+<h4>Resolved Issues</h4>
+
+<h4>Open Issues</h4>
+
+<p>There is currently one Avatar Directory for both realms (city
+and beach). This is because the two realms share the same member
+database, and there is no indicator in the database schema to
+indicate if an avatar registration (i.e. add avatar) is being
+added for the city or beach realm. Seperate registration, yet
+sharing the same member DB needs to be considered as a
+requirement.</p>
+</body>
+</html>

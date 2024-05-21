@@ -1,0 +1,467 @@
+// File     Samples\EZTestSources.ez
+// Summary  Examples from R&D updated and converted to a test file
+//
+//       The original test cases (marked with aka) from EZTestSources\
+//       were created by Jay Fenton. They were updated to match the current 
+//       specification (where needed) and combined into one test file. 
+//       Additional test cases were added to augment the originals.
+// 
+//  001  Title    Miscellaneous (aka 1)
+//       Result   Pass (?)
+//       Note     Test case is incomplete. More functionality needs to be added to ez
+//                before test case will work.
+//       Test     
+                  // define statement1 := aardvark
+                  // verb(expres)
+                  // verb((e1 ; e2))
+                  // define x := foo
+                  // shoot(bill, dist blah)
+                  // pov
+//
+//
+//       Expect   ?
+//       Actual   ?
+//
+//  002  Title    for loop using thru (aka 2)
+//       Result   Pass
+//       Test     
+                  define furr := 2 + 3
+                  println( furr )
+//
+//       Expect   5
+//       Actual   5
+// 
+//  003  Title    floor divide (aka 3)
+//       Result   Pass
+//       Test     
+                  2 _/ 3
+// 
+//       Expect   value: 0
+//       Actual   value: 0
+// 
+//  004  Title    try catch #1 (aka 4)
+//       Result   Pass (?)
+//       Note:    Shouldn't infinity trigger the catch?
+//       Test     
+                  try { (2 / 0) } catch exc { 42 print }
+// 
+//       Expect   value: Infinity
+//       Actual   value: Infinity
+// 
+//  005  Title    java method (aka 5)
+//       Result   Fail
+//       Test     
+                  println( java.lang.System currentTimeMillis )
+                  println( statics.java.lang.System currentTimeMillis )
+//
+//       Expect   874113449510
+//                874113449510
+//                value: 874113449510
+//
+//       Actual   currentTimeMillis/0
+//                ec.ez.collect.NotFoundException: currentTimeMillis/0
+//                null
+//                ^
+//
+//  006  Title    assignmentText (aka assignmentText)
+//       Result   Pass
+//       Test     
+                  define x := 3
+                  println( x )
+                  println( x + 4 )
+                  println( [3, 4] size )
+                  println( 3 < 4 && 5 == 6 )
+// 
+//       Expect   3
+//                7
+//                2
+//                false
+//                value: false
+// 
+//       Actual   3
+//                7
+//                2
+//                false
+//                value: false
+// 
+//  007  Title    dispatch (aka dispatchText)
+//       Result   Pass
+//       Test    
+                  define thang := dispatch {
+                      to plus1 (x) { x + 1 }
+                      to plus2 (x) { x + 2 }
+                  }
+                  println( thang plus1 (7) )
+                  println( thang plus2 (2) )
+// 
+//       Expect   8
+//                4
+//                value: 4
+// 
+//       Actual   8
+//                4
+//                value: 4
+// 
+//  008  Title    estuff (aka estuff)
+//       Result   Pass (?)
+//       Note     Test case is incomplete. More functionality needs to be added to ez
+//                before test case will work.
+//       Test    
+                  define cat := ec.e.run.EChannel_$_Impl new
+                  define purr := cat distributor
+                  cat respond to doit arg {"Meow!" println
+                  arg println}
+                  define numba := ec.e.lang.EInteger_$_Impl new 5
+                  purr forward$async numba
+
+                  define meow := 3.0 <- cos
+                  meow <- println
+
+                  define numba := ec.e.lang.EInteger_$_Impl new 2
+                  define n2 := ec.e.lang.EInteger_$_Impl new 3
+                  numba <- add n2
+// 
+//       Actual   ?
+//
+//       Expect   ?
+// 
+//  009  Title    factorial version #1
+//       Result   Pass
+//       Test     
+                  define facDisp := dispatch {
+                      to fac (n) {
+                          if (n <= 0) {
+                              (1)
+                          } else {
+                              (n * (facDisp fac (n - 1)))
+                          }
+                      }
+                  }
+                  facDisp fac (6)
+// 
+//       Expect   value: 720
+//       Actual   value: 720
+// 
+//  010  Title    factorial version #2
+//       Result   Pass
+//       Test     
+                  define facDisp := dispatch {
+                      to fac (n) {
+                          if (n <= 0) {
+                              (1)
+                          } else {
+                              (n * (facDisp fac (n - 1)))
+                          }
+                      }
+                  }
+                  println( facDisp fac (1) )
+                  println( facDisp fac (2) )
+                  println( facDisp fac (3) )
+                  println( facDisp fac (4) )
+                  println( facDisp fac (5) )
+// 
+//       Expect   1
+//                2
+//                6
+//                24
+//                120
+//                value: 120
+// 
+//       Actual   1
+//                2
+//                6
+//                24
+//                120
+//                value: 120
+// 
+//  011  Title    while loop with factorial (aka factorial)
+//       Result   Pass
+//       Test     
+                  define facDisp := dispatch {
+                      to fac(n) {
+                          if (n <= 0) {
+                              (1)
+                          } else {
+                              (n * (facDisp fac (n - 1)))
+                          }
+                      }
+                  }
+                  define x := 1
+                  while (x < 21) {
+                      print( x )
+                      print( " " )
+                      print( facDisp fac(x) )
+                      print( "\n" )
+                      x := x + 1
+                  }
+// 
+//       Expect   1 1
+//                2 2
+//                3 6
+//                4 24
+//                5 120
+//                6 720
+//                7 5040
+//                8 40320
+//                9 362880
+//                10 3628800
+//                11 39916800
+//                12 479001600
+//                13 6227020800
+//                14 87178291200
+//                15 1307674368000
+//                16 20922789888000
+//                17 355687428096000
+//                18 6402373705728000
+//                19 121645100408832000
+//                20 2432902008176640000
+//                value: null
+// 
+//       Expect   1 1
+//                2 2
+//                3 6
+//                4 24
+//                5 120
+//                6 720
+//                7 5040
+//                8 40320
+//                9 362880
+//                10 3628800
+//                11 39916800
+//                12 479001600
+//                13 6227020800
+//                14 87178291200
+//                15 1307674368000
+//                16 20922789888000
+//                17 355687428096000
+//                18 6402373705728000
+//                19 121645100408832000
+//                20 2432902008176640000
+//                value: null
+// 
+//  012  Title    for loop using thru (aka fortest)
+//       Result   Pass
+//       Test     
+                  for i in (10 till (1, -1)) {
+                      print( i )
+                      print( " " )
+                  }
+                  println(" ")
+                  for i in (1 thru (3)) {
+                      println( i )
+                  }
+// 
+//       Expect   10 9 8 7 6 5 4 3 2
+//                1
+//                2
+//                3
+//                value: null
+//
+//       Actual   10 9 8 7 6 5 4 3 2
+//                1
+//                2
+//                3
+//                value: null
+//
+//  013  Title    object (aka object)
+//       Result   Pass
+//       Test     
+                  define cat := object {
+                      to sub1 (x) { x - 1 }
+                      to add1 (x) { x + 1 }
+                      to printsub1 (foo) { 
+                          println( .sub1 (foo) )
+                      }
+                  }
+                  println( cat sub1 (2) )
+                  println( cat add1 (2) )
+                  cat printsub1 (3 + 4)
+                  println( cat add1 (20))
+
+              define makecat := {
+                  define z1 := 0
+                  object {
+                      to sub1(x) { x - 1 }
+                      to add1(x) { x + 1 }
+                      to printsub1(foo) {
+                          .sub1(foo) print
+                      }
+                      to addit(x) { z1 := z1 + x }
+                  }
+              }
+              define furr := makecat run
+              println( furr addit(20) )
+//                
+//       Expect   1
+//                3
+//                6
+//                21
+//                20
+//                value: 20
+// 
+//       Actual   1
+//                3
+//                6
+//                21
+//                20
+//                value: 20
+// 
+//  014  Title    pointtest (aka pointtest)
+//       Result   Pass
+//       Test     
+                  define Point := to new (myX, myY) {
+                      object {
+                          to x { myX }
+                          to y { myY }
+                      }
+                  }
+
+                  define foo := Point new (3, 5)
+                  println( foo x )
+                  println( foo y )
+//
+//       Expect   3
+//                5
+//                value: 5
+//
+//       Actual   3
+//                5
+//                value: 5
+//
+//  015  Title    whileloop (aka whiletest)
+//       Result   Pass
+//       Test     
+                  define z := 1
+                  while (z < 20) { 
+                      print( z )
+                      print( " " )
+                      println (java.lang.System currentTimeMillis )
+                      z := z + 1 
+                  }
+//
+//       Expect   1 875246878060
+//                2 875246878120
+//                3 875246878120
+//                4 875246878120
+//                5 875246878170
+//                6 875246878170
+//                7 875246878230
+//                8 875246878230
+//                9 875246878280
+//                10 875246878280
+//                11 875246878280
+//                12 875246878340
+//                13 875246878340
+//                14 875246878390
+//                15 875246878390
+//                16 875246878450
+//                17 875246878560
+//                18 875246878560
+//                19 875246878610
+//                value: null
+//
+//       Actual   1 875246878060
+//                2 875246878120
+//                3 875246878120
+//                4 875246878120
+//                5 875246878170
+//                6 875246878170
+//                7 875246878230
+//                8 875246878230
+//                9 875246878280
+//                10 875246878280
+//                11 875246878280
+//                12 875246878340
+//                13 875246878340
+//                14 875246878390
+//                15 875246878390
+//                16 875246878450
+//                17 875246878560
+//                18 875246878560
+//                19 875246878610
+//                value: null
+//
+//  016  Title    if #1
+//       Result   Pass
+//       Test     
+                  define n := 0
+                  if (n <= 0) {
+                      (1)
+                  } else {
+                      (2)
+                  }
+//       
+//       Expect   value: 1
+//       Actual   value: 1
+//    
+//  017  Title    if with EOL incorrectly placed (negative case)
+//       Result   Fail
+//       Test     
+                  define n := 0
+                  if (n <= 0) {
+                      (1)
+                  } 
+                  else {
+                      (2)
+                  }
+//       
+//       Expect   error message
+//       Actual   value: ec.ez.ezvm.EZImpl_$_Impl@1ca2c1
+// 
+//  018  Title    while loop
+//       Result   Pass
+//       Test     
+                  define x := 1
+                  while (x < 6) {
+                      print( x )
+                     print( "\n" )
+                      x := x + 1
+                  }
+                  x 
+// 
+//       Expect   1
+//                2
+//                3
+//                4
+//                5
+//                value: 6
+// 
+//       Actual   1
+//                2
+//                3
+//                4
+//                5
+//                value: 6
+// 
+//  019  Title    for loop using till
+//       Result   Pass
+//       Test     
+                  define i := 0
+                  for i in (i till (5)) {
+                      print( i )
+                      print( " " )
+                  }
+                  println( i )
+// 
+//       Expect   0 1 2 3 4 0
+//       Actual   0 1 2 3 4 0
+// 
+//  020  Title    try catch #2
+//       Result   Pass
+//       Test     
+                  try { (2 / 2) 
+                  } catch exc { print( 42 )}
+// 
+//       Expect   value: 1.0
+//       Actual   value: 1.0
+// 
+//  021  Title    try catch with EOL incorrectly placed (negative case)
+//       Result   Fail
+//       Test     
+                  try { (2 / 2) print } 
+                  catch exc { 42 print }
+// 
+//       Expect   error message
+//       Actual   two blank lines print to window
+// 
+

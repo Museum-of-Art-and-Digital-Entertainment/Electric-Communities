@@ -1,0 +1,26 @@
+MODNAME		= ecerep
+PACKAGE		= ec.e.rep
+BUILDTYPE	= lib
+
+SAFETY_MODE = GUEST
+
+FILES.java = \
+	StandardRepository.java \
+	ParimeterizedRepository.java \
+
+
+FILES.javadoc = \
+
+include $(TOP)/E/makefiles/Defs.gmk
+
+.PHONY: all classes 
+
+all: basics 
+
+javadoc:
+	javadoc -notree -noindex -d $(DOCDIR) $(FILES.javadoc)
+
+clean: basic_clean
+
+include $(TOP)/E/makefiles/Rules.gmk
+

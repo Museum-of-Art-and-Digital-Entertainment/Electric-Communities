@@ -1,0 +1,19 @@
+MODNAME	= io
+PACKAGE	= ec.e.io
+
+# should be GUEST
+SAFETY_MODE = STEWARD
+
+FILES.e = \
+	EConsole.e \
+	EInputHandler.e
+
+include $(TOP)/E/makefiles/Defs.gmk
+
+.PHONY: all classes exports
+
+all: basics
+
+clean: basic_clean
+
+include $(TOP)/E/makefiles/Rules.gmk

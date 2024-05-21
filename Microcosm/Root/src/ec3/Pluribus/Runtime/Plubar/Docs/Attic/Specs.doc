@@ -1,0 +1,55 @@
+1) Interfaces for Plubar. - 2 days
+
+These are mostly done, as in the mail I sent out which
+was an extension of Chip's original stuff:  The methods are
+public in UnumDefinition.java.  Do we need interface or are
+the public methods good enough?
+
+2) Plubar routing internals. - 8 days
+
+Getting the new stuff working.
+
+3) Plubar integration to pluribus runtime. - 5 days
+
+Making 2) part of the run time.
+
+4) Migration path for ingredients.
+5) Migration path for una.
+6) Migration path for factories and startup. (/agent) - 8 days ?
+
+  I cannot think of an easy way to uncouple the ingredients from
+the una without major rewrites to the compiler.  If we start with
+the generated code, it would be more feasible, but less work?  And
+there's really no way to decouple the una changes from the factories/
+startup changes.  So it looks like these tasks will be changing
+everything and compiling it all at the end and seeing if it works.
+  These taskes are also where we can parallelize, probably for the
+first time--Teams for doing ingredients, others for una, and another
+for the startup/agent world.
+
+7) What are una?  Data files, new unum impl classes, etc.?  This is
+  important for what the factories will look like if they end up
+  existing at all.
+  Pick a method - 1 to 2 days
+  Design it. - 2 to 3 days
+  Implement it. - 2 to 8 days depending on the method
+
+  Hand creating unum impls with the same names as the previously
+generated ones is the quickest but dirtiest approach; having data
+files requires something to read them in and translate them--cleaner
+but longer.
+
+8) Breaking ingredients (and una) into separate packages. - 3 days
+
+  Another parallel/team task.  ec.cosm.objects is *way* too huge;
+we need ec.cosm.objects.teleport ec.cosm.objects.identity, etc.
+
+
+1)    2 days
+2)    8 days
+3)    5 days
+4-6)  8 days ?
+7)    5 - 13 days
+8)    3 days
+     ------------ 
+     31 - 39 days (6 to 8 weeks)

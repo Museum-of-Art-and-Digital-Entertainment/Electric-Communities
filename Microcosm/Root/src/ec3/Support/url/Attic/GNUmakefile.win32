@@ -1,0 +1,1 @@
+OTHER_LIBS = /$(MSDEV)/lib/kernel32.lib /$(MSDEV)/lib/user32.lib /$(MSDEV)/lib/gdi32.lib /$(MSDEV)/lib/winspool.lib /$(MSDEV)/lib/comdlg32.lib /$(MSDEV)/lib/advapi32.lib /$(MSDEV)/lib/shell32.lib /$(MSDEV)/lib/ole32.lib /$(MSDEV)/lib/oleaut32.lib /$(MSDEV)/lib/uuid.lib /$(MSDEV)/lib/odbc32.lib /$(MSDEV)/lib/odbccp32.lib

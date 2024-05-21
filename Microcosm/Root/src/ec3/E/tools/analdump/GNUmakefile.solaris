@@ -1,0 +1,8 @@
+CFLAGS += -g
+
+$(APP_PATH): $(INSTALL_DIR) $(OBJDIRS) $(FILES.o)
+	$(CC) -o $@ $(FILES.o)
+	$(RM) -f $(BUILD)/objs/$(MODNAME)/adversion.o
+
+
+all: standalone

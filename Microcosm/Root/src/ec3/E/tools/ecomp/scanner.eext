@@ -1,0 +1,809 @@
+# 1 "ec/ecomp/scanner.java" 
+/* ************************************************************************
+ * E Symbols and Scanner
+ * Copyright 1995, 1996 Martin Odersky. All rights reserved.
+ * 
+ * Author     : Martin Odersky, Michael Philippsen.
+ * Last change: 13-November-97
+ *************************************************************************/
+
+
+package ec.ecomp;
+
+
+
+
+import java.io.*;
+
+
+class Scanner implements /* imports */ Constants {
+/** Layout & character constants:
+ */
+    final static int tabinc = 8;
+    final static byte LF = 0xA;
+    final static byte FF = 0xC;
+    final static byte CR = 0xD;
+    final static byte SUB = 0x1A;
+
+/** Keyword array. Maps from name indices to Symbols.
+ */
+    private static int maxKey = 0;
+    private static byte[] key;
+
+/** Values of maxkey for standard/extended mode
+ */
+    private static int standardMaxKey;
+    private static int extendedMaxKey;
+
+// Output variables; set by nextsym(): 
+
+/** The symbol
+ */
+    int sym;
+
+/** The symbol's position. pos = line << Constants.LINESHIFT + col.
+ */
+    int pos = 0;
+
+/** the first character position after the previous symbol.
+ */
+    int lastpos = 0;
+
+/** The name of an identifier or symbol:
+ */
+    Name name;
+
+/** The value of a number:
+ */
+    long intVal;
+    double floatVal;
+
+    int errPos = -1;
+
+/** The input buffer:
+ */
+    private byte[] buf;
+    private int bp;
+
+/** the current character:
+ */
+    private byte ch;
+
+/** the line and column position of the current character
+ */
+    private int cline;
+    private int ccol;
+
+/** a buffer for character and string literals:
+ */
+    private byte[] lit = new byte[64];
+    private int litlen;
+
+/** Two name constants:
+ */
+    private static Name slashS = Name.fromString("/");
+    private static Name slashEqualsS = Name.fromString("/=");
+
+/** Construct a scanner from a file input stream.
+ */
+    Scanner(FileInputStream in) {
+        try {
+            buf = new byte[in.available() + 1];
+            if (in.read(buf) != buf.length - 1)
+                throw new IOException("read error");
+        } catch (IOException e) {
+            lexError(e.toString());
+            buf = new byte[1];
+        }
+        if (buf.length == 0 || buf[buf.length - 1] > ' ') {
+            byte[] newbuf = new byte[buf.length + 1];
+            System.arraycopy(buf, 0, newbuf, 0, buf.length);
+            buf = newbuf;
+        }
+        buf[buf.length - 1] = SUB;
+        bp = 0;
+        cline = 1;
+        ccol = 1;
+        ch = buf[0];
+        nextsym();
+        if (Switches.extended) maxKey = extendedMaxKey;
+        else maxKey = standardMaxKey;
+    }
+
+/** for debugging purposes:
+ */
+    private void dch() {
+        System.out.print((char)ch); System.out.flush();
+    }
+
+/** generate an error at the given position:
+ */
+    private void lexError(String msg, int pos) {
+        Report.error(pos, msg);
+        sym = NoSy;
+        errPos = pos;
+    }
+
+/** generate an error at the current symbol position:
+ */
+    private void lexError(String msg) {
+        lexError(msg, pos);
+    }
+
+/** Append characteter to "lit" buffer:
+ */
+    private void putch(byte c) {
+        if (litlen == lit.length) {
+            byte[] newlit = new byte[lit.length * 2];
+            System.arraycopy(lit, 0, newlit, 0, lit.length);
+            lit = newlit;
+        }
+        lit[litlen++] = c;
+    }
+
+/** return true iff next 6 characters are a valid unicode sequence:
+ */
+    private boolean isUnicode() {
+        return
+            bp + 6 < buf.length &&
+            buf[bp] == '\\' &&
+            buf[bp+1] == 'u' &&
+            Convert.digit2int(buf[bp+2], 16) >= 0 &&
+            Convert.digit2int(buf[bp+3], 16) >= 0 &&
+            Convert.digit2int(buf[bp+4], 16) >= 0 &&
+            Convert.digit2int(buf[bp+5], 16) >= 0;
+    }
+
+/** read next character in character or string literal:
+ */
+    private void getlitch() {
+        if (ch == '\\') {
+            if (isUnicode()) {
+                putch(ch); ch = buf[++bp]; ccol++;
+                putch(ch); ch = buf[++bp]; ccol++;
+                putch(ch); ch = buf[++bp]; ccol++;
+                putch(ch); ch = buf[++bp]; ccol++;
+                putch(ch); ch = buf[++bp]; ccol++;
+                putch(ch); ch = buf[++bp]; ccol++;
+            } else {
+                ch = buf[++bp]; ccol++;
+                if ('0' <= ch && ch <= '7') {
+                    byte leadch = ch;
+                    int oct = Convert.digit2int(ch, 8);
+                    ch = buf[++bp]; ccol++;
+                    if ('0' <= ch && ch <= '7') {
+                        oct = oct * 8 + Convert.digit2int(ch, 8);
+                        ch = buf[++bp]; ccol++;
+                        if (leadch <= '3' && '0' <= ch && ch <= '7') {
+                            oct = oct * 8 + Convert.digit2int(ch, 8);
+                            ch = buf[++bp]; ccol++;
+                        }
+                    }
+                    putch((byte)oct);
+                } else if ((char)ch >= ' ') {
+                    switch (ch) {
+                    case 'b': case 't': case 'n': case 'f': case 'r': 
+                    case '\"': case '\'': case '\\': 
+                        putch((byte)'\\');
+                        putch(ch);
+                        break;
+                    default:
+                        lexError("invalid escape character", 
+                                 (cline << LINESHIFT) + ccol - 1);
+                        putch(ch);
+                    }
+                    ch = buf[++bp]; ccol++;
+                } 
+            }
+        } else if ((char)ch >= ' ') {
+            putch(ch);
+            ch = buf[++bp]; ccol++;
+        }
+    }
+
+/** read fractional part of floating point number; 
+ *  Then floatVal := buf[index..], converted to a floating point number.   
+ */
+    private void getfraction(int index) {
+        while (Convert.digit2int(ch, 10) >= 0) {
+            ch = buf[++bp]; ccol++;
+        }
+        sym = DoubleLit;
+        if (ch == 'e' || ch == 'E') {
+            ch = buf[++bp]; ccol++;
+            if (ch == '+' || ch == '-') {
+                byte sign = ch;
+                ch = buf[++bp]; ccol++;
+                if (!('0' <= ch && ch <= '9')) {
+                    ch = sign; bp--; ccol--;
+                }
+            }
+            while (Convert.digit2int(ch, 10) >= 0) {
+                ch = buf[++bp]; ccol++;
+            }
+        }
+        if (ch == 'd' || ch == 'D') {
+            ch = buf[++bp]; ccol++;
+        } else if (ch == 'f' || ch == 'F') {
+            sym = FloatLit;
+            ch = buf[++bp]; ccol++;
+        }
+        try {
+            floatVal = 
+                Double.valueOf(new String(buf, 0, index, bp - index))
+                .doubleValue();
+        } catch (NumberFormatException e) {
+            lexError("malformed floating point number");
+        }
+    }
+
+/** intVal := buf[index..index+len-1], converted to an integer number.
+ *  base = the base of the number; one of 8, 10, 16.
+ *  max  = the maximal number before an overflow.
+ */
+    private void makeint (int index, int len, int base, long max) {
+        intVal = 0;
+        int divider = (base == 10 ? 1 : 2);
+        for (int i = 0; i < len; i++) {
+            int d = Convert.digit2int(buf[index + i], base);
+            if (d < 0) {
+                lexError("malformed integer number");
+                return;
+            }
+            if (intVal < 0 ||
+                max / (base / divider) < intVal ||
+                max - (d / divider) < intVal * (base / divider)) {
+                lexError("integer number too large");
+                return;
+            }
+            intVal = intVal * base + d;
+        }
+    }
+
+/** read a number, 
+ *  and convert buf[index..], setting either intVal or floatVal.
+ *  base = the base of the number; one of 8, 10, 16.
+ */
+    private void getnumber(int index, int base) {
+        while (Convert.digit2int(ch, base == 8 ? 10 : base) >= 0) {
+            ch = buf[++bp]; ccol++;
+        }
+        if (base <= 10 && ch == '.') {
+            ch = buf[++bp]; ccol++;
+            getfraction(index); 
+        } else if (base <= 10 && (ch == 'e' || ch == 'E')) {
+            getfraction(index);
+        } else {
+            if (ch == 'l' || ch == 'L') {
+                makeint(index, bp - index, base, Long.MAX_VALUE);
+                ch = buf[++bp]; ccol++;
+                sym = LongLit;
+            } else {
+                makeint(index, bp - index, base, Integer.MAX_VALUE);
+                intVal = (int)intVal;
+                sym = IntLit;
+            }
+        } 
+    }
+
+/** return true if ch can be part of an operator:
+ */
+    private boolean isspecial(byte ch) {
+        switch(ch) {
+        case '!': case '%': case '&': case '*': case '?':
+        case '+': case '-': case ':': case '<': case '=': 
+        case '>': case '^': case '|': case '~':
+            return true;
+        default:
+            return false;
+        }
+    }
+
+/** read longest possible sequence of special characters and convert
+ *  to symbol:
+ */
+    private void getspecials() {
+        int index = bp;
+        name = Name.fromAscii(buf, index, 1);
+        while (true) {
+            sym = key[name.index]; 
+            ch = buf[++bp]; ccol++;
+            if (!isspecial(ch)) break;
+            Name newname = Name.fromAscii(buf, index, bp + 1 - index);
+            if (newname.index > maxKey || key[newname.index] == Id) break;
+            name = newname;
+        }
+    }
+
+/** read next symbol:
+ */
+    void nextsym() {
+        lastpos = (cline << LINESHIFT) + ccol;
+        while (true) {
+            boolean escaped = false;
+            pos = (cline << LINESHIFT) + ccol;
+            int index = bp;
+            switch (ch) {
+/* ----------------------------------------------------------------*/
+            case '#':
+                // deal with pre-processor line numbers
+                // Work to do: distinguish between line in source and
+                // source filename and line as indicated by preprocessor.
+                // Error report locates proper line in source to present
+                // the line when the error is printed.
+                int mybp = bp;
+                boolean isline = true;
+                mybp++; //process first character after #
+                intVal = 0;
+                name = null;
+                while (buf[mybp] == ' ')        // skip spaces
+                  mybp++;
+                //Skip 'line' if present.
+                if ((buf[mybp] == 'l') || (buf[mybp] == 'L')) {
+                  ++mybp;
+                  if ((buf[mybp] == 'i') || (buf[mybp] == 'I'))
+                    ++mybp;
+                  else
+                    isline = false;
+                  if ((buf[mybp] == 'n') || (buf[mybp] == 'N'))
+                    ++mybp;
+                  else
+                    isline = false;
+                  if ((buf[mybp] == 'e') || (buf[mybp] == 'E'))
+                    ++mybp;
+                  else
+                    isline = false;
+                }
+                if (isline) {
+                  while (buf[mybp] == ' ')      // skip spaces
+                    mybp++;
+                  if ((buf[mybp] >= '0') && (buf[mybp] <= '9')) {
+                    bp = mybp;
+                    ch = buf[mybp];
+                    getnumber(mybp,10);  // bp is changed.
+                    mybp = bp;              
+                  } else {
+                    isline = false;
+                  }     
+                }
+                if (isline) {
+                  while (buf[bp] == ' ')        // skip spaces
+                    bp++;
+                  if ((buf[bp]!=LF) && (buf[bp]!=FF) && (buf[bp]!=CR)) {
+                    if (buf[bp] == '"') {
+                      ch = buf[++bp];
+                      litlen = 0;
+                      while (ch != '\"' && (char)ch >= ' ')
+                        getlitch();
+                      if (ch == '\"') {
+                        sym = StringLit;
+                        name = Name.fromSource(lit, 0, litlen);
+                        ch = buf[++bp]; ccol++;
+                        while (buf[bp] == ' ')  // skip spaces
+                          bp++;
+                        if ((buf[bp]!=LF) && (buf[bp]!=FF) && (buf[bp]!=CR))
+                          isline = false;
+                      } else {
+                        // this cannot be a proper filename
+                        isline = false;
+                      }
+                    }   
+                  }
+                }
+                if (isline) {
+                  if (intVal > 0) {
+                    cline = (int)intVal;
+                  }
+                  if (name != null && !name.toString().equals(Report.filename)) {
+                    Report.close();
+                    Report.open(name.toString());
+                  }
+                  ccol = 0;
+                  sym = NoSy;
+                  // work on CR, LF, FF:
+                  ch = buf[bp];
+                  if ((ch == LF) || (ch == FF) || (ch == CR))
+                    ch = buf[++bp];
+                  break;
+                } else {
+                  bp = index;
+                  ch = buf[bp];
+                }
+                // intentional continue into the following cases since
+                // this is not a #line pre-processor-line.
+/*------------------------------------------------------------------------*/
+            case ' ': 
+                ch = buf[++bp]; ccol++;
+                break;
+            case '\t': 
+                ccol = ((ccol - 1) / tabinc * tabinc) + tabinc;
+                ch = buf[++bp]; ccol++;
+                break;
+            case CR: 
+                cline++; 
+                ccol = 0;
+                ch = buf[++bp]; ccol++;
+                if (ch == LF) { 
+                    ccol = 0;
+                    ch = buf[++bp]; ccol++; 
+                }
+                break;
+            case LF: case FF:
+                cline++;
+                ccol = 0;
+                ch = buf[++bp]; ccol++;
+                break;
+            case '\\':
+                if (!isUnicode()) {
+                    ch = buf[++bp]; ccol++;
+                    lexError("illegal character");
+                    return;
+                } else {
+                    escaped = true;
+                    ch = buf[++bp]; ccol++;
+                    ch = buf[++bp]; ccol++;
+                    ch = buf[++bp]; ccol++;
+                    ch = buf[++bp]; ccol++;
+                    ch = buf[++bp]; ccol++;
+                    ch = (byte)'A';
+                    // fall-through intentional
+                }
+            case 'A': case 'B': case 'C': case 'D': case 'E': 
+            case 'F': case 'G': case 'H': case 'I': case 'J': 
+            case 'K': case 'L': case 'M': case 'N': case 'O': 
+            case 'P': case 'Q': case 'R': case 'S': case 'T': 
+            case 'U': case 'V': case 'W': case 'X': case 'Y': 
+            case 'Z': 
+            case 'a': case 'b': case 'c': case 'd': case 'e': 
+            case 'f': case 'g': case 'h': case 'i': case 'j': 
+            case 'k': case 'l': case 'm': case 'n': case 'o': 
+            case 'p': case 'q': case 'r': case 's': case 't': 
+            case 'u': case 'v': case 'w': case 'x': case 'y': 
+            case 'z': 
+            case '$': case '_': 
+                while (true) {
+                    ch = buf[++bp]; ccol++;
+                    switch (ch) {
+                    case 'A': case 'B': case 'C': case 'D': case 'E': 
+                    case 'F': case 'G': case 'H': case 'I': case 'J': 
+                    case 'K': case 'L': case 'M': case 'N': case 'O': 
+                    case 'P': case 'Q': case 'R': case 'S': case 'T': 
+                    case 'U': case 'V': case 'W': case 'X': case 'Y': 
+                    case 'Z': 
+                    case 'a': case 'b': case 'c': case 'd': case 'e': 
+                    case 'f': case 'g': case 'h': case 'i': case 'j': 
+                    case 'k': case 'l': case 'm': case 'n': case 'o': 
+                    case 'p': case 'q': case 'r': case 's': case 't': 
+                    case 'u': case 'v': case 'w': case 'x': case 'y': 
+                    case 'z': 
+                    case '$': case '_': 
+                    case '0': case '1': case '2': case '3': case '4': 
+                    case '5': case '6': case '7': case '8': case '9':
+                        break;
+                    case '\\':
+                        if (!isUnicode()) {
+                            ch = buf[++bp]; ccol++;
+                            lexError("illegal character");
+                            return;
+                        } else {
+                            escaped = true;
+                            ch = buf[++bp]; ccol++;
+                            ch = buf[++bp]; ccol++;
+                            ch = buf[++bp]; ccol++;
+                            ch = buf[++bp]; ccol++;
+                            ch = buf[++bp]; ccol++;
+                            break;
+                        }
+                    default:
+                        if (ch < 0) break;
+                        if (escaped)
+                            name = Name.fromSource(buf, index, bp - index);
+                        else
+                            name = Name.fromAscii(buf, index, bp - index);
+                        if (name.index <= maxKey) 
+                            sym = key[name.index];
+                        else
+                            sym = Id;
+                        return;
+                    }
+                }
+            case '0': 
+                ch = buf[++bp]; ccol++;
+                if (ch == 'x') {
+                    ch = buf[++bp]; ccol++;
+                    getnumber(index + 2, 16);
+                } else
+                    getnumber(index, 8);
+                return;
+            case '1': case '2': case '3': case '4': 
+            case '5': case '6': case '7': case '8': case '9':
+                getnumber(index, 10);
+                return;
+            case '.':
+                ch = buf[++bp]; ccol++;
+                if ('0' <= ch && ch <= '9')
+                    getfraction(index);
+                else
+                    sym = Period;
+                return;
+            case ',':
+                ch = buf[++bp]; ccol++; sym = Comma; return;
+            case ';':
+                ch = buf[++bp]; ccol++; sym = Semicolon; return;
+            case '(':
+                ch = buf[++bp]; ccol++; sym = Lparen; return;
+            case ')':
+                ch = buf[++bp]; ccol++; sym = Rparen; return;
+            case '[':
+                ch = buf[++bp]; ccol++; sym = Lbrack; return;
+            case ']':
+                ch = buf[++bp]; ccol++; sym = Rbrack; return;
+            case '{':
+                ch = buf[++bp]; ccol++; sym = Lbrace; return;
+            case '}':
+                ch = buf[++bp]; ccol++; sym = Rbrace; return;
+            case '/':
+                ch = buf[++bp]; ccol++;
+                if (ch == '/') {
+                    do { 
+                        ch = buf[++bp]; ccol++; 
+                    } while (ch != CR && ch != LF && ch != SUB);
+                    break;
+                } else if (ch == '*') {
+                    do {
+                        do {
+                            if (ch == CR) {
+                                cline++; 
+                                ccol = 0;
+                                ch = buf[++bp]; ccol++;
+                                if (ch == LF) {
+                                    ccol = 0;
+                                    ch = buf[++bp]; ccol++;
+                                }
+                            } else if (ch == LF) {
+                                cline++; 
+                                ccol = 0;
+                                ch = buf[++bp]; ccol++;
+                            } else if (ch == '\t') {
+                                ccol = ((ccol - 1) / tabinc * tabinc) 
+                                       + tabinc;
+                                ch = buf[++bp]; ccol++;
+                            } else {
+                                ch = buf[++bp]; ccol++; 
+                            }
+                        } while (ch != '*' && ch != SUB);
+                        while (ch == '*') {
+                            ch = buf[++bp]; ccol++;
+                        }
+                    } while (ch != '/' && ch != SUB);
+                    if (ch == '/') {
+                        ch = buf[++bp]; ccol++;
+                        break;
+                    } else {
+                        lexError("unclosed comment");
+                        return;
+                    }
+                } else {
+                    if (ch == '=') {
+                        name = slashEqualsS;
+                        sym = SlashEquals;
+                        ch = buf[++bp]; ccol++;
+                    } else {
+                        name = slashS;
+                        sym = Slash;
+                    }
+                    return;
+                }
+            case '\'': 
+                ch = buf[++bp]; ccol++;
+                litlen = 0;
+                getlitch();
+                if (ch == '\'') {
+                    ch = buf[++bp]; ccol++;
+                    sym = CharLit;
+                    byte[] ascii = new byte[litlen * 2];
+                    int alen = Convert.source2ascii(lit, 0, litlen, ascii);
+                    if (alen > 0)
+                      intVal = Convert.ascii2string(ascii, 0, alen)
+                        .charAt(0);
+                    else
+                      intVal = 0;
+                } else {
+                    lexError("unclosed character literal");
+                }
+                return;
+            case '\"':
+                ch = buf[++bp]; ccol++;
+                litlen = 0;
+                while (ch != '\"' && (char)ch >= ' ')
+                    getlitch();
+                if (ch == '\"') {
+                    sym = StringLit;
+                    name = Name.fromSource(lit, 0, litlen);
+                    ch = buf[++bp]; ccol++;
+                } else {
+                    lexError("unclosed character literal");
+                }
+                return;
+            case SUB: 
+                sym = EofSy;
+                return;
+            default:
+                if (isspecial(ch))
+                    getspecials();
+                else {
+                    ch = buf[++bp]; ccol++;
+                    lexError("illegal character");
+                }
+                return;
+            }
+        }
+    }
+
+/** the names of all symbols
+ */
+    private static Name[] symName = new Name[lastSy+1];
+
+    String sym2string(int sym) {
+        switch (sym) {
+        case Id: return "<identifier>";
+        case CharLit: return "<character>";
+        case StringLit: return "<string>";
+        case IntLit: return "<integer>";
+        case LongLit: return "<long integer>";
+        case FloatLit: return "<float>";
+        case DoubleLit: return "<double>";
+        case Period: return "'.'";
+        case Comma: return "','";
+        case Semicolon: return "';'";
+        case Lparen: return "'('";
+        case Rparen: return "')'";
+        case Lbrack: return "'['";
+        case Rbrack: return "']'";
+        case Lbrace: return "'{'"; 
+        case Rbrace: return "'}'";
+        case NoSy: return "<bad symbol>";
+        case EofSy: return "<end of input>";
+        default: return symName[sym].toString();
+        }
+    }
+    
+    private static void enterKeyword(String s, int sym) {
+        Name n = Name.fromString(s);
+        symName[sym] = n;
+        if (n.index > maxKey) maxKey = n.index;
+    }
+
+    static {
+        for (int j = 0; j <= lastSy; j++) symName[j] = null;
+        enterKeyword("+", Plus);
+        enterKeyword("-", Minus);
+        enterKeyword("!", Bang);
+        enterKeyword("%", Percent);
+        enterKeyword("^", Uparrow);
+        enterKeyword("&", Ampersand);
+        enterKeyword("*", Star);
+        enterKeyword("|", Bar);
+        enterKeyword("~", Tilde);
+        enterKeyword("/", Slash);
+        enterKeyword(">", Greater);
+        enterKeyword("<", Less);
+        enterKeyword("?", Questionmark);
+        enterKeyword(":", Colon);
+        enterKeyword("=", Equals);
+        enterKeyword("++", PlusPlus);
+        enterKeyword("--", MinusMinus);
+        enterKeyword("==", EqualsEquals);
+        enterKeyword("<=", LessEquals);
+        enterKeyword(">=", GreaterEquals);
+        enterKeyword("!=", BangEquals);
+        enterKeyword("<<", LessLess);
+        enterKeyword(">>", GreaterGreater);
+        enterKeyword(">>>", GreaterGreaterGreater);
+        enterKeyword("+=", PlusEquals);
+        enterKeyword("-=", MinusEquals);
+        enterKeyword("*=", StarEquals);
+        enterKeyword("/=", SlashEquals);
+        enterKeyword("&=", AmpersandEquals);
+        enterKeyword("|=", BarEquals);
+        enterKeyword("^=", UparrowEquals);
+        enterKeyword("%=", PercentEquals);
+        enterKeyword("<<=", LessLessEquals);
+        enterKeyword(">>=", GreaterGreaterEquals);
+        enterKeyword(">>>=", GreaterGreaterGreaterEquals);
+        enterKeyword("||", BarBar);
+        enterKeyword("&&", AmpersandAmpersand);
+        enterKeyword("abstract", AbstractSy);
+        enterKeyword("break", BreakSy);
+        enterKeyword("case", CaseSy);
+        enterKeyword("catch", CatchSy);
+        enterKeyword("class", ClassSy);
+        enterKeyword("const", ConstSy);
+        enterKeyword("continue", ContinueSy);
+        enterKeyword("default", DefaultSy);
+        enterKeyword("do", DoSy);
+        enterKeyword("else", ElseSy);
+        enterKeyword("extends", ExtendsSy);
+        enterKeyword("final", FinalSy);
+        enterKeyword("finally", FinallySy);
+        enterKeyword("for", ForSy);
+        enterKeyword("if", IfSy);
+        enterKeyword("implements", ImplementsSy);
+        enterKeyword("import", ImportSy);
+        enterKeyword("interface", InterfaceSy);
+        enterKeyword("native", NativeSy);
+        enterKeyword("new", NewSy);
+        enterKeyword("package", PackageSy);
+        enterKeyword("private", PrivateSy);
+        enterKeyword("protected", ProtectedSy);
+        enterKeyword("public", PublicSy);
+        enterKeyword("return", ReturnSy);
+        enterKeyword("static", StaticSy);
+        enterKeyword("super", SuperSy);
+        enterKeyword("switch", SwitchSy);
+        enterKeyword("synchronized", SynchronizedSy);
+        enterKeyword("this", ThisSy);
+        enterKeyword("volatile", VolatileSy);
+        enterKeyword("throw", ThrowSy);
+        enterKeyword("throws", ThrowsSy);
+        enterKeyword("transient", TransientSy);
+        enterKeyword("try", TrySy);
+        enterKeyword("while", WhileSy);
+        enterKeyword("instanceof", InstanceofSy);
+        enterKeyword("boolean", BooleanSy);
+        enterKeyword("byte", ByteSy);
+        enterKeyword("char", CharSy);
+        enterKeyword("double", DoubleSy);
+        enterKeyword("float", FloatSy);
+        enterKeyword("int", IntSy);
+        enterKeyword("long", LongSy);
+        enterKeyword("short", ShortSy);
+        enterKeyword("void", VoidSy);
+        enterKeyword("null", NullSy);
+        standardMaxKey = maxKey;
+
+        enterKeyword("fun", FunSy);
+        enterKeyword("seq", SeqSy);
+        enterKeyword("->", RightArrow);
+
+        // E-Extension
+        enterKeyword("eclass", eClassSy);
+        enterKeyword("einterface", eInterfaceSy);
+        enterKeyword("emethod", eMethodSy);
+        //enterKeyword("eforall", eForallSy);
+        enterKeyword("etry", eTrySy);
+        enterKeyword("ethrow", eThrowSy);
+        enterKeyword("ewhen", eWhenSy);
+        enterKeyword("eorwhen", eOrWhenSy);
+        enterKeyword("ewhenever", eWheneverSy);
+        enterKeyword("eif", eIfSy);
+        // enterKeyword("eorif", eOrIfSy);
+        enterKeyword("ecatch", eCatchSy);
+        enterKeyword("<-", eSend);
+        enterKeyword("enull", eNullSy);
+        enterKeyword("etrue", eTrueSy);
+        enterKeyword("efalse", eFalseSy);
+        enterKeyword("local", eLocalSy);
+        enterKeyword("_DEBUG_", eDebugSy);
+        enterKeyword("ekeep", eKeepSy);
+        enterKeyword("deflect", eDeflectSy);
+
+        extendedMaxKey = maxKey;
+
+        key = new byte[maxKey+1];
+        for (int i = 0; i <= maxKey; i++) key[i] = Id;
+        for (byte j = 0; j <= lastSy; j++)
+            if (symName[j] != null) key[symName[j].index] = j;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+

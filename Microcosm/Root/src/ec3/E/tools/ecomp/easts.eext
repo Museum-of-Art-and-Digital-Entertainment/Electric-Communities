@@ -1,0 +1,993 @@
+# 1 "ec/ecomp/easts.java" 
+
+/* *********************************************************************
+ * E Abstract syntax tree nodes
+ * Copyright 1996, 1997  Michael Philippsen. All rights reserved.
+ * 
+ * Author     : Michael Philippsen.
+ * Last change: 17-December-97
+ ***********************************************************************/
+
+package ec.ecomp;
+
+import java.io.IOException;
+import java.util.Vector;
+
+// ======================================================================
+// Definitions
+// ======================================================================
+
+class eClassDef extends ClassDef {
+
+  eClassDef correspondingIntf;
+  FunObj[] intfsealarr;
+
+  static Vector intfsealvec = new Vector(10);
+
+  //1.1 style .class
+  Vector needed$classes = new Vector(0);
+  static private Name classS = Name.fromString("class$");
+
+  eClassDef(int pos, Name name, int mods, AST extending, 
+           ASTS implementing, Block body) {
+    super(pos, name, mods, extending, implementing, body);
+  }
+
+  void enter(Env env) {
+    super.enter(env);
+    if (!E2j.done && ((mods & ECLASS) != 0))
+      ((ClassObj)obj).useEforErrors = true;
+    ((ClassObj)obj).needed$classes = needed$classes; //1.1 style .class
+  }  
+
+  void enterFields(Env env) {
+    super.enterFields(env);
+    
+    // make sure that eclasses don't have any (non static) public members
+    // and non-eclasses don't have any local members.
+    if (!E2j.done) {
+      AST stat = null;
+      if ((mods & ECLASS) != 0) {
+/* ecomp no longer complains about public Defs in eclasses 
+        for (int i = 0; i < body.stats.length; i++) {
+          if ((stat = body.stats[i]) instanceof Def) {
+            Def def = (Def)stat;
+            int mods = def.mods;
+            if ((mods & PUBLIC) != 0 &&
+                (mods & ELOCAL) == 0 &&
+                (mods & STATIC) == 0 &&
+                !def.name.equals(Predef.initS) &&
+                (mods & EMETHOD) == 0)
+              Report.error(stat.pos, "may not be public in eclass");
+          }
+        }
+*/
+      } else {
+        for (int i = 0; i < body.stats.length; i++) {
+          if ((stat = body.stats[i]) instanceof Def) {
+            Def def = (Def)stat;
+            int mods = def.mods;
+            if ((mods & ELOCAL) != 0)
+              Report.error(stat.pos, "may not be local in Java class");
+          }
+        }
+      }
+    }
+  }
+
+  Typ attr (Env env, int kind, Typ pt) {
+    ClassObj c = (ClassObj)obj;
+    if (fatallyFlawed(c)) {
+      typ = pt;
+      return typ;
+    }
+    Attr.fixupScope(pos, c);
+    boolean is_eclass = ((mods & ECLASS) != 0);
+
+    // check whether eclasses inherit/implement eclasses only and vice versa
+    if (!E2j.done && (extending != null)) {
+      if (is_eclass) {
+        if (!c.subclass(ePredef.EobjectClass))
+          Report.error(extending.pos, "eclass may not extend non-eclass");
+      } else {
+        if (c.subclass(ePredef.EobjectClass))
+          Report.error(extending.pos, "non-eclass may not extend eclass");
+        for (int i = 0; i < c.interfaces.length; i++) {
+          // c.printDef();
+          if (c.interfaces[i].subclass(ePredef.EobjectIntfClass)) {
+            // c.interfaces[i].printDef();
+            Report.error(implementing[i].pos, "class "+c.name+
+                         " may not have einterface "+
+                         c.interfaces[i].name);
+          }
+        }
+      }
+    }
+
+    Typ result = super.attr(env, kind, pt);
+
+    //1.1 style .class
+    if (!needed$classes.isEmpty()) {
+      //check whether some of the helpers are declared by superclasses
+      int i = 0;
+      while (i < needed$classes.size()) {
+        Obj var = Attr.findVar(env, (Name)(needed$classes.elementAt(i)));
+        if (var != NameError.varNotFound) {
+          needed$classes.removeElementAt(i);
+          // i is not incremented, since the element at i is removed.
+        } else {
+          // leave element in Vector
+          i++;
+        }
+      }
+    }
+    if (!needed$classes.isEmpty()) {
+      // System.out.println("not found in pre-compiled set");
+      ClassObj superclass = c.superclass;
+      while (superclass != null) {
+        if (   (superclass.needed$classes != null)
+            && !superclass.needed$classes.isEmpty()) {
+          for (int s = 0; s < superclass.needed$classes.size(); s++) {
+            Name isDeclared = (Name)superclass.needed$classes.elementAt(s);
+            int i = 0;
+            while (i < needed$classes.size()) {
+              if (isDeclared == (Name)(needed$classes.elementAt(i))) {
+                needed$classes.removeElementAt(i);
+                // i is not incremented, since the element at i is removed.
+              } else {
+                // leave element in Vector
+                i++;
+              }
+            }
+          }
+        }
+        superclass = superclass.superclass;
+      }
+    }
+    if (!needed$classes.isEmpty()) {
+      //we do not need to create a class$(String) method in this class
+      //if (1) a superclass that is currently being translated needs that method
+      //or if (2) a pre-compiled superclass has that method.
+      Typ[] tp = new Typ[1];
+      tp[0] = Predef.stringTyp;
+      Obj clfun = Attr.findMethod(env, c, classS, tp);
+      if (clfun != NameError.funNotFound) {
+        // System.out.println("Superclass has class$ method");
+      } else {
+        // System.out.println("not found in pre-compiled set");
+        boolean needClass = true;
+        ClassObj superclass = c.superclass;
+        while (needClass && (superclass != null)) {
+          if (   (superclass.needed$classes != null)
+              && !superclass.needed$classes.isEmpty()) {
+            // System.out.println("found");
+            needClass = false;
+          }
+          superclass = superclass.superclass;
+        }
+        c.needClass = needClass;
+      }
+    }
+
+    if (!E2j.done && is_eclass) {
+      //System.out.println("---browse interfaces of "+c.toString());
+      intfsealvec.removeAllElements();
+      browseIntf(c, intfsealvec);
+      //System.out.println("---");
+      intfsealarr = new FunObj[intfsealvec.size()];
+      intfsealvec.copyInto(intfsealarr);
+    }
+    return result;
+  }
+
+  /* browses the interfaces that are implemented in a depth first search
+   * All emethods that are found that way are appended to intfsealvec.
+   * Some emethods may be found several times: along a hierarchy of
+   * interfaces an emethod is in the scope of each interface, even if
+   * the method is not declared again. (see milk/mambo and milk/Arrow).
+   * By browsing depth first, the uppermost emethod FunObj is found first
+   * and hence entered into intfsealvec.
+   * Since we are only interested in emethods, we stop at EObject and
+   * do not consider the _$_Intf hierarchies.
+   */
+  
+  private static void browseIntf(ClassObj c, Vector intfsealvec) {
+    while (c != null) {
+      for (int i = 0; i<c.interfaces.length; i++) {
+        if (!c.interfaces[i].fullname.endsWith(E2j.intfS)) {
+          //System.out.println(" intf :"+ c.interfaces[i].toString());
+          if (c.interfaces[i] != ePredef.EobjectIntfClass) {
+            // depth first search
+            browseIntf(c.interfaces[i], intfsealvec);
+            Scope add = c.interfaces[i].scope;
+            for (ScopeEntry e = add.elements(); e != null; e = e.sibling) {
+              if (   (e.obj instanceof FunObj)
+                  && (((FunObj)e.obj).name.endsWith(E2j.asyncS))) {
+                // System.out.print("   "+e.obj.owner.name)
+                // System.out.println(":"+e.obj.toString());
+                // insert into intfsealvec, provided it's not already there
+                FunObj kand = (FunObj)e.obj;
+                for (int j = 0; j < intfsealvec.size(); j++) {
+                  if (e.obj == intfsealvec.elementAt(j)) {
+                    // System.out.println("     skip1");
+                    kand = null;
+                    break;
+                  }
+                  FunObj there = (FunObj)intfsealvec.elementAt(j);
+                  if ((kand.name == there.name) && kand.overrides(there)) {
+                    // System.out.println("     skip2");
+                    kand = null;
+                    break;
+                  }
+                }
+                if (kand != null) {
+                  // System.out.println("     add");
+                  if (kand.uniqueName == null)
+                    kand.uniqueName = E2j.manglesealname(kand);
+                  intfsealvec.addElement(kand);
+                }
+              }
+            }
+          }
+        }
+      }
+      c = c.superclass;
+      if (c == ePredef.EobjectClass)
+        c = null;
+    }
+  }
+}
+
+// ----------------------------------------------------------------------
+
+class eFunDef extends FunDef {
+
+  FunObj sealer = null;
+
+  eFunDef(int pos, int tag, Name name, int mods, AST dcltyp, ASTS params,
+    ASTS thrown, Block body) {
+    super(pos, tag, name, mods, dcltyp, params, thrown, body);
+  }
+
+  eFunDef(int pos, int tag, Name name, int mods, AST dcltyp, VarDef[] params,
+    AST[] thrown, Block body) {
+    this(pos, tag, name, mods, dcltyp, new ASTS(), new ASTS(), body);
+    this.params = params;
+    this.thrown = thrown;
+  }
+ 
+  void enter(Env env) {
+    super.enter(env);
+    // System.out.print(Obj.modNames(mods)); ((FunObj)obj).printDef();
+    if (!E2j.done && (tag == FUNDEF) && ((mods & EMETHOD) != 0)) {
+      FunObj fo = (FunObj)obj;
+      fo.uniqueName = E2j.manglesealname(fo);
+      //System.out.println("edef uniqueName "+fo.uniqueName);
+    }
+  }
+  
+  Typ attr(Env env, int kind, Typ pt) {
+    // System.out.println("eFunDef.attr [1]");print();
+    typ = super.attr(env, kind, pt);
+    // System.out.println("eFunDef.attr [2]");
+    if (!E2j.done && tag == FUNDEF) {
+      // It is an error to take the distributor of a variable that is 
+      // passed as an argument
+      for (int i = 0; i < params.length; i++) {
+        if (((VarObj)params[i].obj).init_state == VarObj.DISTRIBUTOR_TAKEN) {
+          Report.error(params[i].pos, "cannot take distributor of `"+
+                       ((VarObj)params[i].obj).name.toString()+
+                       "' in subsequent stmts");
+          typ = Typ.errTyp;
+        }
+      }
+      if (typ.tag != ERRTYP && ((mods & EMETHOD) != 0)) {
+        sealer = Attr.findSealer((ClassObj)env.enclClass.obj,
+                                 ((FunTyp)obj.typ).argtyps, name, pos);
+        if (sealer == null)
+          typ = Typ.errTyp;
+        //System.out.println("------------------>"+
+        //         sealer.toString()+" defined in "+sealer.owner);
+        //System.out.println("                   "+
+        //         "uniqueName = "+sealer.uniqueName);
+        if (sealer != null && sealer.uniqueName == null) {
+          // System.out.println("sealer.uniquename = null");
+          sealer.uniqueName =
+            E2j.manglesealname(sealer);
+          // System.out.println("                   "+
+          //       "uniqueName = "+sealer.uniqueName);
+        }
+      }
+    }
+    return typ;
+  }
+
+  boolean isEcontext() {
+    // true, iff this method has last param: RtExceptionEnv ekeeper_$_0
+    // true for emethods, constructors of eclasses and ekeep methods.
+    int lastidx = params.length - 1;
+    if (lastidx < 0)
+      return false; // no param -> no RtExceptionEnv
+    VarDef vd = (VarDef)params[lastidx];
+    // System.out.print("isEcontext: "); vd.print();System.out.println();
+    if (!vd.name.equals(E2j.eKeeper0S)) 
+      return false;
+    if (vd.dcltyp == E2j.RtExEnv)
+      return true;
+    if (   (vd.dcltyp.typ != null) 
+        && (vd.dcltyp.typ.sametype(ePredef.RtExceptionEnvTyp)))
+      return true;
+    return false;
+  }
+}
+
+// ======================================================================
+// Statements
+// ======================================================================
+
+
+class eReturn extends Return {
+  eReturn(int pos, AST expr) {
+    super(pos, expr);
+  }
+
+  Typ attr(Env env, int kind, Typ pt) {
+    // Return statements are not allowed in ewhen and ecatch
+    boolean illegalreturn = false;
+    Env env1 = env;
+    while (env1 != null &&
+           env1.parent.tag != FUNDEF &&
+           env1.parent.tag != LAMBDA &&
+           env1.parent.tag != SEQ) {
+      if (env1.parent.tag == CATCH) {
+        env1 = env1.next;
+        if (env1 != null) {
+          if ((env1.parent.tag == TRY) && (env1.parent instanceof eTry)) {
+            illegalreturn = true;
+            Report.error(pos, "return not allowed in `ecatch'");
+          } else if (env1.parent.tag == EWHEN) {
+            // System.out.println("this is a ewhen");
+            illegalreturn = true;
+            eWhen ew = (eWhen)env1.parent;
+            String stmtname = "`ewhen' and `eorwhen'";
+            if (ew.is_whenever) {
+              stmtname = "`ewhenever'";
+            } else if (ew.is_eif) {
+              stmtname = "`eif'";
+            }
+            Report.error(pos, "return not allowed in "+stmtname);
+          }
+        }
+      }
+      env1 = env1.next;
+    }
+    if (illegalreturn) {
+      typ = Typ.errTyp;
+    } else {
+      typ = super.attr(env, kind, pt);
+    }
+    return typ;
+  }
+}
+
+// ----------------------------------------------------------------------
+
+class eThrow extends Throw {
+  // regular Java Throws use Throw objects instead.
+
+  int nestLevel;
+
+  eThrow(int pos, AST expr) {
+    super(pos, expr);
+    nestLevel = 0;
+  }
+
+/* PREEKEEP
+  Typ attr(Env env, int kind, Typ pt) {
+    if (   (env.enclKeep == null)
+        && (   (env.enclMeth == null) 
+            || !(env.enclMeth instanceof eFunDef)
+            || !((eFunDef)env.enclMeth).isEcontext())) {
+      Report.error(pos, "May only be used in E-context");
+      typ = Typ.errTyp;
+      return typ;
+    }
+
+    nestLevel = 0;
+    if (env.enclKeep != null) 
+      nestLevel = env.enclKeep.nestLevel;
+    typ = super.attr(env, kind, pt);
+    return typ;
+  }
+PREEKEEP */
+}
+
+// ----------------------------------------------------------------------
+
+class eTry extends Try {
+  // regular Java Trys use Try objects instead.
+
+  Name closureLabel;
+
+  int nestLevel;
+
+  eTry(int pos, AST body, ASTS catchers) {
+    super(pos, body, catchers, null);
+    nestLevel = 0;
+  }
+  
+  Typ attr(Env env, int kind, Typ pt) {
+    nestLevel = -1;
+/* PREEKEEP
+    if (   (env.enclMeth != null) 
+        && (   ((env.enclMeth.mods & EMETHOD) != 0)
+            || (   env.enclMeth.isConstructor
+                && ((env.enclClass.mods & ECLASS) != 0))))
+      nestLevel = 0;
+    if (env.enclKeep != null) 
+      nestLevel = env.enclKeep.nestLevel;
+PREEKEEP */
+    if (((env.enclMeth.mods & EMETHOD) == 0) && env.isStatic) {
+      // since eTry is not used in an emethod, it cannot be used in a
+      // static context.
+      Report.error(pos, "etry cannot be used in a static context");
+      typ = Typ.errTyp;
+    } else if (Eattr.stmtInEclass(pos, env)) {
+      typ = super.attr(env, kind, pt);
+    } else {
+      typ = Typ.errTyp;
+    }
+    return typ;
+  }
+}
+
+// ----------------------------------------------------------------------
+
+class eWhen extends AST {
+  AST[] withobj;
+  FunDef[] todo;
+  AST elsepart;
+
+  int nestLevel; 
+
+  boolean is_whenever = false;
+  boolean is_eif      = false;
+  
+  eWhen(int pos, AST withobj, FunDef todo) {
+    super(pos, EWHEN);
+    this.withobj = new AST[1];
+    this.withobj[0] = withobj;
+    this.todo = new FunDef[1];
+    this.todo[0] = todo;
+    this.elsepart = null;
+  }
+
+  eWhen(int pos, ASTS withobjects, ASTS todos, AST elsepart) {
+    super(pos, EWHEN);
+    withobj = withobjects.shrink();
+    AST[] tmptodo = todos.shrink();
+    todo = new FunDef[tmptodo.length];
+    System.arraycopy(tmptodo, 0, todo, 0, tmptodo.length);
+    this.elsepart = elsepart;
+  }
+
+  Typ attr(Env env, int kind, Typ pt) {
+    nestLevel = 0;
+/* PREEKEEP    
+    if (env.enclKeep != null)
+      nestLevel = env.enclKeep.nestLevel;
+PREEKEEP */
+
+    if (((env.enclMeth.mods & EMETHOD) == 0) && env.isStatic) {
+      // since eWhen is not used in an emethod, it cannot be used in a
+      // static context.
+      Report.error(pos, "ewhen cannot be used in a static context");
+      typ = Typ.errTyp;
+      return typ;
+    } 
+
+/* PREEKEEP
+    if (   (env.enclKeep == null)
+        && (   (env.enclMeth == null) 
+            || !(env.enclMeth instanceof eFunDef)
+            || !((eFunDef)env.enclMeth).isEcontext())) {
+      Report.error(pos, "May only be used in E-context");
+      typ = Typ.errTyp;
+      return typ;
+    }
+PREEKEEP */
+
+    if (Eattr.stmtInEclass(pos, env)) {
+      Env ewhenEnv = new Env(env, this);
+      for (int i = 0; i < withobj.length; i++) {
+        if (is_eif) {
+          Typ withobjtyp = withobj[i].attr(ewhenEnv, VAL, ePredef.EbooleanTyp);
+        } else {  
+          Typ withobjtyp = withobj[i].attr(ewhenEnv, VAL, Typ.anyTyp);
+          if ((withobjtyp.tag != ERRTYP)
+              && !withobjtyp.subtype(ePredef.EobjectTyp)
+              && !withobjtyp.subtype(ePredef.E$interfaceTyp)) {
+            Report.error(pos, "incompatible types; found: "+withobjtyp+
+                         ", required: EObject or EInterface");
+            withobjtyp = Typ.errTyp;
+          }
+        }
+        Typ fkttyp     = todo[i].attr(ewhenEnv, FUN, Typ.voidTyp);
+      }
+      if (elsepart != null) {
+        Typ elsetyp = elsepart.attr(ewhenEnv, VAL, pt);
+      }
+      typ = pt;
+    } else {
+      typ = Typ.errTyp;
+    }
+    return typ;
+  }
+
+  AST simplify() {
+    throw new CompilerError("simplify called on EWHEN");
+  }
+  
+  Item gen() {
+    throw new CompilerError("gen called on EWHEN");
+  }
+
+  void print() {
+    for (int i = 0; i < withobj.length; i++) {
+      System.out.print("ewhen ");
+      withobj[i].print();
+      System.out.print(" ");
+      todo[i].print();
+    }
+    if (is_eif && elsepart != null) {
+      System.out.print(" else ");
+      elsepart.print();
+    }
+  }
+}
+
+// ----------------------------------------------------------------------
+ 
+class eKeep extends AST {
+
+  AST keeper;
+  AST stat;
+  int nestLevel;
+
+  eKeep(int pos, AST keeper, AST stat) {
+    super(pos, EKEEP);
+    this.keeper = keeper;
+    this.stat = stat;
+    nestLevel = 1;
+  }
+
+  Typ attr(Env env, int kind, Typ pt) {
+    if (env.enclKeep != null) {
+      nestLevel = env.enclKeep.nestLevel + 1;
+    }
+    eKeep lastKeep = env.enclKeep;
+    env.enclKeep = this;
+/* PREEKEEP
+    keeper.attr(env, VAL, ePredef.RtExceptionEnvTyp);
+PREEKEEP */
+
+    // ekeep(<exceptionEnv>) <statement>
+    // => 
+    // RtRun.pushExceptionEnv(<exenv>);
+    // try {
+    //     <statement>
+    // } finally {
+    //     RtRun.popExceptionEnv();
+    // }
+
+    keeper.attr(env, VAL, ePredef.RtExceptionEnvTyp);
+    AST push = new Exec(pos,
+                        new Apply(pos,
+                                  new Select(pos, 
+                                             new Ident(pos, E2j.RtRunS), 
+                                             E2j.pushExcS),
+                                  new ASTS(new Typeop(pos,
+                                                      CAST,
+                                                      keeper,
+                                                      E2j.RtExEnv))));
+    AST pop = new Exec(pos,
+                       new Apply(pos,
+                                 new Select(pos,
+                                            new Ident(pos, E2j.RtRunS),
+                                            E2j.popExcS),
+                                 new ASTS()));
+
+    AST trystat = 
+      new Try(pos, stat, new ASTS(), new Block(pos, new ASTS(pop)));
+    ASTS stmts = new ASTS(push);
+    stmts.append(trystat);
+    stat = new Block(pos, stmts);
+    typ = stat.attr(env, kind, pt);
+    env.enclKeep = lastKeep;
+    return typ;  
+  }
+
+  void print(int prec) {
+    if (E2j.done) {
+      super.print(prec);
+    } else {
+      System.out.print("ekeep (");
+      keeper.print();
+      System.out.print(") ");
+      stat.printAsSubstatement();
+    }
+  }
+
+  void printEndStatement() {
+  }
+}
+
+// ======================================================================
+// Expressions
+// ======================================================================
+
+class eAssignop extends Assignop {
+
+  int nestLevel;
+
+  boolean isInvocation = false;
+  boolean isEnvelope = false;
+  boolean isSealer = false;
+
+  FunObj sealer;
+
+  private static Name forwardS = Name.fromString("forward");
+  
+  eAssignop(int pos, int op, AST left, AST right) {
+    super(pos, op, left, right);
+    nestLevel = 0;
+  }
+  
+  Typ attr(Env env, int kind, Typ pt) {
+    if (tag != ESEND) {
+      typ = super.attr(env, kind, pt);
+      if (!Eattr.checkEitherAmpersandOrAssign(left, VarObj.ASSIGNED_TO))
+        typ = Typ.errTyp;
+      return typ;
+    }
+
+    if (E2j.done) {
+      Report.error(pos, "cannot be used in e2jdone mode");
+      typ = Typ.errTyp;
+      return typ;
+    }
+
+/* PREEKEEP
+    if (   (env.enclKeep == null)
+        && (   (env.enclMeth == null) 
+            || !(env.enclMeth instanceof eFunDef)
+            || !((eFunDef)env.enclMeth).isEcontext())) {
+      Report.error(pos, "Emethods may only be sent in E-context");
+      typ = Typ.errTyp;
+      return typ;
+    }      
+    nestLevel = 0;
+    if (env.enclKeep != null) 
+      nestLevel = env.enclKeep.nestLevel;
+PREEKEEP */
+
+    // LHS: check whether ltyp is of type eclass or of type RtEnvelope
+    // ----------------------------------------------------------------------
+    
+    Typ ltyp;
+    if (isEnvelope || isSealer) {
+      //ltyp must be a eclass name
+      ltyp = left.attr(env, TYP, Typ.anyTyp);
+      if (ltyp.tag != ERRTYP &&
+          !ltyp.subtype(ePredef.EobjectTyp) && 
+          !ltyp.subtype(ePredef.EobjectIntfTyp))
+        Report.error(pos, "incompatible types; found: "+ltyp.toString()+
+                     ", required: eclass name");
+        ltyp = Typ.errTyp;
+    } else {
+      ltyp = left.attr(env, VAL, Typ.anyTyp);
+      //System.out.println("ltyp = "+ltyp+"/");((ClassObj)(ltyp.obj)).printDef();
+      if (ltyp.tag != ERRTYP &&
+          !ltyp.subtype(ePredef.EobjectTyp) && 
+          !ltyp.subtype(ePredef.EobjectIntfTyp) &&
+          !ltyp.subtype(ePredef.RtEnvelopeTyp)) {
+        Report.error(pos, "incompatible types; found: "+ltyp.toString()+
+                     ", required: EObject or RtEnvelope");
+        ltyp = Typ.errTyp;
+      }
+    }
+
+    // if (ltyp.tag == ERRTYP) System.out.println("ltyp == ERRTYP");
+
+    // RHS: two alternatives
+    // a) rhs = emtd(...);
+    // b) rhs = RtEnvelops;
+    // ----------------------------------------------------------------------
+    
+    Typ rtyp;
+
+    if (right instanceof Apply) {
+      // System.out.println("eAssignop rhs type a");
+      // a) rhs = emtd(...);
+      // emtd can be a Select (CLASS.emtd) or an Ident.
+      // In the latter case, we transform it into a Select first.
+      rtyp = Typ.errTyp;
+      Apply apl = (Apply)right;
+      if (apl.fn instanceof Ident) {
+        // System.out.println("Assign with Ident - preprocessing");
+        if (isEnvelope || isSealer) {
+          apl.fn = new Select(pos, left, ((Ident)apl.fn).name);
+        } else {
+          // replace Ident with Select (lhs-Class.Ident)
+          // we use the type of the lhs to direct the selection process.
+          if (ltyp.tag != ERRTYP) {
+            ClassObj c = ltyp.obj;
+            if (c != null) {
+              // System.out.println("ltyp = "+c.typ);
+              // If the lhs is a channel, and we know the originating type
+              // then we use this type to create the select.
+              // Unless the rhs is "forward"
+              if (   (left instanceof eUnop)
+                  && (left.tag == EDISTRIB)
+                  && (((eUnop)left).operand.typ.tag != ERRTYP)
+                  && (((Ident)apl.fn).name != forwardS)) {
+                // System.out.println("&lhs: "+((eUnop)left).operand.typ);
+                c = (ClassObj)(((eUnop)left).operand.typ.obj);
+              }
+            }
+            if (c != null) {
+              IdRef t = Name.toIdRef(pos, c.fullname);
+              t = new Select(pos, t, ((Ident)apl.fn).name);
+              // t.print();
+              apl.fn = t;
+            }
+          }
+        }
+      }
+      IdRef aplfn = (IdRef)apl.fn;
+      // change call: add $async to name
+      aplfn.name = aplfn.name.append(E2j.asyncS);
+      //right.print();
+      //rtyp = right.attr(env, VAL, Typ.voidTyp);
+      if (isSealer) {
+        //Similar to what is going in Apply.attr, howver, we derive the
+        //argtypes from typList instead of ExprList.
+        //right.print();
+        //System.out.println("sealer mode");
+        Apply fnappl = (Apply)right;
+        Typ [] argtyps = new Typ[fnappl.args.length];
+        for (int i = 0; i < fnappl.args.length; i++) {
+          argtyps[i] = fnappl.args[i].attr(env, TYP, Typ.anyTyp);
+        }
+        rtyp = fnappl.fn.attr(env, FUN, 
+                       new FunTyp(argtyps, Typ.anyTyp, Predef.anyTypSet));
+        if (rtyp.tag == FUNCTION)
+          rtyp = Attr.checkTyp(env, pos, ((FunTyp)rtyp).restyp, pt);
+        //System.out.println("rtyp = "+rtyp.obj.typ);
+      } else 
+        rtyp = right.attr(env, VAL, Typ.anyTyp);
+      if (rtyp.tag != ERRTYP) {
+        // Semantic: if RHS is Select, then a CLASS must have been selected
+        if (aplfn instanceof Select) {
+          if (((Select)aplfn).struc instanceof IdRef) {
+            IdRef idr = (IdRef)(((Select)aplfn).struc);
+            if ((idr.obj != null) && (idr.obj.kind != TYP)) {
+              // System.out.println("struc.kind = "+idr.obj.kind);
+              if (idr.obj.typ != null) 
+                Report.error(apl.fn.pos,
+                             "emethod must be qualified by class name ("+
+                             idr.obj.typ.obj.name+")");
+              else
+                Report.error(apl.fn.pos,
+                             "emethod must be qualified by class name");
+              rtyp = Typ.errTyp;
+            }
+          } else {
+            Report.error(apl.fn.pos,
+                         "emethod must be qualified by class name");
+            rtyp = Typ.errTyp;
+          }
+        } else {
+          //something went wrong.
+          rtyp = Typ.errTyp;
+        }
+      }
+      if (   (rtyp != Typ.errTyp)
+          && (apl.fn.typ instanceof FunTyp)
+          && (   isInvocation
+              || ltyp.subtype(ePredef.RtEnvelopeTyp))) {
+        //System.out.println("computing sealer");
+        //System.out.println("apl.fn.typ = "+apl.fn.typ.toString());
+        Typ[] myargtyps = ((FunTyp)apl.fn.typ).argtyps;
+        IdRef idr = (IdRef)(((Select)aplfn).struc);
+        //System.out.println("class = "+idr.obj.typ.obj.name);
+        ClassObj c = (ClassObj)(idr.obj);
+        sealer = Attr.findSealer(c, myargtyps, aplfn.name, apl.fn.pos);
+        // if (sealer == null) System.out.println("sealer null");
+        // else System.out.println("sealer = "+sealer.toString());
+      }
+    } else {
+      // System.out.println("eAssignop rhs type b");
+      // b) rhs = RtEnvelops;
+      rtyp = right.attr(env, VAL, ePredef.RtEnvelopeTyp);
+    }
+    // System.out.println("eAssignop.attr.2");
+    if (rtyp.tag != ERRTYP) {
+      // System.out.println("rtyp = "+rtyp.obj);
+      // System.out.println("rtyp.apl.fn = "+((IdRef)(((Apply)right).fn)).obj);
+      if (!rtyp.subtype(ePredef.RtEnvelopeTyp)) {
+        rtyp = Attr.checkTyp(env, right.pos, rtyp, Typ.voidTyp);
+      }
+    }
+    
+    // System.out.println("eAssignop done");
+    // System.out.println("ltyp = "+ltyp.toString());
+    // System.out.println("rtyp = "+rtyp.toString());
+    
+    if (ltyp.tag == ERRTYP || rtyp.tag == ERRTYP)
+      typ = Typ.errTyp;
+    else
+      typ = Typ.voidTyp;
+    return typ;
+  }
+}
+
+// ----------------------------------------------------------------------
+
+class eUnop extends Unop {
+  eUnop(int pos, int op, AST operand) {
+    super(pos, op, operand);
+  }
+  
+  Typ attr(Env env, int kind, Typ pt) {
+    if (tag != EDISTRIB) {
+      typ = super.attr(env, kind, pt);
+      if (!Eattr.checkEitherAmpersandOrAssign(operand, VarObj.ASSIGNED_TO))
+        typ = Typ.errTyp;
+      return typ;
+    }
+
+    Typ odtyp = operand.attr(env, VAL, Typ.anyTyp);
+    if ((odtyp.tag != ERRTYP)
+        && !odtyp.subtype(ePredef.EobjectTyp)
+        && !odtyp.subtype(ePredef.E$interfaceTyp)) {
+      Report.error(pos, "incompatible types; found: "+odtyp+
+                   ", required: EObject or EInterface");
+      odtyp = Typ.errTyp;
+    }
+    typ = Attr.checkTyp(env, pos, ePredef.EdistributorTyp, pt);
+
+    if (odtyp.tag != ERRTYP) {
+      if (operand instanceof IdRef) {
+        if (!Eattr.checkEitherAmpersandOrAssign(operand, VarObj.DISTRIBUTOR_TAKEN))
+          typ = Typ.errTyp;
+      } else {
+        if (!odtyp.subtype(ePredef.EchannelTyp))
+          Report.error(pos, "incompatible types; found: "+odtyp+
+                       ", required: EChannel");
+      }
+    }
+
+    if (E2j.done) {
+      typ =Typ.errTyp;
+      Report.error(pos, "cannot be used in e2jdone mode");
+    }
+    return typ;
+  }
+}
+
+// ----------------------------------------------------------------------
+
+class eDeflect extends New {
+
+  Name fullname; //without _$_Deflector
+
+  eDeflect(int pos, AST constr, Name fullname) {
+    super(pos, constr);
+    this.fullname = fullname;
+    this.constr = constr;
+  }
+
+  Typ attr(Env env, int kind, Typ pt) {
+    if (E2j.done)
+      return super.attr(env, kind, pt);
+    if (Attr.checkKind(pos, VAL, kind)) {
+      constr.attr(env, TYP, Typ.anyTyp);
+      // do semantic checks:
+      // check that class name refers to an eclass
+      Obj cl = Attr.findClass(env, fullname);
+      if (!(cl instanceof ClassObj)) // || !((ClassObj)cl).useEforErrors)
+        cl = Attr.resolveClass(pos, env, fullname, TYP);
+      if (   (cl.typ.tag != ERRTYP)
+          && !cl.typ.subtype(ePredef.EobjectTyp)
+          && !cl.typ.subtype(ePredef.E$interfaceTyp)) {
+        Report.error(pos, "deflect can only be used for an eclass");
+        typ = Typ.errTyp;
+      }
+      // check that 1st argument is of type ec.e.run.RtTether
+      Apply a = (Apply)constr;
+      if (!a.args[0].typ.subtype(ePredef.RtTetherTyp)) {
+        Report.error(a.args[0].pos, "must be of type ec.e.run.RtTether");
+        typ = Typ.errTyp;
+      }
+      // check that 2nd argument is of type java.lang.Object
+      if (!a.args[1].typ.subtype(Predef.objectTyp)) {
+        Report.error(a.args[1].pos, "must be of type java.lang.Object");
+        typ = Typ.errTyp;
+      }
+    } else 
+      typ = Typ.errTyp;
+    return typ;
+  }
+
+  void print(int prec) {
+    if (E2j.done) {
+      super.print(prec);
+    } else {
+      Pretty.open(prec, prefixPrec);
+      System.out.print("deflect "+fullname);
+      System.out.print("(");
+      printSeq(((Apply)constr).args);
+      System.out.print(")");
+      Pretty.close(prec, prefixPrec);
+    }
+  }
+}
+
+// ----------------------------------------------------------------------
+
+class DotClass extends IdRef {
+
+  AST struc;
+
+  private static Name classS  = Name.fromString("class");
+  private static Name dollarS = Name.fromString("$");
+
+  DotClass(int pos, AST struc) {
+    super(pos, IDENT, classS);
+    if (E2j.done)
+      throw new CompilerError(".class can only be used in regular E code");
+    name = classS.append(dollarName(struc));
+    this.struc = struc;
+  }
+
+  // struc java.lang.Object --> java$lang$Object
+  private Name dollarName(AST struc) {
+    Name result = null;
+    Name name = null;
+    if (struc instanceof IdRef)
+      name = ((IdRef)struc).name;
+    while (name != null) {
+      if (result == null)
+        result = dollarS.append(name);
+      else
+        result = dollarS.append(name).append(result);
+      name = null;
+      if (struc instanceof Select) {
+        struc = ((Select)struc).struc;
+        if (struc instanceof IdRef)
+          name = ((IdRef)struc).name;
+      }
+    } 
+    return result;
+  }
+
+  Typ attr(Env env, int kind, Typ pt) {
+    if (E2j.done)
+      throw new CompilerError("DotClass node should have been transformed");
+    struc.attr(env, TYP, Typ.anyTyp);
+    typ = Attr.checkTyp(env, pos, ePredef.ClassTyp, pt);
+    Vector needed$classes = ((eClassDef)env.enclClass).needed$classes;
+    if (   (typ != Typ.errTyp)
+        && !needed$classes.contains(name)) {
+      needed$classes.addElement(name);
+    }
+    return typ;
+  }
+
+  void print(int proc) {
+    struc.print();
+    System.out.print(".class");
+  }
+}
+

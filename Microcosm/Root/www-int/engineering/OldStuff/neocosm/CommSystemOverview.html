@@ -1,0 +1,415 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>Design Document Template</TITLE>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; U) [Netscape]">
+</HEAD>
+<BODY>
+
+<H1><I>Comm System</I></H1>
+
+<P><B>Last updated:</B><I> [1998/05/12 Bill Frantz]</I> </P>
+
+<P><I>Author(s): <A HREF="mailto:frantz@communities.com">Bill Frantz</A>.</I>
+</P>
+
+<P><I>Subsystem originally written by Eric Messick.</I> </P>
+
+<H2>Introduction</H2>
+
+<P>This description matches the version of the comm system included in
+R167. </P>
+
+<P>The comm system includes the following features: </P>
+
+<UL>
+<LI>Encrypted links.</LI>
+
+<LI>Unforgeable network object references with handoff logic.</LI>
+
+<LI>SturdyRefs and the Registrar.</LI>
+
+<LI>Message encode/decode.</LI>
+</UL>
+
+<H4>Related Documents</H4>
+
+<P>See <A HREF="../design_notes/comm_startup.html">Comm system connections
+startup protocol</A>. </P>
+
+<P>For the design for the Neocosm data comm layer see: <A HREF="NewECommSystem.html">NewECommSystem</A>.
+</P>
+
+<H2>Requirements</H2>
+
+<P>Requirements curently implemented: </P>
+
+<UL>
+<LI>Authenticated, confidential links between E &quot;vats&quot; running
+on the same or different machines.</LI>
+
+<LI>Robust identities that persist over restarts of the application.</LI>
+
+<LI>Network location independence. An identity can move from one network
+address to another.</LI>
+
+<LI>E messages can be passed between vats.</LI>
+
+<LI>Three party handoff: If vat A sends vat B a reference to an object
+in vat C, B will get a direct link to C for messages to that object.</LI>
+
+<LI>SturdyRefs: There is a type of inter-vat object reference which persists
+over restart of the referer, referee, or both.</LI>
+
+<LI>Allow a vat to build outbound connections and receive inbound connections.
+A vat can act as both a client and a server.</LI>
+</UL>
+
+<P>Requirements at best partially implemented: </P>
+
+<UL>
+<LI>Firewall support: At best, a vat behind a firewall can only build outbound
+connections. It can not receive inbound connections.</LI>
+
+<LI>Connections are not torn down when they are no longer being used.</LI>
+
+<LI>The event logging and analysis policies log too many errors.</LI>
+
+<LI>Connections need to be periodically checked to ensure they are still
+working. (This is not being done in R167.)</LI>
+</UL>
+
+<P>Pure dumb things that need to be fixed: </P>
+
+<UL>
+<LI>The byte and network layers need to be removed. They are left over
+from vat tethers.</LI>
+
+<LI>The number of threads per connection needs to be reduced to two.</LI>
+
+<LI>The Comm system needs to implement a &quot;keep alive&quot; function
+to ensure the other end is still alive.</LI>
+</UL>
+
+<H2>Architecture</H2>
+
+<P>The Comm system can be considered to consist of four components: </P>
+
+<UL>
+<LI>The Registrar which establishes the identity of the vat.</LI>
+
+<LI>The Connections Manager which manages the connections.</LI>
+
+<LI>The (multiple) connections to other vats.</LI>
+
+<LI>The listen stack which listens for new incoming connections.</LI>
+</UL>
+
+<H4><FONT SIZE=+2>Current Architecture Overview</FONT></H4>
+
+<P><B>Registrar</B> </P>
+
+<P>Each vat has one instance of the Registrar (ec/e/net/Registrar.java)
+which performs the following functions: </P>
+
+<UL>
+<LI>It holds the public/private key pair which define the identity of the
+vat. (When the vat is initialized, it generates the key pair.)</LI>
+
+<LI>It holds the list of Process Location Servers (PLSs) the vat will register
+with when it goes &quot;onTheAir&quot;.</LI>
+
+<LI>It implements the &quot;onTheAir&quot; method which permits the vat
+to engage in inter-vat communications, and the &quot;offTheAir&quot; method
+which shuts down existing connections and terminates listening..</LI>
+
+<LI>It implements methods for the generation of SturdyRefs to local objects,
+following SturdyRefs to remote objects, and exporting transitory references
+to local objects.</LI>
+</UL>
+
+<P><B>ConnectionsManager</B> </P>
+
+<P>Each vat has one instance of the ConnectionsManager (ec/e/net/ConnectionsManager.java)
+which performs the following functions: </P>
+
+<UL>
+<LI>Maintains lists of active and suspended/suspending connections.</LI>
+
+<LI>Accepts new connections from remote vats.</LI>
+
+<LI>Builds new connections to remote vats.</LI>
+
+<LI>Maintains usage information about connections so unused ones will be
+the first to be suspended.</LI>
+
+<LI>Handles and logs errors that occur while building connections, or while
+they are active.</LI>
+
+<LI>Provides connections statistics in string form for display in a UI.</LI>
+
+<LI>Holds a collection of string values that will be compactly encoded
+on the wire.</LI>
+</UL>
+
+<P><B>The Connections</B> </P>
+
+<P>Each active connection is broken into three layers: </P>
+
+<OL>
+<LI>The E layer (ec/e/net/EConnection.java, ec/e/net/ESender.java, and
+ec/e/net/EReceiver.java) which:</LI>
+
+<UL>
+<LI>Maintains the import/export tables for the connection.</LI>
+
+<LI>Places incoming E messages &lt;destObject, envelope&gt; on the E Run
+Queue.</LI>
+
+<LI>Sends E messages &lt;destObject, envelope&gt; to the remote vat.</LI>
+
+<LI>Queue messages for connections which are not active.</LI>
+
+<LI>Handle the three party handoff.</LI>
+
+<LI>Process the distributed garbage collection messages.</LI>
+
+<LI>Builds the necessary Msg layer for each location in the search path
+during vat location resolution. (PLS lookup)</LI>
+</UL>
+
+<LI>The Msg layer (ec/e/net/MsgConnection.java, ec/e/net/MsgSender.java,
+and ec/e/net/MsgReceiver.java) which:</LI>
+
+<UL>
+<LI>Represents one TCP connection.</LI>
+
+<LI>Handles the <A HREF="../design_notes/comm_startup.html">Connection
+startup protocol</A> including E msg protocol version negoitation and crypto
+suite negoitation.</LI>
+
+<LI>Generates cryptographic keys for message privacy and authentication.</LI>
+
+<LI>Authenticates the remote end of the connection.</LI>
+
+<LI>Implements the ec.e.db.RtDecodingManager interface. This interface
+helps in decoding references to local and remote objects which are referenced
+in the incoming message stream. It handles three party handoffs.</LI>
+
+<LI>Handles the messages of the E protocol including envelopes, new classes,
+registering/unregistering objects, and distributed garbage collection.</LI>
+
+<LI>Uses the ec.e.db package to encode objects into envelopes and decode
+them from envelopes.</LI>
+</UL>
+
+<LI>The TCP Interface layer (ec/e/net/RawConnection.java, ec/e/net/SendThread.java,
+and ec/e/net/RecvThread.java) which:</LI>
+
+<UL>
+<LI>Maintains 3 threads for each connection, a send thread, a receive thread,
+and a control thread.</LI>
+
+<LI>Encodes the record oriented messages of the other layers for TCP's
+streem oriented transmission.</LI>
+
+<LI>Performs encryption/decryption of the messages.</LI>
+
+<LI>Generates a unique Initialization Value for use in encryption, and
+to ensure messages are not replayed.</LI>
+
+<LI>Generates and checks Message Authentication Codes (MACs) on each message
+to ensure the messages are not being inserted by an attacker. (It also
+ensures messages have not been altered in transmission.)</LI>
+
+<LI>Maintains a queue of messages for transmission.</LI>
+
+<LI>Collects multiple E protocol messages into one encryption block for
+transmission.</LI>
+
+<LI>Builds the TCP connection.</LI>
+
+<LI>Receives messages from the TCP connection and passes them into the
+vat.</LI>
+</UL>
+</OL>
+
+<P><B><FONT SIZE=+1>The Import/Export Tables</FONT></B></P>
+
+<P><B>Encoding</B></P>
+
+<P>If, while encoding an object, an object is encountered which is not
+<TT>RtEncodeable</TT>, then <TT><A HREF="EncodeDecodeOverview.html">RtStandardEncoder</A></TT>
+calls on <TT>MsgSender.encodeObject</TT> to encode the object. If the object
+is not an instance of <TT>RtDeflector</TT>, then a proxy is created for
+it on the remote vat. If it is an instance of <TT>RtDeflector</TT>, then
+it is a proxy for a remote object which is either hosted on the remote
+vat or on a third vat. All three cases are handled by the message type
+<TT>RtCodingSystem.kcManagerEncoded</TT> which is written by <TT>RtStandardEncoder</TT>.
+To manage proxys, the Msg layer has two tables, the <TT>ExportTable </TT>and
+the <TT>ImportTable</TT>. </P>
+
+<P>The <TT>ExportTable </TT>holds information about objects which have
+been exported. Internally the <TT>ExportTable </TT>has <TT>Hashtables </TT>which
+map <TT>exportID </TT>to <TT>EObjectExport </TT>and the local object to
+<TT>exportID</TT>. The <TT>EObjectExport </TT>holds references to the local
+object and the EConnection, and a touch count. The touch count is used
+to avoid garbage collecting an object while a new reference is in-transit
+between the vats. N.B. The <TT>exportID </TT>is the Swiss number.</P>
+
+<P>The <TT>ImportTable </TT>holds information about remote objects which
+have local proxys. It has a <TT>Hashtable </TT>which relates exportIDs
+to the local proxy objects.</P>
+
+<P>If a proxy is to be sent to the remote vat, and the object has already
+been exported to that vat, the <TT>exportID </TT>is retrieved from <TT>ExportTable
+</TT>and the touch count for the object is incremented. If a new proxy
+must be created, the <TT>ExportTable </TT>creates a new <TT>EObjectExport
+</TT>places to appropriate entries in the two hash tables. In either case,
+the <TT>exportID </TT>is sent to the remote vat with an indication that
+this is an <TT>OUTBOUND_ID</TT>.</P>
+
+<P>If the local object is a proxy and refers to an object in the remote
+vat, then the <TT>importID </TT>is sent with an indication that this is
+an <TT>INBOUND_ID</TT>. Otherwise a three party handoff is performed by
+sending the <TT>exportID </TT>(which is the Swiss number), the <TT>registrarID
+</TT>and PLS search path for the vat which holds the object along with
+an indication that this is an <TT>HANDOFF_ID</TT>.</P>
+
+<P><B>Decoding</B></P>
+
+<P>When RtStandardDecoder is decoding a serialized object, and it finds
+an encoding type of <TT>RtCodingSystem.kcManagerEncoded </TT>it calls <TT>MsgReceiver
+</TT>to decode the object. <TT>MsgReceiver </TT>uses the ID written by
+<TT>MsgSender </TT>to determine its course of action.</P>
+
+<P>If the ID is <TT>INBOUND_ID</TT>, then the other vat has a proxy and
+this end has the object. The object is fetched from the local ExportTable
+and and used as the local decoded object.</P>
+
+<P>If the ID is <TT>OUTBOUND_ID</TT>, then <TT>MsgReceiver </TT>checks
+the <TT>ImportTable </TT>to see if there is already a proxy for that object.
+If there is, it is used as the local decoded object. Otherwise a new proxy
+is created, entered into the <TT>ImportTable</TT>, and used as the local
+decoded object.</P>
+
+<P>If the ID is <TT>HANDOFF_ID</TT>, then <TT>MsgReceiver </TT>gets an
+<TT>EConnection </TT>object for the third vat. (N.B. This <TT>EConnection
+</TT>object may not be actually connected to the third vat.) It checks
+the third vat's <TT>ImportTable </TT>to see if a proxy already exists for
+the object. If the proxy already exists, then it is used. Otherwise a new
+proxy is registered in the <TT>ImportTable </TT>for the third vat, and
+a <TT>EXPORT_OBJECT_REQUEST</TT> message is sent to the third vat. (N.B.
+This message is queued until the a connection is built if the third vat's
+<TT>EConnection </TT>is not already connected. </P>
+
+<P>When the third vat receives the <TT>EXPORT_OBJECT_REQUEST</TT>&nbsp;message,
+it uses the registrarID of the vat initiating the handoff to locate the
+object in that <TT>EConnection</TT>'s <TT>ExportTable </TT>and registers
+it in the current connection as an exported object. It then sends an <TT>EXPORT_OBJECT_REPLY</TT>
+message to the vat receiving the handoff. </P>
+
+<P><B>The Listen Stack</B> </P>
+
+<P>The listen stack parallels the structure of the connections. The r167
+system has two instances of the listen stack, one to listen for comm connections
+from other vats, and the other to listen for notifications that some local
+user action (e.g. clicking on a .mcm file in a browser) needs to be handled.
+</P>
+
+<P>The listen stack has two threads, the ListenThread which runs as a daemon,
+and the UserThread. The ListenThread needs to be a daemon thread because
+as a user thread, it would be uninterruptable while it is waiting on an
+accept(). (This is due to a bug in Solaris.) However, as a daemon thread,
+the application can exit while it is still running. We don't want to exit
+while waiting for connections (and not doing anything else), so we have
+the UserThread which does nothing but wait. Since it is a user thread,
+it keeps the application from exiting, and since it is not waiting on an
+accept(), we can kill it. When we tell the ListenThread to shutdown, which
+we can do because it is a daemon thread, it sends a notify() to the UserThread
+which then shuts down. Hallelujah! </P>
+
+<P>When a new connection arrives, the ListenThread (ec/e/net/ListenThread.java)
+builds a new TCP interface layer and passes it to the MsgListener (ec/e/net/MsgListener.java).
+The MsgListener builds a new Msg layer which engages in the connection
+startup protocol. The EListener (ec/e/net/EListener.java) is only used
+to handle errors and during vat startup/shutdown. </P>
+
+<H4><FONT SIZE=+2>Proposed Architecture Overview</FONT></H4>
+
+<P>TBD </P>
+
+<H4>Off the shelf alternatives</H4>
+
+<P>We may want to replace the encryption, and authentication in the TCP
+layer with SSL. See <A HREF="SSLvsEComm.html">SSL vs. E Comm</A> for an
+analysis. </P>
+
+<P>My (wsf) own opinion is that we should only do this if there are significant
+advantages from the change, since the current code seems to work reasonably
+well and there are significant differences in the symantic model. Possible
+advantages of SSL are more supported crypto algorthms, and better crypto
+vetting because it is a published protocol. I don't think SSL will help
+with our Firewall problems. </P>
+
+<P>It might be valuable to model our implementation on the Baltimore Technologies
+implementation. I (wsf) would be more convinced if several other implementations
+had substantially the same implementation structure. </P>
+
+<H4>Other Design Objectives, Constraints and Assumptions</H4>
+
+<P>This code uses multiple threads to overlap communication with computation,
+so it must be designed to be thread safe. </P>
+
+<P><I>Lists any special objectives and assumptions of the code e.g. reusability,
+thread safety, security, performance, use of resources, compatibility with
+existing code etc. This section gives important context for reviewers</I>
+</P>
+
+<H2>Current implementation</H2>
+
+<P>See current architecture above.&nbsp; See also <A HREF="CommSystemXref_r167.html">External
+Interface for ec.e.net in r167</A> which shows which methods are referenced
+from outside the package. </P>
+
+<H4>Which directories on our tree does this subsystem cover?</H4>
+
+<P>ec4/javasrc/ec/e/net holds the source for this package. </P>
+
+<H4>Is it JavaDoc'ed?</H4>
+
+<P>The code is partially JavaDoc'ed. Since some classes use the foo &lt;-
+blah form of Esend, javadoc barfs in processing them. </P>
+
+<H4>Examples</H4>
+
+<P>None </P>
+
+<H4>Testing and Debugging</H4>
+
+<P><I>(Optional) Lists any tests and debugging utilities which are to be
+developed to help test the design (e.g. test classes, trace categories,
+etc)</I> </P>
+
+<H2>Design Issues</H2>
+
+<H4>Resolved Issues</H4>
+
+<P><I>History of issues raised and resolved during initial design, or during
+design inspections. Can also include alternative designs, with the reasons
+why they were rejected</I> </P>
+
+<H4>Open Issues</H4>
+
+<P><I>This section of the document is used by the authors and moderator
+to store any incomplete information - issues identified during a design
+inspection but not yet resolved (the task list), notes that aren't ready
+to be put into the main text, etc.</I> </P>
+
+<P>Does LDAP (Lightweight Directory Access Protocol) have any application
+to our PLS requirements?<BR>
+&nbsp; </P>
+
+</BODY>
+</HTML>

@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE></TITLE>
+   <META NAME="Author" CONTENT="Bill Frantz">
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; U) [Netscape]">
+</HEAD>
+<BODY>
+
+<H1><B><FONT SIZE=+2>Measurement Requirements for Neocosm</FONT></B></H1>
+
+<P>Created 7/1/98 by Bill </P>
+
+<P>The following is a list of performance measurements we would like to
+be able to make in Neocosm. It is based on our experiences with R167.</P>
+
+<UL>
+<LI>Garbage collection rate. Garbage collects can be counted by a garbage
+object with a finalizer method which adds one to a counter and then creates
+another instance of the garbage object.</LI>
+
+<LI>Paging rates</LI>
+
+<LI>E Run queue length</LI>
+
+<LI>E Run queue latency - (How long between queuing a message and it's
+dispatch.)</LI>
+
+<LI>E message processing time - (How long it takes to process a message.)</LI>
+
+<LI>N longest executing messages, with some detail about what objects,
+methods, and parameters are involved.</LI>
+
+<LI>Synchronization delay for Comm thread to vat communication.</LI>
+
+<LI>Bytes send/received over each comm connection, and total rate for the
+vat</LI>
+
+<LI>Connection creation/shutdown rate.</LI>
+</UL>
+
+<P>We also need a coherent way of recording these measurements for analysis.</P>
+
+</BODY>
+</HTML>

@@ -1,0 +1,72 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>A Personal Semi-Historical Recapitulation Of The Containership Protocol’s Evolution</TITLE>
+</HEAD>
+<BODY>
+
+<FONT SIZE=2><P>A Personal Semi-Historical Recapitulation Of The Containership Protocol’s Evolution</P>
+<P>(being a textual recap of the Arturo/Rob/Brian/ScottL/Trev/MarkM/Melora/ScottB meeting)</P>
+<P>By The Peripatetic RobJ</P>
+<P>&nbsp;</P>
+<P>The first containership protocol, as it existed in the Preview edition of Microcosm, had many problems:</P>
+
+<UL>
+<LI>When transferring a containable from one container to another, first the containable removed itself from the old container, then it added itself to the new.  If the new container didn’t want it, it would have to re-add itself to the old container.  This was a very problematic notion since if the old container had changed state, the containable might not be able to get back in.</LI>
+<LI>The containment protocol sent messages from the container downwards.  When the containable went from one container to another, the container fanned out the containable-parent-has-changed message to all the container’s presences, and each container presence then sent a uLocalSetParent message to each containable presence.  This led to encoding race conditions as follows:</LI></UL>
+
+<OL>
+
+<LI>A container fans out a message to all its presences to setParent on a containable that it has just acquired</LI>
+<LI>A new user connects to the region, getting a presence of the container, and a presence of the containable whose state still has the old container as parent</LI>
+<LI>The uLocalSetParent from the container gets delivered to every containable EXCEPT the one that was created after the new container had already fanned out its pSetContainableParent message</LI>
+<LI>The quiesced state left the new presence of the new containable considering itself under the old parent.</LI></OL>
+
+
+<UL>
+<LI>There was no support for preventing presence spread.  When a containable went from one region to another, all the old presences of the containable stuck around.</LI>
+<LI>There was no clean way to handle recursive open TOS checking.  One of the requirements for our open-containment protocol is that if you are an open container and you contain open containers, everything in the recursive open tree must pass the TOS of any open container (and any open parent of that open container, on up to the root) that you seek to add yourself to.  We had NO clue about how to do this.</LI></UL>
+
+<P>&nbsp;</P>
+<P>(At this point it’s worth asking, what did it do <I>right</I>?  The answer is that it had many correct security properties with respect to the way it issued facets used by containables and containers to refer to each other.  Most of our analysis time was spent on security reviews rather than on distributed-consistency reviews, since we had no idea how to do the latter and since we had So Much Other Work To Do.  In hindsight it would have been orders of magnitude better to get the protocol consistent <I>first</I>, but other ideas, such as runtime facets, interposed vexatiously… if we’d decided long ago to handle presence spread via revokable unum routers, we could’ve made much more headway much sooner.)</P>
+<P>&nbsp;</P>
+<P>So we decided to try to fix it.  The first protocol (firstprotocol.doc) was Arturo’s initial attempt, in which all containablecontainers kept a copy of their open contents recursively on down, and all add-me and remove-me requests were forwarded via the containable’s parent channel, so all the trees were potentially in sync.</P>
+<P>We also began to define protocols consisting of linear-causality messages between host presences; we stopped using uLocal-like patterns, instead sticking solely to messages between hosts.  And we decided to go to a &quot;try to add, then remove from your old parent if you succeed&quot; paradigm, rather than a &quot;remove from your old parent, then try to add and readd if you fail&quot; paradigm.</P>
+<P>Finally, the notion of a &quot;revokable unum router&quot;, and the decision to bind the unum router’s lifetime to a single root-containment context, gave us a tractable mechanism to address presence spread.</P>
+<P>&nbsp;</P>
+<P>Problems with firstprotocol were: </P>
+
+<UL>
+<LI>there was no clear way to know whether a parent-add request (i.e. I’ve added myself to you, now you need to tell your parent that I’m in you now, and your parent might say &quot;no way, he violates my TOS&quot;) would succeed or not, so there was no clear way to know whether your tree-of-children was correct.</LI>
+<LI>if a child got transferred while a parent was in the middle of being transferred, it was a total mess as to where the child would wind up; all sorts of races with respect to whether the child got transferred before the parent.</LI></UL>
+
+<P>&nbsp;</P>
+<P>These problems with firstprotocol scared Rob enough to want something radically simpler.  This was thirdprotocol (thirdprotocol.doc), in which only the root kept any state about the open tree, and all transfers were done by the root alone—containers kept NO state whatsoever about their contents.  This got around almost all synchronization problems; anytime you transferred something, you could lock it in the old root until you knew whether it had arrived in the new root, and you could refuse to transfer parents until you knew whether their children had departed successfully (and vice-versa).  Thirdprotocol was the first protocol where an explicit notion of a &quot;container transfer transaction in progress&quot; appeared.</P>
+<P>The problems with THIS were:</P>
+
+<UL>
+<LI>Too much authority held by the root.  If I openly contained something, there was no way for me to know what it was!  Only the root knew the state of the tree.  The root could hence (say) slip a tape recorder into my hand as part of handling my request to transfer to the CIA.</LI>
+<LI>Bouncing of move requests.   If I was sitting on a table and requested to get off, at the same time the table was leaving the region, my request could fail because the table wouldn’t be there anymore.  Since I’m sitting on the darn table, I should be able to get off regardless of whether the table’s old region still thinks it’s there or not.  (In other words, my reference to my current root, which I use to remove myself from the table, could get stale.)  This is not a <I>major</I> problem, but it is a problem.</LI></UL>
+
+<P>&nbsp;</P>
+<P>Fourthprotocol was an attempt to introduce single-level containment semantics into thirdprotocol.  As such it had almost all the authority problems of thirdprotocol, with one exception:  the single-level connections between containables and containers could be used to reconstruct a correct containment graph, but only long after the fact.  The old-region-could-spoof-your-open-contents-for-TOS-purposes problem was still present, in spades.</P>
+<P>&nbsp;</P>
+<P>So Arturo led the way back into the darkness of firstprotocol, producing firstv2.doc.  (Actually there were several revisions in the middle so we do not have a complete revision history of first protocol version 2… so I’d better keep writing right now while I remember it!)  The gist of firstprotocol version 2 was to maintain the concept of each node keeping track of itself and all its kids; this is what it means to give a container authority over what it openly contains.</P>
+<P>The first important variation was to acknowledge the notion of a transaction over the entire set of objects.  (This was actually part of firstprotocol v1 insofar as it had the &quot;parent locking&quot; channels, but what was new was realizing the extent of the transaction boundary—i.e. realizing that this state on the part of Cb had consistency implications for the rest of the tree, as embodied in uFlush.)</P>
+<P>Arturo then added (with MarkM’s help) an uFlush protocol, such that the containable could know that any adds to its contents had been approved all the way up to the root.  Otherwise you could find yourself transferring yourself and kids before hearing that &quot;some child of yours violates the root’s TOS&quot;… at which point you have to tell your new parent that you don’t really contain something you thought you did.</P>
+<P>We also added an uSetRoot protocol which was sent from the new root container down to all the elements in the just-added branch.</P>
+<P>&nbsp;</P>
+<P>The problem with THIS was:</P>
+
+<UL>
+<LI>There was a potential race in the uSetRoots coming down.  Say you have OR containing C containing Cb, and Cb gets transferred to NR1.  Cb gets as far as being admitted, and sends uRemove() to C (or rather to CfsupCb); NR1 meanwhile is calling uSetRoot on Cb.  However, at this point, C gets transferred to NR2.  C transfers a data structure containing itself and Cb.  NR2 then proceeds to call uSetRoot on C and on Cb.  Race! between NR1 doing Cb<FONT FACE="Wingdings">&#223;</FONT>
+uSetRoot(NR1) and NR2 doing Cb<FONT FACE="Wingdings">&#223;</FONT>
+uSetRoot(NR2).</LI></UL>
+
+<P>&nbsp;</P>
+<P>The fix was to eliminate the separate causality path for the new root doing uSetRoot.  Instead, the only call the new root makes is to setParent on the containable.  The containable then propagates uSetRoot calls downwards.  If some child of the containable is in transit, the uSetRoot call will get queued up until the containable either leaves (in which case the uSetRoot bounces, no problem there) or aborts (in which case the uSetRoot continues propagating).</P>
+<P>&nbsp;</P>
+<P>It is now Thursday 8/21/97 at 4:51 PM.  This is the state of the world at this moment.  The next few days will see more entries here, either joyous or not.  We’ll see….</P>
+<P>&nbsp;</P></FONT></BODY>
+</HTML>

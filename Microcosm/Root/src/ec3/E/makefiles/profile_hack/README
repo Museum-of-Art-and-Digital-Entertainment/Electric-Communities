@@ -1,0 +1,7 @@
+
+These are just a couple of hacks to determine how fast stdout
+is being spewed.  They help me figure out where build cycles are
+being spent.
+
+-Felix
+

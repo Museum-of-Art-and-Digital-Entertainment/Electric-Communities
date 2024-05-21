@@ -1,0 +1,476 @@
+<HTML>
+<HEAD>
+<TITLE> 
+Microcosm Vending Una/Ingredients Preliminary Notes 
+</TITLE>
+</HEAD>
+<BODY>
+<H1> Microcosm Vending Una/Ingredients Preliminary Notes </H1>
+
+<H1> Introduction </H1>
+
+        This largely informal note explores a proposed Vending ingredient
+        to support a variety of Vending Una: kinds of vending machines
+        and other kinds of Vending una such as self-vending una.
+				I wanted to pull what I currently knew
+				or misunderstood about vending together in one place.
+        The core design come from Arturo, any confused
+        embellishements are mine.  Once clearer requirements
+				are set, some/much of this could change. 
+         
+<P>
+        As an example and initial test vehicle for the Vending 
+        ingredient, a ProtoVendo unum is described which can be 
+        implemented now without requirement of UI or RealmParser 
+        changes.
+<P>        
+        <EM>Disclaimer: </EM> Since design specs have not been completed, it
+         may not cover all needs. Rather, it is intended to reflect 
+        my current understanding of vending issues as well
+        as a design for a prototype vending ingredient and
+        vending machine unum (which hopefully will cover (or elicit) 
+				 most needs). 
+<H1> Ingredient Overview </H1>
+
+The ingredient design realizes:
+<UL>
+<LI>          vendable content neutrality: 
+        the  vending ingredient knows 
+        (beyond possible instance reference possession)  about 
+        its vendable content only via  stocking info that is
+        external to the vendable unum class and instance. All or
+        any vendable contents (and/or information about) may
+        vary from one moment to the next [subject only to 
+        administrative capability and possible temporal consistency 
+        advisements, e.g. "in the midst of purchase"].   
+<P>
+<LI>		  presentation neutrality: a vending ingredient makes
+         no presentational decisions and imposes no presentational
+        demands. The presentation of any vendable may be changed
+        (subject to only to administrative capability. That's not
+        to say this is adviseable, just that the vending ingredient
+        doesn't care).
+<P>
+<LI> vending container neutrality: 
+        any vendable such that it is vendable is so only due to stock 
+        info and possibly being an instance in a vending ingredient
+        container, but does not have any internal knowledge of 
+        whether vendable.
+        (what about the "try" or "rent" cases, doesn't it have
+        state as to what vending machine to return to? Doesn't
+        having TOS try criteria imply vended or is there a more
+        general "can't leave" critera).
+</UL>
+
+        One implication of neutrality is that the Amix content 
+        wrapper scheme for abstract goods should not require any 
+        changes to this vending design (or to the content
+        wrapper).
+        
+<H1> Ingredient Design </H1>
+
+<H2>        Distributed Architecture </H2>
+
+        Client-server, with forwarding-only clients.
+
+
+<H2>        Protocols </H2>
+
+        The Vending ingredient supports selling, rent/return,
+        or trying a product. Three protocols are supported:
+<UL>
+<LI>                stock (inventory) management
+
+<LI>							 product presentation (i.e. as needed for unum user 
+                        interfaces) (stocking shelves)
+
+<LI>               product acquisition (buying, renting/returning, 
+                        trying/returning) including token management.
+                        (cashier)        
+</UL>        
+<H2>        State </H2>
+
+        A collection of VendingStockInfo objects. Note that this
+        groups a combination of state to support each of the
+        3 vending protocols, namely inventory state, 
+        presentation state (is this a subset of inventory state?),
+        and acquisition state. At some point separate ingredients
+        for each protocol may be desirable.
+<P>
+        Here are the elements of VendingStockInfo:
+<PRE>
+        // whether the user get a generated clone or a 
+        // contained instance
+        bool generate
+
+        // optional override of the item description
+        String description
+
+        // a price in Tokens (hard value now, later condition to
+        // meet in order to acquire which could be expressed via a 
+        // static method
+        int price
+
+        // how many in stock, -1 means infinite else N > 0 
+        int stockAmount
+        
+        // if giving instance, its key. What about supporting 
+        // an array of
+        jUnumKey instanceKey        
+
+        // presentation information for item display
+        jsbPresentatableState presentation
+
+        // if giving clone, a class with a realmParser create 
+        // function(*) 
+        Class generatorClass
+
+        // if giving clone, instance values in realmParser 
+        // hashTable form
+        HashTable generatorInput
+
+        ===============================================================
+</PRE>        
+<EM>
+  Due to changes, jsbPresentableState and specific creator classes
+	have been eliminated. Likely replacements  are "PresentationState" for jsbPresentableState and "String type" for "Class generatorClass". 
+</EM>                        
+<P>
+        May want to represent the 2 types based on whether generating
+        or not by separate classes, selectable based on the generate
+        flag.
+<P>
+        Having VendingStockInfo support a toString like method would
+        get meta info in a cheap way, i.e. as a fixed order string.
+<P>
+        Haven't included statistics on inventory, e.g. number sold as
+        in Jeff's Shrinkwarp bundle.
+<P>
+        If taking token objects rather than debiting, need state to
+        hold these.
+<P>
+        Assumes a TOSContainer neighbor (etc) to hold instances.
+<P>
+<H2>    Methods </H2>
+
+<H3>      Stock management protocol</H3>
+        
+        Insert, delete, and update of inventory entries (the later 2
+        operations imply a select operation). Initially
+        may implement "insert" only, which matches WA vendo stock
+        management. However, dynamic restocking should be possible,
+        hence delete and update support is needed, implying one or
+        more keys to access inventory entries (e.g. description).
+
+<H3>     Product presentation protocol </H3>
+        
+        Given that presentation information is part of the inventory
+        entry, this protocol is simply one or more accessors to
+        the presentation portion of the inventory entry. The
+        vending machine stores and makes presentation information
+        available via these accessors, but otherwise ignores it. 
+
+<H3>    Product acquisition protocol </H3>
+
+        Support for a vendo's choice of one of more of the buy, 
+        perhaps rent/return, and try/return operations.  
+<P> 
+       Buy and try share an underlying "give" operation. Buy and 
+        rent share an underlying "cost" (or payment) operation. 
+        "Try" adds underlying "set/unset TOS try criteria" operation. 
+        "Return" is supported by a restock operation, which is 
+        realized by an "inventory update"
+        operation (which implies a "renter" or renter's agent must
+        have capability to restock or at least the a check is made
+        as to whether the vendo stocks such an item. But how
+        is that capability obtained since it was originally given
+        to an instance but a clone may have been rented: the
+        initial creation being contained in the vendo will
+        insure that it gets the proper capability (and for
+        just that vendo).
+<P>
+         If capability wasn't necessary to add an item of a
+        kind in the vendo's inventory
+        , an avatar could stuff a vendo full of more
+        inventory (or possibly slightly different) than its 
+        administrator expected. Would that ever be a problem?). 
+        Another implication of "return"
+        is that inventory records not be deleted upon going to 0.
+        [ Perhaps no such return will be implemented for una, if
+        a pawn machine is available, but someone may want to implement
+        rent/return as was intended for PCForum]. 
+<P>
+        So an inventory state of rented and try count may be necessary.
+        [Perhaps also some limit will be desired on how much an 
+        avatar can try].
+<P>
+        So to start with, operations needed for unum buying are 
+<UL>
+<LI>                cost
+<LI>                give
+</UL>
+        then for unum trying also
+<UL>
+<LI>                TOS_set_try_criteria
+<LI>                TOS_unset_try_criteria
+<LI>                return_stock (with proper capability management)
+</UL>
+        [Probably the vending ingredient also wants higher level
+        operations like "buy", "rent" etc to relieve the ui ingredient
+        from having to be aware of compound operations].
+<P>
+        If "rent/return" is implemented, some policy to enforce
+        "return" may be needed by the vending unum. The vending 
+        ingredient may support that by keeping tracking of rentals
+        (does that mean keeping track of the renting avatar?). It's
+        not clear if such support which many unums using a vending
+        ingredient may need belongs in the vending ingredient itself
+        or in a separate shared renting ingredient. although
+        rental management seems an aspect of inventory management.
+<P>
+<H2>    Security </H2>
+
+        Unum/presence facets should be used to grant a capability
+        to manage inventory. 
+<P>
+        Making state accessible to neighboring ingredients, 
+        i.e. user interface, is within a trust boundary. 
+<P>
+        Acquisition of vended items is by payment or under TOS
+        restriction on the item (for "try") and needs no
+        special security support. 
+
+<H1> Una Overview </H1>
+
+        The vending ingredient should not contain any restriction
+        as to when stocking is done. So a vending unum is not
+        restricted to startup-only stocking (as apparently was
+        the case in WA). 
+<P>
+        Stocking operations will be restricted to those items granted
+        the capability to do so. The direct capability will be
+        granted at startup by the init containership mechanism.
+<P>
+        As long as the stocking api is satisfied by a caller
+        with a capability to stock, the vending ingredient will
+        accept the request. The vending ingredient is ignorant
+        of any specifics about the stock itself, it only cares
+        about the stocking information that allows it to manage
+        the stock. That means that there is no requirement
+        imposed by the vending ingredient that requires
+        stocking information to be part of a vended item
+        (beyond presentation information which any Microcosm
+        unum would already need). The stocking information
+        can wrap the vendable instance information. This
+        means changes to unum creators are not required
+        to make an unum instance vendable. 
+<P>
+        The vending ingredient is also unconcerned to how the
+        vending unum chooses to present the vended goods in stock,
+        only assuming the responsibility of storing and making
+        available presentation information for use by the vending
+        unum. The vending ingredient can make meta-information
+        available for use by a controller (e.g. price, 
+        amount in stock...). 
+<P>
+        This means that (assuming the stock information does include
+        sufficient presentation information about the vended stock),
+         no change should be required when changing or adding
+        the vending unum's display of the vended contents.
+        The design supports at least the following presentations:
+<UL>
+<P>
+<LI>                WA cycle through vending machine view
+<P>
+<LI>                a candy machine (1 image per kind) style view
+<P>
+<LI>                Glass as used in PCForum 
+<P>
+<LI>                an out of world window
+<P>
+<LI>                list box (as PCForum pocket open was).
+</UL>   
+        However, additional work (such as slotted presention, display
+        of meta (in this case stock) info) will be needed on the UI
+        side to effectively present vending machines in some of the
+        desirable ways).         
+<P>        
+        A vending ingredient may be used to construct vending una
+        other than conventional vending machines. For example:
+<UL>
+<P> 
+<LI>             self-vending by having an unum that has
+                a vending ingredient that stocks information about
+                its own kind as cloneable.
+<P>
+<LI>                 group-vending by having a group of unum that
+                share a vending ingredient. This could be used
+                to implement a store. It's similar to a glass
+                vending machine but reversed such that UI events go
+                direct to the vendable items (so the glass machine
+                doesn't have to locate the selected contents). It's
+                similar to self-vending except for the centralized
+                vending manager. It would have the advantage that
+								customers would not have to queue up due to
+								one-at-a-time interaction.
+</UL>        
+        The vending unum can choose which of the variety of kinds 
+        product acquisition it wishes to implement (buy, rent, try) 
+        with the support functionality supplied by the vending 
+        ingredient.
+<P>        
+        When ownership is implemented, it will become possible to 
+        own one or more vending una. This suggests an additional
+        interface will be needed to manage tokens that a vending
+        unum may collect and also an interface for being owned
+        (possible registration of the vending ingredient so
+        owner can manage it, as with other owned una). [Clarify: 
+        current design gives capability to each vendable item to supply
+        stock information. Is that the same capability object? Didn't
+        think so, thought just instances of same facet class. How
+        does the vendable ingredient keep track of that should it
+        ever want to revoke the capability? Once owner, can give
+        it a capability, but then why would we want the vended
+        instances to also have that direct capability (i.e. would
+        we want them to go thru owner? Seems owner owns vendo
+        and the vendable items in it...]
+                
+<H1> ProtoVendo Design </H1>
+        It should be possible now to implement a simple vending 
+        machine unum that uses a vending ingredient,
+        say initially supporting among the acquisition protocol just
+         "buy", using a self-implemented display of contents in the 
+        UI ingredient of the unum  via a list box
+        (as pocket open did) and using realm text (without change
+        in the parser or creators) to do startup-only stocking.
+        To further simplify, the first version will not use
+        a stocking administrative facet.  
+<P>
+        Let's call this the ProtoVendo unum. It's a simple but
+        unhacked vending unum using an unhacked but rather complete
+        vending ingredient. Any changes between this ingredient
+        and the final one for product release should be evolutionary
+        additions or optimizations.
+<P>
+        Here's what realm text might look like to get a vended item
+        into a vending machine (with some superfluous detail omitted).
+        In this case, the vending machine would be stocked with
+        10 copies (on demand) of a cloneable gun for 553 tokens each.
+        [Dave said this would be reasonable for realm text generation].
+<PRE>
+        Create Unum VendingMachine
+            Name "Gun Dispenser"
+            LabelKey "LABEL:TestVendingMachine"
+            ...
+>>          Create [Unum] Stock     
+>>              Generate 1
+>>              Description "Coolest Gun Yet"
+>>              Price 553
+>>              Amount 10
+>>              [Unum]CreatorClass "ec.cosm.agency.GunCreator"
+                Create Unum GunProp
+                   Name "Purchasable Gun"
+                   Description "It's a blast!"
+                   ImageFile "Gun2.ppm"
+                   LabelKey "LABEL:Gun"
+                   MenuKey "MENU:GUN"                              
+                   Position -3.8  8  1.3
+                   AnchorPoint 256 394
+                   Scale .3
+                   Size 71  389
+                   Orientation "West"
+                   UnumCreatorClass "ec.cosm.agency.GunCreator"
+                End Unum
+>>            End Unum                
+        End Unum
+</PRE>
+        Note that no change to the GunProp specification is
+        required to make it vendable, that is done by
+        wrapping it with a "Create Stock" block. 
+<P>
+        Note that multiple contents would be implemented by
+        additional "Create Unum Stock" blocks (each enclosing one
+        or more item blocks to be sold under those conditions).
+<P>
+        The current realm text parser does not support "Create Stock"
+        as such (or any CreatorClass besides UnumCreatorClass), but
+        "Create Unum" and "Unum Creator Class" do not currently 
+        require  that an unum be created, so they can be used as they
+         are (returning a null Unum) to get the Stock wrapper layer.
+        Later realm text could be modified to support such a
+        case more formally, for example by allowing syntax for
+        a variable state array (which can have embedded unum 
+        instances).  
+<P>
+<H1> Related Issues </H1>
+
+        The implication of initialization via the  haberdashery has
+        not been investigated. However, the requirement (for a
+        java object initializer) was a need already noted in the
+        haberdashery spec (and which other una/ingredients will need).
+<P>         
+        It is presumed that if a vended item is subject to scarcity
+        that management of that scarcity and its vendability are
+        orthogonal issues, e.g. scarcity of cloneable objects is
+        a more general problem that for the vending ingredient,
+        except that stocking information may be constrained by
+        scarcity regulation (i.e. saying an item may be cloned
+        infinitely or that 100 copies may be made would not
+        be true if scarcity rules limited Microcosm to 10 copies
+        of that item. So the vending ingredient will need an 
+        appropriate interface to the scarcity manager (so as not to
+        take money and then find it can't make a copy). [This may
+        have implications for the current mechanism which even
+        if cloning is chosen makes an instance in order to get
+        information needed to clone. It is possible, however, to
+        modify unum creators so that unums optionally are not
+        made (but the arguments that would have gone to "new"
+        are gathered nevertheless for stocking information).
+
+<H1> Notes </H1>
+<OL>        
+<P>
+<LI>        How to get at the TOS key (so that vending ingredient can
+        lookup an instance)? 
+<P>
+<LI>        [ Note that the TOSbundle and LimitedUseBundle resemble
+        the VendingStockInfo ].
+<P>
+<LI>        Keep pawn machine in mind, since it reverses this more or less.
+<P>
+<LI>        Haven't addressed use of sound, animation in a Vending Machine
+        unum (or other spec of the Vending Machine unum). Focusing
+        now on the ingredient.
+<P>
+<LI>        How to do the TOS Criteria for "try"? Compare the TOS Criteria
+        in PCForum that kept gun from going into region (carried by
+        avatar). 
+<P>
+<LI>        Note from Arturo: careful re unum references, don't want to 
+        drag in world
+<P>
+<LI>  If price isn't with the vended item unum instance itself,
+ how will the pawn machine determine how much to pay? How
+is the price/value determined in general and under what security? 
+To draw from the real world, suppose an item came with a cost 
+and suggested retail price, but the vending machine or store owner
+set a price (which could change, as in sales) and that price
+was "stamped" on the item. Or the item might just be identifiable
+(as bar codes permit in the real world) and the price is kept
+elsewhere, found by lookup based on the item identifier.
+<P>
+<LI>  In WA, a speech baloon associated with vendo showed
+current item and price.
+</OL>
+ 
+<a href="index.html">Back to design notes index</a>
+<br>
+<a href="../index.html">Back to Microcosm engineering main page</a>
+
+</BODY>
+</HTML>
+
+
+
+
+

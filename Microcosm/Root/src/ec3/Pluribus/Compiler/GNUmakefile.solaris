@@ -1,0 +1,21 @@
+CFLAGS += -g
+
+$(APP_PATH): setup $(OBJDIRS) $(FILES.o)
+	$(CC) -o $@ $(FILES.o)
+	$(RM) -f $(BUILD)/objs/$(MODNAME)/plversion.o
+	$(RM) -f $(BUILD)/objs/$(MODNAME)/plmain.o
+
+setup: $(INSTALL_DIR)
+	cp platform.h.solaris platform.h
+	cp solaris/plprep $(BUILD)/bin/
+	mkdir -p $(BUILD)/win32/bin
+	cp win32/plprep $(BUILD)/win32/bin/
+	cp win32/msvcr40d.dll $(BUILD)/win32/bin/
+
+all: standalone javaversion
+
+y.tab.h plparse.c: pluribus.y
+	$(YACC) -vd pluribus.y
+	mv y.tab.c plparse.c
+	cp plparse.c win32/
+	cp y.tab.h win32/

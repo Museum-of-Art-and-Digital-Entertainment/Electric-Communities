@@ -1,0 +1,183 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.03 [en] (WinNT; U) [Netscape]">
+   <TITLE>Running The HabiFoo Application</TITLE>
+</HEAD>
+<BODY>
+
+<H1>
+Running The HabiFoo Application</H1>
+<I>This page is maintained by <A HREF="mailto:trev@communities.com">Trev</A>.
+Please let me know of any errors ASAP so I can fix them.</I>
+<BR><I><B>Warning:</B> these pages change frequently. If you've looked
+at them recently hit "reload" on your browser to make sure you're seeing
+the latest version.</I>
+<UL>
+<LI>
+<A HREF="#Run.Bat">How To Test HabiFoo Client/Server Using Run.bat</A></LI>
+
+<LI>
+<A HREF="#AccountManager">How To Test HabiFoo Client/Server Using AccountManager</A></LI>
+</UL>
+
+<H2>
+<A NAME="Run.Bat"></A>How To Test HabiFoo Client/Server Using Run.bat</H2>
+(Note; HabiFoos aren't really "client" and "server" at all. HabiFoos are
+both servers and clients. But I use "server" and "client" in the following
+because it is simpler than saying things like "HabiFoo 1 which is currently
+acting as a server")
+
+<P>These instructions don't apply if you've built a full release. Full
+releases don't include <TT>Run.bat</TT> because it is not going to be available
+to end users. If you've done a normal developer build these instructions
+should be fine. You should be using a 4dos (Build) shell.
+
+<P>Testing with a client and server on a single machine causes a lot of
+thrashing. Because of this it's handy to use console mode for one of them
+(console mode consumes less memory). So the following describes how to
+start up a GUI server and a console client, though it also mentions how
+to start up both server and client in GUI mode.
+
+<P>After a clean build and assuming you have no pre-existing avatars, you
+can go to the Build/Release directory (usually c:\Build\Release on Windows)
+and type:
+<BLOCKQUOTE>run rlm = <I>realm of your choice</I></BLOCKQUOTE>
+If the "rlm = <I>realm of your choice</I>" is omitted, the realm defaults
+to Avatar97. This starts up the first avatar, in GUI mode. You should get
+the new avatar popup, which allows you to create a new avatar and select
+its name, sex and password. Suppose we choose the name "Jill". Once Jill
+is up and running you can start a "client" using:
+<BLOCKQUOTE>run rlm = GreekTurf rgnFile = PublishedRefs\Jill\Great-Round-Square.mcm
+console = true</BLOCKQUOTE>
+(This should all be on one line). You can choose another realm instead
+of GreekTurf, but you should try to choose one that doesn't contain any
+teleport pad names in common with the realm you chose for Jill. I use GreekTurf
+because it is just one region, so it starts up pretty quick, and other
+realms don't usually have a GreekTurf teleport pad.
+
+<P>The 'rgnFile' argument specifies the teleport pad in your original server
+avatar's realm to which client will connect. It must be one of the published
+teleport pads (the server prints out the name of these when it starts up).
+In this example the avatar is called Jill and I'm assuming the default
+realm, Avatar97, which contains a Great Round Square teleport pad (note
+that spaces are replaced by -). I typically use filename completion to
+complete the rgnFile argument, which avoids typing errors.
+
+<P>On startup the console mode login code allows you to create a new avatar,
+choose an existing avatar or exit. Create a new avatar (say Frank) and
+then choose that avatar and start up. After a good deal of grinding you
+should end up with server and client in the same region, and you can do
+your tests.
+
+<P>Note; if you need both client and server to be in GUI mode you can't
+just use run.bat to start a client. This is because the initial login popup
+only allows you to select one of the avatars you've already created - and
+the only avatar you've created is the server, which is already running!
+So, in this case, using console mode to create a new avatar is pretty convenient.
+You can create a new avatar from the console then exit out of the login
+sequence and restart in GUI mode. Alternatively you can use AccountManager
+to create a new avatar, but you may need to run regupdate first.
+
+<P>After your initial test you can quit server and client, which will create
+checkpoints for Jill and Frank. At this point the realms for these avatars
+are fixed (saved in the checkpoint) so you can use run.bat without the
+rlm argument for your revival tests. The other arguments - console and
+rgnFile - work as before.
+<H2>
+<A NAME="AccountManager"></A>How To Test HabiFoo Client/Server Using AccountManager</H2>
+You can also use the <TT>AccountManager</TT> to startup and test HabiFoo.
+This has important advantages over the <TT>run.bat</TT> approach:
+<UL>
+<LI>
+You are testing the path that users will actually use</LI>
+
+<LI>
+It automatically sends the logs to a log file, which means no worries about
+important error spam scrolling off your screen.</LI>
+
+<LI>
+It works whether you've built a full release or a normal developer build.</LI>
+</UL>
+On the down side, it's harder to test console mode and it's harder to start
+up with custom realms.
+<H4>
+Running <TT><A HREF="regUpdate.html">regupdate</A></TT></H4>
+Before using <TT>AccountManager</TT> you have to run <TT>regupdate</TT>.
+<TT>regupdate</TT> stores environment information in the Microsoft registry
+so that <TT>AccountManager</TT> can start up HabiFoo in the correct environment.
+It also updates the registry with information about the <TT>.mcm</TT> and
+<TT>.mcmav</TT> file extensions, so that the system knows how to start
+HabiFoo when the user clicks on an <TT>.mcm</TT> or <TT>.mcmav</TT> file.
+
+<P>How you run <TT>regupdate</TT> depends on whether you did a developer
+build or a release build. If you did a developer build you should <TT>cd
+\Build\Release\bin</TT> and type <TT>.\regupdate -savepaths</TT>. This
+saves an environment containing all the paths needed to get at your class
+files etc. Because you didn't build a full release these files are <I>not</I>
+all in <TT>\Build\Release</TT>, which is why the special <TT>-savepaths</TT>
+is needed.
+
+<P>If you did build a full release, you can either double click on the
+<TT>regupdate.exe</TT> icon in <TT>\Build\Release\bin</TT>, or <TT>cd \Build\Release\bin</TT>
+and type <TT>.\regupdate</TT>.
+
+<P>If you have trouble running <TT>AccountManager</TT> after doing a <TT>regupdate</TT>,
+you can troubleshoot in a couple of ways. First you can re-run <TT>regupdate</TT>,
+but give it the <TT>-debug</TT> flag (in addition to <TT>-savepaths</TT>,
+if you used that). This will give you more spam when you start <TT>AccountManager</TT>.
+You can also check the values <TT>regupdate</TT> put into the registry.
+Start up Microsoft's <TT>regedit</TT> utility (type <TT>regedit</TT> in
+a shell). Then look under <TT>My Computer</TT>, <TT>HKEY_LOCAL_MACHINE,
+Software, Electric Communities, HabiSplat</TT>. This shows you the environment
+used when you run <TT>AccountManager</TT>. Another section, <TT>HKEY_LOCAL_MACHINE,
+Software, Classess, HabiSplat, Shell, open, command</TT> shows you the
+command used to start up HabiFoo.
+<H4>
+Starting HabiFoo Using <TT>AccountManager</TT></H4>
+Once you've run <TT>regedit</TT> you should have an "Account Manager" entry
+in your Windows Start Menu. You can start HabiFoo by selecting it. The
+<TT>AccountManager</TT> should start up, giving you the choice of creating
+a new avatar account or running an existing one. First time up, you won't
+get the choice; you'll have to create an avatar because there won't be
+any existing ones.
+
+<P>Note that you can also start <TT>AccountManager</TT> by double clicking
+on <TT>\build\release\bin\HabiSplat.exe</TT> or
+<BR>by running it from a command line. <TT>HabiSplat</TT>, when run with
+no arguments, starts <TT>AccountManager</TT>.
+<BR>(I apologize for the obfuscation here - there used to be an <TT>AccountManager.exe</TT>,
+but it was subsumed by <TT>HabiSplat.exe</TT> - which is a farcical name
+and adds even more confusion to the mix. -walendo)
+
+<P>Once you have an account you can hit the Start button to start it up.
+Logging information will be sent to a file with a name like <TT>\Build\Release\logs\uCosmLog_0.txt</TT>.
+The last part of the name may be <TT>uCosmLog_1.txt</TT> or <TT>uCosmLog_2.txt</TT>,
+if you are running multiple HabiFoos simultaneously. The first HabiFoo
+to start up is given the number 0, the next 1 and so on. If you want to
+see the log while the program is running you can start up a shell and type,
+for example, <TT>tail -f \Build\Release\logs\uCosmLog_0.txt</TT>.
+
+<P>By default, HabiFoo will start up in the GreekTurf realm, containing
+just the GreekTurf region. If you want to start in a different realm, you
+can edit your <TT>/Build/Release/props/default.props</TT> file. Change
+the line that says <TT>RealmTextFile=realm/realm.GreekTurf.txt</TT> to
+point at the realm text of your choice. <I>Important:</I> this only works
+the very first time you start an avatar. Once you've started up and checkpointed
+an avatar then its realm is saved in the checkpoint and the realm text
+file is irrelevant for any future revivals.
+
+<P>To test "client/server" you can use AccountManager to start up two HabiFoos
+with different avatars. You may want to give one of the avatars you set
+up a big realm, such as Avatar97, so you can do more extensive testing.
+When avatars start up they publish their teleport pads in files of the
+form: <TT>\Build\Release\PublishedRefs\<I>avatar-name</I>\<I>region-name</I>.mcm</TT>.
+Use the file browser to find these files for the <I>first</I> avatar you
+started up. Double clicking on one of these files should teleport the second
+avatar into the appropriate place in the first avatar's realm (double clicking
+on an <TT>.mcm</TT> should always affect the most recently started instance
+of HabiFoo).
+
+<P><A HREF="index.html">Back to the index</A>
+</BODY>
+</HTML>

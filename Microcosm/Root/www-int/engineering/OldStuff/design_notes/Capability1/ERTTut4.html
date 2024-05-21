@@ -1,0 +1,72 @@
+<!--NewPage-->
+<!-- Created by Masa Maeda on 05.14.97  -->
+<!-- Copyright 1997 Electric Communitites. -->
+<!-- All rights reserved worldwide.  -->
+<!-- Proprietary and confidential. -->
+<HTML>
+<HEAD>
+<pre><a href="ERTTut3.html">Previous</a>  <a
+href="ERTTut5.html">Next</a>  <a
+href="ERTTutI.html">Index</a>  <a
+href="ERTTut1.html">Home</a></pre>
+<TITLE>Exclusive Rights Transfer Tutorial: Page 4</TITLE>
+</HEAD>
+<P><HR WIDTH="100%" SIZE=2></P>
+<BODY>
+<P>&nbsp;</P>
+<B><P>Step 2: Code for sender objects</P></B>
+
+<P> It may seem necessary to code two separate classes for sender objects, one for
+the class with capability and another one for the class without capability. Any
+sender object should, however, be able to transfer its capability to another sender
+object. One single class for sender objects whose behavior changes depending on
+whether an object has or not an associated truster should be coded.</P>
+<P><HR WIDTH="80%" SIZE=2></P>
+<PRE>
+	// ----- Receiver Class -----
+
+	eclass Sender {
+	  Truster distLocalTruster;
+	  public Sender(Truster distTruster){
+	    distLocalTruster = distTruster;
+	  }
+	  emethod sendToTruster(String message, Truster chTruster) {
+	    if (chTruster != null) {
+	      etry {
+	        chTruster &lt - sendToReceiver(message);
+	      } ecatch (RtEException failed) {}
+	    } else {
+	      ethrow( new RtEException("Capability eliminated..."));
+	      return; 
+	    }
+	  }
+	  emethod transferTrust(EDistributor distNewTruster) {
+	    distLocalTruster &lt - transfRevokeTruster(distNewTruster);
+	  }
+	}
+</PRE>
+<P><HR WIDTH="80%" SIZE=2></P>
+<P>The constructor for <FONT FACE="Courier">Sender</FONT> includes a
+	reference to the truster for each sender object generated. For a
+	<FONT FACE="Courier">sender</FONT> to send a message to <FONT
+	FACE="Courier">Receiver</FONT>, a valid channel to the corresponding
+	truster must exist. When a <FONT FACE="Courier">sender</FONT> sends
+	a message to <FONT FACE="Courier">receiver</FONT> the message is
+	actually sent to its <FONT FACE="Courier">truster</FONT> via the
+	<FONT FACE="Courier">sendToSender</FONT>mehtod, defined in clas
+	<FONT FACE="Courier">Truster</FONT>. An exception is thrown whenever
+	the channel doesn't exist, meaning that no capability over <FONT
+	FACE="Courier">Receiver</FONT> exists.</P>
+<P><FONT FACE="Courier">transferTrust</FONT> method calls <FONT
+	FACE="Courier">transfRevokeTruster</FONT>, a method of class <FONT
+	FACE="Courier">Truster</FONT>, where the actual capability transfer
+	takes place and the new truster can then send <FONT
+	FACE="Courier">Sender2</FONT>'s messages to <FONT
+	FACE="Courier">Receiver</FONT>.</P>
+<P><HR WIDTH="100%" SIZE=2></P>
+<pre><a href="ERTTut3.html">Previous</a>  <a
+href="ERTTut5.html">Next</a>  <a
+href="ERTTutI.html">Index</a>  <a
+href="ERTTut1.html">Home</a></pre>
+</BODY>
+</HTML>

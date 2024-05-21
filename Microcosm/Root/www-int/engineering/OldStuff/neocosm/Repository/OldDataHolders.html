@@ -1,0 +1,255 @@
+<HTML>
+<HEAD>
+   <TITLE>Old DataHolders Design</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Olde DataHolders Design</H1>
+
+<B>Last updated:</B>
+<UL>
+<li> <I>[98/07/13 <A HREF="mailto:karl@communities.com">Karl</A>]</I> Created the damn thing.
+</UL>
+
+<A name="Introduction"></A>
+<H2>Introduction</H2>
+
+[98/07/13 <A HREF="mailto:karl@communities.com">Karl</A>] Right now this is just a
+list of the major classes and interfaces, along with some
+<A HREF="#ChipNotes">Chip notes</A>...
+
+<P><A HREF="#DataHolder">DataHolders</A> hold onto a
+<A HREF="#CryptoHash">CryptoHash</A>, a
+<A HREF="OldRepository.html#ParimeterizedRepository">ParimeterizedRepository</A> and a
+<A HREF="#Fulfiller">Fulfiller</A>.  A
+<A HREF="#CryptoHash">DataHolder</A> can be asked for
+its held() Object, and it will,
+in turn, call its <A HREF="#Fulfiller">Fulfiller's</A>
+getFromRepository() method.
+
+<H4>Related Documents</H4>
+
+The (old) Repository <A HREF="OldRepository.html">design document</A>.
+
+<H2>Architecture</H2>
+
+<A name="CryptoHash"></A>
+<H4>CryptoHash (Class)</H4>
+
+Implements Serializable and RtStateUpgradeable.
+
+<P>The current implementation uses the MD5 scheme to generate a CryptoHash
+from a byte array.
+
+<A name="DataHolder"></A>
+<H4>DataHolder (Interface)</H4>
+
+DataHolder is the interface implemented by
+<A HREF="#DataHolderSteward">DataHolderStewards</A>.
+
+<P>A DataHolder provides the following methods:
+<UL>
+<LI>public byte certifiedBy(Verifier verifier);
+<LI>public void addCertificate(Certificate certificate);
+<LI>public Hashtable getCertificates();
+<LI>public Object held() throws IOException;
+<LI>public void giveDataTo(DataRequestor requestor);
+<LI>void acceptData(Object data, DataRequestor yourRequestor);
+<LI>void acceptByteData(byte[] data, DataRequestor yourRequestor);
+<LI>void handleFailure(Exception failure, DataRequestor yourRequestor);
+</UL>
+
+<A name="DataHolderRecipe"></A>
+<H4>DataHolderRecipe (Class)</H4>
+
+Extends Recipe.
+
+A DataHolderRecipe is used for making Recipes for
+<A HREF="#DataHolder">DataHolders</A>.
+
+<A name="DataHolderSteward"></A>
+<H4>DataHolderSteward (Class)</H4>
+
+Implements <A HREF="#DataHolder">DataHolder</A>,
+<A HREF="#DataRequestor">DataRequestor</A>, Serializable,
+RtStateUpgradeable
+
+<P>DataHolderSteward is the foremost class to implement the
+<A HREF="#DataHolder">DataHolder</A>
+interface - An object that knows how to attempt to retrieve some
+data that it is a placeholder for.  A DataHolderSteward has the following
+state variables:
+
+<UL>
+<LI>myFulfiller is the capability needed to retrieve the data and is
+not exposed to the users - all they can do is ask for the one piece
+of data the <A HREF="#DataHolder">DataHolder</A> stands for.
+
+<LI><A HREF="#CryptoHash">cryptoHash</A> is the cryptographic hash of the
+data.
+
+<LI>myDataRequestor is either an object that implements the Requestor
+interface or a Vector of objects that do. We check which one it is
+before calling any methods on it. We do this after we retrieve the
+data we stand for, either synchronously (if the data was in the
+Repository) or asynchronously (if we had to retrieve it over the
+network).
+</UL>
+
+<P>These objects are intermediates (or rather, switchboards or
+redirectors, given multiple repositories, network sites to retrieve
+data from, and multiple vats) between the Repository and
+RepositoryPublishers/WWWeb on one side and the users of data on the
+other. As such intermediaries they implement both the
+<A HREF="#DataHolder">DataHolder</A>
+and <A HREF="#DataRequestor">DataRequestor</A> interfaces.
+
+<P>The design bears some traces (including the name!) of an earlier
+effort to cache data in the <A HREF="#DataHolder">DataHolders</A> themselves.
+This is not
+currently the plan, but it may well be determined that this in fact
+is a good place to cache data so the code has not been cleaned up
+to remove the cache stuff, mainly the Tether holding on to the data
+after retrieval.
+
+<A name="DataRequestor"></A>
+<H4>DataRequestor (Interface)</H4>
+
+Anyone using DataHolders needs to define a callback object that
+implements the DataRequestor interface. It will get called with the
+data when the data becomes available.
+<UL>
+<LI>void acceptData(Object data, DataRequestor yourRequestor);
+<LI>void acceptByteData(byte[] data, DataRequestor yourRequestor);
+<LI>void handleFailure(Exception failure, DataRequestor yourRequestor);
+</UL>
+
+<A name="Fulfiller"></A>
+<H4>Fulfiller (Class)</H4>
+
+Implements <A HREF="#DataRequestor">DataRequestor</A>
+
+<P>A Fulfiller is a Guest object that knows how to resolve
+<A HREF="#DataHolder">DataHolders</A>
+to their specified objects. Fulfillers are created for you at
+startup and when you connect to a new host. The appropriate
+Fulfiller is added through parimeterization to every
+<A HREF="#DataHolder">DataHolder</A> you
+get from local repositories or from the remote host by your own
+Comm system, upon decode of the <A HREF="#DataHolder">DataHolder</A>.
+
+<P>The URL to use to lookup or search for the data is constructed of
+pieces that get appended together: The hints (several may be
+available), and The <A HREF="#CryptoHash">CryptoHash</A> key (as a hex
+integer), and possibly other stuff. The design of this is open-ended - Hints
+are specified to be an array of strings but we don't specify (yet) a format
+for them or how we will interpret them.
+
+<P>For the Beta release, we will support only the most fundamental
+hint: The hint is a SturdyRef to a
+<A HREF="OldRepository.html#RepositoryPublisher">RepositoryPublisher</A>
+ in some COSM
+client or server that publishes the object. Frequently this will be
+the srver or client that hosts the unum using the object in
+question.
+
+<P>Design Reminder: We must spend some effort in examining all constructed
+URL's to make sure that they look "normal" , so that noone can sneak in a
+URL that terminates before the <A HREF="#CryptoHash">CryptoHash</A> key is
+appended. This parser may need to detect other URL terminator strings
+besides "?".
+
+<A name="RemoteRetriever"></A>
+<H4>RemoteRetriever (Interface)</H4>
+
+To request data from a remote location you use some capability implementing 
+RemoteRetriever.
+<UL>
+<LI>public void requestByteRetrieval(CryptoHash hash, Vector myHints, DataRequestor requestor)
+         throws IOException;
+</UL>
+
+<A name="RemoteDownloader"></A>
+<H4>RemoteDownloader (Class)</H4>
+
+Implements <A HREF="#RemoteRetriever">RemoteRetriever</A>.
+
+<A name="RemoteDownloaderMaker"></A>
+<H4>RemoteDownloaderMaker (Class)</H4>
+
+The RemoteDownloaderMaker is a MagicPowerMaker for creating
+<A HREF="#RemoteDownloader">RemoteDownloaders</A>.
+
+<P>The RemoteDownloader attempts to fulfill
+<A HREF="#DataHolder">DataHolders</A> by downloading the data over the net
+whenever the data in the <A HREF="#DataHolder">DataHolders</A> cannot be
+found in the local Repository.
+if successful in getting the data, the data is saved in the
+<A HREF="#CacheRepository">CacheRepository</A>
+so it won't have to be donwloaded again.
+
+<P>The RemoteDownloader is STEWARD. The <A HREF="#Fulfiller">Fulfiller</A>
+accesses it through its
+<A HREF="#ParimeterizedRepository">ParimeterizedRepository</A> reference.
+
+<A name="PublishFulfillerMaker"></A>
+<H4>PublishFulfillerMaker (Class)</H4>
+
+<P>Given an Environment capability, return one canonicaal
+PublishFulfiller object.  A PublishFulfiller is simply a fulfiller
+with a hints vector containing our
+<A HREF="OldRepository.html#RepositoryPublisher">RepositoryPublisher</A>,
+implying that the objects are published by us.
+
+<P>This maker can be called from both CREW and GUEST environments.
+
+<P>While fulfillers can be created without added capabilities besides
+a <A HREF="OldRepository.html#ParimeterizedRepository">ParimeterizedRepository</A>
+it is convenient and efficient to share
+one single fulfiller as much as possible since this may cut down on
+network traffic.
+
+<A name="ReposableMarker"></A>
+<H4>ReposableMarker (Interface)</H4>
+
+Extends SerializableMarker.
+
+<P>A marker interface for what can go into a Repository.
+
+<P>DataHolders must be encoded
+as-they-are into the checkpoint file since they reference their
+<A HREF="#Fulfiller">Fulfillers</A> and other in-vat objects in a manner
+that is not
+possible to reconstruct before a vat exists; therefore, at
+revival time we cannot use the same recipes we'd use when
+reconstituting from a Repository. Nor would we want to, since
+that'd be more work.
+
+<A name="ChipNotes"></A>
+<H2>An appendix from Chip about DataHolders</H2>
+
+<I>From a set of design notes entitled
+<A HREF="http://www-int/engineering/design_notes/repository.txt">
+"The Repository, Unum Templates, Certification, and Production"</A>
+by Chip, Trev, and Robj (with MarcS) <B>[97/05/17]</B>:</I>
+
+<P>Quoth Chip:
+
+<P>A couple of clarifications on data holders. I don't believe this is material to
+the story you are telling here, but some details will matter for implementors:
+
+<UL>
+<LI>A KnownDataHolder contains a repository key. Retrieval is nominally synchronous
+and assumed to be successful except under extraordinary circumstances.
+<LI>An ExpectedDataHolder contains a repository key together with URL hints about
+where the object might plausibly be obtained. Retrieval is nominally
+asynchronous and while expected to be successful not presumed to be.
+<LI>The Haberdashery (now to be merged with the Repository) supports an additional
+layer of referencing mechanism which uses the Unit abstraction to support a
+conventional hierarchical namespace on top of raw repository key mechanism. I
+have some additional work (just work, not purple) to do to reconcile the older
+Haberdashery lookup methods that use Unit pathnames with the newer
+Known/ExpectedDataHolder abstraction.
+</UL>
+</BODY>
+</HTML>

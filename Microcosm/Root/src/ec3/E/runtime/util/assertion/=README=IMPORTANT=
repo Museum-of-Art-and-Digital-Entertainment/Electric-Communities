@@ -1,0 +1,4 @@
+This is a COPY of the code in evm1/ec/util/assertion.  Be careful not
+to change this.
+
+The makefile is different.

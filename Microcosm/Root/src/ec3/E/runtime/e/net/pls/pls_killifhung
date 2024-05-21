@@ -1,0 +1,61 @@
+#!/bin/sh
+
+# to check on a running process location server, run this command on
+# the same machine, with the port number as argument
+#
+# pls_killifhung 1666
+#
+
+LOCATION_DIR=${PLS_LOCATION_DIR:-/home/eng/pls-location}
+JAVA_DIR=${PLS_JAVA_DIR:-/home/eng/java-1.1.3/solaris/java-1.1.3}
+
+if [ x$1 = x ]; then
+	echo "You must specify the port of the PLS to check on."
+	exit 1
+fi
+
+HostName=`uname -n | sed 's/\.communities\.com//'`
+#FQDN="${HostName}.`domainname`" XXX anybody know how to get the domainname portably?
+FQDN="${HostName}.communities.com"
+Port=$1
+
+base=${LOCATION_DIR}/${FQDN}_${Port}
+
+if [ ! -f $base ]; then
+    echo $base: file not found
+    exit 1
+fi
+
+RELEASE_DIR=${PLS_RELEASE_DIR:-${base}.Release}
+
+CLASSPATH=$JAVA_DIR/lib/classes.zip:$RELEASE_DIR/classes:$RELEASE_DIR/compute/classes:$RELEASE_DIR/crew/classes:$RELEASE_DIR/guest/classes:$RELEASE_DIR/steward/classes
+
+LD_LIBRARY_PATH=/usr/lib:/usr/ucblib:$JAVA_DIR/lib/sparc:$RELEASE_DIR/lib:$RELEASE_DIR/solaris/lib
+
+export JAVA_DIR CLASSPATH LD_LIBRARY_PATH
+
+sleep 30;
+
+while true; do
+	if [ -f $base.pid ]; then
+		pid=`cat $base.pid`
+		if kill -0 $pid 2> /dev/null ; then
+			# the process exists
+			# if it's just coming up, give it a chance to.
+			sleep 30
+			$JAVA_DIR/bin/java ec.e.plsping.PLSPing $base
+			if [ $? != 0 ]; then
+				# we failed to get in touch with it
+				newpid=`cat $base.pid`
+				if [ $newpid = $pid ]; then
+					# still the same process, kill it
+					echo killing $base at $pid
+					kill -9 $pid
+				fi
+			fi
+		fi
+	else
+		echo $base.pid: file not found
+	fi
+	sleep 300;
+done

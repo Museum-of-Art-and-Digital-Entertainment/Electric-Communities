@@ -1,0 +1,132 @@
+<html>
+<head>
+<title>
+Performance Tools
+</title>
+</head>
+<body>
+
+<center>
+<h1>Performance Tools</h1>
+</center>
+<p><br>
+
+<h2>Windows NT Task Manager</h2><p>
+The Windows NT Task Manager is accesible by typing 'taskmgr' on a command line (it lives in \WINNT\system32\), right-clicking on the task bar and selecting the 'Task Manager' menu entry, or by hitting CTRL-ALT-DEL and then the Task Manager button. The three most useful columns (you may have to enable them via the 'View/Select Columns...' menu) to look at are:
+<pre>
+    Mem Usage  - the Working Set
+    VM Size    - the total amount of memory RESERVED (but not necessarily COMMITTED)
+    Threads    - the number of threads
+</pre>
+
+<h2><A HREF="http://www.optimizeit.com/">OptimizeIt</A></h2><p>
+OptimizeIt is a JVM inspector. It reports on things like instance allocations,
+the contents of objects, who references who, etc, and has some timing ability
+(when last we looked, the timing accuracy was iffy). It's fairly painless to use -
+you just run cosm inside of it, or run cosm with a special class and attach
+to it, and it's GUI lets you explore your objects. It's very handy for 
+figuring out how many objects a given action instantiates, and it has some
+profiling ability as well.<p>
+
+
+You can find OptimizeIt 2.01 Professional on a Unix box in /home/eng/win32/OptimizeIt/,
+or via <A HREF="file:\\alexandria\eng\win32\OptimizeIt\\OptIt201P.exe">this link.</A> 
+We have two licenses for it. The serial numbers are 970884 and 970885.
+<p>
+
+<A HREF="tools\OptimizeIt.html">Here</A> are detailed instructions on how to
+install and run OptimizeIt 2.01 Professional.
+
+
+
+<h2><A HREF="http://developer.intel.com/design/perftool/vtune/">VTune</A></h2> <p>
+VTune is a low level profiler. It will tell you things like the amount of 
+time you spent in given function or system call. VTune told us things like
+how long the JVM spent doing the native part of Class.forName().  It's a little more painful to use and a bit more prone to crashing, but still an
+excellent tool.
+<A HREF="http://www-int.communities.com/engineering/tools/vtune_of_habitat.txt">Here's</A> info from Wayne on the overall status of VTune as of 4/30/98, and how to use it to profile Cosm.
+<A HREF="http://www-int.communities.com/archives/ec_perf/0284.html">
+Here's</A> a link to Wayne's
+original email instructions on how to use VTune to profile Cosm.
+
+<pre>
+VTune3.0 is currently (as of 6/23/98) in Beta 5. I'll try to download
+this shortly.
+</pre>
+
+<h2><A HREF="http://www.klg.com/jprobe/">JProbe</A></h2><p>
+JProbe looks like a cross between VTune and OptimizeIt. It boasts
+extremely accurate timers, and memory analysis tools. It's still not
+clear if it'll give timings per thread, though. <br>
+<pre>
+Status: Instrumented VM based on JDK 1.1.5, 1.2 out when JDK 1.2 is.
+</pre>
+
+
+<h2><A HREF="http://www.kai.com/assurej/_index.html">Assure</A> (thread debugger)</h2> <p>
+From their web page: <i>Assure is a new tool that finds data
+                       race conditions, deadlocks and stalls
+                       in multithreaded Java programs. </i>
+Finding potential deadlocks early on, and ideally in some automated way
+would be a wonderful thing, given our past experiences. This tool needs
+more investigation. Customer service was very responsive to my question
+about versions.
+
+<pre>
+Status: Instrumented VM based on JDK 1.1.5, 1.2 out when JDK 1.2 is.
+</pre>
+
+<h2><A HREF="http://www.preemptive.com/DashO/">DashO</A> (bytecode size reducer/optimizer)</h2> <p>
+DashO claims to reduce the size of your bytecode by obfuscation of
+method and class signatures and by <b>removing uncalled classes,
+methods, and fields</b>! (they claim to be aware of dynamically loaded
+classes). They also claim to optimize the resulting smaller bytecode
+for further performance gains. This is definitely worth a look.
+
+<h2><A HREF="http://www.alphaWorks.ibm.com/formula/jinsight/">JInsight</A>
+(OptimizeIt-like thing, on modified VM)</h2> <p>
+(don't know anything about this yet)
+
+<br><br>
+<center>
+<h1>Useful Performance Info</h1>
+</center>
+
+<h2><A HREF="http://www-int.communities.com/engineering/tools/windows/ClampedMemory.html"> Artificially limiting memory on 95 or NT</a> </h2><p>
+This is Tony's excellent note on how to make your OS think it has less
+physical memory than it actually does. Very useful for testing performance
+characteristics under different amounts of RAM. Of course, in the end,
+run the test for real.<p>
+
+
+<h2><A HREF="http://www.microsoft.com/win32dev/base/">MSDN: Win32 Base Info</A><p>
+<h2><A HREF="http://www.microsoft.com/win32dev/base/virtmm.htm">MSDN: Managing Virtual Memory in Win32</A><p>
+</html>
+
+<br> <br>
+<center><h1> Things that nailed us last time. </h1></center>
+
+<h5>
+Don't forget to look at 
+<A HREF=yestercosm/YesterCosm.html>YesterCosm's performance pages</a> for more thoughts and all the data we have on what went wrong.
+
+<ul>
+<li><bold>Class bloat.</bold> This impacts startup (class loading), and we got nailed with the 1.x JVM's penchant for paging in all the classes during a GC.
+<li>Instance bloat. We had more Strings than you could shake 9K sticks at. In general, I think we were keeping way more stuff around than was necessary. The default Hashtable size is 101 (leading to 101 HastableEntries),set a smaller one if you don't need them, etc. (OptimizeIt helps greatly here)
+<li>JVM memory allocation. Setting a minimum size of java heap helped us stop the continuous allocation problem we had.
+<li>Object leaks. We held on to objects that we no longer needed. (OptimizeIt helps greatly here)
+<li>Threads. Threads aren't that big (if you don't set the stack sizes way up), but they are expensive to create. Don't create them in a tight loop.
+<li>Bytes over the wire. During transitions, we were inadvertantly sending WAY too much stuff over the wire. 10K is ~3 seconds 28.8kbaud. We were sending
+on the order of 150K early on. (found by having diagnostics in our comm code, something we need to make sure exists again)
+<li>Round trips. Earlier versions of the containership protocol had more round trips than were necessary. A round trip means that you're stopped, waiting on a response from the other side. (found by RobJ's brain, after looking at some comm system diagnostics)
+<li>Switching JDK versions. There's generally a presumption that things will improve, but as 1.2 is proving, getting better doesn't necessarily mean faster, and certainly not smaller.
+<li>Infrequent profiling. We gained nearly all of our perfomance in a very short period of time. As soon as we started tracking the performance, we were able to measurably improve it. Let's test early and often.
+<li>Test on target platform. Make sure we test using target platform level machines. This probably isn't so dangerous perfomance-wise now, since we'd have to all go buy faster, better stacked machines now. Do I hear $0.50/meg, anyone?
+<li>Identifying target performance. To say something is running slow or fast presumes that there is an expected goal. At one point, we had a page of performance goals (from Randy, Ellen, or DaveL as I recall). Even though the target numbers might be arbitrary, they give us something to shoot for, and help us prioiritize: this subsystem is 500% slow, but this one is only 120% slow, e.g.
+<li>Native boundary crossings. Be careful of the overhead in repeatedly calling down to native code.
+<li>Object destruction. Ensure that objects get destroyed when they're supposed to. This has been a source of wasted memory for us in the past.
+</ul>
+
+<br> 
+</body>
+</html>

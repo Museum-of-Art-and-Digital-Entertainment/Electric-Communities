@@ -1,0 +1,299 @@
+// File     Statements\for.ez
+// Summary  Testing for loop
+// 
+//  001  Title    Increase iteration using till
+//       Result   Pass
+//       Test
+                  for i in (0 till (5))    { print( (i toString) + " " ) }; print( "\n" )
+                  for i in (0 till (5, 1)) { print( (i toString) + " " ) }; print( "\n" )
+                  for i in (0 till (5, 2)) { print( (i toString) + " " ) }; print( "\n" )
+                  for i in (0 till (5, 3)) { print( (i toString) + " " ) }; print( "\n" )
+                  for i in (0 till (5, 4)) { print( (i toString) + " " ) }; print( "\n" )
+                  for i in (0 till (5, 5)) { print( (i toString) + " " ) }; print( "\n" )
+// 
+//       Expect   0 1 2 3 4
+//                0 1 2 3 4
+//                0 2 4
+//                0 3
+//                0 4
+//                0
+//
+//       Actual   0 1 2 3 4
+//                0 1 2 3 4
+//                0 2 4
+//                0 3
+//                0 4
+//                0
+//
+//  002  Title    Decrease iteration using till
+//       Result   Pass
+//       Test     
+                  for i in (5 till (0))     { print( (i toString) + " " ) }; print( "\n" )
+                  for i in (5 till (0, -1)) { print( (i toString) + " " ) }; print( "\n" )
+                  for i in (5 till (0, -2)) { print( (i toString) + " " ) }; print( "\n" )
+                  for i in (5 till (0, -3)) { print( (i toString) + " " ) }; print( "\n" )
+                  for i in (5 till (0, -4)) { print( (i toString) + " " ) }; print( "\n" )
+                  for i in (5 till (0, -5)) { print( (i toString) + " " ) }; print( "\n" )
+//
+//       Expect   5 4 3 2 1
+//                5 4 3 2 1
+//                5 3 1
+//                5 2
+//                5 1
+//                5
+//
+//       Actual   5 4 3 2 1
+//                5 3 1
+//                5 2
+//                5 1
+//                5
+//
+//  003  Title    Increase iteration using thru
+//       Result   Pass
+//       Test
+                  for i in (0 thru (5))    { print( (i toString) + " " ) }; print( "\n" )
+                  for i in (0 thru (5, 1)) { print( (i toString) + " " ) }; print( "\n" )
+                  for i in (0 thru (5, 2)) { print( (i toString) + " " ) }; print( "\n" )
+                  for i in (0 thru (5, 3)) { print( (i toString) + " " ) }; print( "\n" )
+                  for i in (0 thru (5, 4)) { print( (i toString) + " " ) }; print( "\n" )
+                  for i in (0 thru (5, 5)) { print( (i toString) + " " ) }; print( "\n" )
+// 
+//       Expect   0 1 2 3 4 5
+//                0 1 2 3 4 5
+//                0 2 4
+//                0 3
+//                0 4
+//                0 5
+//
+//       Actual   0 1 2 3 4 5
+//                0 1 2 3 4 5
+//                0 2 4
+//                0 3
+//                0 4
+//                0 5
+//
+//  004  Title    Decrease iteration using thru
+//       Result   Pass
+//       Test
+                  for i in (5 thru (0))     { print( (i toString) + " " ) }; print("\n")
+                  for i in (5 thru (0,-1))  { print( (i toString) + " " ) }; print("\n")
+                  for i in (5 thru (0, -2)) { print( (i toString) + " " ) }; print("\n")
+                  for i in (5 thru (0, -3)) { print( (i toString) + " " ) }; print("\n")
+                  for i in (5 thru (0, -4)) { print( (i toString) + " " ) }; print("\n")
+                  for i in (5 thru (0, -5)) { print( (i toString) + " " ) }; print("\n")
+//
+//       Expect   5 4 3 2 1 0
+//                5 4 3 2 1 0
+//                5 3 1
+//                5 2
+//                5 1
+//                5 0
+//
+//       Actual   5 4 3 2 1 0
+//                5 4 3 2 1 0
+//                5 3 1
+//                5 2
+//                5 1
+//                5 0
+//
+//  005  Title    Variables used inside and outside for loop have distinct scope
+//       Result   Pass
+//       Test
+                  define A := 0
+                  for A in (A till (3)) {
+                      print( A ); print( " " ) 
+                  }
+                  println( A )
+//
+//       Expect   0 1 2 0
+//       Actual   0 1 2 0
+// 
+//  006  Title    For loop using variables
+//       Result   Pass
+//       Test
+                  define A := 0
+                  define B := 4
+                  define C := 1
+                  for A in (A till (B, C)) {
+                      print(A); print(" ") 
+                  }
+//
+//       Expect   0 1 2 3
+//       Actual   0 1 2 3
+// 
+//  007  Title    Iteration using float
+//       Result   Fail
+//       Note     Rounding error seems not ok.
+//       Test
+                  for A in (1.2 till (2, 0.1)) {
+                      println( A )
+                  }
+//
+//       Expect   1.2
+//                1.3
+//                1.4
+//                1.5
+//                1.6
+//                1.7
+//                1.8
+//                1.9
+// 
+//       Actual   1.2
+//                1.3
+//                1.4000000000000001
+//                1.5000000000000002
+//                1.6000000000000003
+//                1.7000000000000004
+//                1.8000000000000005
+//                1.9000000000000006
+//
+//  008  Title    Iteration using enumeration sizeof 0
+//       Result   Pass (?)
+//       Test
+                  for A in [] {
+                      print( A ); print( " " )
+                  }
+//
+//       Expect   blank line
+//       Actual   blank line
+//                value: ec.ez.ezvm.EZImpl_$_Impl@1c5617
+//
+//  009  Title    Iteration using enumeration sizeof 0 with parenthesis
+//       Result   Pass
+//       Test
+                  for A in ([]) {
+                      print( A ); print( " " )
+                  }
+//
+//       Expect   blank line
+//       Actual   blank line
+//                value: null
+//
+//  010  Title    Iteration using enumeration sizeof 5
+//       Result   Pass
+//       Test
+                  for A in ([1, 2, 3, 4, 5]) {
+                      print( A ); print( " " )
+                  }
+//
+//       Expect   1 2 3 4 5
+//       Actual   1 2 3 4 5
+//
+//  011  Title    Iteration using enumeration sizeof 6
+//       Result   Fail
+//       Test
+                  for A in ([1, 2, 3, 4, 5, 6]) {
+                      print( A ); print ( " " ) 
+                  }
+//
+//       Expect   1 2 3 4 5 6
+//
+//       Actual   run/6
+//                ec.ez.collect.NotFoundException: run/6
+//
+//  012  Title    Iteration using enumerations of int, float, +, and -
+//       Result   Pass
+//       Test
+                  for A in ([-793.24, 4, -33.33, -99.95, 100000]) {
+                      print( A ); print( " " )
+                  }
+//
+//       Expect   -793.24 4 -33.33 -99.95 100000
+//       Actual   -793.24 4 -33.33 -99.95 100000
+//
+//
+//  013  Title    Iteration using characters
+//       Result   Pass
+//       Test
+                  for A in (["a", "b"]) {
+                      println( A ) 
+                  }
+//
+//       Expect   a
+//                b
+//
+//       Actual   a
+//                b
+//
+//  014  Title    Separator incorrect (negative case)
+//       Result   Fail
+//       Test
+                  for i in (0 till (5)) ( print( i )}
+//
+//       Expect   error message
+//       Actual   blank line
+//
+//  015  Title    For loop begin and end value are the same for till
+//       Result   Pass (?)
+//       Note     Why is it a divide by zero?
+//       Test
+                  for i in (0 till (0)) {println( "a" )}
+//
+//       Expect   BigInteger divide by zero
+//       Actual   BigInteger divide by zero
+//                java.lang.ArithmeticException: BigInteger divide by zero
+//
+//  016  Title    For loop begin and end value are the same for thru
+//       Result   Pass (?)
+//       Note     Why is it a divide by zero?
+//       Test
+                  for i in (0 till (0)) {println( "a" )}
+//
+//       Expect   BigInteger divide by zero
+//       Actual   BigInteger divide by zero
+//                java.lang.ArithmeticException: BigInteger divide by zero
+//
+//  017  Title    For loop three deep
+//       Result   Pass
+//       Test
+                  for i in (0 thru (9)) {
+                      for j in (0 thru (9)) {
+                          for k in (0 thru (9)) {
+                              print( (i toString) )
+                              print( (j toString) )
+                              println( (k toString) )
+                          }
+                      }
+                  }
+//
+//       Expect   000
+//                ...
+///               999
+//
+//       Actual   000
+//                ...
+///               999
+//
+//  018  Title    For loop incorrect capitalization of keywords (negative case)
+//       Result   Fail
+//       Test
+                  FOR i IN ([1]) {print( "<>" ) }
+//
+//       Expect   error message
+//       Actual   blank line
+//
+//  019  Title    For loop arg list missing brackets (negative case)
+//       Result   Fail
+//       Test
+                  for i in -1 {print( "a" )}
+//
+//       Expect   error message
+//       Actual   blank line
+//
+//  020  Title    For loop and undefined variable
+//       Result   Pass (?)
+//       Test
+                  for z in ([1]) {
+                      println( "a" )
+                      println( TreeTop )
+                      println( "b" )
+                  }
+//
+//       Expect   a
+//                Undefine variable "TreeTop"
+//                 
+//       Actual   a
+//                TreeTop
+//                ec.ez.collect.NotFoundException: TreeTop
+//
+

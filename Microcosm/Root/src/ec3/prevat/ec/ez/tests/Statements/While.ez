@@ -1,0 +1,236 @@
+// File     Statements\While.ez
+// Summary  Testing while statement
+// 
+//  001  Title    Infinite while loop
+//       Result   Fail
+//       Test
+//                Step 1:  Execute the following code in EZ
+//
+                  define key := 0
+                  while (key <= 5) {
+                      print( "a" )
+                  }
+//
+//                Step 2:  Execute the following code in EZ
+//
+                  define key := 0
+                  while (key <= 5) {
+                      print( "W" )
+                      key := key + 1
+                  }
+//
+//       Expect   The first code statement is an infinite loop. This 
+//                highlights a few problems:
+//                - there is no feedback that code is being executed
+//                  NOT FIXED
+//                - there is no easy way to abort execution of an infinite loop
+//                  FIXED
+//                - ability to paste second code segment before first has 
+//                  completed seems incorrect 
+//                  FIXED
+//                - output from the first loop is (seemingly incorrectly) 
+//                  intermixed with the output from the second loop
+//                  FIXED
+//
+//       Actual   aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+//                *User Break*
+//                 a
+//                 current thread not owner
+//                 current thread not owner
+//                 java.lang.IllegalMonitorStateException: current thread not owner
+//                 java.lang.IllegalMonitorStateException: current thread not owner
+//
+//  002  Title    While loop one level
+//       Result   Pass
+//       Test
+//
+                  define key := 1
+                  while (key <= 5) {
+                      print( ((key toString) + " " ) )
+                      key := key + 1
+                  }
+//
+//       Expect   1 2 3 4 5 
+//       Actual   1 2 3 4 5
+//
+//  003  Title    While loop with condition that prevents entry
+//       Result   Pass
+//       Test
+//
+                  define key := 6
+                  while (key <= 5) {
+                      print( ((key toString) + " ") )
+                      key := key + 1
+                  }
+                  println( "The End" )
+//
+//       Expect   The End
+//       Actual   The End
+//
+//  004  Title    While loop 9 levels
+//       Result   Pass
+//       Test
+//
+                  define i := 0
+                  define j := 0
+                  define k := 0
+                  define l := 0
+                  define m := 0
+                  define n := 0
+                  define o := 0
+                  define p := 0
+                  define q := 0
+
+                  while (i <= 1) {
+                      while (j <= 1) {
+                          while (k <= 1) {
+                              while (l <= 1) {
+                                  while (m <= 1) {
+                                      while (n <= 1) {
+                                          while (o <= 1) {
+                                              while (p <= 1) {
+                                                  while (q <= 1) {
+                                                      println( ((i toString) + (j toString) + (k toString) + (l toString) + (m toString) + (n toString) + (o toString) + (p toString) + (q toString)) )
+                                                      q := q + 1
+                                                  }
+                                                  q := 0
+                                                  p := p + 1
+                                                  }
+                                              p := 0
+                                              o := o + 1
+                                          }
+                                          o := 0
+                                          n := n + 1
+                                      }
+                                      n := 0
+                                      m := m + 1
+                                  }
+                                  m := 0
+                                  l := l + 1
+                              }
+                              l := 0
+                              k := k + 1
+                          }
+                          k := 0
+                          j := j + 1
+                      }
+                      j := 0
+                      i := i + 1
+                  }
+//
+//       Expect   000000000
+//                000000001
+//                000000010
+//                000000011
+//                ...
+//                111111101
+//                111111110
+//                111111111
+//
+//       Actual   000000000
+//                000000001
+//                000000010
+//                000000011
+//                ...
+//                111111101
+//                111111110
+//                111111111
+//
+//  005  Title    while loop 2 levels; exit level 1
+//       Result   Pass
+//       Test
+                  define a := 1
+                  define b := 6
+                  while (a <= 1) {
+                      while (b <=5) {
+                          println( "Level 2" )
+                          b := b +1
+                      }
+                      println( "Level 1" )
+                      a := a + 1
+                  }
+                  println( "Outer Level" )
+// 
+//       Actual   Level 1
+//                Outer Level
+//
+//       Expect   Level 1
+//                Outer Level
+//
+//  006  Title    while loop evaluating BigIntegers
+//       Result   Pass
+//       Test
+                  define index := 999888777666555444333222111
+                  while (index < 999888777666555444333222112) {
+                      println( "Level 1" )
+                      println( (index := index + 1) )
+                  }
+                  println( "Outer Level" )
+//
+//       Actual   Level 1
+//                999888777666555444333222112
+//                Outer Level
+//
+//       Actual   Level 1
+//                999888777666555444333222112
+//                Outer Level
+//
+//  007  Title    while loop evaluating characters
+//       Result   Pass
+//       Test
+                  define index := 'A'
+                  while (index == 'A') {
+                      println( "Level 1" )
+                      index := 'B'
+                      println( index )
+                  }
+                  println( "Outer Loop" )
+//
+//       Actual   Level 1
+//                B
+//                Outer Loop
+//
+//       Expect   Level 1
+//                B
+//                Outer Loop
+//
+//  008  Title    while loop evaluating float
+//       Result   Pass
+//       Test
+                  define index := 9.99
+                  while (index != 10.00) {
+                      println( "Level 1" )
+                      index := 9.9 + 0.1
+                      println( index )
+                  }
+                  println( "Outer Loop" )
+//
+//       Actual   Level 1
+//                10.0
+//                Outer Loop
+//
+//       Expect   Level 1
+//                10.0
+//                Outer Loop
+//
+//  009  Title    if loop evaluating strings
+//       Result   Pass
+//       Test
+                  if ("Sunday" != "Monday") {
+                      println( "Level 1" )
+                  } else {
+                      println( "Level 2" )
+                  }
+                  if ("Sunday" == "Monday") {
+                      println( "Level 1" )
+                  } else {
+                      println( "Level 2" )
+                  }
+//
+//       Expect   Level 1
+//                Level 2
+//
+//       Actual   Level 1
+//                Level 2
+//
+

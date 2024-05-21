@@ -1,0 +1,12 @@
+LIBDEPS = 
+
+JAVA_HOME = $(JAVADIR)
+
+OTHER_LIBS = -L/usr/openwin/lib -L$(JAVA_HOME)/lib/sparc -lc -lm -lXext -lXt -lX -lX11 
+
+INCLDIRS += -I/usr/openwin/share/include -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/solaris -I$(JAVA_HOME)/src/solaris/sun -I$(JAVA_HOME)/src/solaris/java/include -I$(JAVA_HOME)/Motif/sun4/SUNWmfrun/reloc/dt/include
+
+CFLAGS = -DSPARC -DUNIX
+
+
+

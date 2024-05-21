@@ -1,0 +1,479 @@
+<HTML>
+<HEAD>
+   <TITLE>Design Document Template</TITLE>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; U) [Netscape]">
+</HEAD>
+<BODY>
+
+<H1>The R167 Repository</H1>
+
+<P><B>Last updated:</B><I> </I>[98/06/03 Bill] </P>
+
+<P>Author: Monica Anderson as interpreted by <A HREF="mailto:frantz@communities.com">Bill
+Frantz</A>.</P>
+
+<H2>Introduction</H2>
+
+<P>Repositories hold the descriptions of the two and three dementional
+objects which make up an EC world. Distributing new repositories is the
+primary way of distributing new art.</P>
+
+<H4>Related Documents</H4>
+
+<P><I>(Optional) list any related design documents</I> </P>
+
+<H2>Requirements</H2>
+
+<UL>
+<LI>Allow multiple, uncoordinated sources of art.</LI>
+
+<LI>Provide a basis for Terms Of Service certificates.</LI>
+
+<LI>Allow ad hoc art down load from multiple possible sources.</LI>
+
+<LI>Allow for local caching of downloaded art.</LI>
+</UL>
+
+<H2>Architecture</H2>
+
+<P><I>Diagrams are strongly encouraged; a few diagrams can do wonders for
+clairifying an architecture. If you don't know how to add diagrams consult
+Lani and Amy.</I> </P>
+
+<H4>Current Architecture Overview</H4>
+
+<P><I>The introduction set the scene; this section gives the key properties
+of the current design. It may mention classes and some important interfaces
+but it doesn't go into details. Someone should be able to read just the
+overviews of our design documents and get a good understanding of how the
+system works and fits together, without knowing the full details.</I> <I>Also
+include any insights gained from experience like design bugs or expense
+discovered in usage.</I> </P>
+
+<H4>Proposed Architecture Overview</H4>
+
+<P><I>This section is not urgent for the first version of this document,
+you should capture what direction you feel this subsystem ought to take.
+As we start addressing specific systems this section will grow into the
+core of the design document.</I> </P>
+
+<H4>Off the shelf alternatives</H4>
+
+<P><I>Any notes about potential off the shelf technologies that could be
+used, and their trade-offs.</I> </P>
+
+<H4>Other Design Objectives, Constraints and Assumptions</H4>
+
+<P>Current implementationDataHolders were designed to be capability secure
+in a Vat. At the moment the implementation is neither entirely capability
+secure (since the actual implementation has a couple known capability leaks)
+nor streamlined (since some simpler solutions were initially ruled out
+for capability reasons). I'd like to worry about these issues again once
+the code works.</P>
+
+<P>Note that the description below was written before &quot;forwarding
+SturdyRefs&quot; so no mention is made of them. The code has been revised
+to handle these but the description below is inaccurate about these details.</P>
+
+<P>I'd still like to hear if anyone can see a better solution than what
+I have attempted to implement.</P>
+
+<P>The operations labeled DataHolder use #1 and DataHolder use #2 below
+are working (quite reliably) in the alpha release. It's just the third
+case that is tricky, but it is an important case to us.</P>
+
+<P>- Monica</P>
+
+<P>========================================================</P>
+
+<P>Remote Art Download The contained dataholder problem</P>
+
+<P>This memo attempts to explain why DataHolders containing DataHolders
+are so hard to download.</P>
+
+<P>In an effort to make this memo self-contained I've attempted to briefly
+describe all terms before using them even if this meant making the memo
+quite a bit longer.</P>
+
+<P>DataHolder</P>
+
+<P>DataHolders are lightweight objects that identify large static objects
+that convey no authority, such as bitmaps and Appearance2D and Appearance3D
+objects.</P>
+
+<P>The DataHolder interface is implemented by the ec.e.hold.DataHolderSteward
+class. A DataHolderSteward contains an instance of class CryptoHash (which
+determines what large object the DataHolder represents) and a reference
+to a Fulfiller, which is the capability to extract the data from the local
+Repository, or from another machine on the network.</P>
+
+<P>The main reason for not keeping the capability for data retrieval in
+the DataHolder itself is one of economy. Most objects in a region will
+share the same data source and sharing the Fulfiller makes the DataHolders
+smaller and cuts down on network traffic.</P>
+
+<P>SuperRepository</P>
+
+<P>A SuperRepository is an object that manages several Repository files
+for the purpose of running a large application such as Habi* - It opens
+all Repository files in ECHome/{Dist,Extras,Publish,Cache,Cert}, allows
+caching in the currently open Cache file, and allows the saving of certificates
+in a specialized Certificate Repository using the object CryptoHash as
+a key.</P>
+
+<P>ParimeterizedRepository</P>
+
+<P>A ParimeterizedRepository is a restriction of SuperRepository that allows
+data retrieval from the SuperRepositopry or the net, and caching of downloaded
+data, but does not allow writing to an arbitrary file (Repository or otherwise).
+It also allows decoding objects using Parimeterization (Explained below).</P>
+
+<P>Fulfiller</P>
+
+<P>The retrieval capability object for the DataHolder, the Fulfiller, contains
+a reference to the local ParimeterizedRepository, a Perimeter hashtable
+to decode the object with, and a Hints Vector:</P>
+
+<P>Hints Vector</P>
+
+<P>This is an instance of Vector that contains unspecified hints objects
+that allow one policy component, the RemoteDownloader, to find data on
+the net if the data cannot be found locally by the SuperRepository. Note
+that the format of the Vector is unspecified to allow future enhancements.
+Today we foresee using either SturdyRef's (pointing to a RepositoryPublisher
+object on some remote machine, from where you can request the data to be
+downloaded given a CryptoHash object) or Strings (URL's and URL fragments
+of a web server or servers somewhere that publishes (with high bandwidth)
+the artwork for widely distributed objects).</P>
+
+<P>Note that the URL based downloading is not yet implemented.</P>
+
+<P>The Hints Vector is a Vector since the data may be available in more
+than one place and the Vector allows you to look for it in several of these
+places, sequentially or in parallel.</P>
+
+<P>Where do DataHolders come from</P>
+
+<P>DataHolders are typically handed to you by the comm system when you
+enter a region (The region data structure contains Appearance objects etc
+that contain DataHolders) or when some avatar or object enters the region
+you are currently in. The server probably does not ever request the artwork
+for the dataholders (since it won't need to display any objects) but all
+GUI based users will request the DataHolder to give them the actual bits
+they stand for using one of two calls: the synchronous held() call returns
+the data immediately or fails (without attempting the network retrieve)
+and the asynchronous giveDataTo(recipient) call that accepts the data whenever
+it may arrive using a callback method. In what follows we will assume that
+the asynchronous giveDataTo() call is used, whenever it matters.</P>
+
+<P>DataHolder use #1 - local</P>
+
+<P>The Fulfillers always first look in the local Repository for any DataHolder's
+contents. It may exist in some Repository, and/or it may have been downloaded
+previously and cached in the ECHome/Cache directory. The Fulfiller retrieves
+it and decodes it. If anything goes wrong, then some error is normally
+thrown. One typical such error is that the data is not available locally
+and the hints vector is null or empty.</P>
+
+<P>A note about the PublishRepository</P>
+
+<P>A Publishing DataHolder is one that has a special Fulfiller that contains
+a non-empty Hints vector, identifying the local RepositoryPublisher with
+a SturdyRef.</P>
+
+<P>There exists a Repository folder named ECHome/Publish that is managed
+by the SuperRepository using a subclass of Repository named PublishRepository.</P>
+
+<P>Things can get published in one of two ways:</P>
+
+<P>1. User imports a swatch using the Swatch catalog. The imported swatch
+artwork bitmap is encoded and stored in the PublishRepository using a specific
+SuperRepository API call, which returns a Publishing DataHolder.</P>
+
+<P>2. User can place a whole (externally curated) RepositoryFile in the
+PublishRepository folder.</P>
+
+<P>In the future we will likely have world creation tools that do this
+without exposing Repository folders to the users.</P>
+
+<P>Upon startup, and when publishing a new object using the Publishing
+API of SuperRepository we check whether we have data to publish and don't
+already have a running RepositoryPublisher, in which case we start one
+and create a SturdyRef for it, which we save in a known place.</P>
+
+<P>Now, as a special case in the code, (almost a Hack) when we decode a
+DataHolder from the Repository (DataHolders have their own decoding recipe)
+we check if the data came from PublishRepository. If so, we improve the
+Hints Vector in the Fulfiller by adding our RepositoryPublisher SturdyRef
+to it.</P>
+
+<P>There's no way to do this at curation time (like putting the SturdyRef
+into the Repository) since the SturdyRef for the publisher is not created
+until after you start the publisher. This MUST be done at runtime, when
+creating a region that one intends to serve.</P>
+
+<P>This technique makes all DataHolders in a hosted region have either
+null hints vectors (if the data is not published anywhere) or a hints vector
+containing at least a sturdyref to the RepositoryPublisher of this host.
+If the object was donwloaded we may be adding to an existing hints vector
+rather than creating one but the details here are not crystal clear to
+me at the moment and need some verification.</P>
+
+<P>DataHolder use #2 - Simple remote download</P>
+
+<P>If the data cannot be found locally, and if a Hints vector exists, then
+the hints are examined in some specified order to determine where to attempt
+an art download from. In the simplest case, the first element of the Hints
+Vector is a SturdyRef to a RepositoryPublisher on another machine, such
+as the server that hosts the region containing the object/avatar/etc with
+the unavailable artwork.</P>
+
+<P>When SuperRepository detects this situation it hands the DataHolder
+and the hints Vector to the RemoteDownloader, which analyzes the hints
+Vector and (in the case of a SturdyRef) creates an EDataRequestor object
+to handle the actual download.</P>
+
+<P>Note: It has been suggested that we should not use an E message to download
+the data. This would be the place to call upon some other method to do
+the download. However, let's continue following the current implementation
+to the end.</P>
+
+<P>EDataRequestor resolves the SturdyRef to a remote object and sends it
+an E message requesting the data. If the remote object has the data, then
+it will fill in a byte array of the undecoded byte data (thus saving a
+decode and an encode in the remote SuperRepository end).</P>
+
+<P>These bytes (or the failure exception, if something went wrong) are
+sent directly to the original Fulfiller that requested the transaction.
+This Fulfiller is the only component that not only knows what incoming
+data that belongs to what outstanding request but it also has the PerimeterTables
+for the decoding of the byte data in the requesting environment.</P>
+
+<P>A note about Perimeter tables</P>
+
+<P>When encoding a deep graph of objects over the wire or into the Repository
+you need to know when to stop encoding - otherwise you would everything
+reachable from the encoded object, potentially the whole world. The way
+we handle this is that we create, before calling the encoding method, a
+Hashtable of objects on the perimeter of the graph we want to encode. As
+an example, suppose we want to encode a prop in a region. If we simply
+encode the prop, then we'll end up encoding the whole region when following
+the prop's reference to its container. But if we put the Region object
+in the Perimeter table, then the Region object is encoded only as a named
+placeholder for the actual region. Similarly we want to put the SuperRepository
+into the Perimeter table to prevent all of its data structures from being
+encoded whenever we encode a Fulfiller.</P>
+
+<P>Then at the decode end, the Region and the SuperRepository will be replaced
+with the region and SuperRepository in the *receiving* environment. This
+is how we give the Fulfillers the SuperRepository capability on over-the-wire
+decode.</P>
+
+<P>Note: These placeholders are currently simple Strings. This is an oversight
+- they should be a distinct object type containing said String, for security
+reasons. This is a trivial but Repository-breaking change that I've been
+postponing for a while.</P>
+
+<P>A note about Appearance objects</P>
+
+<P>Appearance Objects describe our animatable props and avatars to the
+dynamics engine. These are quite expensive to construct so we construct
+these in the curator when creating the Repository (henceforth referred
+to as &quot;at curation time&quot;). Then, when starting a server with
+a region we essentially just decode the appearance objects from the Repository
+when constructing the Region according to the instructions in the RealmText
+file.</P>
+
+<P>Appearance objects are designed to not changed at runtime. Even an operation
+as complex as swatching will leave the Appearance object intact (I've been
+told).</P>
+
+<P>These appearance objects contain many references to the bitmaps that
+it needs. These are resolved from symbols to cryptohashes (using a symbol
+table lookup at curation time) and from these cryptohashes we create our
+DataHolders and save the whole appearance graph (with DataHolders at the
+leaves) into the Repository.</P>
+
+<P>Now we are getting close to the problem: When storing the appearance
+object into the Repository we create a top-level DataHolder to hold our
+entire encoded Repository-stored Appearance object. This saves lots of
+network traffic since the entire appearance object can be sent as a small
+DataHolder over the wire and decoded from the local Repository in the receiving
+end at much lower cost. This is a BIG win for the normal case where both
+region host and client have these objects in local Repositories but it
+gets us in trouble with remote art downloading:</P>
+
+<P>DataHolder use #3 - Appearance Objects</P>
+
+<P>If someone receives a DataHolder to an Appearance object, then it is
+looked up as usual in the Repository, and if it exists, it's decoded and
+used. Now when the Dynamics engine sees the DataHolders at the leaves of
+the Appearance object, it just requests those, and can typically get its
+bitmaps from the Repository.</P>
+
+<P>If the top-level DataHolder to the Appearance object does not exist
+locally, then we can attempt to download it from the remote server. If
+it has a hints vector with a sturdyref we request the bits from the remote
+RepositoryPublisher identified by the SturdyRef.</P>
+
+<P>These bits arrive as a byte array, which the Fulfiller decodes. We are
+decoding an appearance object containing DataHolders. These &quot;contained
+DataHolders&quot; have references to a fulfiller that was created at curation
+time (typically by the user publishing this object with the new unique
+artwork).</P>
+
+<P>THESE FULFILLERS HAVE NO STURDYREFS to the remote RepositoryPublisher.</P>
+
+<P>They cannot, since the Fulfillers were created at curation time and
+encoded before the RepositoryPublisher even existed. Furthermore, they
+were never decoded by the RepositoryPublisher - They were never anything
+more than byte arrays in the publishing end - and thus never identified
+as Fulfillers, so the Remote RepositoryPublisher cannot fix them up to
+have hints with the correct SturdyRefs.</P>
+
+<P>Since they have no SturdyRefs we cannot resolve them remotely. If they
+don't exist in the local Repository, then we fail - We cannot find the
+cel artwork to any contained DataHolder.</P>
+
+<P>Possible solutions</P>
+
+<P>I have considered several solutions to this dilemma and attempted to
+implement a few of these. Let me describe some possible but rejected solutions,
+and then describe others that could or have been implemented. Nothing I've
+implemented has worked perfectly and it is hard to say how close we are
+to a good solution to the problem.</P>
+
+<P>1. Outlaw contained DataHolders. This would mean that appearance objects
+would be sent over the wire as their actual data rather than as DataHolders.
+This is unacceptable since it would severely increase network traffic.</P>
+
+<P>2. Identify all items in the Repository that have contained DataHolders,
+and when one is requested by RepositoryPublisher you decode them locally,
+fix up the SturdyRefs, and re-encode the object. Now you cache the byte
+array that resulted from this encode and whenever the PublishRepository
+is asked for the object it will substitute the fixed-up version.</P>
+
+<P>This sounded tricky so I tried something else first. It also sounds
+slow at startup of a region containing published art. The marking of the
+objects can be done at curation time (by adding some extra mark bit to
+the Repository data structures) or at run time (by creating a look-aside
+caching hashtable that maps cryptohashes to data. If the item has contained
+dataholders then the data in the data is the fixed-up data, otherwise it's
+the original data from the Repository. This run-time marking implies that
+we keep much of a region's data in byte arrays in the publishing server,
+which may require a lot of RAM.</P>
+
+<P>One issue is that when you re-encode the object after fixing up the
+SturdyRefs you will have a modified object with a different CryptoHash.
+This complicates our security and certification stories.</P>
+
+<P>Current implementation</P>
+
+<P>The current implementation does not quite work. I have had most parts
+of it work at one time or another but the interactions between components
+on two machines with different repositories, the renderer, and Harry's
+code for asynchronous redraw have complicated the process to the point
+where this was extremely time consuming to debug. At a minimum I'd need
+two machines on my desk to continue working on this (one can be slower
+than the one I have).</P>
+
+<P>What follows is written in a hurry without access to the actual code,
+so there may be discrepancies.</P>
+
+<P>The current implementation attempts to fix up the Hints vector in a
+decoding recipe for class DataholderSteward.</P>
+
+<P>The key to this scheme is that the Hints vector is put into the Perimeter
+table for the Fulfiller at encode time by the Curator. This allows the
+hints vector for any contained Fulfillers to be decoded containing adequate
+hints.</P>
+
+<P>The scheme should work recursively to any depth. Let's consider a top-level
+dataholder at level 0 and its contained DataHolders at level 1. A renumbering
+shows how this extends to any depth. I will continue to describe the simplest
+two-level case.</P>
+
+<P>Decoding the top-level DataHolder is still as easy as before in #2:</P>
+
+<P>- We have a hints vector that is stored in a &quot;current Perimeter
+table&quot; as &quot;Hints&quot;. This table also contains the SuperRepository
+and possibly other capabilities.</P>
+
+<P>- We retrieve the bytes for the data from local Repository or over the
+net and decode them using the current Perimeter table.</P>
+
+<P>- We extract the hints vector from the Fulfiller of the DataHolder we
+just decoded. This is a crude operation since it breaks the encapsulation
+of the Fulfiller and I'm looking into better ways to do this.</P>
+
+<P>- We extend the hints vector in the current Perimeter table with this
+decode hints vector. There's a method to do just this so we can implement
+whatever policy we want here as long as local knowledge is enough.</P>
+
+<P>We have now achieved that the Perimeter table contains the hints in
+the surrounding environment and the hints in the top-level dataholder.
+This is similar to local variables in a lexical scope and should in fact
+be redesigned to behave more like that since I currently *may* have problems
+when &quot;leaving scope&quot; and recursing upward (but maybe I did that
+right, I don't have the code here).</P>
+
+<P>Now when we decode the contained dataholders, the parimeterization of
+&quot;Hints&quot; will cause the current hints vector to be substituted
+in to every decoded fulfiller. These can now be fulfilled over the network.</P>
+
+<P>One possible bug that I just thought of is that I don't know which order
+things decode in. The updated hints may be decoded too late to help in
+decoding the contained DataHolders. This needs to be split into a two-step
+process if it is not one already but I think the Recipes will give me the
+hook to do this.</P>
+
+<P>Note that it easy to imagine a case where a contained DataHolder is
+published by an entity different from the top-level dataholder. I believe
+this is rare, and the alternatives look expensive.</P>
+
+<P>- Monica</P>
+
+<H4>Which directories on our tree does this subsystem cover?</H4>
+
+<P><I>For example ec4/javasrc/ec/...</I> </P>
+
+<H4>Is it JavaDoc'ed?</H4>
+
+<P><I>In many cases, this section can link to JavaDoc output from actual
+Java classes and interfaces. This saves writing documentation twice (the
+designers will have to JavaDoc their interfaces anyway). The JavaDoc should
+be linked into the design document. <A HREF="../../tools/javadoc.html">Chip's
+JavaDoc style guidelines</A> explain how to use JavaDoc effectively.</I>
+</P>
+
+<H4>Examples</H4>
+
+<P><I>Are there examples?</I> </P>
+
+<H4>Testing and Debugging</H4>
+
+<P><I>(Optional) Lists any tests and debugging utilities which are to be
+developed to help test the design (e.g. test classes, trace categories,
+etc)</I> </P>
+
+<H2>Design Issues</H2>
+
+<H4>Resolved Issues</H4>
+
+<P><I>History of issues raised and resolved during initial design, or during
+design inspections. Can also include alternative designs, with the reasons
+why they were rejected</I> </P>
+
+<H4>Open Issues</H4>
+
+<P><I>This section of the document is used by the authors and moderator
+to store any incomplete information - issues identified during a design
+inspection but not yet resolved (the task list), notes that aren't ready
+to be put into the main text, etc.</I> <BR>
+&nbsp; </P>
+To main <A HREF="index.html#R167Repository">Repository</A> page<BR>
+<BR>
+<BR>
+</BODY>
+</HTML>

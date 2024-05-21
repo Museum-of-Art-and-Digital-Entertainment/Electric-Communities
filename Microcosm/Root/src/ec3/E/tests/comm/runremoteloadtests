@@ -1,0 +1,126 @@
+#!/bin/sh
+
+note: remote loading has not been around for a long time.  lots of
+things have changed.  this script simply will not work.  don't even
+try without big changes.  -emm
+
+LSERVER=gracie.communities.com:666
+PID1=test1.$$
+PID2=test2.$$
+PID3=test3.$$
+
+ZZZ="RegisterWith=$LSERVER SearchPath=$LSERVER"
+
+stash() {
+	if [ ! -f $BUILD/classes/ec/tests/comm/$1.class ] || cmp $BUILD/classes/ec/tests/comm/$1.class $BUILD/classes/ec/tests/comm/$1.class.stash 2>/dev/null; then
+		: do nothing
+	else
+		echo stashing $1
+		mv $BUILD/classes/ec/tests/comm/$1.class $BUILD/classes/ec/tests/comm/$1.class.stash
+	fi
+	cp $BUILD/classes/ec/tests/comm/$1.class.stash $BUILD/classes/ec/tests/comm/$1.class
+}
+
+case $1 in
+RemoteLoadAll)
+	$0 RemoteLoad XXXRemoteInterface XXXRemotePerson XXXRemoteSuper XXXRemoteSuperInterface XXXRemoteSuperSuper ClearCache
+	$0 RemoteLoad XXXRemoteInterface XXXRemotePerson XXXRemoteSuper XXXRemoteSuperInterface XXXRemoteSuperSuper
+	$0 RemoteLoad XXXRemoteInterface XXXRemotePerson XXXRemoteSuper XXXRemoteSuperInterface                     ClearCache
+	$0 RemoteLoad XXXRemoteInterface XXXRemotePerson XXXRemoteSuper XXXRemoteSuperInterface                    
+	$0 RemoteLoad XXXRemoteInterface XXXRemotePerson XXXRemoteSuper                         XXXRemoteSuperSuper ClearCache
+	$0 RemoteLoad XXXRemoteInterface XXXRemotePerson XXXRemoteSuper                         XXXRemoteSuperSuper
+	$0 RemoteLoad XXXRemoteInterface XXXRemotePerson XXXRemoteSuper                                             ClearCache
+	$0 RemoteLoad XXXRemoteInterface XXXRemotePerson XXXRemoteSuper                                            
+	$0 RemoteLoad XXXRemoteInterface XXXRemotePerson                XXXRemoteSuperInterface XXXRemoteSuperSuper ClearCache
+	$0 RemoteLoad XXXRemoteInterface XXXRemotePerson                XXXRemoteSuperInterface XXXRemoteSuperSuper
+	$0 RemoteLoad XXXRemoteInterface XXXRemotePerson                XXXRemoteSuperInterface                     ClearCache
+	$0 RemoteLoad XXXRemoteInterface XXXRemotePerson                XXXRemoteSuperInterface                    
+	$0 RemoteLoad XXXRemoteInterface XXXRemotePerson                                        XXXRemoteSuperSuper ClearCache
+	$0 RemoteLoad XXXRemoteInterface XXXRemotePerson                                        XXXRemoteSuperSuper
+	$0 RemoteLoad XXXRemoteInterface XXXRemotePerson                                                            ClearCache
+	$0 RemoteLoad XXXRemoteInterface XXXRemotePerson                                                           
+	$0 RemoteLoad XXXRemoteInterface                 XXXRemoteSuper XXXRemoteSuperInterface XXXRemoteSuperSuper ClearCache
+	$0 RemoteLoad XXXRemoteInterface                 XXXRemoteSuper XXXRemoteSuperInterface XXXRemoteSuperSuper
+	$0 RemoteLoad XXXRemoteInterface                 XXXRemoteSuper XXXRemoteSuperInterface                     ClearCache
+	$0 RemoteLoad XXXRemoteInterface                 XXXRemoteSuper XXXRemoteSuperInterface                    
+	$0 RemoteLoad XXXRemoteInterface                 XXXRemoteSuper                         XXXRemoteSuperSuper ClearCache
+	$0 RemoteLoad XXXRemoteInterface                 XXXRemoteSuper                         XXXRemoteSuperSuper
+	$0 RemoteLoad XXXRemoteInterface                 XXXRemoteSuper                                             ClearCache
+	$0 RemoteLoad XXXRemoteInterface                 XXXRemoteSuper                                            
+	$0 RemoteLoad XXXRemoteInterface                                XXXRemoteSuperInterface XXXRemoteSuperSuper ClearCache
+	$0 RemoteLoad XXXRemoteInterface                                XXXRemoteSuperInterface XXXRemoteSuperSuper
+	$0 RemoteLoad XXXRemoteInterface                                XXXRemoteSuperInterface                     ClearCache
+	$0 RemoteLoad XXXRemoteInterface                                XXXRemoteSuperInterface                    
+	$0 RemoteLoad XXXRemoteInterface                                                        XXXRemoteSuperSuper ClearCache
+	$0 RemoteLoad XXXRemoteInterface                                                        XXXRemoteSuperSuper
+	$0 RemoteLoad XXXRemoteInterface                                                                            ClearCache
+	$0 RemoteLoad XXXRemoteInterface                                                                           
+	$0 RemoteLoad                    XXXRemotePerson XXXRemoteSuper XXXRemoteSuperInterface XXXRemoteSuperSuper ClearCache
+	$0 RemoteLoad                    XXXRemotePerson XXXRemoteSuper XXXRemoteSuperInterface XXXRemoteSuperSuper
+	$0 RemoteLoad                    XXXRemotePerson XXXRemoteSuper XXXRemoteSuperInterface                     ClearCache
+	$0 RemoteLoad                    XXXRemotePerson XXXRemoteSuper XXXRemoteSuperInterface                    
+	$0 RemoteLoad                    XXXRemotePerson XXXRemoteSuper                         XXXRemoteSuperSuper ClearCache
+	$0 RemoteLoad                    XXXRemotePerson XXXRemoteSuper                         XXXRemoteSuperSuper
+	$0 RemoteLoad                    XXXRemotePerson XXXRemoteSuper                                             ClearCache
+	$0 RemoteLoad                    XXXRemotePerson XXXRemoteSuper                                            
+	$0 RemoteLoad                    XXXRemotePerson                XXXRemoteSuperInterface XXXRemoteSuperSuper ClearCache
+	$0 RemoteLoad                    XXXRemotePerson                XXXRemoteSuperInterface XXXRemoteSuperSuper
+	$0 RemoteLoad                    XXXRemotePerson                XXXRemoteSuperInterface                     ClearCache
+	$0 RemoteLoad                    XXXRemotePerson                XXXRemoteSuperInterface                    
+	$0 RemoteLoad                    XXXRemotePerson                                        XXXRemoteSuperSuper ClearCache
+	$0 RemoteLoad                    XXXRemotePerson                                        XXXRemoteSuperSuper
+	$0 RemoteLoad                    XXXRemotePerson                                                            ClearCache
+	$0 RemoteLoad                    XXXRemotePerson                                                           
+	$0 RemoteLoad                                    XXXRemoteSuper XXXRemoteSuperInterface XXXRemoteSuperSuper ClearCache
+	$0 RemoteLoad                                    XXXRemoteSuper XXXRemoteSuperInterface XXXRemoteSuperSuper
+	$0 RemoteLoad                                    XXXRemoteSuper XXXRemoteSuperInterface                     ClearCache
+	$0 RemoteLoad                                    XXXRemoteSuper XXXRemoteSuperInterface                    
+	$0 RemoteLoad                                    XXXRemoteSuper                         XXXRemoteSuperSuper ClearCache
+	$0 RemoteLoad                                    XXXRemoteSuper                         XXXRemoteSuperSuper
+	$0 RemoteLoad                                    XXXRemoteSuper                                             ClearCache
+	$0 RemoteLoad                                    XXXRemoteSuper                                            
+	$0 RemoteLoad                                                   XXXRemoteSuperInterface XXXRemoteSuperSuper ClearCache
+	$0 RemoteLoad                                                   XXXRemoteSuperInterface XXXRemoteSuperSuper
+	$0 RemoteLoad                                                   XXXRemoteSuperInterface                     ClearCache
+	$0 RemoteLoad                                                   XXXRemoteSuperInterface                    
+	$0 RemoteLoad                                                                           XXXRemoteSuperSuper ClearCache
+	$0 RemoteLoad                                                                           XXXRemoteSuperSuper
+	$0 RemoteLoad                                                                                               ClearCache
+	$0 RemoteLoad 
+	;;
+RemoteLoad)
+	stash XXXRemoteInterface
+	stash XXXRemotePerson
+	stash XXXRemoteSuper
+	stash XXXRemoteSuperInterface
+	stash XXXRemoteSuperSuper
+
+	shift
+
+	transfered="" ;
+	mkdir -p /tmp/RemoteLoad.$USER/ec/tests/comm
+	while [ -f $BUILD/classes/ec/tests/comm/$1.class ]; do
+		transfered="$transfered $1";
+		mv $BUILD/classes/ec/tests/comm/$1.class /tmp/RemoteLoad.$USER/ec/tests/comm/$1.class
+		shift;
+	done
+	echo "=============================="
+	echo RemoteLoad transferring classes: $transfered
+	if [ x$1 = xClearCache ]; then
+		rm -rf $HOME/.ec/classes/ec/tests/comm/XXX*
+		echo Cache Cleared
+	fi
+	echo "=============================="
+	set -x
+	javaec -noverify ec.e.start.EBoot ec.tests.comm.RemoteLoad PublisherId=$PID1 $ZZZ &
+	sleep 5
+	(cd /tmp/RemoteLoad.$USER; javaec -noverify ec.e.start.EBoot ec.tests.comm.RemoteLoad PublisherId=$PID2 $ZZZ url=e://$LSERVER/$PID1/Doohickey)
+	set +x
+	for i in $transfered; do
+		cmp $HOME/.ec/classes/ec/tests/comm/$i.class $BUILD/classes/ec/tests/comm/$i.class.stash
+	done
+	rm -rf /tmp/RemoteLoad.$USER
+	;;
+
+esac
+

@@ -1,0 +1,6 @@
+define thang := dispatch {
+	to plus1(x) { x + 1 }
+	to plus2(x) { x + 2 }
+}
+thang plus1(7)
+thang plus2(2)

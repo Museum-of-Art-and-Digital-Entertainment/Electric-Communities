@@ -1,0 +1,105 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>DObjectsTestPlanErrata</TITLE>
+<META NAME="Version" CONTENT="8.0.3410">
+<META NAME="Date" CONTENT="10/11/96">
+<META NAME="Template" CONTENT="E:\Program Files\Microsoft Office\Office\HTML.DOT">
+</HEAD>
+<BODY TEXT="#000000" LINK="#0000ff" BGCOLOR="#ffffff">
+
+<H2>DObjects Test Plan Errata and Notes</H2>
+<P>See the <A HREF="DObjectsTestPlan.html">test plan</A>.</P>
+<B><P>Last updated:</B><I> [98/06/26 marick, to include comments by Scott Lewis]</I> </P>
+<P ALIGN="CENTER"><HR></P>
+<FONT FACE="Courier New" SIZE=2><P>&nbsp;</P>
+<P>Date: Fri, 26 Jun 1998 11:09:51 -0700</P>
+<P>From: Scott Lewis &lt;slewis@communities.com&gt;</P>
+</FONT><CODE><P>&nbsp;</P>
+<P>I have some comments on the DObjects testing doc (now that I've had a</P>
+<P>chance to read it).</P>
+<P>&nbsp;</P>
+<P>In general, it looks good to me.  I agree with the "Level of Effort"</P>
+<P>assessments, and scenarios being the highest priority testing task.</P>
+<P>&nbsp;</P>
+<P>For Scenarios:</P>
+<P>&nbsp;</P>
+<P>What's there seems fine to me, but I would suggest an addition:  that some</P>
+<P>of the scenarios be constructed from simple, but high-level usage scenarios</P>
+<P>(e.g. one, two, three or few DObjects, hosted on one or a couple of the</P>
+<P>participating machines, with repeated changes of session membership, for</P>
+<P>example).  Note I'm just suggesting this as an addition to the scenario</P>
+<P>generation that's already there.</P>
+<P>&nbsp;</P>
+<P>For Network Partition Tests:</P>
+<P>&nbsp;</P>
+<P>This looks good.  It really is important that these tests be done</P>
+<P>thoroughly...we all agree with that.  It is hard to decide when to simulate</P>
+<P>arbitrary failure (as it could happen at any time, and the system should be</P>
+<P>robust under such failures at all times), but I think Brian has articulated</P>
+<P>several of the most important partition test cases.</P>
+<P>&nbsp;</P>
+<P>For Stress/load/timing tests:</P>
+<P>&nbsp;</P>
+<P>I would say the priority of this kind of testing is "Moderately High".  I</P>
+<P>would hope we could do some of this testing soon, since scalability is</P>
+<P>critical, and it's a difficult property to achieve (and it would be good to</P>
+<P>identify problems with scalability, if any, as soon as possible).</P>
+<P>&nbsp;</P>
+<P>I agree with Brian's tests for this.  They definately would be good stress</P>
+<P>tests.</P>
+<P>&nbsp;</P>
+<P>For Performance:</P>
+<P>&nbsp;</P>
+<P>I feel the same way about performance as I do about stress tests...it would</P>
+<P>be very useful to do some of them (and I've started doing a little of that</P>
+<P>myself yesterday).  As much as can be done would be valuable.</P>
+<P>&nbsp;</P>
+<P>In Test Support Needed:</P>
+<P>&nbsp;</P>
+<P>You say:  "TBD: to what extent will the DObjects code be tested with the</P>
+<P>comm system stubbed out, and to what extent using the real comm system? My</P>
+<P>leaning is toward using the real comm system, except that it will make</P>
+<P>class bloat harder to measure."</P>
+<P>&nbsp;</P>
+<P>Currently the DObjects code does not use our comm system...primarily</P>
+<P>because we don't have a working comm system yet in any form.  The DObjects</P>
+<P>code, however, does have its own relatively simple comm system, and this</P>
+<P>currently works just fine (in my tests) for supporting the functionality of</P>
+<P>the actual DObjects subsystem code.  The same is true for the asynchronous</P>
+<P>messaging infrastructure (i.e. the DObjects code has its own, and that is</P>
+<P>working quite well, and is not yet based upon the elib package).  Like I</P>
+<P>said, both the comm system and the asynch messaging support system that</P>
+<P>DObjects uses are working *quite well* (i.e. I've found no bugs in my tests</P>
+<P>to this point).  I've already made accomodations in the DObjects code for</P>
+<P>using the full comm system and the asynch messaging infrastructures, and</P>
+<P>moving over to these subsystems should be a small effort, given that they</P>
+<P>work reliably, and meet their specific requirements (WRT functionality,</P>
+<P>performance, reliability, etc).</P>
+<P>&nbsp;</P>
+<P>In any event, I suggest that testing go ahead right now with the DObjects</P>
+<P>code as is.  When the comm system and asynch messaging structures are</P>
+<P>ready, I will move the code over to using these systems, and given that</P>
+<P>they fulfill their contracts for usage by the DObjects code, there should</P>
+<P>be little to no observable effect to the code that depends specifically</P>
+<P>upon the DObjects subsystem functionality (i.e. the subsystems that are</P>
+<P>clients of the DObjects subsystem).  If there is an effect, then it would</P>
+<P>indicate some problem with the comm system, or with the asynch messaging</P>
+<P>subsystem, or with their interaction with the DObjects code, and so this</P>
+<P>would actually serve as a good test of these systems (along with the</P>
+<P>independent testing of those two subsystems, of course).</P>
+<P>&nbsp;</P>
+<P>That's all my comments.  Like I said, I think it looks good.  Let's do it.</P>
+<P>&nbsp;</P>
+<P>Scott</P>
+<P>&nbsp;</P>
+<P>--------------------------------------------------------------------</P>
+<P>Scott B. Lewis&#9;&#9;  "Forget about reuse...get use"--Anon.</P>
+<P>Electric Communities&#9;</P>
+<P>408.342.9561</P>
+<P>alt (Portland):  503.249.5866</P>
+<P>slewis@communities.com</P>
+<P>&nbsp;</P>
+<P>&nbsp;</P></CODE></BODY>
+</HTML>

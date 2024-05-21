@@ -1,0 +1,334 @@
+// File     Statements\If.ez
+// Summary  Testing if statements
+// 
+//  001  Title    if true condition with parentheses
+//       Result   Pass
+//       Test
+                  if (true) {
+                      println( "loop A statements" )
+                  }
+// 
+//       Expect   loop A statements
+//
+//       Actual   loop A statements
+//
+//  002  Title    if true condition without parentheses - negative case
+//       Result   Fail
+//       Test
+                  if true {
+                      println( "loop A statements" )
+                  }
+// 
+//       Expect   error message
+//       Actual   value: ec.ez.prim.EZImpl_$_Impl@1cdb72
+//
+//  003  Title    if false condition with parentheses
+//       Result   Pass
+//       Test
+                  if (false) {
+                      "Level 1"
+                  }
+//
+//       Expect   value: null
+//       Actual   value: null
+//
+//  004  Title    if false condition without parentheses - negative case
+//       Result   Fail
+//       Test
+                  if false {
+                      "Level 1"
+                  }
+//
+//       Expect   error message
+//       Actual   value: ec.ez.prim.EZImpl_$_Impl@1d037b
+//
+//  005  Title    if loop 2 levels; exit level 1
+//       Result   Pass
+//       Test
+                  if (true) {
+                      println( "Level 1" )
+                  } else {if (true) {
+                      println( "Level 2" )} 
+                  }
+// 
+//       Expect   Level 1
+//       Actual   Level 1
+//
+//  006  Title    if loop 2 levels, exit level 2, version 1
+//       Result   Pass
+//       Test
+                   if (false) {
+                       println( "Level 1" )
+                   } else { if (true) {
+                       println( "Level 2" ) }
+                   }
+// 
+//       Expect   Level 2
+//       Actual   Level 2
+//
+//  007  Title    if loop 2 levels, exit level 2, version 2
+//       Result   Pass
+//       Test
+                  if (false) {
+                      println( "Level 1" )
+                  } else if (true) {
+                      println( "Level 2" )
+                  }
+//
+//       Expect   Level 2
+//       Actual   Level 2
+//
+//  008  Title    if loop 16 levels, exit level 16, no action
+//       Result   Pass
+//       Test
+                  if (false) {
+                      println( "Level 1" )
+                  } else if (false) {
+                      println( "Level 2" )
+                  } else if (false) {
+                      println( "Level 3" )
+                  } else if (false) {
+                      println( "Level 4" )
+                  } else if (false) {
+                      println( "Level 5" )
+                  } else if (false) {
+                      println( "Level 6" )
+                  } else if (false) {
+                      println( "Level 7" )
+                  } else if (false) {
+                      println( "Level 8" )
+                  } else if (false) {
+                      println( "Level 9" )
+                  } else if (false) {
+                      println( "Level 10" )
+                  } else if (false) {
+                      println( "Level 11" )
+                  } else if (false) {
+                      println( "Level 12" )
+                  } else if (false) {
+                      println( "Level 13" )
+                  } else if (false) {
+                      println( "Level 14" )
+                  } else if (false) {
+                      println( "Level 15" )
+                  } else if (false) {
+                      println( "Level 16" )
+                  }
+                  println( "End of Loop" )
+// 
+//       Expect   End of Loop
+//       Actual   End of Loop
+//
+//  009  Title    if loop 16 levels, exit level 16, with action 
+//       Result   Pass
+//       Test
+                  if (false) {
+                      println( "Level 1" )
+                  } else if (false) {
+                      println( "Level 2" )
+                  } else if (false) {
+                      println( "Level 3" )
+                  } else if (false) {
+                      println( "Level 4" )
+                  } else if (false) {
+                      println( "Level 5" )
+                  } else if (false) {
+                      println( "Level 6" )
+                  } else if (false) {
+                      println( "Level 7" )
+                  } else if (false) {
+                      println( "Level 8" )
+                  } else if (false) {
+                      println( "Level 9" )
+                  } else if (false) {
+                      println( "Level 10" )
+                  } else if (false) {
+                      println( "Level 11" )
+                  } else if (false) {
+                      println( "Level 12" )
+                  } else if (false) {
+                      println( "Level 13" )
+                  } else if (false) {
+                      println( "Level 14" )
+                  } else if (false) {
+                      println( "Level 15" )
+                  } else if (true) {
+                      println( "Level 16" )
+                  }
+// 
+//       Expect   Level 16
+//       Actual   Level 16
+//
+//  010  Title    if loop 32 levels, exit level 32, with action
+//       Result   Pass
+//       Test
+                  if (false) {
+                      println( "Level 1" )
+                  } else if (false) {
+                      println( "Level 2" )
+                  } else if (false) {
+                      println( "Level 3" )
+                  } else if (false) {
+                      println( "Level 4" )
+                  } else if (false) {
+                      println( "Level 5" )
+                  } else if (false) {
+                      println( "Level 6" )
+                  } else if (false) {
+                      println( "Level 7" )
+                  } else if (false) {
+                      println( "Level 8" )
+                  } else if (false) {
+                      println( "Level 9" )
+                  } else if (false) {
+                      println( "Level 10" )
+                  } else if (false) {
+                      println( "Level 11" )
+                  } else if (false) {
+                      println( "Level 12" )
+                  } else if (false) {
+                      println( "Level 13" )
+                  } else if (false) {
+                      println( "Level 14" )
+                  } else if (false) {
+                      println( "Level 15" )
+                  } else if (false) {
+                      println( "Level 16" )
+                  } else if (false) {
+                      println( "Level 17" )
+                  } else if (false) {
+                      println( "Level 18" )
+                  } else if (false) {
+                      println( "Level 19" )
+                  } else if (false) {
+                      println( "Level 20" )
+                  } else if (false) {
+                      println( "Level 21" )
+                  } else if (false) {
+                      println( "Level 22" )
+                  } else if (false) {
+                      println( "Level 23" )
+                  } else if (false) {
+                      println( "Level 24" )
+                  } else if (false) {
+                      println( "Level 25" )
+                  } else if (false) {
+                      println( "Level 26" )
+                  } else if (false) {
+                      println( "Level 27" )
+                  } else if (false) {
+                      println( "Level 28" )
+                  } else if (false) {
+                      println( "Level 29" )
+                  } else if (false) {
+                      println( "Level 30" )
+                  } else if (false) {
+                      println( "Level 31" )
+                  } else if (true) {
+                      println( "Level 32" )
+                  }
+// 
+//       Expect   Level 32
+//       Actual   Level 32
+//
+//  011  Title    if loop evaluating integers
+//       Result   Pass
+//       Test
+                  if (1 == 1) {
+                      println( "Level 1" )
+                  } else {
+                      println( "Level 2" )
+                  }
+                  if (1 != 1) {
+                      println( "Level 1" )
+                  } else {
+                      println( "Level 2" )
+                  }
+//
+//       Expect   Level 1
+//                Level 2
+//
+//       Actual   Level 1
+//                Level 2
+//
+//  012  Title    if loop evaluating BigIntegers
+//       Result   Pass
+//       Test
+                  if (999888777666555444333222111 == 999888777666555444333222111) {
+                      println( "Level 1" )
+                  } else {
+                      println( "Level 2" )
+                  }
+                  if (999888777666555444333222111 != 999888777666555444333222111) {
+                      println( "Level 1" )
+                  } else {
+                      println( "Level 2" )
+                  }
+//
+//       Expect   Level 1
+//                Level 2
+//
+//       Actual   Level 1
+//                Level 2
+//
+//  013  Title    if loop evaluating characters
+//       Result   Pass
+//       Test
+                  if ('a' == 'a') {
+                      println( "Level 1"  )
+                  } else {
+                      println( "Level 2" )
+                  }
+                  if ('a' != 'a') {
+                      println( "Level 1" )
+                  } else {
+                      println( "Level 2" )
+                  }
+//
+//       Expect   Level 1
+//                Level 2
+//
+//       Actual   Level 1
+//                Level 2
+//
+//  014  Title    if loop evaluating float
+//       Result   Pass
+//       Test
+                  if (1.22 == 1.22) {
+                      println( "Level 1" )
+                  } else {
+                      println( "Level 2" )
+                  }
+                  if (1.22 != 1.22) {
+                      println( "Level 1" )
+                  } else {
+                      println( "Level 2" )
+                  }
+//
+//       Expect   Level 1
+//                Level 2
+//
+//       Actual   Level 1
+//                Level 2
+//
+//  015  Title    if loop evaluating strings
+//       Result   Pass
+//       Test
+                  if ("Sunday" != "Monday") {
+                      println( "Level 1" )
+                  } else {
+                      println( "Level 2" )
+                  }
+                  if ("Sunday" == "Monday") {
+                      println( "Level 1" )
+                  } else {
+                      println( "Level 2" )
+                  }
+//
+//       Expect   Level 1
+//                Level 2
+//
+//       Actual   Level 1
+//                Level 2
+//
+

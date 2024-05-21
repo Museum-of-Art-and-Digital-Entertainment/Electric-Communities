@@ -1,0 +1,150 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE></TITLE>
+   <META NAME="Author" CONTENT="Bill Frantz">
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; U) [Netscape]">
+</HEAD>
+<BODY>
+
+<DT><B><FONT SIZE=+3>SSL and the E Comm System</FONT></B></DT>
+
+<P>Last updated: [1998/05/21 Bill Frantz] </P>
+
+<P>Author(s): <A HREF="mailto:frantz@communities.com">Bill Frantz</A>.
+</P>
+
+<P><B><FONT SIZE=+1>The E Comm system</FONT></B></P>
+
+<P>The E Comm system currently supports one cypher suite. It is most similar
+to SSL's ID_SSL_DH_DSS_WITH_3DES_EDE_CBC_SHA, which uses Diffie Hellman
+(DH) key agreement to provide perfect forward security, the Digital Signature
+Standard (DSS) to authenticate the connection, triple Data Encryption Standard
+encryption operating in CBC mode (3DES_EDE_CBC) for data privacy, and SHA
+for data authentication.</P>
+
+<P>Most of the cypher suites in SSL do not provide perfect forward security.
+This valuable property causes the session key which protects a communication
+session to be discarded after the connection is closed. The user can not
+be coerced into revealing it because all forms, encrypted or not, have
+been discarded. The ID_SSL_DH_DSS_WITH_3DES_EDE_CBC_SHA suite has this
+property, but most SSL implementations do not support it. (It does not
+appear that the <A HREF="http://www.baltimore.ie/jssl/index.html">Baltimore</A>
+or <A HREF="http://www.phaos.com/">Phaos</A> commercial Java implementations
+support this mode yet. See <A HREF="#Commercial Java SSL">Commercial Java
+SSL packages</A>.)</P>
+
+<P><B><FONT SIZE=+1>Issues:</FONT></B></P>
+
+<P>X.509 vs. Key Centric Identity</P>
+
+<UL>
+<P>SSL supports the heiarchial X.509 view of identity. In this view, every
+identity has a globally unique name, the &quot;Distinguished Name&quot;,
+and there exists a heiarchy of Certificate Authorities (CAs) which bind
+those names to the public/private key pairs used for authentication.</P>
+
+<P>The E Comm system uses a very different model of identity. In this model
+you are identified by your public key. You are authenticated by demonstrating
+that you know the private key associated with that public key. There are
+no certificate authorities or certificates.</P>
+
+<P>To use SSL, we would have to package our keys as certificates. The Baltimore
+support would allow us to override the acceptCertificate method of SSL&lt;client/server&gt;Support
+to examine the key presented and accept it. However, this override would
+not be compatible with the SSL specification.</P>
+
+<P>Another hack which is probably &quot;legal&quot; SSL is as follows:
+Our application is set up to accept a key pair &quot;cert&quot; as the
+top level CA. We distribute both the public and private keys to that CA
+as part of the application. When a vat goes to create an identity, it creates
+a certificate which associates the RegistrarID (the hash of the public
+key) as the X.509 destinguished name with the new public key for the identity.
+When it builds a SSL connection, it passes that certificate to the other
+end. We will need to add certificate checking that ensures that the distinguished
+name is indeed the hash of the public key, but I suspect all implementations
+will have an exit for that kind of checking. (The Baltimore implementation
+does.)</P>
+</UL>
+
+<P>RSA vs. DSS.</P>
+
+<UL>
+<P>SSL was developed when RSA was the only digital signature scheme with
+any degree of acceptance. Since then, DSS has received a degree of acceptance.
+RSA is a patented algorthm, with &quot;mad dog&quot; patent lawyers defending
+it. DSS is available for use without patent problems. That is why we use
+DSS in the E comm system. My understanding from talking with Tim Oren is
+that RSA licenses are only available on a &quot;unit sold&quot; basis,
+and are not available for generating certificates (so Verisign can maintain
+its monolopy).</P>
+</UL>
+
+<P>Client Server vs. Peer to Peer</P>
+
+<UL>
+<P>SLL is designed for Client/Server communications. The E Comm system
+is designed for peer to peer communications. In the SSL model, the client
+always builds connections to the server. In our model, either end can build
+the connection, and we have to handle the case where both decide to do
+it at about the same time. SSL has no such support. If we try to use it
+for our style of communications, we would have to deal with this problem.</P>
+</UL>
+
+<P>Support for PLS.</P>
+
+<UL>
+<P>A SSL client always knows where to contact his server. It is port 443
+on host foo.bar.com. The domain name foo.bar.com allows runtime lookup
+of the IP address for the server. There is no way to dynamically look up
+the port number.</P>
+
+<P>The E comm system supports a way of dynamically finding not only the
+IP address, but also the port number on which the other E system is listening.
+This is the Process Location Server (PLS), a service which is not available
+with SSL.</P>
+
+<P>The advantage of dynamically looking up the port number is that an instance
+of the E comm system can be installed without need for administrative intervention.
+It also allows more than one E comm system to run on a single computer.</P>
+
+<P>The principle disadvantage is that it makes it harder to punch a hole
+through a firewall for E communications.</P>
+
+<P>If we were to go to a fixed port number, we would need to get a assigned
+port number from the Internet Assigned Name Authority. We would still need
+some kind of PLS like lookup service for users who are dynamically assigned
+IP addresses and domain names by their ISPs. (The PLS currently has a fixed
+port assignment.)</P>
+</UL>
+
+<P><A NAME="Commercial Java SSL"></A><B><FONT SIZE=+1>Commercial Java SSL
+implementation</FONT></B></P>
+
+<P>There is a Java SSL implementation available from <A HREF="http://www.phaos.com/">Phaos
+Technology</A> in New York. Their API is available with their evaluation
+package.</P>
+
+<P>The Cryptix group is working on a Java SSL package. They have not released
+anything yet.</P>
+
+<P><A HREF="http://www.baltimore.ie/jssl/index.html">Baltimore Technologies
+SSL</A> is an example of a commercial Java SSL package. It defines two
+major classes: SSLServerSocket and SSLSocket, for servers and clients respectivly.</P>
+
+<P><B><FONT SIZE=+1>SSLServerSocket </FONT></B>(Client sockets are quite
+similar)</P>
+
+<P>The constructors take a port number, maximum number of unaccepted connections,
+and a SSLSupportFactory which defines the SLL&nbsp;support.</P>
+
+<P>There are two methods: accept and toString. accept returns s newly-created,
+non-authenticated SSLSocket connection to a remote host. Calling any of
+the accessors on the returned socket, such as getInputStream() or getOutputStream()
+will initiate the authentication handshake.</P>
+
+<P>The SSLSupportFactory provided determines all the SSL parameters. They
+provide an implementation which only supports RSA for authentication.</P>
+
+</BODY>
+</HTML>

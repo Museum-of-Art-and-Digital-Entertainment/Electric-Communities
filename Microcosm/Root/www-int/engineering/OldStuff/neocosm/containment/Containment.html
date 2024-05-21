@@ -1,0 +1,926 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.04 [en] (Win95; U) [Netscape]">
+   <META NAME="Author" CONTENT="Rob Jellinghaus">
+   <TITLE>Containment Subsystem Document</TITLE>
+</HEAD>
+<BODY>
+
+<H1>
+Containment Subsystem</H1>
+By <A HREF="mailto:robj@communities.com">RobJ</A>
+<BR>being (for now) the owner of this particular subsystem.
+
+<P><B><U>Last updated:</U></B>
+<LI>
+[18 June 98] Created.&nbsp; Commenced.</LI>
+
+<H2>
+Introduction</H2>
+Containment is the most basic application-level protocol for Microcosm.&nbsp;
+We are calling it an application protocol since it implements a particular
+set of semantics for Microcosm virtual world objects, and it doesn't have
+an infrastructure piece of its own--it leverages both the proxy comm and
+the DObjects infrastructures.
+
+<P>Containment will be implemented as one of the basic Components in the
+prototypical Microcosm CompositeDObject world objects.&nbsp; That is, there
+will be some prototype CompositeDObject which is the "canonical prop" if
+you will; the Containment component will be the most basic component thereof.
+
+<P>NOTE THAT I AM CHANGING THE WORD FOR THIS FROM CONTAINERSHIP TO CONTAINMENT!&nbsp;
+"Containment" is far more grammatically correct than "containership".
+
+<P>Notational conventions:&nbsp; [<B><U>Issues for reviewers are in bold
+underline between brackets.</U></B>]&nbsp; &lt;&lt;Links that need to be
+hooked up are in double angle brackets.>>
+<H4>
+Related Documents</H4>
+
+<OL>
+<LI>
+<A HREF="../DObjects.html">The DObjects subsystem overview.</A></LI>
+
+<LI>
+<A HREF="Introduction.htm">The containment introduction</A> which is a
+"narrative walkthrough" of some of the basic issues with containership.</LI>
+
+<LI>
+<A HREF="../dobjects/ApplicationUsage.html">The DObjects application usage
+document</A> which is a more concrete discussion of some of the containership
+issues in the context of DObjects.</LI>
+
+<LI>
+<A HREF="../../containership/MicrocosmReqs.html">The Oldocosm containership
+requirements document</A> which is more detail than you ever wanted to
+know about all the things containership needs to do or might need to do.</LI>
+</OL>
+
+<H2>
+Requirements</H2>
+See the <A HREF="../../containership/MicrocosmReqs.html">above-mentioned
+requirements document</A>.
+<BR>&nbsp;
+<H2>
+Architecture</H2>
+
+<H3>
+Current Architecture Overview</H3>
+The <A HREF="protocol1v5.html">oldocosm containership protocol document</A>
+is the best extant description of the old protocol.&nbsp; It is none too
+current (it lacks all discussion of the presence spread fixes) but it gives
+some indication of the complexity of the full multi-level approach to containership.
+<H3>
+Proposed Architecture Overview</H3>
+The particular design proposal put forth here has the following characteristics
+(in terms of the above documents' discussions):
+<OL>
+<LI>
+Implements the multi-level containment world behavior needed for Microcosm.</LI>
+
+<LI>
+Stores all multi-level containment state only at the "region level" or
+"root container level".&nbsp; (i.e. this is a "single-level approach to
+multi-level containment" in the parlance of the <A HREF="Introduction.htm">containment
+introduction</A>.)</LI>
+
+<LI>
+Leverages the DObjects infrastructure for all client presence creation
+and messaging and all container membership tracking.</LI>
+</OL>
+
+<H4>
+A note on Facets</H4>
+There are two types of relationships between the DObjects in this design:
+<OL>
+<LI>
+DObjectFacets are facets created and maintained by the Session infrastructure.&nbsp;
+If a Containable is present in a Space, it will generally have DObjectFacets
+that allow it to interact with that Space and with the other Containables
+therein.</LI>
+
+<LI>
+EFacets are facets implemented via the point-to-point E infrastructure.&nbsp;
+EFacets are used to implement protocols between DObjects where there is
+not yet any preexisting Session containing both DObjects.</LI>
+</OL>
+
+<H4>
+Spaces and Containables defined</H4>
+The proposed architecture defines two classes of objects:
+<UL>
+<LI>
+Spaces: these are objects which define and manage a space containing a
+nested tree of sub-objects.</LI>
+
+<UL>
+<LI>
+The Space object is responsible for setting and enforcing TOS; it also
+tracks all state relating to the contents of the space.&nbsp; That is,
+only the Space object contains information about the direct contents of
+the Space itself, or about the contents of any open sub-containers within
+the Space.</LI>
+
+<LI>
+Sub-containers within the Space do <I>not</I> keep track of their own contents;
+they delegate that completely to the Space.</LI>
+</UL>
+
+<LI>
+Containables: these are objects which may be contained within a Space.</LI>
+
+<UL>
+<LI>
+Note that Containables are never Spaces themselves <I>from the point of
+view of their current containing Space</I>.</LI>
+
+<LI>
+Containables have access to their containing Space, and can interact with
+the other members of the Space.</LI>
+
+<LI>
+Containables <I>may</I> have a reference to their containing object.&nbsp;
+More on this in the disconnection discussion.</LI>
+
+<UL>
+<LI>
+Digression into closable containers:&nbsp; A Containable may have a Space
+that it maintains; for example, an openable/closable container, while closed,
+may act as a "private Space" for its contents.&nbsp; But from the point
+of view of the Space in which the openable/closable container resides,
+the container while closed is simply another containable, with no known
+contents.)</LI>
+</UL>
+</UL>
+</UL>
+It almost certainly makes sense to implement two different Components:&nbsp;
+the Containable component (contained by CompositeDObjects which act as
+containables), and the Space component (contained by CompositeDObjects
+which act as Spaces).&nbsp; Openable/closable containers could be CompositeDObjects
+with both sorts of component.&nbsp; (Note that this is different from the
+oldocosm code, which lumps both functionalities into the single mind-bogglingly
+huge containership ingredient.)
+<H4>
+The ContainmentSessionManager</H4>
+There is one additional infrastructural object defined by the containment
+subsystem:
+<UL>
+<LI>
+The ContainmentSessionManager is a singleton factory object which manages
+the containment-related SessionMembers on a particular process.&nbsp; The
+ContainmentSessionManager is responsible for providing Session access to
+individual host DObjects..</LI>
+
+<UL>
+<LI>
+All Space host DObjects, on construction, receive a capability from the
+ContainmentSessionManager which they can use to instantiate a new SessionServer.</LI>
+
+<LI>
+All Containable host DObjects, on construction, receive a capability from
+the ContainmentSessionManager which they can use to request to be added
+to a Session with a given ID.</LI>
+
+<UL>
+<LI>
+The ContainmentSessionManager may connect them directly (if that Session
+happens to be local) or may construct a SessionMemberClient, connect it,
+and then add the DObject to that SessionMemberClient.&nbsp; In either case
+the Containable knows nothing about the distribution of the Session.</LI>
+</UL>
+</UL>
+</UL>
+
+<H4>
+Spaces</H4>
+Here is an overview of the state of a Space.&nbsp; (Most of this is probably
+too verbose and should get deprecated in favor of the pseudocode.&nbsp;
+What do you think?)
+<OL>
+<LI>
+A plain Java reference to a SessionServer.</LI>
+
+<UL>
+<LI>
+The Space, on construction, is given a capability to create a SessionServer
+(this capability is provided by the ContainmentSessionManager); it creates
+a SessionServer using this capability.</LI>
+
+<LI>
+It then uses the SessionServer to:</LI>
+
+<UL>
+<LI>
+Create capabilities that other Containable DObjects can use to actually
+enter the session.</LI>
+
+<UL>
+<LI>
+These capabilities essentially wrap the SessionServer itself.&nbsp; Remote
+Containable DObjects can request their local ContainmentSessionManager
+to connect to the specified Session, creating a new SessionMemberClient
+if appropriate (which hooks itself up via the session-entry capability).</LI>
+</UL>
+
+<LI>
+Cause particular members of the Space's Session to be evicted if the Space
+chooses to do so.</LI>
+
+<LI>
+Leverage the SessionServer's membership notification, so that the Space
+component needs to keep no information about what Containables are currently
+"connected" to the Space.&nbsp; See &lt;&lt;Disconnection/eviction handling>>
+below.</LI>
+</UL>
+</UL>
+
+<LI>
+A tree data structure describing the Space's complete knowledge of the
+containment topology of the Space.&nbsp; This corresponds fairly closely
+to the data (as opposed to the live references) in the current jRootUnumTree
+structure:</LI>
+
+<UL>
+<LI>
+For each Containable, the tree stores that Containable's presentation data,
+its location, and its contents.</LI>
+</UL>
+
+<LI>
+An "entry EFacet" which may be published via a SturdyRef.</LI>
+
+<UL>
+<LI>
+This entry facet is implemented as a standard E facet--i.e. it is <I>not</I>
+a DObjectFacet--since it is used only by objects which are not yet present
+in the Space, and therefore which are not part of the Session, and therefore
+which cannot yet have DObjectFacets to communicate with the Session.</LI>
+</UL>
+</OL>
+The operations available on a Space are as follows:
+<OL>
+<LI>
+A Space exports a facet that arbitrary Containables can use to request
+to be admitted to the Space.</LI>
+
+<LI>
+Once admitted, the Space issues (via its SessionServer) DObjectFacets to
+each newly-contained Containable DObject.&nbsp; These facets support the
+following operations.</LI>
+
+<OL>
+<LI>
+Each admitted Containable can request to leave the Space.</LI>
+
+<UL>
+<LI>
+If it does so, it is analogous to a "disconnect" of that object--i.e. the
+presumption is that <I>just that Containable</I> is leaving.&nbsp; What
+happens to the children of that DObject (if any) is a policy decision for
+the Space.</LI>
+</UL>
+
+<LI>
+Each admitted Containable can request that it <I>and/or all its children</I>
+be transferred elsewhere.</LI>
+
+<UL>
+<LI>
+Note that the destination may or may not be a Space; consider the example
+of an open box requesting its containing Pocket (which is a Space) to transfer
+it and all its contents to a particular avatar's hand.&nbsp; In this case,
+the destination is not a Space, but a Containable-which-is-also-an-open-container-in-another-Space.</LI>
+</UL>
+
+<LI>
+Each admitted Containable can request to change its (and only its) presentation.</LI>
+
+<UL>
+<LI>
+This is subject to TOS enforcement, of course, and may be refused by the
+Space.</LI>
+</UL>
+
+<LI>
+Each admitted Containable, finally, can request that a child or set of
+children be added beneath it.</LI>
+
+<UL>
+<LI>
+Continuing the above example, the avatar, when notified that the open box
+wants to be added, would relay that information to its containing Space,
+essentially saying "please add this box underneath me."</LI>
+
+<LI>
+Another case of this would be a teleport pad, which is a Containable; when
+an avatar arrives on the pad, the Containable messages its space saying
+"please add this object at this location in the Space."&nbsp; Note that
+this is slightly different in that the pad does not request that the avatar
+be added <I>as part of the pad's contents;</I> the pad just requests that
+the avatar be added to the same container which contains the pad itself.</LI>
+</UL>
+</OL>
+</OL>
+The DObjectFacet non-spoofability mechanism is leveraged here to prevent
+(say) a given Containable from requesting that a given object be added
+as the contents of some completely different Containable, or to prevent
+a given Containable from requesting that another Containable be removed
+from the Space.
+<H4>
+Containables</H4>
+Here is an overview of the state of a Containable.
+<OL>
+<LI>
+A Containable has a DObjectFacet which it can use to interact with its
+containing Space.&nbsp; See above for the operations available on that
+reference.</LI>
+
+<LI>
+A Containable has a "Container Of Last Resort" sturdy EFacet reference
+to an entry facet on a co-hosted DObject (which may be a Containable or
+a Space).</LI>
+
+<LI>
+A Containable <I>may</I> also have a fragile EFacet to its containing Containable.</LI>
+
+<UL>
+<LI>
+What the hell, let me digress into this right now.&nbsp; The issue is simple:&nbsp;
+let's say an avatar creates a rock while standing in a region hosted elsewhere.&nbsp;
+Suddenly the avatar's machine (which is also the rock's machine) disconnects
+from the region's machine.&nbsp; This means that both the avatar and the
+rock vanish from that region (because the region's SessionServer will inform
+the region DObject's Space component that those two DObjects are no longer
+members of the Session, and the region's Space component will clean up
+accordingly.)</LI>
+
+<LI>
+But <I>where do the avatar and the rock vanish <B>to</B>?</I>&nbsp; The
+avatar never contains any state about its contents, so the avatar can't
+tell the rock where the avatar now is (as it does in oldocosm).&nbsp; The
+rock could just vanish to its container of last resort--i.e. the avatar's
+pocket--but this is very disconcerting to the user.</LI>
+
+<LI>
+If the rock, however, has some type of reference (likely fragile) to its
+current container DObject, it can--when informed that it is no longer part
+of its current Session--use that reference to request that container DObject
+to re-add it.&nbsp; Consider this a "current container for purposes of
+disconnection handling" reference.&nbsp; This is rather similar to the
+persistence technique, where containables keep references to their containers
+and use them to re-add on revival; only in this case, the re-adding happens
+on disconnection instead, and the reference is not a RecoupableCapability
+but just a fragile reference.</LI>
+
+<LI>
+All of this is optional; if we decide it's not worth doing at first, then
+we will simply be left with everything you hold going to your pocket on
+a disconnection.</LI>
+</UL>
+
+<LI>
+A Containable has its presentation state as well, of course, and when visible
+in a region it also has a Presenter it can use.&nbsp; This Presenter was
+created by its current containing Space, and passed down via the Space's
+DObjectFacet.</LI>
+
+<LI>
+A Containable also has a SessionMemberDObjectFacet to interact with its
+Session, and may also have DObjectFacets to all the other Containables;
+these are of course mediated by the SessionMember.</LI>
+</OL>
+And now the operations of the Containable:
+<OL>
+<LI>
+A Containable can remove itself from its Space, analogous to (but not requiring)
+a disconnect.</LI>
+
+<LI>
+A Containable can request that its Space add a set of objects "underneath
+it" (i.e. an avatar pulling something out of its pocket).</LI>
+
+<LI>
+A Containable can request that its Space add a set of objects "alongside
+it" (i.e. a teleport pad introducing an avatar).</LI>
+
+<LI>
+A Containable can request that its Space transfer a set of its contained
+objects to another Containable, which may or may not be in the same Space
+(i.e. an openable box closing and transferring all its contents to its
+own private Space).</LI>
+
+<LI>
+A Containable can request that its Space disconnect a set of objects from
+its contents.</LI>
+
+<LI>
+A Space can request that the Containable transfer itself to another Space.&nbsp;
+This is how sets of objects move; the Space knows that when a parent Containable
+goes somewhere, the Space itself has to request all the children of that
+parent to go there as well.</LI>
+</OL>
+All of these, clearly, are implemented basically by pass-throughs to the
+DObjectFacet granted to the Containable by its Space.
+<H4>
+Initial setup protocol</H4>
+When an instance of EC Habitats starts up, this proposal assumes that the
+revival code simply instantiates a set of host DObject presences on the
+local process.&nbsp; The assumption is that only DObjects are revived;
+there is no notion of reviving a Session.
+
+<P>When a Space DObject is revived, it immediately creates a SessionServer
+instance to manage the DObjects that are about to arrive in that Space.&nbsp;
+It is then done with its initialization.
+
+<P>When a Containable DObject is revived, it obtains two things:
+<UL>
+<LI>
+an EFacet which it can use to request entry to its "saved container."&nbsp;
+(It may acquire this facet by following a SturdyRef, or by using the current
+RecoupableCapability mechanism; the end result is the same.)</LI>
+
+<LI>
+a capability to the ContainmentSessionManager which it can use to request
+access to a particular Session.</LI>
+</UL>
+Once it has that entry EFacet reference, the following protocol commences:
+<OL>
+<LI>
+The Containable sends information about itself (its pstate and its initially
+requested location) to the entry EFacet.</LI>
+
+<LI>
+The entry EFacet may have been published by a Space or by a Containable.</LI>
+
+<OL>
+<LI>
+If it is to a Space, then the Space performs its TOS check on the entering
+Containable.&nbsp; Assuming it passes, the Space creates a capability to
+allow another Session to join the Space's Session.&nbsp; It passes this
+session-join capability, along with the Space's SessionID, back to the
+Containable.</LI>
+
+<OL>
+<LI>
+The Containable then passes the SessionID and the session-join capability
+to its local ContainmentSessionManager.</LI>
+
+<LI>
+The ContainmentSessionManager looks up the SessionID; if it is known, the
+ContainmentSessionManager returns that SessionMember--otherwise it creates
+a new SessionMemberClient and passes it the session-join capability, which
+allows the SessionMemberClient to connect.</LI>
+
+<LI>
+At this point, the normal SessionMember->DObject setup protocol takes over,
+and the Containable becomes truly part of the Session, including receiving
+DObjectFacets to the Space.</LI>
+
+<UL>
+<LI>
+Note that the Session setup may involve further round trips.&nbsp; In some
+sense this is a two-step protocol; first you dereference the DObject you
+are entering, then you can enter the Session itself.&nbsp; It would be
+nice to be able to optimize this by pipelining the session setup on the
+entry request, so the round trips wouldn't be necessary.&nbsp; More thought
+is needed here.</LI>
+</UL>
+</OL>
+
+<LI>
+If it is to a Containable, then that Containable needs to forward the entry
+request to its Space.&nbsp; However, since we are discussing initial setup,
+that Containable may itself not be connected to a Space yet.&nbsp; In that
+case, the Containable queues the request until its own initial entry is
+complete.</LI>
+
+<OL>
+<LI>
+Once the Containable being added to is itself in a Space, it forwards the
+entry request to its DObjectFacet to its Space; the request is "add this
+sub-Containable as a containment child of me."</LI>
+
+<LI>
+The protocol then proceeds essentially as above; the Space performs a TOS
+check, issues a capability that the original Containable can use to join
+the Session, and so forth.</LI>
+</OL>
+</OL>
+</OL>
+This protocol also applies not just at revival but post-revival, for essentially
+any entry by a Containable into a new Space (i.e. a Space where the containable
+was not already present--for more on the case where it <I>is</I> already
+present, see below).
+
+<P>Note that the more important case above is in many ways the Containable
+case.&nbsp; Take two examples:
+<OL>
+<LI>
+Teleport pads are Containables whose SturdyRefs are accessible over the
+network.&nbsp; When a teleport pad gets contacted with a request to allow
+an avatar to teleport in, the teleport pad goes through the "If it is a
+Containable..." protocol above, relaying the request to its containing
+Space.&nbsp; Essentially the pad is saying "Here I am, a teleport pad already
+contained by a space... I now request the space to add this avatar right
+on top of me."</LI>
+
+<LI>
+Avatars are Containables which have a close connection to their pocket,
+a privately held Space.&nbsp; When an avatar takes something out of its
+pocket, the thing coming out of the pocket requests the Avatar to contain
+it.&nbsp; The Avatar then forwards that request to its containing Space,
+essentially saying "Here I am, an avatar already contained by a space...
+I now request the space to add this object to my hand."</LI>
+</OL>
+Most containment interactions are between Containables, except for initial
+entry into a Space and putting something "on the floor" or otherwise directly
+into a Space.
+
+<P>??? slotted semantics go here ???&nbsp; how do you get the presence
+soon enough to leverage its semantics?!?!?
+
+<P>Entry key information should be fleshed out here!
+
+<P>Diagram.
+<H4>
+Disconnection/eviction handling</H4>
+
+<H5>
+Space handling of disconnection</H5>
+Once a Space has admitted some Containables, it then needs to keep its
+local containment tree synchronized with the membership of its associated
+ServerSessionMember.
+
+<P>The Space's containment tree is the only data structure storing information
+about hierarchical containment relationships.&nbsp; The ServerSessionMember
+tracks just "flat" membership information--i.e. a plain set of DObjects
+that are currently participating in the Session.&nbsp; The ServerSessionMember
+knows nothing about which DObjects contain which.
+
+<P>When a remote SessionMember disconnects, or when a DObject (local or
+remote) disconnects itself from the Session, the ServerSessionMember detects
+it.&nbsp; The ServerSessionMember then notifies the Space of that change
+in membership, via the ordinary membership-change notification mechanism
+in the SessionMember.&nbsp; The Space DObject then must decide what to
+do to update its containment tree.&nbsp; Some options include:
+<UL>
+<LI>
+Objects contained by the departed object all "fall to the floor"--i.e.
+are now all contained by the Space itself.&nbsp; (In this case, if the
+avatar disconnects while holding something hosted by the Space's machine,
+the avatar will reappear in its home turf empty-handed, and the thing it
+was holding will fall on the floor.)</LI>
+
+<LI>
+Objects contained by the departed object are notified that they should
+attempt to reconnect to their last-known container.&nbsp; (In this case,
+if the avatar disconnects while holding something hosted by another machine,
+that something would be told "Try to reconnect to the avatar if you can
+reach it.")</LI>
+
+<LI>
+Objects contained by the departed object are kicked back to their container
+of last resort.&nbsp; (The above two cases may both devolve to this as,
+well, a last resort.)</LI>
+</UL>
+
+<H5>
+Containable handling of disconnection</H5>
+From the Containable side, it is notified of direct disconnection or eviction
+via the same mechanism:&nbsp; its SessionMemberDObjectFacet getting revoked.&nbsp;
+This will happen if either
+<OL>
+<LI>
+the Space evicts it, or</LI>
+
+<LI>
+its SessionMember becomes disconnected from the remote SessionMember.</LI>
+</OL>
+In either case, the Containable attempts to re-enter its "last known container".&nbsp;
+If this fails, it re-enters its container of last resort (which is guaranteed
+to succeed by definition).
+
+<P>If the Containable's container goes away, the Space will be responsible
+for informing the Containable.&nbsp; The Containable must then respond--either
+by trying to reenter its last known container (which it may still be able
+to reach), or by simply updating its local knowledge of its position within
+the Space.
+<H4>
+Transfer protocol</H4>
+Basic transfer order.
+<BR>Constraints.
+<BR>The magic of keys!!!&nbsp; <B><U>OK, THIS IS THE NEXT THING TO FIGURE
+OUT.</U></B>
+<OL>
+<LI>
+First the containable requests the Space to transfer it, passing some type
+of reference to the destination Containable.</LI>
+
+<UL>
+<LI>
+This reference may or may not be a DObjectFacet since the destination Containable
+may or may not be in the same Space.&nbsp; It's not clear whether we want
+to have just one type of "destination Containable" reference here.</LI>
+</UL>
+
+<LI>
+The Space then marks the Containable and all its children as "in transit"
+and sends a message (containing the entire state of that subtree, including
+the keys by which the Containables are known to the Space) to the destination
+Containable.</LI>
+
+<LI>
+The destination Containable routes this message to its current Space.</LI>
+
+<LI>
+That destination Space compares keys.&nbsp; If the keys are already present,
+the destination Space just rejiggers its tree and signals success.&nbsp;
+(This is the transfer-within-Space case.)</LI>
+
+<LI>
+That destination Space does its TOS checking.</LI>
+
+<UL>
+<LI>
+If the destination Containable is also in transit, what happens???&nbsp;
+Perhaps the transfer simply doesn't occur?&nbsp; Error message???&nbsp;
+Or does the destination Space just hold onto the request until the transit
+of the destination Containable succeeds (in which case it probably just
+tells the destination Containable to resubmit its request to its new Space),
+or fails (in which case it goes ahead and adds the requested new Containables
+underneath the destination Containable).</LI>
+</UL>
+
+<LI>
+If the destination Space allows the objects, the destination Space updates
+its containment tree with information about the new containables.&nbsp;
+The new containables are marked as "arriving" (i.e. they are shimmering
+or something).</LI>
+
+<LI>
+The destination Space then mints "enter-my-Session" capabilities for all
+of them and calls directly back to the originating Space, passing those
+capabilities.</LI>
+
+<LI>
+The originating Space then updates its tree to remove the objects (also
+signaling any pending operations on that in-transit tree to be resubmitted
+in the context of the new Space), and tells all the objects to transfer
+to the new Space's Session, using the "enter-my-Session" capabilities that
+the destination Space passed to it.</LI>
+
+<LI>
+Once the destination Space gets informed by its SessionServer that the
+arriving Containables have actually arrived in the Session, it unmarks
+them as "arriving" since they are now fully present.</LI>
+</OL>
+
+<H3>
+A more precise specification</H3>
+I need a way to get more precise about how I envision the protocol functioning.&nbsp;
+Here's my first shot:&nbsp; a draft of the relevant classes (with their
+state and their interfaces), and then a detailed pseudocode-ish walkthrough
+of the protocol and the relevant object states.
+<H4>
+Object state &amp; interface sketch</H4>
+/**
+<BR>&nbsp;* The base operations and state of a SpaceComponent.
+<BR>&nbsp;* Some of these operations are exposed through SpaceDOFacets
+which are made available
+<BR>&nbsp;* to containables.&nbsp; Others are exposed through SpaceEFacets
+which are directly referenceable
+<BR>&nbsp;* by sturdyref.&nbsp; See below.
+<BR>&nbsp;* Yes, this will one day go right into the code!&nbsp; as a starting
+point, at least!
+<BR>&nbsp;*/
+<BR>class SpaceComponent {
+<BR>&nbsp;&nbsp;&nbsp; /** The tree-structured containment tree of all
+containables in this Space.&nbsp; See below for
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * the SpaceContainmentTree sketch.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; */
+<BR>&nbsp;&nbsp;&nbsp; SpaceContainmentTree myTree;
+<BR>&nbsp;&nbsp;&nbsp; /** The ServerSessionMember this Space has authority
+over.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * XXX What kind of facet is this?&nbsp; Is
+there a mechanism for particular DObjects
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * to access this level of control now?
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; */
+<BR>&nbsp;&nbsp;&nbsp; ServerSessionDObjectFacet mySessionMember;
+<BR>&nbsp;
+<BR>&nbsp;&nbsp;&nbsp; /** Entry Methods&nbsp; - exported via SpaceDObjectFacets
+to contained Containables, and also via
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; EntryEFacets for direct-entry
+SturdyRefs or initial RecoupableThingies... i.e. this method
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; is available both to contained
+objects and to objects being revived or beamed in directly */
+
+<P>&nbsp;&nbsp;&nbsp; /* requestEntry - Request entry for the given tree
+to this space.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * @param treeToAdmit - the containment tree
+to admit.&nbsp; May have only one leaf
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * if a single containable is requesting entry.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * @param desiredParent - the ID of the desired
+parent.&nbsp; NULL if the Space itself is the desired parent.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * XXX what is MarkM's OR_NULL convention?
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * @param desiredLocation - the location at
+which to place this tree under desiredParent.&nbsp; NULL if
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * the "default location" is appropriate.&nbsp;
+XXX see above.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * @param successCallback - a callback object
+to signal success or TOS / other exception.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; */
+<BR>&nbsp;&nbsp;&nbsp; void requestEntry (ContainmentTree treeToAdmit,
+DObjectID desiredParent,
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Location desiredLocation,
+EResult successCallback);
+
+<P>&nbsp;&nbsp;&nbsp; /** DObjectSessionFacet-supporting methods */
+<BR>&nbsp;&nbsp;&nbsp; /* membershipChange - Respond to notification of
+membership change.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * XXX what is the real signature?
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * @param idsOfStillPresentDObjects - the DObjectIDs
+of the current Session membership.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; */
+<BR>&nbsp;&nbsp;&nbsp; void membershipChange (Vector idsOfStillPresentDObjects);
+
+<P>&nbsp;&nbsp;&nbsp; /** SpaceDObjectFacet-supporting methods.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * Note that ALL OF THESE should be callable
+<I>only</I> by the host presence!
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * i.e. these are DObjectFacet-type methods,
+yet you don't want these to be
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * sendable other than by the host!
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * OK, one way to express this is to provide
+a way for a host DObject to send
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * a message to the ServerSession.&nbsp; This
+has a clear meaning.&nbsp; Then the application
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * hook is to provide a way for some <I>local</I>
+DObject-with-authority to receive those
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * messages itself.&nbsp; This way, we enforce
+that there's no possible partition between
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * the ServerSessionMember receiving those
+messages and the DObject that knows
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * what to do with them!
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * ?????&nbsp; Or something like this ?????
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * In any case, the assumption is that myServerSessionMember
+is what the
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * SpaceComponent uses to receive these messages
+securely only from host
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * presences.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; */
+
+<P>&nbsp;&nbsp;&nbsp; /* disconnect - Separate this DObject and all its
+children from the Space.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * Seldom used.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * @param id - the DObjectID of the Containable
+that's leaving.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; */
+<BR>&nbsp;&nbsp;&nbsp; void disconnect (DObjectID departingContainable);
+
+<P>&nbsp;&nbsp;&nbsp; /* requestTransfer - Request the Space to transfer
+all the children of this DObject
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * (and optionally, this DObject itself) to
+another destination.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * @param transferringId - the DObjectID of
+the Containable requesting the transfer.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * @param transferRoot - whether to transfer
+the transferringID itself (if false, only children
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * are transferred).
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * @param destination - an entry facet on the
+Containable or Space to which admission is
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * requested.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * @param successCallback - a callback for
+success or to signal failure of some type.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; */
+<BR>&nbsp;&nbsp;&nbsp; void requestTransfer (DObjectID transferringID,
+boolean transferRoot,
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; EntryEFacet destination,
+EResult successCallback);
+
+<P>&nbsp;&nbsp;&nbsp; /* changePresentation - change the presentation for
+this object.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * XXX Should this be completely generic?&nbsp;
+Nah, keep Presentation at containment level.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * @param changingID - the ID of the DObject
+whose presentation is changing
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * @param newPresentationState - what it now
+wants to look like
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; */
+<BR>&nbsp;&nbsp;&nbsp; void changePresentation (DObjectID changingID, PresentationState
+newPresentationState);
+<BR>} // that can't be all!&nbsp; but enough for now.&nbsp; more will come.
+
+<P>/**
+<BR>&nbsp;* The base operations and state of a ContainableComponent.
+<BR>&nbsp;* Some of these operations are exposed through ContainableDOFacets
+which are made available
+<BR>&nbsp;* to other containables.&nbsp; Others may be exposed through
+EntryEFacets which are directly referenceable
+<BR>&nbsp;* by sturdyref.&nbsp; See below.
+<BR>&nbsp;*/
+<BR>class ContainableComponent {
+<BR>&nbsp;&nbsp;&nbsp; /* requestEntry - Request entry for the given tree
+to this space.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * @param treeToAdmit - the containment tree
+to admit.&nbsp; May have only one leaf
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * if a single containable is requesting entry.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * @param desiredParent - the ID of the desired
+parent.&nbsp; NULL if the Space itself is the desired parent.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * XXX what is MarkM's OR_NULL convention?
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * @param desiredLocation - the location at
+which to place this tree under desiredParent.&nbsp; NULL if
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * the "default location" is appropriate.&nbsp;
+XXX see above.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * @param successCallback - a callback object
+to signal success or TOS / other exception.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; */
+<BR>&nbsp;&nbsp;&nbsp; void requestEntry (ContainmentTree treeToAdmit,
+DObjectID desiredParent,
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Location desiredLocation,
+EResult successCallback);
+<BR>&nbsp;
+<BR>&nbsp;
+<H4>
+Protocol pseudocode sketch</H4>
+&nbsp;
+<BR>&nbsp;
+<H3>
+Off the shelf alternatives</H3>
+Yeah right!
+<H3>
+Other Design Objectives, Constraints and Assumptions</H3>
+<I>Lists any special objectives and assumptions of the code e.g. reusability,
+thread safety, security, performance, use of resources, compatibility with
+existing code etc. This section gives important context for reviewers</I>
+<H2>
+Current implementation</H2>
+<I>This section should give details of the major classes and interfaces.</I>
+<H4>
+Which packages on our tree does this subsystem cover?</H4>
+<I>For example ec4/javasrc/ec/...</I>
+<H4>
+Implementation overview</H4>
+<I>In many cases, this section can link to JavaDoc output from actual Java
+classes and interfaces. This saves writing documentation twice (the designers
+will have to JavaDoc their interfaces anyway). The JavaDoc should be linked
+into the design document. <A HREF="../tools/javadoc.html">Chip's JavaDoc
+style guidelines</A> explain how to use JavaDoc effectively.</I>
+<H4>
+Exception handling</H4>
+<I>For any clients of the subsystem this section discusses in general the
+exceptions that this subsystem can throw in usage, this section should
+also link to the corresponding JavaDoc.</I>
+<H4>
+Examples</H4>
+<I>Are there examples?</I>
+<H4>
+Performance</H4>
+<I>Lists performance issues, targets, considerations and tradeoffs for
+this subsystem. These issues can include: class bloat, runtime resource
+consumption and usage/invocation cost. Here are some questions to consider:</I>
+<UL>
+<LI>
+<I>Is this code doing the minimum possible for TheProduct?</I></LI>
+
+<LI>
+<I>Could this code be native?</I></LI>
+
+<LI>
+<I>Should this code be native?</I></LI>
+
+<LI>
+<I>What do you see as the most likely performance bottlenecks in this code?</I></LI>
+
+<LI>
+<I>Is there another way to write them so they're not bottlenecks?</I></LI>
+</UL>
+
+<H4>
+Testing Strategy and Debugging</H4>
+<I>Describes the testing strategy for this subsystem. List if it is possible
+to stress test this code outside TheProduct. Lists the testing API, any
+tests and debugging utilities which are to be developed to help test the
+design (e.g. test classes, trace categories, etc.).</I>
+<H4>
+Interactions and dependencies with other subsystems</H4>
+<I>Describes the testing strategy for this subsystem. Lists any tests and
+debugging utilities which are to be developed to help test the design (e.g.
+test classes, trace categories, etc.)</I>
+<BR>&nbsp;
+<H2>
+Design Issues</H2>
+
+<H4>
+Resolved Issues</H4>
+<I>History of issues raised and resolved during initial design, or during
+design inspections. Can also include alternative designs, with the reasons
+why they were rejected</I>
+<H4>
+Open Issues</H4>
+<I>This section of the document is used by the authors and moderator to
+store any incomplete information - issues identified during a design inspection
+but not yet resolved (the task list), notes that aren't ready to be put
+into the main text, etc.</I>
+<BR>&nbsp;
+</BODY>
+</HTML>

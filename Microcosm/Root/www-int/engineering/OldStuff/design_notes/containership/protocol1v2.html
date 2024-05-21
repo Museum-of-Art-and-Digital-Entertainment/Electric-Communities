@@ -1,0 +1,303 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>FIRST NOTATION:</TITLE>
+</HEAD>
+<BODY>
+
+<FONT SIZE=2><P>FIRST PROTOCOL VERSION 2:</P>
+<P>&nbsp;</P>
+
+<UL>
+<LI>OR: old root<BR>
+ORkeyOC: OR’s key for OC<BR>
+ORfsupOC: OR’s facet supporting OC as parent (contains ORkeyOC as state) <BR>
+ORfrootsupOC: OR’s facet supporting OC as root (contains ORkeyOC as state) <BR>
+ORfrootsupCb: OR’s facet supporting OC as root (contains ORkeyCb as state) <BR>
+ ORkeyCb: OR’s key for Cb<BR>
+ORfrootsupCb: OR’s facet supporting Cb (contains ORkeyCb as state)<BR>
+ORchildtree: OR’s tree of children</LI>
+<LI>OC: old container<BR>
+OCparent: OC’s channel to its parent (initially ORfsupOC) <BR>
+OCroot: OC’s channel to its root (initially ORfrootsupOC) <BR>
+OCunumrouter: OC’s unum router<BR>
+OCfsupOR: OC’s facet supporting OR (i.e. CbfsupOC is to OC as OCfsupOR is to OR)<BR>
+OCkeyCb: OC’s key for Cb<BR>
+OCfsupCb: OC’s facet supporting Cb (contains OCkeyCb)<BR>
+OCpendingrequests: OC’s table of pending flush requests from below<BR>
+OCdirectchildren: OC’s vector of *fsupOC facets for communicating with its children (initially just CbfsupOC)<BR>
+OCchildtree: OC’s tree of children</LI>
+<LI>Cb: containable <BR>
+Cbparent: Cb’s channel to its parent (initially OCfsupCb)<BR>
+Cbroot: Cb’s channel to its root’s facet (initially ORfrootsupCb) <BR>
+Cbunumrouter: Cb’s unum router<BR>
+CbfsupOC: Cb’s facet supporting OC<BR>
+Cbchildtree: Cb’s tree of children</LI>
+<LI>NC: new container<BR>
+(NCfsetparent, NCunumrouter, as for Cb)<BR>
+NCparent: NC’s channel to its parent (initially NRfsupNC)<BR>
+NCroot: NC’s channel to its root (initially NRfrootsupNC) <BR>
+NCfadd: public add facet for NC (note that this is potentially sturdyable!) <BR>
+NCdirectchildren: NC’s vector of *fsupNC facets for communicating with its children<BR>
+NCchildtree: NC’s tree of children</LI>
+<LI>NR: new root<BR>
+NRkey: new root’s key<BR>
+NRkeyNC: NR’s key for NC<BR>
+NRfsupNC: NR’s facet supporting NC as parent (contains NRkeyNC)<BR>
+NRfrootsupNC: NR’s facet supporting NC as root (contains NRkeyNC)<BR>
+NRchildtree: NR’s tree of children</LI></UL>
+
+<P>&nbsp;</P>
+<P>Messages to objects:</P>
+
+<UL>
+<LI>Root receives messages: </LI>
+<LI>uAddUnum (add an entire branch under a given container in this root)</LI>
+<LI>uRemove (remove an entire branch under this root)</LI>
+<LI>uFlush (if all changes flushed, return a flushAck)</LI>
+<LI>Container receives messages: </LI>
+<LI>uTransfer (transfer a containable out of this container)</LI>
+<LI>uAddUnum (add a containable into this container)</LI>
+<LI>uRemove (remove a containable under this container)</LI>
+<LI>uFlush (verify all changes processed)</LI>
+<LI>uFlushAck (propagate an acknowledgement on downwards)</LI>
+<LI>Containable receives messages: </LI>
+<LI>uTransfer (transfer this containable to another container)</LI>
+<LI>uTrySetContainer (commence an add of this containable elsewhere)</LI>
+<LI>uAddFailed (add attempt failed)</LI>
+<LI>uFlushAck (all parents of this container have processed all messages from this containable prior to the flush)</LI>
+<LI>uSetParent (add has committed, set the parent of this containable) </LI>
+<LI>uSetRoot (this containable or a container above it has moved to a new root; recreate unumrouter, etc.)</LI></UL>
+
+<P>&nbsp;</P>
+<P>Notation for protocol flow:</P>
+<P>X on I(a,b):</P><DIR>
+<DIR>
+
+<P>action</P>
+<P>action</P>
+<P>Y <FONT FACE="Wingdings">&#223;</FONT>
+ J(a,b)</P></DIR>
+</DIR>
+
+<P>means that on receipt of message I(a,b), X performs two actions and then sends message J(a,b) to Y.</P>
+<P>&nbsp;</P>
+<P>The protocol initiates as follows:</P>
+<P>&nbsp;</P>
+<OL>
+
+<LI>initiator:<BR>
+Cb <FONT FACE="Wingdings">&#223;</FONT>
+ uTransfer(NCfadd)</LI>
+<LI>Cb on uTransfer(NCfadd): <BR>
+make new key Cbtransferkey<BR>
+make entry in Cbpendingtransfers: [Cbtransferkey, NCfadd] <BR>
+Cbparent <FONT FACE="Wingdings">&#223;</FONT>
+ uTransfer(Cbtransferkey)</LI>
+<LI>OCfsupCb on uTransfer(Cbtransferkey): <BR>
+ OC <FONT FACE="Wingdings">&#223;</FONT>
+ uTransfer(OCkeyCb, Cbtransferkey)</LI>
+<LI>OC on uTransfer(OCkeyCb, Cbtransferkey): <BR>
+validate that transfer is OK<BR>
+if so {<BR>
+    CbfsupOC <FONT FACE="Wingdings">&#223;</FONT>
+ uTrySetContainer(Cbtransferkey) <BR>
+} else {<BR>
+    CbfsupOC <FONT FACE="Wingdings">&#223;</FONT>
+ uTransferFailed(Cbtransferkey)<BR>
+}</LI>
+<LI>CbfsupOC on uTransferFailed(Cbtransferkey): <BR>
+Cb <FONT FACE="Wingdings">&#223;</FONT>
+ uTransferFailed(Cbtransferkey)</LI>
+<LI>Cb on uTransferFailed(Cbtransferkey): <BR>
+remove Cbtransferkey’s entry in Cbpendingtransfers</LI>
+<LI>CbfsupOC on uTrySetContainer(NCfadd, Cbtransferkey): <BR>
+Cb <FONT FACE="Wingdings">&#223;</FONT>
+ uTrySetContainer(NCfadd, Cbtransferkey)</LI>
+<LI>Cb on uTrySetContainer(NCfadd, Cbtransferkey):<BR>
+<I>// NOTE that this is the only place where we do &quot;optimistic channeling&quot;.  Here is where we will<BR>
+// channel-deadlock, if anywhere. <BR>
+</I>look up Cbtransferkey in Cbpendingtransfers to reobtain NCfadd<BR>
+create new channel Cbnewparent, and its associated distributor &amp;Cbnewparent <BR>
+create new channel Cbqueueparent, and &amp;Cbqueueparent <I>// see commentary below</I><BR>
+create new channel Cbqueueroot, and &amp;Cbqueueroot<BR>
+Cboldparent = Cbparent<BR>
+Cboldroot = Cbroot<BR>
+ if Cb has any children {<BR>
+    create new random key Cbflushkey, and remember it!<BR>
+    Cbparent <FONT FACE="Wingdings">&#223;</FONT>
+ uFlush(Cbflushkey) <I>// goes to OCfsupCb since Cbparent is initially forwarded to OCfsupCb</I> <BR>
+} else {<BR>
+    go synchronously to step 15, skipping the whole flush protocol<BR>
+    <I>// we can go synchronously to CbfsupOC since CbfsupOC is colocated with Cb</I><BR>
+}<BR>
+Cbparent = Cbqueueparent<BR>
+Cbroot = Cbqueueroot<BR>
+<BR>
+<I>Commentary: As of now, Cb is in transit as far as its children are concerned.  Cb is syncing with its upwards parents.  Note that until the uFlushAck is received, Cb may still be subject to messages from above, so we do not put CbfsupOC into a queueing state until the uFlushAck completes.  <B>*** Trev, help me here. ***</B></I><BR>
+<I>Also note that Cbqueueparent is different from Cbnewparent!  Cbqueueparent is the channel into which messages from below go until we commit or abort.  Cbnewparent is the channel that gets hooked up to NCfsupCb as soon as NC processes uAddUnum.  &amp;Cbqueueparent<FONT FACE="Wingdings">&#223;</FONT>
+forward(Cbnewparent) will happen if we commit; &amp;Cbqueueparent <FONT FACE="Wingdings">&#223;</FONT>
+ forward(Cboldparent) will happen if we abort (step 20).</LI>
+</I><LI>OCfsupCb on uFlush(Cbflushkey): <BR>
+OC <FONT FACE="Wingdings">&#223;</FONT>
+ uFlush(OCkeyCb, Cbflushkey)</LI>
+<LI>OC on uFlush(OCkeyCb, Cbflushkey): <BR>
+create entry in OCpendingrequests for [Cbflushkey, OCkeyCb] <BR>
+<I>// the above entry represents &quot;when we get uFlushAck(Cbflushkey), forward it to OCkeyCb (i.e. Cb)&quot;</I><BR>
+OCparent <FONT FACE="Wingdings">&#223;</FONT>
+ uFlush(Cbflushkey) <BR>
+<I>// note that if OC is in transit, this uFlush will get queued in the unforwarded OCparent channel</LI>
+</I><LI>ORfsupOC on uFlush(Cbflushkey): <BR>
+OR <FONT FACE="Wingdings">&#223;</FONT>
+ uFlush(ORkeyOC, Cbflushkey)</LI>
+<LI>OR on uFlush(ORkeyOC, Cbflushkey)<BR>
+<I>// if we receive uFlush at the root, we just ack immediately</I><BR>
+look up OCfsupOR using ORkeyOC<BR>
+OCfsupOR <FONT FACE="Wingdings">&#223;</FONT>
+ uFlushAck(Cbflushkey)</LI>
+<LI>OCfsupOR on uFlushAck(Cbflushkey): <BR>
+OC <FONT FACE="Wingdings">&#223;</FONT>
+ uFlushAck(Cbflushkey)<BR>
+<I>// pretty boring? yes… but the point is that OCfsupOR is revokable when/if OC leaves OR</LI>
+</I><LI>OC on uFlushAck(Cbflushkey): <BR>
+look up Cbflushkey in OCpendingrequests<BR>
+look up OCkeyCb in OCchildtree, to obtain CbfsupOC<BR>
+CbfsupOC <FONT FACE="Wingdings">&#223;</FONT>
+ uFlushAck(Cbflushkey) <BR>
+<BR>
+<I>Commentary: As of now, OC has &quot;given permission&quot; for Cb to leave, but as far as OC is concerned Cb is still its child.  However, in the next step, CbfsupOC goes into a queueing state until either Cb commits (in which case all such messages get dropped—Arturo, do we have a way to throw exceptions for such dropped, never-forwarded messages?), or until Cb aborts, in which case those queued messages will get forwarded.</LI>
+</I><LI>CbfsupOC on uFlushAck(Cbflushkey): <BR>
+set this into queueing state until further notice, so any subsequent OC messages will get queued<BR>
+Cb <FONT FACE="Wingdings">&#223;</FONT>
+ uFlushAck(Cbflushkey) <BR>
+<BR>
+<I>Commentary: At this stage, Cb is in transit as far as OC is concerned.  OC doesn’t need to <U>know</U> this, though, since now that CbfsupOC is queueing messages from OC, OC can act as though Cb is still present—just with longer latency.</LI>
+</I><LI>Cb on uFlushAck(Cbflushkey): <BR>
+verify that Cbflushkey is the key we made<BR>
+<I>// commence tryadd protocol, now that we know that Cbchildtree is synced as of our flush</I><BR>
+create new facet Cbfnewsetparent (for committing) <BR>
+ create new facet CbfsupNC, initially in queueing mode<BR>
+NCfadd <FONT FACE="Wingdings">&#223;</FONT>
+ uAddUnum(Cbchildtree, Cbfnewsetparent, CbfsupNC, &amp;Cbnewparent, &amp;Cbnewroot) <BR>
+<BR>
+<I>Commentary: As of this point, we have created a facet to support our new container, but we don’t yet know whether we are <U>in</U> our new container.  So we set that facet to queue messages to it until we know.  This is how we avoid having to lock the new container; we just let it optimistically communicate to us, and if we later fail to get added to some parent of it, we just drop/throw those messages.</LI>
+</I><LI>NCfadd on uAddUnum(Cbchildtree, Cbfnewsetparent, CbfsupNC, &amp;Cbnewparent): <BR>
+NC <FONT FACE="Wingdings">&#223;</FONT>
+ uAddUnum(Cbchildtree, Cbfnewsetparent, CbfsupNC, &amp;Cbnewparent)</LI>
+<LI>NC on uAddUnum(Cbchildtree, Cbfnewsetparent, CbfsupNC, &amp;Cbnewparent):<BR>
+verify that Cbchildtree passes NC’s TOS <I>// should be doable synchronously with only Cbchildtree as state</I><BR>
+if it does {<BR>
+    insert Cbchildtree into NCchildtree<BR>
+    create new facet NCfsupCb<BR>
+<I>    // wire up the facets<BR>
+</I>    &amp;Cbnewparent <FONT FACE="Wingdings">&#223;</FONT>
+ forward(NCfsupCb)<BR>
+    store CbfsupNC in NCdirectchildren<BR>
+    NCparent <FONT FACE="Wingdings">&#223;</FONT>
+ uAddUnum(Cbchildtree, Cbfnewsetparent, &amp;Cbnewroot)<BR>
+} else {<BR>
+    construct explanation whyAddFailed<BR>
+    Cbfnewsetparent <FONT FACE="Wingdings">&#223;</FONT>
+ uAddFailed(whyAddFailed)<BR>
+}<BR>
+<BR>
+<I>Commentary:  As of now, Cb is a child of NC.  NC may attempt to send it containment messages via CbfsupNC. Cb won’t process these messages until CbfsupNC gets changed out of queueing mode, which happens below in uSetParent.</LI>
+</I><LI>Cbfnewsetparent on uAddFailed(whyAddFailed): <I>// explain the failure cases inline…</I><BR>
+Cb <FONT FACE="Wingdings">&#223;</FONT>
+ uAddFailed(whyAddFailed)</LI>
+<LI>Cb on uAddFailed(whyAddFailed):<BR>
+&amp;Cbqueueparent <FONT FACE="Wingdings">&#223;</FONT>
+ forward(Cboldparent) <I>// send all queued messages to old parent/root</I><BR>
+&amp;Cbqueueroot <FONT FACE="Wingdings">&#223;</FONT>
+ forward(Cboldroot) <BR>
+set CbfsupOC to no longer be in queueing mode; i.e. any OC messages can get handled now<BR>
+propagate whyAddFailed to wherever is appropriate <I>// Arturo: how does this happen if not exceptions?!</I> <BR>
+<BR>
+<I>Commentary: As of now, Cb is back under OC as if nothing had ever happened.</LI>
+</I><LI>NRfsupNC on uParentAddUnum(Cbchildtree, Cbfnewsetparent): <BR>
+NR <FONT FACE="Wingdings">&#223;</FONT>
+ uParentAddUnum(NRkeyNC, Cbchildtree, Cbfnewsetparent)</LI>
+<LI>NR on uParentAddUnum(NRkeyNC, Cbchildtree, Cbfnewsetparent): <BR>
+if Cbchildtree’s root key (i.e. OCkeyCb) is already in ORchildtree {<BR>
+    <I>// NR == OR, so we just move Cbchildtree under this root; no need to check TOS since it’s already here</I><BR>
+    move Cbchildtree to be under NC in NRchildtree<BR>
+    Cbfnewsetparent <FONT FACE="Wingdings">&#223;</FONT>
+ uSetParentUnderSameRoot()<I> // no args needed since you can use same root facet</I><BR>
+    fan out the move of Cbchildtree to all clients of NR<BR>
+    return<BR>
+}<BR>
+<I>// OK, it’s not the same root, so do the whole setparent logic</I><BR>
+verify Cbchildtree passes NR’s TOS <I>// should be doable synchronously with only Cbchildtree as state</I><BR>
+if it does {<BR>
+    add Cbchildtree to NR’s entry for NC in NRchildtree<BR>
+    create new facet NRfsupNC<BR>
+    construct NRchanneltree matching the structure of Cbchildtree, and matching NRdistributortree<BR>
+    Cbfnewsetparent <FONT FACE="Wingdings">&#223;</FONT>
+ uSetParentUnderNewRoot(NRfsupNC, NRdistributortree) <BR>
+    fan out Cbchildtreestate (with NRchanneltree’s channels) to all clients of NR<BR>
+} else {<BR>
+    <I>// doesn’t pass TOS, propagate the removes back down</I><BR>
+    construct explanation whyAddFailed<BR>
+    look up NCfsupNR using NRkeyNC<BR>
+    NCfsupNR <FONT FACE="Wingdings">&#223;</FONT>
+ uParentAddFailed(OCkeyCb, Cbfsetparent, whyAddFailed)<BR>
+}</LI>
+<LI>NCfsupNR on uParentAddFailed(OCkeyCb, Cbfsetparent, whyAddFailed): <I>// again, cover the exception first</I><BR>
+NC <FONT FACE="Wingdings">&#223;</FONT>
+ uRemove(OCkeyCb, Cbfsetparent, whyAddFailed)</LI>
+<LI>NC on uParentAddFailed(OCkeyCb, Cbfsetparent, whyAddFailed):<BR>
+look up OCkeyCb in NCchildtree, yielding Cbchildtree<BR>
+remove Cbchildtree from NCchildtree<BR>
+Cbfnewsetparent <FONT FACE="Wingdings">&#223;</FONT>
+ uAddFailed(whyAddFailed) <I>// already described above</LI>
+</I><LI>Cbfnewsetparent on uSetParent (NRfsupCb, NRchanneltree):<BR>
+<I>// OK, connect all our plumbing! </I><BR>
+Cboldparent <FONT FACE="Wingdings">&#223;</FONT>
+ uRemove() <I>// Cboldparent is still OCfsupCb</I><BR>
+&amp;Cbqueueparent <FONT FACE="Wingdings">&#223;</FONT>
+ forward(NCfsupCb) <I>// wire us to our new parent</I><BR>
+revoke CbfsupOC <I>// and drop any messages inside it</I><BR>
+if (NRfsupCb == null) {<BR>
+    <I>// we are under the same root, so send our root-queued messages to old root</I><BR>
+    &amp;Cbqueueroot <FONT FACE="Wingdings">&#223;</FONT>
+ forward(Cboldroot) <BR>
+} else {<BR>
+    <I>// we are NOT under the same root!</I><BR>
+    &amp;Cbqueueroot <FONT FACE="Wingdings">&#223;</FONT>
+ forward(NRfsupCb)<BR>
+    synchronously go to step 30 for Cbchild = Cb<BR>
+}<BR>
+<BR>
+<I>Commentary: As of now, we are all wired up to our parent.  If we moved roots, though, we still have to start propagating the root-changed notification downwards, via our *fsupCb facets.  Note that if any of our children are in transit, the root-change message will queue in their facet; and if they go somewhere else, the root-change message will bounce, which is Just Fine.</LI>
+</I><LI>OCfsupCb on uRemove():<BR>
+OC <FONT FACE="Wingdings">&#223;</FONT>
+ uRemove(OCkeyCb)</LI>
+<LI>OC on uRemove(OCkeyCb): <BR>
+remove entry for Cb<BR>
+revoke OCfsupCb<BR>
+ORfsupOC <FONT FACE="Wingdings">&#223;</FONT>
+ uParentRemove(OCkeyCb)</LI>
+<LI>ORfsupOC on uParentRemove(OCkeyCb): <BR>
+OR <FONT FACE="Wingdings">&#223;</FONT>
+ uRemove(ORkeyOC, OCkeyCb)</LI>
+<LI>OR on uParentRemove(ORkeyOC, OCkeyCb):<BR>
+remove entry for Cb from ORchildtree<BR>
+revoke ORfsupCb<BR>
+<BR>
+<I>Commentary: It is assumed here that OCkeyCb is the key for Cb’s branch in ORchildtree, not just in OCchildtree.  That is, OCkeyCb is a meaningful key for everyone with a tree containing Cb’s branch.  This has no security implications since just possessing OCkeyCb is not enough to spoof a request-from-Cb to OC or anyone else.  Spoofing OCkeyCb for purposes of &quot;is this the same branch&quot; is still a <B>SEMI-OPEN ISSUE</B>.</LI>
+</I><LI>Cbchild on uSetRoot (NRdistributortree): <BR>
+revoke Cbunumrouter/presence router/client vector<BR>
+create Cbnewunumrouter/etc/etc<BR>
+get root entry from NRdistributortree<BR>
+NRrootdistributor <FONT FACE="Wingdings">&#223;</FONT>
+ forward(Cbnewunumrouter) <BR>
+for each of Cbchild’s direct children {<BR>
+    get Cbchildchildbranch from NRdistributortree<BR>
+    Cbdirectchild <FONT FACE="Wingdings">&#223;</FONT>
+ uSetRoot(Cbchildchildbranch) <BR>
+}<BR>
+<BR>
+<I>Commentary:  The idea here is that we continue propagating uSetRoots downwards towards our children, passing each one the sub-branch of distributors that it and its kids need to forward.</LI></OL>
+</I></FONT></BODY>
+</HTML>

@@ -1,0 +1,102 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>PerformanceGoals</TITLE>
+<META NAME="Template" CONTENT="F:\Program Files\Microsoft Office\Office\html.dot">
+</HEAD>
+<BODY LINK="#0000ff" VLINK="#800080">
+
+<B><FONT FACE="Arial" SIZE=4><P>These were the goals laid down by Dave Leahy, Christina, Randy, Ellen, et al, for Microcosm.  There's no reason they wouldn't be applicable to NeoCosm as well.</P>
+<P>&nbsp;</P>
+<P>Habiturf Performance Requirements</P>
+</B></FONT><FONT SIZE=2><P>This document specs out the performance requirements for Habiturf running on a P133 with 32Mb of RAM and a 28.8 modem. Stress conditions: hosting five guests; connected to remotely hosted regions, also running Netscape Navigator but not much else; process in a "steady state," having traversed a few regions, met a good handful of avatars.</P>
+<P>&nbsp;</P>
+<P>Priorities:</P>
+<P>*** highest priority for product</P>
+<P>** important for product</P>
+<P>* least important for product</P>
+<P>&nbsp;</P>
+<P>Time targets:</P>
+<P>(closed beta)/(open beta)/(1.0 product), in seconds</P>
+<P>&nbsp;</P>
+<I><P>Note : Current times computed on a Pentium 133 with 64MB RAM</P>
+</FONT><B><FONT FACE="Arial"><P>*** Startup time</P>
+</B></I></FONT><FONT SIZE=2><P>Target: 60/20/5 for an average turf (say, three regions, decorated with props)</P>
+<I><P>Current : 3 minutes with or without revival. Up to 20 minutes for a client logging into busy server.</P>
+</FONT><B><FONT FACE="Arial"><P>*** Exit time (save and quit)</P>
+</B></I></FONT><FONT SIZE=2><P>Target: 20/6/2 seconds for an average turf</P>
+<I><P>Current : 2 seconds with no checkpointing, 1 minute with checkpointing.</P>
+</FONT><B><FONT FACE="Arial"><P>*** Transition times</P>
+</B></I></FONT><FONT SIZE=2><P>Times include all connection formation, messaging, and instantiation costs</P>
+</FONT><FONT FACE="Arial"><P>empty remote region loading time</P>
+</FONT><FONT SIZE=2><P>Region of average complexity (e.g., Beachtown establishing shot). Target: 15/10/5.</P>
+<I><P>Current: 15 seconds</P>
+</I></FONT><FONT FACE="Arial"><P>remote region with 5 avatars loading time</P>
+</FONT><FONT SIZE=2><P>Region of average complexity (e.g., Beachtown establishing shot). Target: 30/15/10.</P>
+</FONT><B><I><FONT FACE="Arial"><P>*** Bandwidth</P>
+</B></I></FONT><FONT SIZE=2><P>The specs are designed for the product functioning with 28.8 modems. Basic connection and messaging networking costs are expressed in the Transition Times section.</P>
+</FONT><FONT FACE="Arial"><P>Region art</P>
+</FONT><FONT SIZE=2><P>Target: 500kb/region for art resources, uncompressed; 100kb compressed (when compression/decompression comes, it’s on the back burner). 0kb when locally cached!</P>
+</FONT><FONT FACE="Arial"><P>Avatars</P>
+</FONT><FONT SIZE=2><P>100 kb in textures, uncompressed</P>
+</FONT><FONT FACE="Arial"><P>Objects</P>
+</FONT><FONT SIZE=2><P>50 kb in textures, uncompressed</P>
+</FONT><B><I><FONT FACE="Arial"><P>*** RAM</P>
+</B></I></FONT><FONT SIZE=2><P>It’s got to run in 32Mb.</P>
+<P>Habihub cannot leak (it needs to be able to run for days/weeks at a time).</P>
+<I><P>Current performance : Program can startup and run okay initially on 32Mb, but soon slows to a unusable crawl within 20 minutes. 16Mb I will not even try. (Unless you really want me to)</P>
+</FONT><B><FONT FACE="Arial"><P>** Disk space</P>
+</B></I></FONT><FONT SIZE=2><P>Installs in less than 100 Mb. </P>
+<I><P>Current: 145Mb fully expanded, 73Mb compressed on the CD. Many art files can be removed.</P>
+</I><P>Disk space cap on disk caching required for open beta.</P>
+</FONT><B><I><FONT FACE="Arial"><P>** Rendering</P>
+</B></I><P>Fixed camera scene</P>
+</FONT><FONT SIZE=2><P>Region with ten fidgeting 3D avatars, simple bitmap animations. Target: 20/15/10 frames/second.</P>
+<I><P>Current estimate: about 1 fps. This is a guess, really because the real slowdown here is the 3D Dynamos, not the rendering.</P>
+</FONT><B><FONT FACE="Arial"><P>Misc targets</P>
+</B></I></FONT><FONT SIZE=2><P>This are a suite of individual targets for speed.</P>
+<P>Latency targets that include going over the wire assume 28.8 modems, but with good throughput Internet connectivity (ping roundtrip under a second)</P>
+</FONT><FONT FACE="Arial"><P>*** Key responsiveness</P>
+</FONT><FONT SIZE=2><P>Local: 0.4/0.3/0.2.</P>
+<I><P>Current: less than 0.25 seconds. At really high peak loads, up to 5 seconds.</P>
+</I></FONT><FONT FACE="Arial"><P>*** Hot cursor snappiness</P>
+</FONT><FONT SIZE=2><P>Local: 0.4/0.3/0.2.</P>
+<I><P>Current: less than 0.2 seconds. At peak times, up to 1 second.</P>
+</I></FONT><FONT FACE="Arial"><P>** Windowing speediness</P>
+</FONT><FONT SIZE=2><P>Any tab switch or window popup in 2/1/0.75.</P>
+<I><P>Current: less than 1 second to register on all machines usually. At peak loads this slows down 1 minute response.</P>
+</I></FONT><B><FONT FACE="Arial"><P>Teleport</P>
+<P>Address book</P>
+<P>Pocket</P>
+<P>Inventory</P>
+<P>Catalog</P>
+<P>Preferences</P>
+</B><P>** Creating turf from catalog time</P>
+</FONT><FONT SIZE=2><P>Local: 8/4/2.</P>
+<I><P>Current: 3 seconds + transitioning time of 5 seconds.</P>
+</I></FONT><FONT FACE="Arial"><P>** Creating object from catalog time</P>
+</FONT><FONT SIZE=2><P>Local: 2/1/0.5.</P>
+<I><P>Current: 1 second before you can see the object &amp; put it down. At high load, up to 20 seconds.</P>
+</I></FONT><FONT FACE="Arial"><P>** Swatching latency</P>
+</FONT><FONT SIZE=2><P>Target: 2/1/0.75.</P>
+<I><P>Current: Less than 0.5 seconds. At peak times, up to 5 seconds.</P>
+</I></FONT><FONT FACE="Arial"><P>** Camera switch</P>
+</FONT><FONT SIZE=2><P>Target: 1/0.5/0.25.</P>
+<I><P>Current: 0.25 seconds.</P>
+</I></FONT><FONT FACE="Arial"><P>** Word balloon latency</P>
+</FONT><FONT SIZE=2><P>Local: 1/0.5/0.25.</P>
+<I><P>Current Local: less than .5 seconds.</P>
+</I><P>Remote: less than 1.5 seconds</P>
+<I><P>Current Remote: less than 1.5 second</P>
+<P>Note on all machines: At peak loads, latency slows down to a 1 minute response.</P>
+</I></FONT><FONT FACE="Arial"><P>** Gesture snappiness</P>
+</FONT><FONT SIZE=2><P>Local: 1/0.5/0.25.</P>
+<I><P>Current Local: less than 0.25 seconds.</P>
+</I><P>Remote: less than 1.5 seconds</P>
+<I><P>Current Remote: less than 1 second.</P>
+</I><P>Note on all machines: At peak loads, response slows to about 5 seconds.</P>
+</FONT><FONT FACE="Arial"><P>* Tool tip snappiness</P>
+</FONT><FONT SIZE=2><P>Local: 1/0.5/0.25.</P>
+<I><P>Current : 0.5 – 1 second. Occasionally it takes up to 3 seconds.</P></I></FONT></BODY>
+</HTML>

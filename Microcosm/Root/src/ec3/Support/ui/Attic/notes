@@ -1,0 +1,11 @@
+This is a place to put notes about known problems and issues with the ui classes
+--------------------------------------------------------------------------------
+
+ECScrollBorder is implemented in a way that makes it only look right when it's
+bordering a view with a vertical scroll bar but no horizontal scroll bar. It
+could be renamed or generalized; comments in ECScrollBorder.java explain the
+problem in more detail.
+
+When a tip is displayed, it's redrawing the entire rootView instead of just
+the bounding rectangle of the tip itself. This is inefficient, which might
+not matter but probably would if the tips changed often.

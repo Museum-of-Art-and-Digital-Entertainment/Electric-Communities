@@ -1,0 +1,870 @@
+# 1 "ec/ecomp/gen.java" 
+/* ************************************************************************
+ * Espresso! Byte code generation
+ * Copyright 1995 Martin Odersky. All rights reserved.
+ * 
+ * Author     : Martin Odersky
+ * Last change: 16-Apr-97
+ *************************************************************************/
+
+
+package ec.ecomp;
+# 13 "ec/ecomp/gen.java" 
+
+
+import java.util.Hashtable;
+
+/** A label represents a list of unresolved jumps.
+ */
+class Label {
+    Label next;    // the next jump in the list.
+    int pc;        // the position of the jump instruction.
+    int stacksize; // the stacksize after the jump instruction.
+    Bits uninits;  // the set of possibly uninitialized variables
+                   // immediately before the jump
+    // invariant: all elements of a label list have the same stacksize.
+
+    Label(int pc, Label next, int stacksize, Bits uninits) {
+        this.pc = pc;
+        this.next = next;
+        this.stacksize = stacksize;
+        this.uninits = uninits;
+    }
+
+    Label() {
+        this(Gen.curPc(), null, Gen.stackSize(), Gen.uninitSet());
+    }
+
+}
+
+class Gen implements /*imports*/ Constants {
+
+/**************************************************************************
+ * Operations having to do with code generation
+ *************************************************************************/
+
+/** all conditional jumps come in pairs. To streamline the
+ *  treatment of jumps, we also introduce a negation of an
+ *  unconditional jump. That opcode happens to be jsr.  
+ */
+    static int dontgoto = jsr;
+
+/** The currently written code buffer:
+ */
+    static Code code;
+    
+/** is code emitted now not dead?
+ */
+    static boolean alive;
+
+/** Is it not allowed to compactify code, because something is
+ *  pointing to current location?
+ */
+    private static boolean fixedPc;
+
+/** The current stacksize.
+ */
+    private static int stacksize;
+
+/** The source code position of the currently translated statement.
+ */
+    private static int statPos;
+
+/** The current output code pointer:
+ */
+    static int curPc() {
+        fixedPc = true;
+        return code.cp;
+    }
+
+/** The current stack size:
+ */
+    static int stackSize() {
+        return stacksize;
+    };
+
+/** The current un-initialization vector:
+ */
+    static Bits uninitSet() {
+        return code.uninits.dup();
+    }
+
+/** emit a byte of code:
+ */
+    static void emit1(int od) {
+        if (Switches.checks) Basic.assert(0 <= od && od <= 255);
+        if (alive) 
+            if (code.cp == code.code.length)
+                code.addCode((byte)od);
+            else
+                code.code[code.cp++] = (byte)od;
+    }
+    
+/** emit two bytes of code:
+ */
+    static void emit2(int od) {
+        int hi = (od >> 8) & 0xFF;
+        int lo = od & 0xFF;
+        if (alive) 
+            if (code.cp + 2 > code.code.length) {
+                code.addCode((byte)hi);
+                code.addCode((byte)lo);
+            } else {
+                code.code[code.cp++] = (byte)hi;
+                code.code[code.cp++] = (byte)lo;
+            }
+    }
+
+/** emit four bytes of code:
+ */
+    static void emit4(int od) {
+        emit1((od >> 24) & 0xFF); 
+        emit1((od >> 16) & 0xFF);
+        emit1((od >> 8) & 0xFF);
+        emit1(od & 0xFF);
+    }
+
+
+/** emit an opcode, adjust stacksize by sdiff
+ */
+    static void emitop(int op, int sdiff) {
+        if (alive) {
+            emit1(op);
+            if (sdiff <= -1000) {
+                if (Switches.checks) 
+                    Basic.assert(stacksize + 1000 + sdiff == 0);
+                alive = false;
+                code.uninits.clear();
+            } else {
+                stacksize = stacksize + sdiff;
+                if (stacksize > code.max_stack) code.max_stack = stacksize;
+                if (Switches.checks) Basic.assert(stacksize >= 0);
+            }
+        }
+    }
+
+/** emit an opcode, adjust stacksize by stackdiff[op]
+ */
+    static void emitop(int op) {
+        emitop(op, stackdiff[op]);
+    }
+
+/** emit an opcode with a one-byte field.
+ */
+    static void emitop1(int op, int od) {
+        emitop(op); 
+        emit1(od);
+    }
+
+/** emit an opcode with a one-byte field.
+ *  widen if field does not fit in a byte.
+ */
+    static void emitop1w(int op, int od) {
+      if (od > 0xFF) {
+          emit1(wide);
+          emitop2(op, od);
+      } else {
+        emitop1(op, od);
+      }
+    }
+
+/** emit an opcode with a two-byte field.
+ */
+    static void emitop2(int op, int od) {
+        emitop(op); emit2(od);
+    }
+
+/** emit an opcode with a four-byte field.
+ */
+    static void emitop4(int op, int od) {
+        emitop(op); emit2(od);
+    }
+
+/** place a byte into code at address pc.
+ */
+    static void put1(int pc, int op) {
+        // pre: pc < code.cp
+        code.code[pc] = (byte)op;
+    }
+
+/** place two bytes into code at address pc.
+ */
+    static void put2(int pc, int od) {
+        // pre: pc + 2 <= code.cp
+        put1(pc, (od >> 8) & 0xFF);
+        put1(pc+1, od & 0xFF);
+    }
+
+/** place four  bytes into code at address pc.
+ */
+    static void put4(int pc, int od) {
+        // pre: pc + 4 <= code.cp
+        put1(pc  , (od >> 24) & 0xFF);
+        put1(pc+1, (od >> 16) & 0xFF);
+        put1(pc+2, (od >> 8) & 0xFF);
+        put1(pc+3, od & 0xFF);
+    }
+
+/** return code byte at position pc
+ */
+    static int get1(int pc) {
+        return code.code[pc] & 0xFF;
+    }
+
+/** return four code bytes at position pc
+ */
+    static int get4(int pc) {
+        // pre: pc + 4 <= code.cp
+        return
+            (get1(pc) << 24) | 
+            (get1(pc+1) << 16) | 
+            (get1(pc+2) << 8) |
+            (get1(pc+3));
+    }
+
+/** align code pointer to next factor boundary:
+ */
+    static void align (int factor) {
+        if (alive)
+            while (code.cp % factor != 0) emit1(0);
+    }
+
+/** generate an entry point with stacksize stksize.
+ */
+    static void entryPoint(int stksize) {
+        if (Switches.checks) 
+            Basic.assert(!alive || stacksize == stksize);
+        stacksize = stksize;
+        alive = true;
+        if (stacksize > code.max_stack) code.max_stack = stacksize;
+    }
+
+/** generate an entry point with stacksize stksize and
+ *  un-initialization vector uninits:
+ */
+    static void entryPoint(int stksize, Bits uninits) {
+        entryPoint(stksize);
+        code.uninits = uninits.dup();
+    }
+
+/** register a catch clause:
+ */
+    static void registerCatch(int start_pc, int end_pc, 
+                              int handler_pc, int catch_type) {
+        code.addCatch(start_pc, end_pc, handler_pc, catch_type);
+    }
+
+/** create a new local variable address and return it.
+ */
+    static int newLocal(Typ typ) {
+        int res = code.max_locals;
+        code.max_locals = code.max_locals + width(typ);
+        return res;
+    }
+
+/** enter a new local variable address in v.adr; add local variable info
+ *  to code.
+ */
+    static void adrLocal(VarObj v, int adr) {
+//FIX 15/4/97
+        while (adr >= code.locals.length) {
+            VarObj[] newlocals = new VarObj[code.locals.length * 2];
+            System.arraycopy(code.locals, 0, newlocals, 0, code.locals.length);
+            code.locals = newlocals;
+        }
+        code.locals[adr] = v;
+        v.adr = adr;
+        code.addLocalVar(code.cp, v);
+    }
+
+/** return number of next local variable
+ */
+    static int nextLocal() {
+        return code.nvars;
+    }
+
+/** end scopes of all variables with numbers >= first
+ */
+    static void endScopes(int first) {
+        code.setEndPc(first, code.cp);
+    }
+
+/** assign v.adr a displacement that's unique among all fields of the
+ *  same class  (used for initialization checks).
+ */
+    static void adrGlobal(VarObj v) {
+        v.adr = code.max_fields++;
+    }
+
+/** mark beginning of statement:
+ */
+    static void statBegin(int pos) {
+        if (alive) {
+            statPos = pos;
+            if (Switches.checks) Basic.assert(stacksize == 0);
+            code.addLineNumber(code.cp, pos >>> LINESHIFT);
+        } else 
+            Report.warning(pos, "statement is unreachable");
+    }
+
+/** let variable at adr be uninitialized.
+  */
+    static void letUninit(int adr) { 
+        if (alive)
+          code.uninits.incl(adr);
+    }
+
+/** let variable at adr be initialized:
+ */
+    static void letInit(int adr) {
+        if (alive)
+          code.uninits.excl(adr);
+    }
+
+/** check that variable has been initialized:
+ */
+    static void checkInit(int pos, int adr) {
+        if (alive) {
+            if (adr < 0) {
+                Report.error(pos, "illegal forward reference");
+            } else if (code.uninits.member(adr)) {
+                Report.error(pos, 
+//FIX 15/4/97
+                             code.locals[adr] + 
+                             " might not have been initialized");
+                code.uninits.excl(adr);
+            }
+        }
+    }
+
+/**************************************************************************
+ * Operations having to do with constant pool generation
+ *************************************************************************/
+
+/** The currently written constant pool 
+ */
+    private static Pool pool = new Pool();
+
+/** Put an object into the pool.
+ */
+    static int putConstant(Object o) {
+        return pool.put(o);
+    }
+
+/** Given a class c, return its name reference:
+ */
+    static NameRef className(ClassObj c) {
+        return new NameRef(CONSTANT_Class, c.fullname);
+    }
+
+/** Given a string s, return its name reference:
+ */ 
+    static NameRef stringName(Name n) {
+        return new NameRef(CONSTANT_String, n);
+    }
+
+/** Given an object obj, return its name-and-type:
+ */
+    private static NameAndType nameType(Obj obj) {
+        Name objname = obj.name;
+        if ((obj.modifiers & PRIVATE) != 0 && Switches.obfuscate)
+            objname = Name.fromString("_$" + objname.index);
+        return new NameAndType(objname, ClassFile.typeSig(obj.typ, false));
+    }
+
+/** Given a type t, return its extended class name:
+ */
+    private static Name xClassName(Typ t) {
+        switch (t.tag) {
+        case ARRAY:
+            return ClassFile.typeSig(t, false);
+        case CLASS:
+            return t.obj.fullname;
+        case FUNCTION: 
+            throw new CompilerError("xClassName");
+        default:
+            return ClassFile.typeSig(t, false);
+        }
+    }
+
+/** Put a reference to type t in the constant pool;
+ *  return the reference's index.
+ */
+    static int mkref(Typ typ) {
+        return pool.put(new NameRef(CONSTANT_Class, xClassName(typ)));
+    }
+
+/** Put a reference to object obj in the constant pool; 
+ *  return the reference's index.
+ */
+    static int mkref(Obj obj) {
+        if (obj instanceof ClassObj)
+            return pool.put(className((ClassObj)obj));
+        else {
+            int tag;
+            if (obj instanceof VarObj) 
+                tag = CONSTANT_Fieldref;
+            else if ((obj.owner.modifiers & INTERFACE) != 0)
+                tag = CONSTANT_InterfaceMethodref;
+            else
+                tag = CONSTANT_Methodref;
+            return pool.put(
+                new Reference(tag, 
+                              className((ClassObj)obj.owner),
+                              nameType(obj)));
+        }
+    }
+
+/**************************************************************************
+ * type codes & related stuff
+ *************************************************************************/
+
+/** given a type, return its type code (used implicitly in the 
+ *  JVM architecture)
+ */
+    static int longTypecode (Typ typ) {
+        switch (typ.tag) {
+//        case PBYTE: return BYTEcode;
+        case BYTE: return BYTEcode;
+//      case PSHORT: return SHORTcode;
+        case SHORT: return SHORTcode;
+        case CHAR: return CHARcode;
+        case INT: return INTcode;
+        case LONG: return LONGcode;
+        case FLOAT: return FLOATcode;
+        case DOUBLE: return DOUBLEcode;
+        case BOOLEAN: return BYTEcode;
+        case CLASS: return OBJECTcode;
+        case NULLTYP: return OBJECTcode;
+        case ARRAY: return OBJECTcode;
+        default: throw new CompilerError("typecode");
+        }
+    }
+        
+/** collapse code for subtypes of int to INTcode
+ */        
+    static int truncateCode(int tc) {
+        switch (tc) {
+        case BYTEcode: case SHORTcode: case CHARcode: return INTcode;
+        default: return tc;
+        }
+    }
+
+/** given a type, return its collapsed type code (used implicitly in the 
+ *  JVM arhcitecture)
+ */
+    static int typecode (Typ typ) {
+        return truncateCode(longTypecode(typ));
+    }
+
+/** the width in bytes of objects of type typ.
+ */
+    static int width(Typ typ) {
+        switch (typ.tag) {
+        case VOID: return 0;
+        case LONG: case DOUBLE: return 2;
+        default: return 1;
+        }
+    }
+
+/** the total width taken up by a vector of objects.
+ */
+    static int width(Typ typs[]) {
+        int w = 0;
+        for (int i = 0; i < typs.length; i++) w = w + width(typs[i]);
+        return w;
+    }
+
+/** given a type code tc, the opcode that loads a zero of that type.
+ */
+    static int zero(int tc) {
+        switch(tc) {
+        case INTcode: return iconst_0;
+        case LONGcode: return lconst_0;
+        case FLOATcode: return fconst_0;
+        case DOUBLEcode: return dconst_0;
+        default:
+            throw new CompilerError("zero");
+        }
+    }
+
+/** given a type code tc, the opcode that loads a one of that type.
+ */
+    static int one(int tc) {
+        return zero(tc) + 1;
+    }
+
+/** given a type code tc, emit a -1 of the given type (either int or long)
+ */
+    static void emitMinusOne(int tc) {
+        if (tc == INTcode) 
+            emitop(iconst_m1);
+        else {
+            if (Switches.checks) Basic.assert(tc == LONGcode);
+            emitop(lconst_0);
+            emitop(lconst_1);
+            emitop(lsub);
+        }
+}
+
+/**************************************************************************
+ * Operations having to do jumps
+ *************************************************************************/
+
+/** negate a branch opcode
+ */
+    static int negate(int opcode) {
+        return ((opcode + 1) ^ 1) - 1;
+    }
+
+/** emit a jump instruction; l is the label pointing to the jump.
+ *  l needs to be adjusted if this is a wide conditional jump
+ */
+    static void emitJump(Label l, int opcode) {
+        if (code.fatCode) {
+            if (opcode == goto_ || opcode == jsr) {
+//FIX 21/8/96: wrong opcode for wide jumps
+              emitop4(opcode + goto_w - goto_, 0);
+            } else {
+                emitop2(negate(opcode), 8);
+                emitop4(goto_w, 0);
+//ENDFIX
+                l.pc = l.pc + 3;
+            }
+        } else {
+            emitop2(opcode, 0);
+        }
+    }
+
+
+/** emit a branch with given opcode; return its label.
+ *  branch differs from jump in that jsr is treated as noop.
+ */
+    static Label branch(int opcode) {
+        if (opcode == dontgoto || !alive) return null;
+        else {
+            Label l = new Label(code.cp, 
+                                null, 
+                                stacksize + stackdiff[opcode],
+                                uninitSet());
+            emitJump(l, opcode);
+            fixedPc = code.fatCode;
+            if (opcode == goto_) {
+                alive = false;
+                code.uninits.clear();
+            }
+            return l;
+        }
+    }
+
+/** Resolve label l to point to given target:
+ */
+    static void resolve(Label l, int target) {
+        if (l != null) {
+            if (Switches.checks) 
+                Basic.assert(target > l.pc || stacksize == 0);
+            if (target > code.cp) target = code.cp;
+            if (get1(l.pc) == goto_ && 
+                l.pc + 3 == target && target == code.cp && !fixedPc) {
+                code.cp = code.cp - 3;
+                target = target - 3;
+            } else {
+                if (code.fatCode)
+                    put4(l.pc + 1, target - l.pc);
+                else if (target - l.pc < MIN_SHORT ||
+                         target - l.pc > MAX_SHORT)
+                    code.fatCode = true;
+                else
+                    put2(l.pc + 1, target - l.pc);
+                if (Switches.checks) 
+                    Basic.assert(!alive || l.stacksize == stacksize);
+            }
+            fixedPc = true;
+            resolve(l.next, target);
+            if (code.cp == target) {
+                alive = true;
+                stacksize = l.stacksize;
+                code.uninits.orSet(l.uninits);
+            }
+        }
+    }
+
+/** Resolve label l to point to current code pointer:
+ */
+    static void resolve(Label l) {
+        resolve(l, code.cp);
+    }
+
+/** Merge the jumps in of two labels into one:
+ */
+    static Label mergeLabels(Label l1, Label l2) {
+        if (l2 == null)
+            return l1;
+        else if (l1 == null)
+            return l2;
+        else {
+            if (Switches.checks) 
+                Basic.assert(l1.stacksize == l2.stacksize);
+            return new Label(l2.pc, 
+                             mergeLabels(l1, l2.next), 
+                             l2.stacksize,
+                             l2.uninits);
+        }
+    }
+
+/**************************************************************************
+ * Setting things up
+ *************************************************************************/
+
+/** Get a new constant pool.
+ *  Uses the fact that pools are used single-threadedly.
+ */
+    static Pool newPool() {
+        pool.reset();
+        return pool;
+    }
+
+/** Get a new code buffer:
+ */
+    static Code newCode(Obj owner, boolean isStatic, boolean fatCode) {
+        code = new Code(owner, isStatic, fatCode);
+        return code;
+    }
+
+/** Set up code generation to go into buffer c:
+ */
+    static void useCode(Code c) {
+        code = c;
+    }
+
+/** How opcodes affect the stack size.
+ *  Opcodes with stackdiff value -999 need to be teated specially.
+ *  Opcodes with stackdiff value < -1000 are jumps after which code is dead.
+ */
+    private static int[] stackdiff = new int[last_opcode + 1];
+    static {
+        stackdiff[nop] = 0;
+        stackdiff[aconst_null] = 1;
+        stackdiff[iconst_m1] = 1;
+        stackdiff[iconst_0] = 1;
+        stackdiff[iconst_1] = 1;
+        stackdiff[iconst_2] = 1;
+        stackdiff[iconst_3] = 1;
+        stackdiff[iconst_4] = 1;
+        stackdiff[iconst_5] = 1;
+        stackdiff[lconst_0] = 2;
+        stackdiff[lconst_1] = 2;
+        stackdiff[fconst_0] = 1;
+        stackdiff[fconst_1] = 1;
+        stackdiff[fconst_2] = 1;
+        stackdiff[dconst_0] = 2;
+        stackdiff[dconst_1] = 2;
+        stackdiff[bipush] = 1;
+        stackdiff[sipush] = 1;
+        stackdiff[ldc1] = 1;
+        stackdiff[ldc2] = 1;
+        stackdiff[ldc2w] = 2;
+        stackdiff[iload] = 1;
+        stackdiff[lload] = 2;
+        stackdiff[fload] = 1;
+        stackdiff[dload] = 2;
+        stackdiff[aload] = 1;
+        stackdiff[iload_0] = 1;
+        stackdiff[lload_0] = 2;
+        stackdiff[fload_0] = 1;
+        stackdiff[dload_0] = 2;
+        stackdiff[aload_0] = 1;
+        stackdiff[iload_1] = 1;
+        stackdiff[lload_1] = 2;
+        stackdiff[fload_1] = 1;
+        stackdiff[dload_1] = 2;
+        stackdiff[aload_1] = 1;
+        stackdiff[iload_2] = 1;
+        stackdiff[lload_2] = 2;
+        stackdiff[fload_2] = 1;
+        stackdiff[dload_2] = 2;
+        stackdiff[aload_2] = 1;
+        stackdiff[iload_3] = 1;
+        stackdiff[lload_3] = 2;
+        stackdiff[fload_3] = 1;
+        stackdiff[dload_3] = 2;
+        stackdiff[aload_3] = 1;
+        stackdiff[iaload] = -1;
+        stackdiff[laload] = 0;
+        stackdiff[faload] = -1;
+        stackdiff[daload] = 0;
+        stackdiff[aaload] = -1;
+        stackdiff[baload] = -1;
+        stackdiff[caload] = -1;
+        stackdiff[saload] = -1;
+        stackdiff[istore] = -1;
+        stackdiff[lstore] = -2;
+        stackdiff[fstore] = -1;
+        stackdiff[dstore] = -2;
+        stackdiff[astore] = -1;
+        stackdiff[istore_0] = -1;
+        stackdiff[lstore_0] = -2;
+        stackdiff[fstore_0] = -1;
+        stackdiff[dstore_0] = -2;
+        stackdiff[astore_0] = -1;
+        stackdiff[istore_1] = -1;
+        stackdiff[lstore_1] = -2;
+        stackdiff[fstore_1] = -1;
+        stackdiff[dstore_1] = -2;
+        stackdiff[astore_1] = -1;
+        stackdiff[istore_2] = -1;
+        stackdiff[lstore_2] = -2;
+        stackdiff[fstore_2] = -1;
+        stackdiff[dstore_2] = -2;
+        stackdiff[astore_2] = -1;
+        stackdiff[istore_3] = -1;
+        stackdiff[lstore_3] = -2;
+        stackdiff[fstore_3] = -1;
+        stackdiff[dstore_3] = -2;
+        stackdiff[astore_3] = -1;
+        stackdiff[iastore] = -3;
+        stackdiff[lastore] = -4;
+        stackdiff[fastore] = -3;
+        stackdiff[dastore] = -4;
+        stackdiff[aastore] = -3;
+        stackdiff[bastore] = -3;
+        stackdiff[castore] = -3;
+        stackdiff[sastore] = -3;
+        stackdiff[pop] = -1;
+        stackdiff[pop2] = -2;
+        stackdiff[dup] = 1;
+        stackdiff[dup_x1] = 1;
+        stackdiff[dup_x2] = 1;
+        stackdiff[dup2] = 2;
+        stackdiff[dup2_x1] = 2;
+        stackdiff[dup2_x2] = 2;
+        stackdiff[swap] = 0;
+        stackdiff[iadd] = -1;
+        stackdiff[ladd] = -2;
+        stackdiff[fadd] = -1;
+        stackdiff[dadd] = -2;
+        stackdiff[isub] = -1;
+        stackdiff[lsub] = -2;
+        stackdiff[fsub] = -1;
+        stackdiff[dsub] = -2;
+        stackdiff[imul] = -1;
+        stackdiff[lmul] = -2;
+        stackdiff[fmul] = -1;
+        stackdiff[dmul] = -2;
+        stackdiff[idiv] = -1;
+        stackdiff[ldiv] = -2;
+        stackdiff[fdiv] = -1;
+        stackdiff[ddiv] = -2;
+        stackdiff[imod] = -1;
+        stackdiff[lmod] = -2;
+        stackdiff[fmod] = -1;
+        stackdiff[dmod] = -2;
+        stackdiff[ineg] = 0;
+        stackdiff[lneg] = 0;
+        stackdiff[fneg] = 0;
+        stackdiff[dneg] = 0;
+        stackdiff[ishl] = -1;
+        stackdiff[lshl] = -1;
+        stackdiff[ishr] = -1;
+        stackdiff[lshr] = -1;
+        stackdiff[iushr] = -1;
+        stackdiff[lushr] = -1;
+        stackdiff[iand] = -1;
+        stackdiff[land] = -2;
+        stackdiff[ior] = -1;
+        stackdiff[lor] = -2;
+        stackdiff[ixor] = -1;
+        stackdiff[lxor] = -2;
+        stackdiff[iinc] = 0;
+        stackdiff[i2l] = 1;
+        stackdiff[i2f] = 0;
+        stackdiff[i2d] = 1;
+        stackdiff[l2i] = -1;
+        stackdiff[l2f] = -1;
+        stackdiff[l2d] = 0;
+        stackdiff[f2i] = 0;
+        stackdiff[f2l] = 1;
+        stackdiff[f2d] = 1;
+        stackdiff[d2i] = -1;
+        stackdiff[d2l] = 0;
+        stackdiff[d2f] = -1;
+        stackdiff[int2byte] = 0;
+        stackdiff[int2char] = 0;
+        stackdiff[int2short] = 0;
+        stackdiff[lcmp] = -3;
+        stackdiff[fcmpl] = -1;
+        stackdiff[fcmpg] = -1;
+        stackdiff[dcmpl] = -3;
+        stackdiff[dcmpg] = -3;
+        stackdiff[ifeq] = -1;
+        stackdiff[ifne] = -1;
+        stackdiff[iflt] = -1;
+        stackdiff[ifge] = -1;
+        stackdiff[ifgt] = -1;
+        stackdiff[ifle] = -1;
+        stackdiff[if_icmpeq] = -2;
+        stackdiff[if_icmpne] = -2;
+        stackdiff[if_icmplt] = -2;
+        stackdiff[if_icmpge] = -2;
+        stackdiff[if_icmpgt] = -2;
+        stackdiff[if_icmple] = -2;
+        stackdiff[if_acmpeq] = -2;
+        stackdiff[if_acmpne] = -2;
+        stackdiff[goto_] = 0;
+        stackdiff[jsr] = 0;
+        stackdiff[ret] = 0;
+        stackdiff[tableswitch] = -1;
+        stackdiff[lookupswitch] = -1;
+        stackdiff[ireturn] = -1001;
+        stackdiff[lreturn] = -1002;
+        stackdiff[freturn] = -1001;
+        stackdiff[dreturn] = -1002;
+        stackdiff[areturn] = -1001;
+        stackdiff[return_] = -1000;
+        stackdiff[getstatic] = -999;
+        stackdiff[putstatic] = -999;
+        stackdiff[getfield] = -999;
+        stackdiff[putfield] = -999;
+        stackdiff[invokevirtual] = -999;
+        stackdiff[invokenonvirtual] = -999;
+        stackdiff[invokestatic] = -999;
+        stackdiff[invokeinterface] = -999;
+        stackdiff[newfromname] = 0;
+        stackdiff[new_] = 1;
+        stackdiff[newarray] = 0;
+        stackdiff[anewarray] = 0;
+        stackdiff[arraylength] = 0;
+        stackdiff[athrow] = -1001;
+        stackdiff[checkcast] = 0;
+        stackdiff[instanceof_] = 0;
+        stackdiff[monitorenter] = -1;
+        stackdiff[monitorexit] = -1;
+        stackdiff[wide] = 0;
+        stackdiff[multianewarray] = -999;
+        stackdiff[if_acmp_null] = -1;
+        stackdiff[if_acmp_nonnull] = -1;
+        stackdiff[goto_w] = 0;
+        stackdiff[jsr_w] = 0;
+        stackdiff[breakpoint] = 0;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

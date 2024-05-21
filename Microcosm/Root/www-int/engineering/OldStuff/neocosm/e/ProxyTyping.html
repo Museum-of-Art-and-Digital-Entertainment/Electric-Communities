@@ -1,0 +1,221 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.03 [en] (Win95; U) [Netscape]">
+</HEAD>
+<BODY>
+
+<H3>
+Proxy Typing in New-E</H3>
+<I>A topical tactical page</I>
+<BR>By <A HREF="mailto:robj@communities.com">RobJ</A> 19 May 98
+<BR>
+<HR WIDTH="100%">
+<BR>New-E has an outstanding design issue that needs to get sorted soon.&nbsp;
+This page describes the situation, the issues, and the potential strategies.&nbsp;
+We'll pick one once everyone's had a chance to review the situation.
+<H3>
+The Situation</H3>
+Let's assume the following new-E-ish code:
+<UL>class Argument implements Proxyable
+<BR>&nbsp;&nbsp;&nbsp; String myData;
+<BR>&nbsp;&nbsp;&nbsp; Argument(String data) { myData = data; }
+<BR>&nbsp;&nbsp;&nbsp; // warning: data better not be null! ...this becomes
+important later
+<BR>&nbsp;&nbsp;&nbsp; void doSomething () { data.print(); }
+<BR>}
+<BR>...
+<BR>&nbsp;&nbsp;&nbsp; Argument arg = new Argument("yow");
+<BR>&nbsp;&nbsp;&nbsp; E.send(someOtherProxy, "someMessage", arg);
+<BR>...</UL>
+In this code, someOtherProxy is a proxy for some object on the other side
+of the wire.&nbsp; This object implements the "someMessage" method.&nbsp;
+The argument to the "someMessage" method is the proxyable argument "arg".
+<BR>When the "someMessage" envelope gets received by the remote machine,
+the remote machine needs to create a proxy representing the "arg" object.
+<BR>The question is, what kind of proxy object does that remote machine
+create?&nbsp; And how does that interact with how the "someMessage" method
+needs to be declared?
+<H3>
+Generic Proxies</H3>
+The simplest sort of Proxy object is one which is strictly generic:
+<UL>class Proxy {
+<BR>&nbsp;&nbsp;&nbsp; int mySwissNumber, myRemoteRegistrarID;
+<BR>&nbsp;&nbsp;&nbsp; public int swissNumber () { return mySwissNumber;
+}
+<BR>&nbsp;&nbsp;&nbsp; public int remoteRegistrarID() { return myRemoteRegistrarID;
+}
+<BR>&nbsp;&nbsp;&nbsp; Proxy (int id, int initialNumber) { myRemoteRegistrarID
+= id; mySwissNumber = number; }
+<BR>}</UL>
+If this were the sort of Proxy used in the new-E comm system, then somewhere
+in the E runtime (in the implementation of E.send) there would be some
+code of the form (don't have a heart attack MarkM, I know there is probably
+a cleaner way to do this):
+<UL>if (sendTarget instanceof Proxy) {
+<BR>&nbsp;&nbsp;&nbsp; sendEnvelopeToProxy(sendTarget, messageName, arguments);
+<BR>}</UL>
+So let's assume the remote machine's comm system created one of these proxy
+objects to represent the received "arg" argument.
+<BR>If the remote machine's "someOtherProxy" object went and did
+<UL>E.send(arg, "doSomething");</UL>
+somewhere in its "someMessage" method, it would call into E.send, which
+would result in a network "doSomething" message getting sent--because the
+E.send call, invoked on arg (an instanceof Proxy), would wind up doing
+sendEnvelopeToProxy.&nbsp; (Note that at no time do we do "arg.doSomething()"
+since this is E we're talking about and we know, because we pay attention,
+that arg <I>might</I> be a remote object.)
+<H3>
+However</H3>
+The question then is, what is the declaration of someMessage?
+<BR>One would think it would be:
+<UL>class SomeClass implements Proxyable { // or else we couldn't have
+had SomeOtherProxy pointing to this
+<BR>&nbsp;&nbsp;&nbsp; void someMessage (Argument arg) {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; E.send(arg, "doSomething");
+<BR>&nbsp;&nbsp;&nbsp; }
+<BR>}</UL>
+Since after all, that's what it <I>must</I> be if it takes an argument
+of type Argument, right?
+<BR>The problem is that this doesn't work with generic proxies!&nbsp; If
+the remote machine created an object of type Proxy (instead of an object
+of type Argument) to represent the incoming value of "arg", then the E
+runtime couldn't invoke someMessage, since the "arg" object would in fact
+<I>not be of type Argument</I>.&nbsp; You would wind up needing to say
+<UL>&nbsp;&nbsp;&nbsp; /*
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * Some message or other.
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; * @param arg The only argument (type Argument)
+<BR>&nbsp;&nbsp;&nbsp;&nbsp; */
+<BR>&nbsp;&nbsp;&nbsp; void someMessage (Proxyable arg) {
+<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; E.send(arg, "doSomething");
+<BR>&nbsp;&nbsp;&nbsp; }</UL>
+That way, the E runtime could still invoke the someMessage method through
+CRAPI despite the fact that arg is not an Argument.&nbsp; If you wanted
+to record that arg should be of type Argument, you would need to do so
+in the javadoc comments.
+<BR>If we captured this type info rigorously in the javadoc comments, we
+could then write a tool which could type-check all of our E sends, ensuring
+that the known types of the objects being sent matched the javadoc information.
+<H3>
+The other possibility</H3>
+The alternative way to do it is to create some kind of proxy object which
+has the correct type.&nbsp; You make the "arg" proxy object actually an
+instanceof Argument in some way or other.&nbsp; There are two ways to do
+it:
+<H4>
+El Cheapo (tm 1998 Arturo)</H4>
+We could make it a requirement of being Proxyable that you implement a
+special constructor:
+<UL>class Proxyable {
+<BR>&nbsp;&nbsp;&nbsp; protected Proxy myProxy = null;
+<BR>}
+<BR>class Argument extends Proxyable {
+<BR>&nbsp;&nbsp;&nbsp; String myData;
+<BR>&nbsp;&nbsp;&nbsp; Argument(String data) { myData = data; }
+<BR>&nbsp;&nbsp;&nbsp; Argument(Proxy proxy) { myProxy = proxy; }
+<BR>&nbsp;&nbsp;&nbsp; void doSomething () { if (ProxyChecking.ON &amp;&amp;
+myProxy == null) { data.print(); }}
+<BR>}</UL>
+The idea here is that the code which creates the proxy would do it like
+so:
+<UL>Proxy newProxy = new Proxy(informationFromTheWireAboutTheArgObject);
+<BR>Object newTypedProxy = new Argument(newProxy);</UL>
+This basically creates a "proxy-only" Argument object, with most of its
+instance variables (except for myProxy) being null.
+<BR>You could then invoke someMessage passing in newTypedProxy, and it
+would work with the typed version of someMessage.
+<BR>The problem would be if you tried to call newTypedProxy.doSomething()
+directly; the newTypedProxy only has part of the state of the actual Argument
+object, so you could die horribly.&nbsp; This is why the doSomething()
+code above checks that myProxy == null before actually doing its thing;
+if myProxy != null, this Argument object is actually a proxy with mostly-null
+state, and would die if it actually tried to doSomething().
+<BR>So if you do this, you wind up with lots of objects that have the proper
+Java type information for what they ought to be, but which are huge potential
+sources of null pointer exceptions if you forget to check whether they're
+really proxies.
+<H4>
+Stub generation</H4>
+The way RMI and old-E and similar systems solved this issue was by stub
+generation.&nbsp; You basically ran a utility over all your Proxyable classes
+and it spat out new classes automatically:
+<UL>class ArgumentProxy implements Argument {
+<BR>&nbsp;&nbsp;&nbsp; Proxy myProxy;
+<BR>&nbsp;&nbsp;&nbsp; ArgumentProxy (Proxy underlyingProxy) { ... }
+<BR>&nbsp;&nbsp;&nbsp; void doSomething () { sendToProxy(myProxy, "doSomething");
+}
+<BR>}</UL>
+Or something like that.&nbsp; You get the idea:&nbsp; for every proxyable
+class, you make a new class that has the same interface (glossing over
+the fact that Argument is a class and not an interface here), and you have
+its methods do the asynchronous invocation.
+<BR>The problem with this is that it results in class bloat, and that it
+requires an additional tool and an additional compile step.
+<H3>
+The Big Picture</H3>
+What this really boils down to is one fundamental choice, and then one
+sub-choice along each option:
+<OL>
+<LI>
+Do we use Java declarations to describe the types of arguments that may
+have come in over the wire?</LI>
+
+<BR>If we do not, then we use Proxyable as the Java-declared type of all
+arguments-that-may-be-proxies.&nbsp; In this case the two subchoices are:
+<OL>
+<LI>
+Do we just leave it at that?</LI>
+
+<BR>If that were all the typechecking that our compile environment attempted
+to do, we would be paying no space cost and no time cost for our proxy
+strategy, but we would have some risk of passing badly typed arguments
+around; this could result in "bad type" errors down the line when you lose
+track of what type you thought an argument was.&nbsp; The compiler would
+be basically no help at all when tracking types of E message send arguments.&nbsp;
+Not only that, but we would have <I>no</I> place in the code to track what
+those arguments should be, and it would be hugely painful to reconstruct
+that information later.
+<LI>
+Do we create a tool to statically check E message sends against Javadoc
+type info?</LI>
+
+<BR>If we had a (religiously used) Javadoc convention for listing the type
+of a Java-typed-as-Object might-be-a-proxy argument, and if we had a static
+tool that could analyze that information and typecheck the actual arguments
+to E sends against it, it wouldn't matter that we didn't have the type
+information in the Java declaration; the checked Javadoc, with the typechecker,
+would do the job.&nbsp; (And in fact it would do an even <I>better</I>
+job, because it could type-check the sends themselves!--all the discussion
+we've done so far is just about the received arguments in the receiver,
+not about catching type problems in E.send itself!)&nbsp; However, we don't
+have such a tool, and it would take months to write one (the last estimate
+was six weeks, with no real investigation of that time estimate).</OL>
+If we do use Java declarations to provide type information for over-the-wire
+objects, the two subchoices are:
+<OL>
+<LI>
+Do we do El Cheapo deflectors?</LI>
+
+<BR>They introduce a substantial risk of misbehavior at runtime, if you
+get sloppy and start doing things with objects that look like your everyday
+objects but are actually proxies.&nbsp; They also introduce some development
+overhead in that every "real" method needs to check (for safety) that it
+is not being invoked on a proxy by mistake.&nbsp; However, there is no
+tool cost to doing El Cheapo; we could start doing it immediately.
+<LI>
+Do we build a stub generator?</LI>
+
+<BR>This would start moving us back into the tools world, which we've already
+said we want to get out of.&nbsp; (It would be substantially simpler than
+a Javadoc-type-info-checking static typechecker, though!)&nbsp; One positive
+of this is that it is upwards compatible with El Cheapo; we could do El
+Cheapo now and build a stub generator later, and none of our (correct)
+code would care.</OL>
+It's also worth noting that if we keep type information in the Java declarations
+(i.e. we do El Cheapo or stub generation), we could always later build
+an E.send typechecker that used <I>that</I> information.</OL>
+It's a gnarly problem space.&nbsp; Let me know if some or all of this sounded
+totally garbled, and stay tuned for the resolution.
+<BR>&nbsp;
+</BODY>
+</HTML>

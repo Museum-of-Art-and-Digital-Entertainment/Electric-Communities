@@ -1,0 +1,69 @@
+PACKAGE =  ec
+MODNAME =  first_stuff
+
+SAFETY_MODE = STEWARD
+
+vpath %.java .
+vpath %.e .
+
+FILES.spjclass     = $(FILES.spjava:%.java=$(FULLPATH)%.class)
+
+# IMPORTANT! READ THIS COMMENT BEFORE MODIFYING THIS FILE!
+# 
+# The files compiled by this rule should only be dummy files.
+# If there is a "real" file you need compiled before most
+# of the E runtime, place it in the E runtime GNUmakefile
+# itself (runtime/e/run/GNUmakefile), and heed the similarly-
+# marked comment in that file regarding the minimal-make and
+# minimal-test. If you are adding new dummy files, then they
+# should only be ones needed by the E runtime itself.
+# Those are the packages:
+#   ec.e.run  (E/runtime/e/run)
+#   ec.e.lang  (E/runtime/e/lang)
+#   parts of ec.util  (E/runtime/util)
+#
+# If you need dummy files for anything else, it belongs somewhere
+# else. Dummy files themselves should live in the e/run
+# directory if they are needed for the E runtime. Again,
+# if the make of the E runtime succeeds without your dummies,
+# then the dummies don't belong here.
+# 
+# IMPORTANT! READ THIS COMMENT BEFORE MODIFYING THIS FILE!
+
+FILES.spjava = \
+	e/run/RtNetDummies.java \
+	e/run/RtRunDummies.java \
+	e/run/RtFileDummies.java \
+	e/run/RtStartDummies.java \
+	e/run/TraceDummies.java \
+	e/run/TimerDummies.java
+
+include $(TOP)/E/makefiles/Defs.gmk
+
+all: bootstrap_classes mk_dirs classes
+
+bootstrap_classes:
+	mkdir -p $(BUILD)/steward/classes/ec/ecomp/lang
+	cp $(BUILD)/classes/ec/ecomp/lang/* $(BUILD)/steward/classes/ec/ecomp/lang/
+
+mk_dirs:
+	@echo ""
+	mkdir -p $(CLASSDIR)/ec/util
+	mkdir -p $(CLASSDIR)/ec/e/run
+	mkdir -p $(CLASSDIR)/ec/e/net
+	mkdir -p $(CLASSDIR)/ec/e/file
+	mkdir -p $(CLASSDIR)/ec/e/start
+	mkdir -p $(CLASSDIR)/ec/e/db
+	mkdir -p $(CLASSDIR)/ec/e/rep
+	mkdir -p $(CLASSDIR)/ec/e/rep/steward
+	mkdir -p $(LISTPATH)
+	@echo ""
+
+clean:
+	-$(RM) -rf $(FILES.spjclass)
+	-$(RM) -rf $(LISTPATH)
+	-$(RM) -f $(FILES.javat) $(FILES.et) $(FILES.spjavat)
+	-$(RM) -rf $(BUILD)/steward/classes/ec/e/net/EConnection.class
+	-$(RM) -rf $(BUILD)/steward/classes/ec/e/net/ESender.class
+
+include $(TOP)/E/makefiles/Rules.gmk

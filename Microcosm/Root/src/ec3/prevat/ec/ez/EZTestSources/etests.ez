@@ -1,0 +1,124 @@
+// On the publishing end, with Promises:
+define meow := ec.e.lang.EInteger_$_Impl new(2)
+define kitty := refmaker makeSturdyRef(meow)
+exporter exportRef(kitty,reg)
+define smurgle := kitty <- followRef
+smurgle when (to (arg) {println(arg)})
+
+// On the publishing end, with an explicit distributor
+
+define meow := ec.e.lang.EInteger_$_Impl new(12)
+define kitty := refmaker makeSturdyRef(meow)
+exporter exportRef(kitty,reg)
+define cat2 := ec.e.run.EChannel_$_Impl new
+define purr := cat2 distributor
+define imp := registrar getSturdyRefFileImporter(environment)
+define catty := imp importRef(reg)
+define smurgle := catty <- followRef(purr)
+cat2 when (to (arg) {println(arg)})
+
+
+// on the "lookup end"
+define imp := registrar getSturdyRefFileImporter(environment)
+define catty := imp importRef(lookup)
+define smurgle := catty <- followRef
+smurgle when (to (arg) {println(arg)})
+define fuzzy := ec.e.lang.EInteger_$_Impl new(17)
+define kitty := smurgle <- add(fuzzy)
+kitty when (to (arg) {println(arg)})
+
+// using an explicit distributor:
+define fuzzy := ec.e.lang.EInteger_$_Impl new(11)
+define cat1 := ec.e.run.EChannel_$_Impl new
+define purr1 := cat1 distributor
+smurgle <- add(fuzzy, purr1)
+cat1 when (to (arg) {println(arg)})
+
+
+// setup to calculate abs of channel
+// this does everything using conventional e objects and e envelopes
+define chan := ec.e.lang.EInteger_$_Channel new(false)
+define dist := chan distributor
+define chan2 := ec.e.lang.EInteger_$_Channel new(false)
+define dist2 := chan2 distributor
+define reply := chan abs$async(dist2)
+define numba := ec.e.lang.EInteger_$_Impl new(-2)
+dist forward$async(numba)
+chan2 when(to (arg) {println(arg)})
+
+// Send a conventional e message to a EZ Object
+// Here is an EZ Object that responds to an absolute value request
+define makeint := to (x1) {
+ define val := x1
+ object {
+	to abs(x) {x forward$async(ec.e.lang.EInteger_$_Impl new (val abs))}
+ }
+}
+// The following sets up a channel to an EInteger, sends an abs into it
+// and then forwards it to the EZ Object
+define nat := makeint run(-77)
+define chan := ec.e.lang.EInteger_$_Channel new(false)
+define dist := chan distributor
+define chan2 := ec.e.lang.EInteger_$_Channel new(false)
+define dist2 := chan2 distributor
+define reply := chan abs$async(dist2)
+define numba := ec.e.lang.EInteger_$_Impl new(-33)
+dist forward$async(nat)
+chan2 when(to (arg) {println(arg)})
+
+
+// Code that follows are random scraps
+
+define imp := registrar getSturdyRefFileImporter(environment)
+define catty := imp importRef(reg)
+define smurgle := catty <- followRef
+(smurgle state) <- println
+
+
+define cat := ec.e.run.EChannel_$_Impl new
+define purr := cat distributor
+cat when (to (arg) {println("Meow")
+println(arg)})
+define numba := ec.e.lang.EInteger_$_Impl new(5)
+purr forward$async(numba)
+
+
+define cat := ec.e.run.EChannel_$_Impl new
+define purr := cat distributor
+cat when to arg {println("Meow")
+println(arg)}
+define numba := ec.e.lang.EInteger_$_Impl new(5)
+purr forward$async numba
+
+
+define meow := 3.0 <- cos
+define cat := meow state
+cat when (to (arg) {println(arg)})
+meow when (to (arg) {println(arg)})
+
+define numba := ec.e.lang.EInteger_$_Impl new(2)
+define n2 := ec.e.lang.EInteger_$_Impl new(3)
+define cat := ec.e.run.EChannel_$_Impl new
+define purr := cat distributor
+numba <- add(n2,purr)
+cat when (to (arg) {println(arg)})
+
+
+
+// Variation that uses an implicit distributor as the last argument to add:
+define numba := ec.e.lang.EInteger_$_Impl new 2
+define n2 := ec.e.lang.EInteger_$_Impl new 3
+define furry := numba <- add n2
+furry when to ((arg) {println(arg)})
+
+define cat := ec.e.run.EChannel_$_Impl new
+define purr := cat distributor
+define furry := numba <- add n2
+furry when to ((arg) {println(arg)})
+
+
+
+
+define cat := 3.0 <- cos
+cat when (to (arg) {println(arg)})
+

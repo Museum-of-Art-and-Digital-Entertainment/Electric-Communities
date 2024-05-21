@@ -1,0 +1,43 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>Robj_on_FSync</TITLE>
+<META NAME="Template" CONTENT="D:\PROGRAM FILES\MICROSOFT OFFICE\OFFICE\html.dot">
+</HEAD>
+<BODY LINK="#0000ff" VLINK="#800080">
+
+<FONT SIZE=2><P>&nbsp;</P>
+<P>Return-Path: robj@communities.com</P>
+<P>X-Sender: robj@mail.communities.com</P>
+<P>Date: Wed, 21 May 1997 18:03:00 -0700</P>
+<P>To: Felix Baumgardner &lt;felix@communities.com&gt;, ec_dev@communities.com</P>
+<P>From: Rob Jellinghaus &lt;robj@communities.com&gt;</P>
+<P>Subject: Re: A tool to manage two source trees</P>
+<P>&nbsp;</P>
+<P>Just as another reminder: I don't use WinEmacs, and don't care to mung</P>
+<P>with Codewright macros to write files in two places. </P>
+<P>&nbsp;</P>
+<P>My preferred style:</P>
+<P>&#9;cvs upd on groucho</P>
+<P>&#9;sync files (i.e. copy changed files groucho-&gt;PC)</P>
+<P>&#9;edit-compile-run until ready to submit</P>
+<P>&#9;sync files (this time PC-&gt;groucho)</P>
+<P>&#9;cvs upd on groucho (to merge)</P>
+<P>&#9;sync files</P>
+<P>&#9;test</P>
+<P>&#9;sync files</P>
+<P>&#9;cvs commit</P>
+<P>&nbsp;</P>
+<P>Obviously, it's the "sync files" part that's painful. The tool</P>
+<P>\\unreal\public\fsync.exe has been working WONDERFULLY WELL for me. With</P>
+<P>fsync.exe you can just click some cute buttons and it'll sync your file</P>
+<P>trees for you. No macro munging, no cvs wizardry, much simpler for</P>
+<P>peabrain me to deal with. Bidirectional, filterable, the whole bit.</P>
+<P>&nbsp;</P>
+<P>Your mileage varies....</P>
+<P>&nbsp;</P>
+<P>&nbsp;</P>
+<P>Rob Jellinghaus&#9;&#9;robj@communities.com</P>
+<P>&nbsp;</P></FONT></BODY>
+</HTML>

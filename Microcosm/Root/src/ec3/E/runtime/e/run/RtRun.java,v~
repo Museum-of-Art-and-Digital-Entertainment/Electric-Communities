@@ -1,0 +1,2639 @@
+head	1.55;
+access;
+symbols
+	R971205-2:1.54.0.2
+	R971205-1:1.54
+	R971204-1:1.53
+	R971203-1:1.51
+	R971202-1:1.48
+	R971201-1:1.47
+	R971130-1:1.47
+	R971129-1:1.47
+	R971128-1:1.47
+	R971127-1:1.47
+	R971126-1:1.46
+	R971125-1:1.43
+	R971124-1:1.42
+	R971121-1:1.41
+	R971120-1:1.40
+	R971119-1:1.40
+	R971118-1:1.40
+	R971117-1:1.40
+	R971116-1:1.40
+	R971115-1:1.40
+	R971114-1:1.38
+	R971113-3:1.37
+	R971113-2:1.37
+	R971113-1:1.37
+	R971112-1:1.37
+	R971111-1:1.36
+	R971110-1:1.36
+	R971109-1:1.36
+	R971108-1:1.36
+	R971107-1:1.36
+	R971106-1:1.36
+	R971105-1:1.36
+	R971104-1:1.34
+	R971103-2:1.34.0.2
+	R971103-1:1.34
+	R971102-1:1.33
+	R971101-1:1.33
+	R971031-1:1.33
+	R971030-1:1.33
+	R971029-1:1.33
+	R971028-1:1.33
+	R971027-1:1.33
+	R971026-1:1.33
+	R971025-1:1.33
+	R971024-1:1.33
+	R971023-1:1.33
+	R971022-1:1.33
+	R971021-1:1.33
+	R971020-1:1.32
+	R971019-1:1.32
+	R971018-1:1.32
+	R971017-1:1.32
+	R971016-1:1.32
+	R971015-1:1.32.0.2
+	R971014-1:1.32
+	R971013-1:1.32
+	R971012-1:1.32
+	R971011-1:1.32
+	R971010-1:1.31
+	R971006-1:1.30
+	R971003-2:1.30.0.2
+	R971003-1:1.30
+	Microcosm-01r90:1.26
+	Microcosm-01r88:1.26
+	Microcosm-01r87:1.25
+	Microcosm-01r85:1.23
+	ultra-preview:1.23
+	Microcosm-01r75:1.23
+	Microcosm-01r74:1.23
+	Microcosm-01r73:1.23
+	Microcosm-01r72:1.23
+	Microcosm-01r71:1.23
+	Microcosm-01r67:1.23
+	Microcosm-01r63:1.17
+	Microcosm-01r61a:1.16
+	Microcosm-01r61:1.16
+	Microcosm-01r59:1.12;
+locks; strict;
+comment	@# @;
+expand	@o@;
+
+
+1.55
+date	97.12.06.01.28.12;	author robj;	state Exp;
+branches;
+next	1.54;
+
+1.54
+date	97.12.04.22.14.24;	author danfuzz;	state Exp;
+branches;
+next	1.53;
+
+1.53
+date	97.12.04.00.24.00;	author gordie;	state Exp;
+branches;
+next	1.52;
+
+1.52
+date	97.12.03.23.21.19;	author danfuzz;	state Exp;
+branches;
+next	1.51;
+
+1.51
+date	97.12.03.05.43.14;	author dima;	state Exp;
+branches;
+next	1.50;
+
+1.50
+date	97.12.03.01.35.03;	author danfuzz;	state Exp;
+branches;
+next	1.49;
+
+1.49
+date	97.12.02.23.12.51;	author danfuzz;	state Exp;
+branches;
+next	1.48;
+
+1.48
+date	97.12.02.06.36.04;	author dima;	state Exp;
+branches;
+next	1.47;
+
+1.47
+date	97.11.26.23.36.24;	author danfuzz;	state Exp;
+branches;
+next	1.46;
+
+1.46
+date	97.11.25.22.13.44;	author danfuzz;	state Exp;
+branches;
+next	1.45;
+
+1.45
+date	97.11.25.19.30.03;	author danfuzz;	state Exp;
+branches;
+next	1.44;
+
+1.44
+date	97.11.25.18.00.06;	author danfuzz;	state Exp;
+branches;
+next	1.43;
+
+1.43
+date	97.11.24.19.14.03;	author danfuzz;	state Exp;
+branches;
+next	1.42;
+
+1.42
+date	97.11.22.02.23.02;	author danfuzz;	state Exp;
+branches;
+next	1.41;
+
+1.41
+date	97.11.21.04.33.59;	author danfuzz;	state Exp;
+branches;
+next	1.40;
+
+1.40
+date	97.11.15.03.07.53;	author gordie;	state Exp;
+branches;
+next	1.39;
+
+1.39
+date	97.11.14.18.36.48;	author danfuzz;	state Exp;
+branches;
+next	1.38;
+
+1.38
+date	97.11.14.04.06.15;	author danfuzz;	state Exp;
+branches;
+next	1.37;
+
+1.37
+date	97.11.11.17.59.56;	author gordie;	state Exp;
+branches;
+next	1.36;
+
+1.36
+date	97.11.04.22.46.25;	author danfuzz;	state Exp;
+branches;
+next	1.35;
+
+1.35
+date	97.11.04.20.14.02;	author danfuzz;	state Exp;
+branches;
+next	1.34;
+
+1.34
+date	97.11.03.08.59.27;	author sidney;	state Exp;
+branches;
+next	1.33;
+
+1.33
+date	97.10.20.23.47.10;	author danfuzz;	state Exp;
+branches;
+next	1.32;
+
+1.32
+date	97.10.10.18.32.22;	author jay;	state Exp;
+branches;
+next	1.31;
+
+1.31
+date	97.10.06.17.38.04;	author danfuzz;	state Exp;
+branches;
+next	1.30;
+
+1.30
+date	97.10.02.18.38.56;	author gordie;	state Exp;
+branches;
+next	1.29;
+
+1.29
+date	97.09.18.18.52.50;	author gordie;	state Exp;
+branches;
+next	1.28;
+
+1.28
+date	97.09.12.21.23.46;	author gordie;	state Exp;
+branches;
+next	1.27;
+
+1.27
+date	97.09.11.23.59.45;	author eric;	state Exp;
+branches;
+next	1.26;
+
+1.26
+date	97.08.26.01.05.25;	author eric;	state Exp;
+branches;
+next	1.25;
+
+1.25
+date	97.08.19.19.32.39;	author kari;	state Exp;
+branches;
+next	1.24;
+
+1.24
+date	97.08.14.19.51.25;	author chip;	state Exp;
+branches;
+next	1.23;
+
+1.23
+date	97.07.07.15.58.10;	author danfuzz;	state Exp;
+branches;
+next	1.22;
+
+1.22
+date	97.07.07.02.30.13;	author gordie;	state Exp;
+branches;
+next	1.21;
+
+1.21
+date	97.07.01.17.42.34;	author danfuzz;	state Exp;
+branches;
+next	1.20;
+
+1.20
+date	97.06.23.21.12.07;	author danfuzz;	state Exp;
+branches;
+next	1.19;
+
+1.19
+date	97.06.23.04.36.23;	author gordie;	state Exp;
+branches;
+next	1.18;
+
+1.18
+date	97.06.20.22.46.44;	author danfuzz;	state Exp;
+branches;
+next	1.17;
+
+1.17
+date	97.06.18.23.05.21;	author danfuzz;	state Exp;
+branches;
+next	1.16;
+
+1.16
+date	97.06.12.02.09.33;	author gordie;	state Exp;
+branches;
+next	1.15;
+
+1.15
+date	97.06.10.02.55.23;	author gordie;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	97.06.04.06.40.02;	author gordie;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	97.06.03.01.02.22;	author gordie;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	97.05.07.17.39.10;	author danfuzz;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	97.05.06.08.03.56;	author eric;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	97.05.05.21.47.05;	author danfuzz;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	97.05.02.17.41.30;	author danfuzz;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	97.04.29.16.21.13;	author danfuzz;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	97.04.24.21.33.34;	author danfuzz;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	97.04.12.02.46.55;	author eric;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	97.04.12.01.26.29;	author chip;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	97.04.05.09.23.55;	author markm;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	97.03.18.09.36.25;	author markm;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	97.03.13.06.42.38;	author markm;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.03.12.03.40.30;	author markm;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.55
+log
+@Presence spread rearchitecture checkin.  Blame RobJ and ping him hard.
+@
+text
+@package ec.e.run;
+
+import ec.util.EThreadGroup;
+
+import java.io.ByteArrayOutputStream;   // Added for Inspector
+import java.io.PrintStream;             // Added for Inspector
+import ec.e.start.Vat;                  // The Vat so we can make Tethers
+import ec.e.start.Tether;               // The Tether so we can make Vats
+import ec.util.NestedError;             // Error reporting is good for you
+import ec.e.timer.Clock;                // Clock to keep RunLoop alive every n seconds
+import ec.e.timer.ClockController;      // ClockController to create the Clock
+import ec.e.timer.ETickHandling;        // Interface for handling Ticks from Clock
+
+public interface RunQueueDebugger {     // Added for Inspector
+    public void preRunOne(RtQ theQueue, Object vatLock, RtRun rtRun);
+    public void preDeliver(RtQObj queueObject, long timeInQueue, int queueLength, Object vatLock, RtRun rtRun);
+}
+
+/**
+ * In these pre-EVM days, there may only be one RtRun object, and it
+ * is also a root of its (therefore singular) vat.  As long as there
+ * is anything enqueued on its runQ, the RtRun's run() method will be
+ * run by a Thread.  Should the runQ run out, run() will
+ * return, and the Thread will die.  Should anything later get
+ * enqueued, a new thread will be started.  <p>
+ *
+ * XXX explain reason: process exit & why daemon's don't do it. <p>
+ *
+ * As a special case, a freshly decoded Vat contains a freshly decoded
+ * RtRun whose runQ may not be empty, but which still won't yet be
+ * running in a Thread.  This allows surgery to be performed (like
+ * quake damage) before setting the runQ in motion.  If this surgery
+ * might enqueue messages, it should grab hold the vatLock, as
+ * enqueue'ing messages will set the RtRun going.  Once the surgery is
+ * done, call beRunnable() to set the RtRun going, in case no fresh
+ * enqueues happened.
+ */
+public class RtRun implements Runnable {
+    static public Trace         tr = new Trace("ec.e.run.RtRun");
+    static private Object       TheVatLock;
+    static private RtRun        TheRtRun;
+    static private RtCausality  TheCausality;
+    static private int          OurNumThreads = 0;
+    static /*package*/ Thread   OurThread = null;
+    static public final RtExceptionEnv
+                                NULL_EXCEPTION_ENV = new RtExceptionEnv
+                                           ((ECatchClosure) null, null);
+    static RtExceptionEnv       CurrentExceptionEnv = NULL_EXCEPTION_ENV;
+
+    private RtQ    myQ = new RtQ();
+/*
+    private String myCurrentTraceString = EmptyTraceString;
+    private String myNextTracePrefix = EmptyTraceString;
+    private String myCausalityId = UnknownCausalityId;
+*/
+    boolean        myCausalityTracing;
+    private Vat myVat;
+    
+    private Clock myClock; // Pings runloop every n seconds to force finalizers
+    
+    private RtCausality myCausality;
+
+    private Tether myRunQueueDebugHookTether = null; // Added for Inspector
+
+    static private final int FinalizersSize = 16384;
+    static private Object TheFinalizers[];
+    static private int ReallyFinalizeSomebodyCount;
+    static private Object TheReallyFinalizeLock = null;
+    // Need to preallocate errors that could be thrown in queueReallyFinalize
+    private static Error ReallyFinalizeError;
+
+    /**
+     * Makes a Runnable
+     */
+    public RtRun(Vat vat, Object vatLock) /*throws OnceOnlyException*/ {
+        synchronized(vatLock) {
+            if (TheVatLock != null) {
+                //throw new OnceOnlyException("Can only be one RtRun");
+                throw new RuntimeException("Can only be one RtRun");
+            }
+            TheVatLock = vatLock;
+            TheRtRun = this;
+            myCausality = new RtCausality();
+            TheCausality = myCausality;
+            myVat = vat;
+            initializeFinalizerData();
+        }
+    }
+
+    /**
+     * public (for now) method to set the RunQueue debugger hook
+     * We provide no way to turn this off.
+     * XXX This needs to be changed to require some capability.
+     */
+    public void setRunQueueDebugger(RunQueueDebugger newHook) throws OnceOnlyException {
+        if (myRunQueueDebugHookTether != null) {
+            throw new OnceOnlyException("Can only have one Run Queue Debug Hook");
+        }
+        myRunQueueDebugHookTether = new Tether(myVat, newHook);
+    }
+
+    RunQueueDebugger getRunQueueDebugHook ()  {
+        RunQueueDebugger runQueueDebugHook = null;
+        try {
+            runQueueDebugHook = (RunQueueDebugger)myRunQueueDebugHookTether.held();
+        } catch (Exception e) {
+            // Set the Tether to null so we won't waste time again
+            myRunQueueDebugHookTether = null;
+            if (Trace.eruntime.debug) Trace.eruntime.debugm("Curiously, RunQueueDebugHook was smashed");
+        }
+        return runQueueDebugHook;
+    }
+
+    /**
+     * Package method to get the Vat lock
+     */
+    static Object getTheVatLock () {
+        return TheVatLock;
+    }
+
+    /**
+     * Returns the one instance of RtRun.
+     */
+    static public RtRun theOne() {
+        return TheRtRun;
+    }
+
+    /**
+     * For use in reviving from a checkpoint
+     */
+    static public void setStatics(RtRun runner, Object vatLock)
+         throws OnceOnlyException {
+
+        if (runner == null) {
+            throw new IllegalArgumentException("runner mustn't be null");
+        }
+        if (vatLock == null) {
+            throw new IllegalArgumentException("vatLock mustn't be null");
+        }
+        if (TheRtRun != null) {
+            throw new OnceOnlyException("Can only be one E runQ");
+        }
+        TheRtRun = runner;
+        TheCausality = runner.myCausality;
+        RtCausality.TheOne = TheCausality;
+        TheVatLock = vatLock;
+        // OK, I lied this isn't technically a static.
+        TheRtRun.myRunQueueDebugHookTether = null; // So can be set afresh
+        initializeFinalizerData();
+    }
+
+    /**
+     * If there is not currently queued things for this runQ to do,
+     * this method will ensure that there is a Thread servicing them.
+     */
+    public void beRunning() {
+        if (OurThread != null) {
+            /*
+             * Redundant fast test for typical case, done before
+             * synchronizing.  We would only have "falsely" returned
+             * if OurThread was about to be set to null, in which case
+             * the thread we'd be starting up would immediately exit
+             * anyway.  So this unsynchronized test doesn't hurt.
+             */
+            return;
+        }
+        synchronized(TheVatLock) {
+            if (OurThread != null) {
+                /*
+                 * Need to test again in case two beRunning()s are
+                 * racing.
+                 */
+                return;
+            }
+            OurThread = new Thread(this,
+                                   "RtRunloop (" + OurNumThreads + ")");
+            if (tr.debug) tr.$("Created new RtRun thread " + OurNumThreads);
+            OurNumThreads++;
+        }
+        OurThread.start();
+    }
+
+    /**
+     * Adds 'newQObj' to the runQ, and ensures that there is a Thread
+     * to run it.
+     */
+    static public void enqueue(RtQObj newQObj)
+    {
+        synchronized (TheVatLock) {
+            TheRtRun.myQ.enqueue(newQObj);
+        }
+        TheRtRun.beRunning();
+    }
+
+    /**
+     * Used by etry/ecatch to extend the current exception
+     * environment.  May only be called from the E runQ thread.
+     * 'null' is equivalent to 'RtRun.NULL_EXCEPTION_ENV'.
+     */
+    static void setCurrentExceptionEnv(RtExceptionEnv env) {
+        if (Thread.currentThread() != OurThread) {
+            throw new Error("Cannot etry/ecatch outside the vat");
+        }
+        CurrentExceptionEnv = env;
+    }
+
+    /**
+     * Returns the E runQ thread's current exception environment.
+     * 'RtRun.NULL_EXCEPTION_ENV' will always be returned in
+     * lieu(sp?) of null, or if called from a thread other than the E
+     * runQ thread.
+     */
+    static public RtExceptionEnv exceptionEnv() {
+        if (Thread.currentThread() != OurThread
+            || CurrentExceptionEnv == null) {
+
+            return NULL_EXCEPTION_ENV;
+        }
+        return CurrentExceptionEnv;
+    }
+
+    /**
+     * Called from finalize methods in Objects in the Vat, which must do
+     * whatever it is they want to do in Finalize from within the Vat
+     * context. We'll make note of this Object and call reallyFinalize
+     * on it when we get the chance from within the Vat context.
+     */
+    public static void queueReallyFinalize (RtFinalizer finalizer)  {
+        // WARNING - can't allocate anything in here since we're
+        // potentially out of memory when this is called
+        if (ReallyFinalizeSomebodyCount >= TheFinalizers.length) {
+            // Has to have been preallocated, can't do "new Error(...)"!!!
+            throw ReallyFinalizeError;
+        }
+        synchronized(TheReallyFinalizeLock)  {
+            TheFinalizers[ReallyFinalizeSomebodyCount++] = finalizer;
+        }
+    }
+
+    /**
+     * Called by Thread.start().  Pulls pending deliveries off of the
+     * runQ until there aren't any more, then returns, allowing the
+     * Thread to die.
+     */
+    public void run() {
+        reallyRun();
+        // If no debugging hooks which might get confused
+        // or otherwise annoyed by msg every n seconds, keep
+        // the runloop alive for the sake of the RtReallyFinalizers
+        if (myRunQueueDebugHookTether == null) {
+            if (myClock == null) {
+                RtRunPinger pinger = new RtRunPinger();
+                ClockController controller = ClockController.TheSmashingClockController();
+                myClock = controller.newClock(10000, pinger, null);
+                myClock.start();
+            }
+        }
+        else {
+            if (myClock != null) {
+                myClock.terminate();
+                myClock = null;
+            }
+        }
+    }
+        
+    /**
+     * Called by run(), to actually do its dirty work
+     */
+    private void reallyRun ()  {
+        while (true) {
+            checkForFinalizers();
+            if (myRunQueueDebugHookTether != null) {
+                RunQueueDebugger runQueueDebugHook = getRunQueueDebugHook();
+                if (runQueueDebugHook != null)  {
+                    // Give cycles to RunQueue Debugger/Inspector
+                    runQueueDebugHook.preRunOne(myQ, TheVatLock, this);
+                }
+                synchronized (TheVatLock) {
+                    if (myQ.empty()) {
+                        OurThread = null;
+                        if (tr.tracing) tr.$("Exiting runloop thread");
+                        return;
+                    }
+                }
+            } else {
+                synchronized (TheVatLock) {
+                    if (myQ.empty()) {
+                        OurThread = null;
+                        if (tr.tracing) tr.$("Exiting runloop thread");
+                        return;
+                    }
+                    runOne(myQ.dequeue());
+                }
+            }
+        }
+    }
+
+    // Only the Inspector should call this, anyone else is evil
+    public void runOne(RtQObj currentMsg) { // XXX Was private - made public for Inspector
+        if (tr.tracing) tr.$("dequeued " + currentMsg.envelope);
+        runOne(currentMsg.obj, currentMsg.envelope);
+    }
+
+    // This is used by EObject.invokeNow() to do its business. Nothing
+    // else should use it--everything else should use RtTether.invokeNow().
+    static void deliverNow(EObject obj, RtSealer sealer, 
+            Object[] args, RtExceptionEnv ee) {
+        RtEnvelope envel = new RtEnvelope(sealer, args, ee);
+        // Hook into the RunQ inspector to give it a chance to trap this
+        if (TheRtRun.myRunQueueDebugHookTether != null) {
+            RunQueueDebugger runQueueDebugHook = 
+                TheRtRun.getRunQueueDebugHook();
+            if (runQueueDebugHook != null)
+                runQueueDebugHook.preDeliver(new RtQObj((RtTether) obj, envel), -1, 0, TheVatLock, TheRtRun);
+        }
+        else {
+            TheRtRun.runOne((RtTether) obj, envel);
+        }
+    }
+
+    private void runOne(RtTether msgObj, RtEnvelope envelope)  {
+        setCurrentExceptionEnv(envelope.myEE);
+        if (tr.tracing) {
+            tr.$("deliver " + envelope +
+                 " to " + Trace.eclassString(msgObj) +
+                 " " + envelope.myEE);
+        }
+        
+        try {
+            if (msgObj instanceof EObject_$_Impl) {
+                ((EObject_$_Impl)msgObj).deliver(envelope);
+            } else if (msgObj == null) {
+                throw new RtEErrorException("envelope sent to null");
+            } else {
+                try {
+                    msgObj.invokeNow(
+                        envelope.mySealer,
+                        envelope.myArgs,
+                        envelope.myEE);
+                } catch (ClassCastException e) {
+                    throw new RtEErrorException 
+                        ("envelope sent to non-E object");
+                }
+            }
+        } catch (Throwable e) {
+            // BUG--change these System.err.println()s into
+            // tr.$() and add back the if. Do this when everyone
+            // agrees that the spam is no longer needed all the time.
+            // if (tr.debug) {
+            System.err.println("Uncaught Throwable made it all the way to " +
+                "the top; This shouldn't happen, but we'll be nice " +
+                "and turn it into an ethrow like a happyhappy citizen.");
+            // XXX change to debugReportException when spam level is lowered
+            tr.errorReportException(e, "Uncaught Throwable during send of " + msgObj + " <- " +
+                envelope);
+            if (TheCausality.myCausalityTracing) {
+                String causalityTrace = TheCausality.getCausalityTraceString();
+                tr.$("Causality trace:");
+                tr.$(causalityTrace);
+            }
+            // } (end of if)
+            envelope.sendException(e);
+        } finally {
+            setCurrentExceptionEnv(null);
+            if (TheCausality.myCausalityTracing) {
+                TheCausality.clearCausality();
+            }
+        }
+    }
+
+    // BUG--should not be public, and should only take _$_Impls
+    static public void enqueue(EObject obj, RtEnvelope e) {
+        if (obj instanceof EObject_$_Impl) {
+            doEnqueue((RtTether) obj, e, true);
+        } else {
+            // is a deflector, not a real eobject
+            ((RtTether) obj).invoke(e.mySealer, e.myArgs, e.myEE);
+        }
+    }
+
+    static public void enqueue(RtTether target, RtSealer sealer,
+        Object[] args, RtExceptionEnv ee) {
+        // NOTE--need to make sure args aren't considered safe
+        RtEnvelope env = new RtEnvelope(sealer, args, ee);
+        doEnqueue(target, env, true);
+    }
+
+    static /*package*/ void argSafeEnqueue(RtTether target, RtSealer sealer,
+            Object[] args, RtExceptionEnv ee) {
+        // BUG--need to preserve safe-arg knowledge
+        RtEnvelope env = new RtEnvelope(sealer, args, ee);
+        doEnqueue(target, env, true);
+    }
+
+    // BUG--this is the wrong "form factor", but we need it
+    // at least temporarily until enqueue/invoke/deliver/invokeNow
+    // get sorted out
+    static public void alwaysEnqueue(RtTether obj, RtEnvelope e) {
+        doEnqueue(obj, e, true);
+    }
+
+    static void doEnqueue(RtTether obj,
+                          RtEnvelope env,
+                          boolean checkCausalityTrace) {
+        if ((obj == null) || (env == null)) {
+            try {
+                throw new RtRuntimeException
+                    ("RtRun enqueue: Bad message to target " + obj +
+                     ", envelope " + env);
+            } catch (RtRuntimeException e) {
+                // XXX I'm not sure why this needs to be printed since
+                // it's being thrown, but I'm leaving it alone right
+                // now... -emm
+                EThreadGroup.reportException(e);
+                throw e;
+            }
+        }
+        //MSM: No longer normalizing exceptionEnv to non-null
+        if (tr.tracing) {
+            tr.$ (env + " to " + Trace.eclassString(obj) +
+                  " " + env.myEE);
+        }
+        if (checkCausalityTrace && TheCausality.myCausalityTracing) {
+            String trace = "\tsend of " + env.getSealer().toString() +
+                "\n" + RtCausality.cleanTrace(2);
+            env = envelope (EObject <- messageWithCause (env, trace));
+        }
+
+        RtQObj newQObj = new RtQObj(obj, env);
+        enqueue(newQObj);
+    }
+
+    /**
+     * Initializes the data used for managing in Vat finalization
+     */
+    private static void initializeFinalizerData() {
+        ReallyFinalizeSomebodyCount = 0;
+        TheReallyFinalizeLock = new Object();
+        TheFinalizers = new Object[FinalizersSize];
+        ReallyFinalizeError = new Error("Cannot set delayed finalize for Vat Context");
+        queueReallyFinalize(new FinalizerDummy()); // Cache this to avoid deadlock
+        JavaIsStupidFinalizer sacrificialFinalizer;
+        try {
+            sacrificialFinalizer = new JavaIsStupidProxy_$_Impl();
+            sacrificialFinalizer.stupidFinalize(); // Harmless, forces Java interpreter to run through Proxy finalize
+            sacrificialFinalizer = new JavaIsStupidChannel_$_Impl();
+            sacrificialFinalizer.stupidFinalize(); // Harmless, forces Java interpreter to run through Proxy finalize
+            sacrificialFinalizer = new JavaIsStupidDistributor_$_Impl();
+            sacrificialFinalizer.stupidFinalize(); // Harmless, forces Java interpreter to run through Proxy finalize
+        } catch (Throwable t) {
+            // should never happen, but it's required by the interfaces
+            throw new NestedError("error during sacrificial finalization",
+                t);
+        }
+    }
+
+    /**
+     * Private method to check if anything in the Vat needs to be finalized. Vat
+     * things can't typically do much in finalize except request to have their
+     * reallyFinalize() method called from within the Vat - mainly to avoid both
+     * deadlock, and corrupting the Vat.
+     */
+    private void checkForFinalizers ()  {
+        while (ReallyFinalizeSomebodyCount > 0) {
+            RtFinalizer finalizer = null;
+            synchronized(TheReallyFinalizeLock)  {
+                ReallyFinalizeSomebodyCount--;
+                finalizer = (RtFinalizer)TheFinalizers[ReallyFinalizeSomebodyCount];
+                TheFinalizers[ReallyFinalizeSomebodyCount] = null;
+            }
+            // At this point we're no longer holding TheReallyFinalizeLock
+            if (finalizer != null)  {
+                try {
+                    // Need to grab VatLock inside the try, else deadlock
+                    // could happen trying to report any exceptions in catch
+                    synchronized (TheVatLock) {
+                        if (Trace.eruntime.debug) Trace.eruntime.debugm("Really finalizing " + finalizer +
+                            " at index " + ReallyFinalizeSomebodyCount);
+                        finalizer.reallyFinalize();
+                    }
+                }
+                catch (Throwable t) {
+                    EThreadGroup.reportException(t);
+                }
+            }
+        }
+    }
+
+    // BUG--get rid of unused newHandler param;
+    // need to modify code gen for this
+    static public void pushExceptionEnv(EObject newHandler,
+            (Throwable->void) method) {
+        RtExceptionEnv currExEnv = exceptionEnv().pushExceptionEnv(method);
+        if (tr.tracing) tr.$("now " + currExEnv);
+        setCurrentExceptionEnv(currExEnv);
+    }
+
+    static public void pushExceptionEnv(RtExceptionEnv ee) {
+        // it's okay to say "ekeep (null)" in a non-E thread, but it's
+        // only okay to say "ekeep (<non-null>)" from E computation...
+        // for now. As of a future ecomp, it'll be okay.
+        if (Thread.currentThread() != OurThread) {
+            if (ee != null) {
+                throw new Error ("ekeep (<non-null>) is only legal in the " +
+                    "vat... for now");
+            }
+        } else {
+            RtExceptionEnv currExEnv = exceptionEnv().pushExceptionEnv(ee);
+            if (tr.tracing) tr.$("now " + currExEnv);
+            setCurrentExceptionEnv(currExEnv);
+        }
+    }
+
+    static public void pushExceptionEnv(InternalECatchClosure catcher) {
+        RtExceptionEnv currExEnv = exceptionEnv().pushExceptionEnv(catcher);
+        if (tr.tracing) tr.$("now " + currExEnv);
+        setCurrentExceptionEnv(currExEnv);
+    }
+
+    static public void popExceptionEnv()
+    {
+        if (Thread.currentThread() != OurThread) {
+            // ignore popExceptionEnv if it's from a non-E thread.
+            // we need this since the ekeep(null) pattern ends up
+            // spitting out a call to this, and it *is* legal from
+            // non-E threads.
+        } else {
+            RtExceptionEnv currExEnv = exceptionEnv().popExceptionEnv();
+            if (tr.tracing) tr.$("now " + currExEnv);
+            setCurrentExceptionEnv(currExEnv);
+        }
+    }
+
+    static public void clearExceptionEnv()  {
+        setCurrentExceptionEnv(null);
+    }
+
+    /**
+     * This is a "cheating" way to start up an E runtime. It is
+     * merely provided to make some testing easier.
+     */
+    static public void bootCheat() {
+        new RtRun(null, new Object());
+    }
+
+    /**
+     * This is a "cheating" way to spit out debug messages. It is
+     * merely provided to make some testing easier. This code
+     * should not be called in anything that ships.
+     */
+    static public void debugCheat(String msg) {
+        System.err.println(msg);
+    }
+
+    /**
+     * This is a "cheating" way to spit out stack traces. It is
+     * merely provided to make some testing easier. This code
+     * should not be called in anything that ships.
+     */
+    static public void stackTraceCheat(Throwable t) {
+        EThreadGroup.reportException(t);
+    }
+}
+
+/**
+ * Instances of RtRunPinger exist only to keep the E runloop alive,
+ * so that the RtFinalizers that get queued are guaranteed to execute 
+ * within a reasonable amount of time, even if there are no E messages
+ * being sent.
+ * <p>
+ * The fact that the emethod handleTick is called is enough to restart
+ * the E runloop, thus taking care of its business. Instances of this
+ * class have an easy job.
+ * <p>
+ * Whenever the runloop exists, if there is no Inspector hook, it
+ * creates a RtRunPinger, and a Clock which sends ticks to the 
+ * RtRunPinger to keep the runloop alive.
+ * <p>
+ * Note that when there is an Inspector hook and the runloop stops,
+ * the clock that pings the runloop is terminated if it exists. 
+ */
+eclass RtRunPinger implements ETickHandling
+{
+    /**
+     * Anyone can make one, they are harmless
+     */
+    public RtRunPinger() {
+    }
+    
+    /**
+     * Called by Vat Clock to ping every n seconds
+     */
+    emethod handleTick (int tick, Clock clock, Object arg) {
+        // This method just exists to force the RtRun through
+        // the mainloop, thus checking for finalizers.
+    } 
+}
+@
+
+
+1.54
+log
+@mostly spew reduction prep work
+@
+text
+@d51 6
+a56 1
+
+d328 1
+@
+
+
+1.53
+log
+@Less agressive Pinging using Clock instead of unfaithful Timer
+@
+text
+@d375 14
+@
+
+
+1.52
+log
+@fixing up causality--intermittent failures
+@
+text
+@d10 3
+a12 1
+import ec.e.timer.Timer;                // Timer to keep RunLoop alive every n seconds
+d53 3
+d243 1
+a243 1
+        // or otherwise annoyed by msg every 5 seconds, keep
+d246 12
+a257 1
+            Timer.Ping(5000);
+d260 1
+a260 1
+    
+d543 34
+@
+
+
+1.51
+log
+@Added null checks for TheCausality as it can be null in the beginning
+@
+text
+@d51 1
+d73 2
+a74 1
+            TheCausality = new RtCausality();
+d134 2
+d343 1
+a343 1
+            if ((TheCausality != null) && TheCausality.myCausalityTracing) {
+d387 1
+a387 1
+        if (checkCausalityTrace && (TheCausality != null) && TheCausality.myCausalityTracing) {
+@
+
+
+1.50
+log
+@causality moved to its own class
+@
+text
+@d14 1
+a14 1
+    public void preDeliver(RtQObj queueObject, long timeInQueue, Object vatLock, RtRun rtRun);
+d289 1
+a289 1
+                runQueueDebugHook.preDeliver(new RtQObj((RtTether) obj, envel), -1, TheVatLock, TheRtRun);
+d339 1
+a339 1
+            if (TheCausality.myCausalityTracing) {
+d383 1
+a383 1
+        if (checkCausalityTrace && TheCausality.myCausalityTracing) {
+@
+
+
+1.49
+log
+@switched causality tracing to use EObject.messageWithCause()
+@
+text
+@d40 1
+d42 1
+a42 1
+    static private Thread       OurThread = null;
+a46 2
+    static private final String EmptyTraceString = "";
+    static private final String UnknownCausalityId = "unknown";
+a48 4
+    private String myCurrentTraceString = EmptyTraceString;
+    private String myNextTracePrefix = EmptyTraceString;
+    private String myCausalityId = UnknownCausalityId;
+    boolean        myCausalityTracing = false;
+d72 1
+d330 2
+a331 2
+            if (myCausalityTracing) {
+                String causalityTrace = getCausalityTraceString();
+d339 2
+a340 3
+            if (myCausalityTracing) {
+                clearCausalityTraceString();
+                myNextTracePrefix = EmptyTraceString;
+d383 1
+a383 1
+        if (checkCausalityTrace && TheRtRun.myCausalityTracing) {
+d385 1
+a385 1
+                "\n" + cleanTrace(2);
+a448 126
+    static private String mungeTrace(String trace, int pos, int preLines,
+            String newMsg) {
+        int startPos = trace.lastIndexOf('\n', pos);
+        int endPos = trace.indexOf('\n', pos);
+        while ((preLines > 1) && (startPos > 0)) {
+            startPos = trace.lastIndexOf('\n', startPos - 1);
+            preLines--;
+        }
+        String startString = "";
+        if (startPos != -1) {
+            startString = trace.substring(0, startPos + 1);
+        }
+        String endString = "";
+        if (endPos != -1) {
+            endString = trace.substring(endPos);
+        }
+        return startString + newMsg + endString;
+    }
+
+    static public String cleanupStackTrace(String stackTrace) {
+        String trace = stackTrace;
+        String appendage = "\t----- message boundary -----";
+        int pos = 0;
+        pos = stackTrace.indexOf("_$_Sealer.invoke");
+        if (pos == -1) {
+            int xpos = stackTrace.indexOf("RtExceptionEnv.doEThrow");
+            if (xpos != -1) {
+                // must be a throw->ethrow
+                trace = "\t[throw translated into ethrow]";
+                appendage = "";
+            } else {
+                pos = stackTrace.indexOf("RtEnvelope.deliverTo");
+                if (pos == -1) {
+                    System.err.println("*** error: invoke()/deliverTo() " +
+                        "not found in backtrace");
+                    trace = "\t[unknown stack format--full trace included]\n" +
+                        stackTrace;
+                }
+            }
+        }
+
+        if (pos != -1) {
+            pos = stackTrace.lastIndexOf('\n', pos);
+            if (pos == -1) {
+                // shouldn't happen, but this ought to make it not crash even
+                // if perchance it does.
+                System.err.println("*** error: didn't find expected newline " +
+                    "in backtrace");
+                pos = 0;
+            }
+
+            int startPos = stackTrace.indexOf("$async");
+            if (startPos == -1) {
+                startPos = 0;
+            } else {
+                startPos = stackTrace.indexOf('\n', startPos) + 1;
+            }
+
+            trace = stackTrace.substring(startPos, pos + 1);
+
+            // "semantify" several idiosynchratic stack forms
+            for (;;) {
+                boolean didSomething = false;
+                pos = trace.indexOf("ECatchClosure_$_Impl.forwardException");
+                if (pos != -1) {
+                    trace = mungeTrace(trace, pos, 2,
+                        "\t[delivery of ecatch]");
+                    didSomething = true;
+                }
+                pos = trace.indexOf("EWhenClosure_$_Impl.doclosure");
+                if (pos != -1) {
+                    trace = mungeTrace(trace, pos, 2,
+                        "\t[delivery of ewhen]");
+                    didSomething = true;
+                }
+                pos = trace.indexOf("$closure.$apply");
+                if (pos != -1) {
+                    trace = mungeTrace(trace, pos, 1,
+                        "\t[unspecialized closure call]");
+                    didSomething = true;
+                }
+                pos = trace.indexOf("RtExceptionEnv.doEThrow");
+                if (pos != -1) {
+                    trace = mungeTrace(trace, pos, 1,
+                        "\t[ethrow]");
+                }
+                if (! didSomething) {
+                    break;
+                }
+            }
+        }
+        return trace + appendage;
+    }
+
+    static private String cleanTrace(int skipFrameCount) {
+        return cleanTrace(skipFrameCount, Trace.getStackTrace());
+    }
+
+    static private String cleanTrace(int skipFrameCount, String trace) {
+        int start = trace.indexOf('\n') + 1;
+        int i;
+        for (i = 0; i < skipFrameCount; i++) {
+            start = trace.indexOf('\n', start) + 1;
+        }
+        trace = trace.substring(start);
+        Thread thread = Thread.currentThread();
+        if (thread == OurThread) {
+            trace = cleanupStackTrace (trace);
+            int length = trace.length();
+            if (trace.endsWith("\n")) {
+                trace = trace.substring(0, length - 1);
+            }
+            trace += " [receiver: " + TheRtRun.myCausalityId + "]";
+            if (thread == OurThread) {
+                trace += "\n" + TheRtRun.myCurrentTraceString;
+            }
+        } else {
+            int length = trace.length();
+            if (trace.endsWith("\n")) {
+                trace = trace.substring(0, length - 1);
+            }
+            trace += " [receiver: " + TheRtRun.myCausalityId + "]";
+        }
+        return trace;
+    }
+
+a497 64
+    static public void setCausalityTracing(boolean value) {
+        TheRtRun.myCausalityTracing = value;
+    }
+
+    static public boolean isCausalityTracing() {
+        return TheRtRun.myCausalityTracing;
+    }
+
+    static public String getCausalityTraceString() {
+        if (TheRtRun.myCausalityTracing) {
+            return cleanTrace(1);
+        } else {
+            return "Causality trace unavailable";
+        }
+    }
+
+    static void setCausalityTraceString(String traceString) {
+        if (TheRtRun.myCausalityTracing) {
+            TheRtRun.myCurrentTraceString = TheRtRun.myNextTracePrefix + traceString;
+        }
+    }
+
+    static void prependCausalityTraceString(String traceString) {
+        if (TheRtRun.myCausalityTracing) {
+            TheRtRun.myCurrentTraceString = traceString + TheRtRun.myCurrentTraceString;
+        }
+    }
+
+    static void prependCausalityBacktrace(String backtrace) {
+        if (TheRtRun.myCausalityTracing) {
+            TheRtRun.myCurrentTraceString = cleanTrace(0, backtrace);
+        }
+    }
+
+    static void clearCausalityTraceString() {
+        if (TheRtRun.myCausalityTracing) {
+            TheRtRun.myCurrentTraceString = EmptyTraceString;
+        }
+    }
+
+    /* XXX Note: this is a "dangerous power" potentially */
+    public static String getCausalityBacktrace(int zapLevels) {
+        Throwable t = new Throwable();
+        ByteArrayOutputStream bs = new ByteArrayOutputStream(1000);
+
+        // XXX should use EThreadGroup.printStackTrace, but that would
+        // change the format, and I don't want to figure out
+        // cleanTrace right now -emm
+        t.printStackTrace(new PrintStream(bs));
+        return cleanTrace(zapLevels + 1, bs.toString());
+    }
+
+    // XXX - This is only for trusted E startup to call
+    // need to prevent non TCB code from getting at it
+    static public void setCausalityId(String id) {
+        if (TheRtRun.myCausalityId == UnknownCausalityId) {
+            if (id == null) {
+                TheRtRun.myCausalityId = UnknownCausalityId;
+            } else {
+                TheRtRun.myCausalityId = id;
+            }
+        }
+    }
+
+a523 1
+
+@
+
+
+1.48
+log
+@Further development of run queue inspector thing
+@
+text
+@d368 1
+a368 1
+                          RtEnvelope envelope,
+d370 1
+a370 1
+        if ((obj == null) || (envelope == null)) {
+d374 1
+a374 1
+                     ", envelope " + envelope);
+d385 2
+a386 2
+            tr.$ (envelope + " to " + Trace.eclassString(obj) +
+                  " " + envelope.myEE);
+d389 1
+a389 1
+            String trace = "\tsend of " + envelope.getSealer().toString() +
+d391 1
+a391 1
+            envelope = new EObjectEnvelope (trace, envelope);
+d394 1
+a394 1
+        RtQObj newQObj = new RtQObj(obj, envelope);
+@
+
+
+1.47
+log
+@EObject->RtTether on some runtime internals; re-keying of deflectors
+@
+text
+@d14 1
+a14 1
+    public void preDeliver(RtQObj queueObject, Object vatLock, RtRun rtRun);
+d293 1
+a293 3
+                runQueueDebugHook.preDeliver(
+                    new RtQObj((RtTether) obj, envel),
+                    TheVatLock, TheRtRun);
+@
+
+
+1.46
+log
+@ECatchClosure -> EResult
+@
+text
+@d294 1
+a294 1
+                    new RtQObj(obj, envel),
+d298 1
+a298 1
+            TheRtRun.runOne(obj, envel);
+d302 1
+a302 1
+    private void runOne(EObject msgObj, RtEnvelope envelope)  {
+d316 1
+a316 1
+                    ((RtTether) msgObj).invokeNow (
+d355 1
+a355 1
+            doEnqueue(obj, e, true);
+d365 1
+a365 1
+    static public void alwaysEnqueue(EObject obj, RtEnvelope e) {
+d369 1
+a369 1
+    static void doEnqueue(EObject obj,
+@
+
+
+1.45
+log
+@moved around error checking and enabled queueing to deflectors
+@
+text
+@d519 1
+a519 1
+                pos = trace.indexOf("ECatchClosure_$_Impl.doclosure");
+a583 1
+    // XXX JAY - hacked to de-pizza the method.
+d585 2
+a586 3
+                                        Object method) {
+
+        RtExceptionEnv currExEnv = exceptionEnv().pushExceptionEnvPizza(method);
+@
+
+
+1.44
+log
+@further demise of separate exception envs
+@
+text
+@d280 1
+a280 5
+        if (! (currentMsg.obj instanceof EObject_$_Impl)) {
+            currentMsg.envelope.badAddress(currentMsg.obj);
+            return;
+        }
+        runOne((EObject_$_Impl)currentMsg.obj, currentMsg.envelope);
+d298 1
+a298 1
+            TheRtRun.runOne((EObject_$_Impl) obj, envel);
+d302 1
+a302 1
+    private void runOne(EObject_$_Impl msgObj, RtEnvelope envelope)  {
+d310 15
+a324 1
+            msgObj.deliver(envelope);
+d360 7
+@
+
+
+1.43
+log
+@channel/deflector fix
+@
+text
+@a86 1
+
+d107 1
+a107 2
+     * Package private method to get the Vat lock
+     *
+d284 1
+a284 1
+        runOne((EObject_$_Impl)currentMsg.obj, currentMsg.envelope, currentMsg.exceptionEnv);
+d298 1
+a298 1
+                    new RtQObj(obj, envel, ee),
+d302 1
+a302 1
+            TheRtRun.runOne((EObject_$_Impl) obj, envel, ee);
+d306 2
+a307 2
+    private void runOne(EObject_$_Impl msgObj, RtEnvelope envelope, RtExceptionEnv exceptionEnv)  {
+        setCurrentExceptionEnv(exceptionEnv);
+d311 1
+a311 1
+                 " " + exceptionEnv);
+a341 23
+
+    static public void internalDispatch(EObject obj,
+                                        RtEnvelope env,
+                                        RtExceptionEnv exEnv,
+                                        String cause) {
+        if (TheRtRun.myCausalityTracing) {
+            TheRtRun.myNextTracePrefix = (cause != null) ? cause : "";
+        }
+        RtExceptionEnv temp = exceptionEnv();
+        setCurrentExceptionEnv(exEnv);
+        if (tr.tracing) {
+            tr.$("deliver " + env + " to " +
+                 Trace.eclassString(obj) + " " + exEnv);
+        }
+        try {
+            ((EObject_$_Impl)obj).deliver(env);
+        } catch (RtRuntimeException e) {
+            System.err.println("Uncaught exception (" + e + ") on " + env);
+            throw e;
+        }
+        setCurrentExceptionEnv(temp);
+    }
+
+a343 2
+        // temporary hack until optional EEs are gone
+        RtExceptionEnv ee = e.myHasEE ? e.myEE : exceptionEnv();
+d345 1
+a345 1
+            doEnqueue(obj, e, ee, true);
+d348 1
+a348 15
+            ((RtTether) obj).invoke(e.mySealer, e.myArgs, ee);
+        }
+    }
+
+    // BUG--deprecated; all envelopes should have exceptionEnvs built-in
+    static public void enqueue(EObject obj,
+                               RtEnvelope envelope,
+                               RtExceptionEnv exceptionEnv) {
+        // This ensures doEnqueue can call cleanTrace with an argument
+        // of two stack frames to clip.
+        // temporary hack until optional EEs are gone
+        if (envelope.myHasEE && (envelope.myEE != exceptionEnv)) {
+            throw new RtRuntimeException("shouldn't call 3-arg enqueue with an envelope with built-in ee");
+        } else {
+            doEnqueue(obj, envelope, exceptionEnv, true);
+a353 1
+                          RtExceptionEnv exceptionEnv,
+d371 1
+a371 1
+                  " " + exceptionEnv);
+d379 1
+a379 1
+        RtQObj newQObj = new RtQObj(obj, envelope, exceptionEnv);
+@
+
+
+1.42
+log
+@new methods to deal with deflector/channel problem
+@
+text
+@d289 5
+a293 10
+    // Anyone who wants a message delivered right away (such as Distributors on
+    // forward, the ewhen hook) call into this.
+    public static void deliverNow(EObject_$_Impl msgObj, RtEnvelope envelope)  {
+        RtExceptionEnv ee = envelope.myHasEE ? envelope.myEE : exceptionEnv();
+        deliverNow(msgObj, envelope, ee);
+    }
+
+    // Anyone who wants a message delivered right away (such as Distributors on
+    // forward, the ewhen hook) call into this.
+    public static void deliverNow(EObject_$_Impl obj, RtEnvelope envelope, RtExceptionEnv exceptionEnv)  {
+d296 2
+a297 1
+            RunQueueDebugger runQueueDebugHook = TheRtRun.getRunQueueDebugHook();
+d299 2
+a300 1
+                runQueueDebugHook.preDeliver(new RtQObj((EObject) obj, envelope, exceptionEnv),
+d304 1
+a304 1
+            TheRtRun.runOne(obj, envelope, exceptionEnv);
+@
+
+
+1.41
+log
+@sendException on envelope
+@
+text
+@d292 2
+a293 1
+        deliverNow(msgObj, envelope, exceptionEnv());
+@
+
+
+1.40
+log
+@Only Ping Runloop if Inspector not in control to avoid queueing zillions of pings
+@
+text
+@d336 1
+a336 1
+            exceptionEnv.doEThrow(e);
+@
+
+
+1.39
+log
+@omnibus: new EDelegator, stone tweak, envelope/deflector bugfix
+@
+text
+@d239 6
+a244 1
+        Timer.Ping(5000);
+@
+
+
+1.38
+log
+@getting ready for new ecomp
+@
+text
+@d364 2
+a365 1
+    static public void enqueue(EObject obj, RtEnvelope envelope) {
+d367 3
+a369 2
+        if (envelope.myHasEE) {
+            doEnqueue(obj, envelope, envelope.myEE, true);
+d371 2
+a372 1
+            doEnqueue(obj, envelope, exceptionEnv(), true);
+d376 1
+@
+
+
+1.37
+log
+@Fixed leak in Channel/Distributor, put Ping into E runtime every 5 seconds to take care of queued ReallyFinalizers
+@
+text
+@d365 6
+a370 1
+        doEnqueue(obj, envelope, exceptionEnv(), true);
+d378 6
+a383 1
+        doEnqueue(obj, envelope, exceptionEnv, true);
+@
+
+
+1.36
+log
+@more runtime madness
+@
+text
+@d9 2
+a10 1
+import ec.util.NestedError;
+d238 8
+d254 6
+a259 4
+                if (myQ.empty()) {
+                    OurThread = null;
+                    if (tr.tracing) tr.$("Exiting runloop thread");
+                    return;
+@
+
+
+1.35
+log
+@further myE.java shrinkage
+@
+text
+@d43 1
+a43 1
+                                           ((ECatchClosure_$_Intf) null, null);
+d286 1
+a286 1
+                runQueueDebugHook.preDeliver(new RtQObj(obj, envelope, exceptionEnv),
+d331 1
+a331 1
+    static public void internalDispatch(EObject_$_Intf obj,
+d353 1
+a353 1
+    static public void enqueue(EObject_$_Intf obj, RtEnvelope envelope) {
+d357 1
+a357 1
+    static public void enqueue(EObject_$_Intf obj,
+d365 1
+a365 1
+    static void doEnqueue(EObject_$_Intf obj,
+d408 1
+a408 1
+            sacrificialFinalizer = new JavaIsStupidProxy();
+d410 1
+a410 1
+            sacrificialFinalizer = new JavaIsStupidChannel();
+d412 1
+a412 1
+            sacrificialFinalizer = new JavaIsStupidDistributor();
+d582 1
+a582 1
+    static public void pushExceptionEnv(EObject_$_Intf newHandler,
+@
+
+
+1.34
+log
+@Add explicit string to call of Trace constructor
+@
+text
+@d9 1
+d400 1
+a400 1
+    private static void initializeFinalizerData()  {
+d407 12
+a418 6
+        sacrificialFinalizer = new JavaIsStupidProxy();
+        sacrificialFinalizer.stupidFinalize(); // Harmless, forces Java interpreter to run through Proxy finalize
+        sacrificialFinalizer = new JavaIsStupidChannel();
+        sacrificialFinalizer.stupidFinalize(); // Harmless, forces Java interpreter to run through Proxy finalize
+        sacrificialFinalizer = new JavaIsStupidDistributor();
+        sacrificialFinalizer.stupidFinalize(); // Harmless, forces Java interpreter to run through Proxy finalize
+a720 21
+/**
+ * Interface used by Vat objects that want to be finalized
+ * from within the Vat context. They call RtRun.queueReallyFinalize(this)
+ * from their Java finalize method (doing nothing else), and then do
+ * whatever it is they would want to do in the reallyFinalize() method,
+ * safe in the Vat context.
+ */
+public interface RtFinalizer {
+    void reallyFinalize();
+}
+
+public interface JavaIsStupidFinalizer
+{
+    void stupidFinalize();
+}
+
+class FinalizerDummy implements RtFinalizer
+{
+    public void reallyFinalize() {
+    }
+}
+@
+
+
+1.33
+log
+@etry/ecatch/ekeep madness
+@
+text
+@d35 1
+a35 1
+    static public Trace         tr = new Trace(false, "RtRun:");
+@
+
+
+1.32
+log
+@change to improve Cafe debugability by eliminating reference to pizza closure
+in RtRun.java
+@
+text
+@d584 13
+a596 3
+        RtExceptionEnv currExEnv = exceptionEnv().pushExceptionEnv(ee);
+        if (tr.tracing) tr.$("now " + currExEnv);
+        setCurrentExceptionEnv(currExEnv);
+d607 10
+a616 3
+        RtExceptionEnv currExEnv = exceptionEnv().popExceptionEnv();
+        if (tr.tracing) tr.$("now " + currExEnv);
+        setCurrentExceptionEnv(currExEnv);
+@
+
+
+1.31
+log
+@added tidbits for a new ecomp
+@
+text
+@d34 1
+a34 1
+public class RtRun implements Runnable { 
+d50 1
+a50 1
+    private String myCausalityId = UnknownCausalityId;    
+d52 1
+a52 1
+    
+d54 1
+a54 1
+        
+d61 1
+a61 1
+    // Need to preallocate errors that could be thrown in queueReallyFinalize 
+d63 1
+a63 1
+   
+d65 1
+a65 1
+     * Makes a Runnable 
+d103 2
+a104 2
+    }   
+    
+d112 1
+a112 1
+    
+d123 1
+a123 1
+    static public void setStatics(RtRun runner, Object vatLock) 
+d141 1
+a141 1
+    
+d161 1
+a161 1
+                 * racing. 
+d165 1
+a165 1
+            OurThread = new Thread(this, 
+d172 1
+a172 1
+    
+d177 1
+a177 1
+    static public void enqueue(RtQObj newQObj) 
+d188 1
+a188 1
+     * 'null' is equivalent to 'RtRun.NULL_EXCEPTION_ENV'.  
+d196 2
+a197 2
+    
+    /** 
+d201 1
+a201 1
+     * runQ thread.  
+d204 1
+a204 1
+        if (Thread.currentThread() != OurThread 
+d211 2
+a212 2
+    
+    /** 
+d223 1
+a223 1
+            throw ReallyFinalizeError; 
+d228 2
+a229 2
+    }   
+    
+d242 1
+a242 1
+                    runQueueDebugHook.preRunOne(myQ, TheVatLock, this); 
+d261 2
+a262 2
+    
+    // Only the Inspector should call this, anyone else is evil 
+d271 1
+a271 1
+    
+d273 1
+a273 1
+    // forward, the ewhen hook) call into this. 
+d279 1
+a279 1
+    // forward, the ewhen hook) call into this.         
+d292 1
+a292 1
+    
+d329 4
+a332 4
+    
+    static public void internalDispatch(EObject_$_Intf obj, 
+                                        RtEnvelope env, 
+                                        RtExceptionEnv exEnv, 
+d340 1
+a340 1
+            tr.$("deliver " + env + " to " + 
+d351 1
+a351 1
+    
+d355 3
+a357 3
+    
+    static public void enqueue(EObject_$_Intf obj, 
+                               RtEnvelope envelope, 
+d363 4
+a366 4
+    
+    static void doEnqueue(EObject_$_Intf obj, 
+                          RtEnvelope envelope, 
+                          RtExceptionEnv exceptionEnv, 
+d383 1
+a383 1
+            tr.$ (envelope + " to " + Trace.eclassString(obj) + 
+d387 1
+a387 1
+            String trace = "\tsend of " + envelope.getSealer().toString() + 
+d391 1
+a391 1
+        
+d400 1
+a400 1
+        ReallyFinalizeSomebodyCount = 0;     
+d412 2
+a413 2
+    }   
+    
+d434 1
+a434 1
+                        if (Trace.eruntime.debug) Trace.eruntime.debugm("Really finalizing " + finalizer + 
+d444 1
+a444 1
+    }   
+d464 1
+a464 1
+        
+d571 2
+a572 2
+    
+    // BUG--get rid of unused newHandler param; 
+d574 3
+a576 2
+    static public void pushExceptionEnv(EObject_$_Intf newHandler, 
+                                        (Throwable->void) method) {
+d578 1
+a578 1
+        RtExceptionEnv currExEnv = exceptionEnv().pushExceptionEnv(method);
+d588 1
+a588 1
+    
+d595 1
+a595 1
+    static public void popExceptionEnv() 
+d604 1
+a604 1
+    }   
+d609 1
+a609 1
+    
+d613 1
+a613 1
+    
+d615 1
+a615 1
+        if (TheRtRun.myCausalityTracing) { 
+d621 1
+a621 1
+    
+d633 1
+a633 1
+    
+d639 1
+a639 1
+    
+d645 1
+a645 1
+    
+d657 1
+a657 1
+    
+d701 1
+a701 1
+ * whatever it is they would want to do in the reallyFinalize() method, 
+@
+
+
+1.30
+log
+@Inspector from revive, no deadlocks in finalizer code, hold inspector by tether, typetable more efficient, and encode/decode java.util.Properties
+@
+text
+@d581 6
+@
+
+
+1.29
+log
+@Better handling of Channel Shortening
+@
+text
+@d7 2
+d53 3
+a55 1
+    private RunQueueDebugger myRunQueueDebugHook = null; // Added for Inspector
+d67 1
+a67 1
+    public RtRun(Object vatLock) /*throws OnceOnlyException*/ {
+d75 1
+d87 1
+a87 1
+        if (myRunQueueDebugHook != null) {
+d90 1
+a90 1
+        myRunQueueDebugHook = newHook;
+d93 12
+d137 2
+d238 6
+a243 2
+            if (myRunQueueDebugHook != null) {
+                myRunQueueDebugHook.preRunOne(myQ, TheVatLock, this); // Give cycles to RunQueue Debugger/Inspector
+d282 5
+a286 2
+        if (TheRtRun.myRunQueueDebugHook != null) {
+            TheRtRun.myRunQueueDebugHook.preDeliver(new RtQObj(obj, envelope, exceptionEnv), TheVatLock, TheRtRun);
+a411 3
+        ////sacrificialFinalizer = new JavaIsStupidTimerThread();
+        ////sacrificialFinalizer.stupidFinalize(); // Harmless, forces Java interpreter to run through Proxy finalize
+        ////new RtFinalizerThread(TheRtRun);
+d430 6
+a435 3
+                synchronized (TheVatLock) {
+                    ////System.out.println("Really finalizing " + finalizer + " at index " + i);
+                    try {
+d438 3
+a440 3
+                    catch (Throwable t) {
+                        EThreadGroup.reportException(t);
+                    }
+a568 1
+        ////System.out.println("CleanTrace has trace string:\n" + trace);
+d668 1
+a668 1
+        new RtRun(new Object());
+@
+
+
+1.28
+log
+@POE fix to forward
+@
+text
+@d570 3
+@
+
+
+1.27
+log
+@improved error processing, and/or registrar.summon
+@
+text
+@d10 1
+d239 1
+d246 23
+a268 2
+        EObject_$_Impl msgObj = (EObject_$_Impl)currentMsg.obj;
+        setCurrentExceptionEnv(currentMsg.exceptionEnv);
+d270 1
+a270 1
+            tr.$("deliver " + currentMsg.envelope +
+d272 1
+a272 1
+                 " " + currentMsg.exceptionEnv);
+d275 1
+a275 1
+            msgObj.deliver(currentMsg.envelope);
+d286 1
+a286 1
+                currentMsg.envelope);
+d293 1
+a293 1
+            currentMsg.exceptionEnv.doEThrow(e);
+@
+
+
+1.26
+log
+@try/catch around finalizer.reallyFinalize
+@
+text
+@d3 2
+d261 2
+a262 1
+            System.err.println("Happened during send of " + msgObj + " <- " +
+a263 2
+            System.err.println("Java trace is: " + e);
+            e.printStackTrace(); // tr.printStackTrace(e);
+d325 4
+a328 1
+                e.printStackTrace();
+d390 1
+a390 1
+                        t.printStackTrace();
+d592 4
+d635 1
+a635 1
+        t.printStackTrace();
+@
+
+
+1.25
+log
+@Added hooks for RunQueueInspector to RunQueue
+@
+text
+@d382 6
+a387 1
+                    finalizer.reallyFinalize();
+@
+
+
+1.24
+log
+@Support for code generated by ej, which uses inner classes for closures.
+@
+text
+@d3 6
+d48 2
+d73 13
+d216 2
+a217 1
+            synchronized (TheVatLock) {
+d223 9
+a231 1
+                runOne(myQ.dequeue());
+d236 1
+a236 1
+    private void runOne(RtQObj currentMsg) {
+d577 8
+@
+
+
+1.23
+log
+@little cheating bits
+@
+text
+@d495 6
+@
+
+
+1.22
+log
+@Some workaround for Java deadlocks, channel optimization so it doens't save messages when no distributor
+@
+text
+@d559 20
+a578 3
+    static public void bootCheat ()
+    {
+        new RtRun (new Object ());
+@
+
+
+1.21
+log
+@value() fix; causality tracing
+@
+text
+@d321 10
+a330 1
+        queueReallyFinalize(new FinalizerDummy()); // Hoping to cache this to avoid deadlock
+d574 5
+@
+
+
+1.20
+log
+@undoing wrapping for ethrows
+@
+text
+@a298 1
+        String trace;
+d304 2
+a305 1
+            trace = cleanTrace(2);
+d348 19
+a367 4
+    static private final String ECatchDescription = "\tE catch handler: ";
+    static private final String EWhenDescription = "\tE when body: ";
+    static private final String ForwardDescription = "\tEDistributor forward: ";
+    
+d370 1
+d372 1
+a372 2
+        String t = Trace.getStackTrace();
+        pos = stackTrace.indexOf("_$_Impl.closure$");
+d374 5
+a378 4
+            int channelPos = stackTrace.indexOf("EChannel_$_Impl.nonmethod");
+            if (channelPos == -1) {
+                System.out.println("cleanupStackTrace: No closure, returning *** Unknown *** string\n" + t);
+                trace = "\t*** Unknown EVM runloop stack *** (trace follows)\n" + stackTrace;
+d380 7
+a386 2
+                pos = stackTrace.indexOf('\n');
+                trace = "\t[E channel passthrough]";
+d388 3
+a390 1
+        } else {
+d392 31
+a422 19
+            // Check for synthetic method processing
+            int catchPos = stackTrace.indexOf("ECatchClosure_$_Impl$closure.$apply");
+            int ewhenPos = stackTrace.indexOf("EWhenClosure_$_Impl$closure.$apply");
+            int distPos = stackTrace.indexOf("EDistributor_$_Impl$closure.$apply");
+            
+            if (pos == -1) {                    
+                if ((catchPos == -1) && (ewhenPos == -1) && (distPos == -1)) {
+                    System.out.println("cleanupStackTrace: Returning *** Unknown *** string\n" + t);
+                    trace = "\t*** Unknown synthetic closure *** (trace follows)\n" + stackTrace;
+                }
+                if (catchPos != -1) {
+                    pos = stackTrace.indexOf('\n');
+                    trace = ECatchDescription + stackTrace.substring(1, pos);
+                } else if (ewhenPos != -1) {
+                    pos = stackTrace.indexOf('\n');
+                    trace = EWhenDescription + stackTrace.substring(1, pos);
+                } else if (distPos != -1) {
+                    pos = stackTrace.indexOf('\n');
+                    trace = ForwardDescription + stackTrace.substring(1, pos);
+d424 13
+a436 15
+            } else {
+                trace = stackTrace.substring(0, pos);
+                // Unfortunately, the code that cleans up the indecipherable
+                // unsealer code will skip over ewhen/ecatch code that directly
+                // calls anything, so we have to special case yet again ...
+                if ((catchPos != -1) || (ewhenPos != -1)) {
+                    String addInfo;
+                    if (catchPos != -1) {
+                        pos = stackTrace.indexOf('\n', catchPos);
+                        addInfo = ECatchDescription + stackTrace.substring(catchPos, pos);
+                    } else {
+                        pos = stackTrace.indexOf('\n', ewhenPos);
+                        addInfo = EWhenDescription + stackTrace.substring(ewhenPos, pos);
+                    }
+                    trace = trace + "\n" + addInfo;
+d440 1
+a440 1
+        return trace + " <- E message send...";
+d442 1
+a442 1
+    
+d444 4
+a447 1
+        String trace = Trace.getStackTrace();
+d515 12
+d537 1
+a537 1
+        if (TheRtRun.myCausalityId == null) {
+@
+
+
+1.19
+log
+@Spam the uncaught throws getting turned into ethrows
+@
+text
+@a72 7
+     * Handles a throwable thrown up past the top of an emethod dispatch
+     */
+    static public void handleUncaughtThrowable (Throwable t) {
+            exceptionEnv().doEThrow(new RtUncaughtThrowableException(t));
+    }
+    
+    /**
+d222 4
+d232 1
+a232 1
+            e.printStackTrace();
+d238 2
+a239 1
+            currentMsg.exceptionEnv.doEThrow(new RtUncaughtThrowableException(e));
+a522 19
+}
+
+public class RtUncaughtThrowableException extends RuntimeException
+{
+    private Throwable myThrowable;
+    private String myContext = null; // XXX - Set this to something meaningfull across processes
+    
+    public RtUncaughtThrowableException(Throwable t) {
+        super("Uncaught throwable: " + t.getMessage());
+        myThrowable = t;
+    }
+
+    public Throwable getThrowable() {
+        return myThrowable;
+    }
+    
+    public String getContext() {
+        return myContext;
+    }   
+@
+
+
+1.18
+log
+@prep for throwing Exception in invoke
+@
+text
+@d73 7
+d229 11
+a239 13
+            if (tr.debug) {
+                tr.$("Uncaught Throwable made it all the way to " +
+                    "the top; This shouldn't happen, but we'll be nice " +
+                    "and turn it into an ethrow like a happyhappy citizen.");
+                tr.$("Happened during send of " + msgObj + " <- " +
+                    currentMsg.envelope);
+                tr.$("Java trace is: " + e);
+                tr.printStackTrace(e);
+                if (myCausalityTracing) {
+                    String causalityTrace = getCausalityTraceString();
+                    tr.$("Causality trace:");
+                    tr.$(causalityTrace);
+                }
+d241 1
+a241 1
+            currentMsg.exceptionEnv.doEThrow(e);
+d527 1
+a527 2
+/*
+class RtFinalizerThread extends Thread
+d529 10
+a538 10
+    private RtRun myRtRun;
+    RtFinalizerThread (RtRun theRtRun) {
+        if (theRtRun == null) {
+            System.err.println("RtFinalizerThread: initialized with null runloop!");
+        }
+        else {
+            myRtRun = theRtRun;
+            this.setDaemon(true);
+            this.start();
+        }
+d541 3
+a543 11
+    public void run () {
+        synchronized (this) {
+            while (true) {
+                try {
+                    wait(5000);
+                } catch (Exception e) {
+                }
+                myRtRun.beRunning();
+            }
+        }                   
+    }
+a544 1
+*/
+@
+
+
+1.17
+log
+@zapped RtEException
+@
+text
+@d223 7
+a229 4
+                System.err.println("Uncaught exception (" + e + ") on " +
+                    msgObj + " <- " + currentMsg.envelope);
+                System.err.println("Java trace is:");
+                e.printStackTrace();
+d232 2
+a233 1
+                    System.err.println("Message sent from " + causalityTrace);
+@
+
+
+1.16
+log
+@Fix deadlock in FInalizers
+@
+text
+@d222 9
+a230 7
+            System.err.println("Uncaught exception (" + e + ") on " +
+                               msgObj + " <- " + currentMsg.envelope);
+            System.err.println("Java trace is:");
+            e.printStackTrace();
+            if (myCausalityTracing) {
+                String causalityTrace = getCausalityTraceString();
+                System.err.println("Message sent from " + causalityTrace);
+d232 1
+a232 1
+            // XXX do something
+d436 1
+a436 1
+                                        (RtEException->void) method) {
+@
+
+
+1.15
+log
+@Better implementation of ReallyFinalize
+@
+text
+@d43 2
+a44 2
+    static private RtFinalizer TheFinalizers[] = null;
+    static private int ReallyFinalizeSomebodyCount = 0;
+d310 1
+a310 1
+        TheFinalizers = new RtFinalizer[FinalizersSize];
+d312 1
+a312 1
+        TheFinalizers[0] = new FinalizerDummy(); // Hoping to cache this to avoid deadlock
+d327 1
+a327 1
+                finalizer = TheFinalizers[ReallyFinalizeSomebodyCount];
+@
+
+
+1.14
+log
+@Small fix to CHannel shortening on encode
+@
+text
+@d42 1
+a42 1
+    static private final int FinalizersSize = 1024;
+d44 1
+a44 1
+    static private boolean ReallyFinalizeSomebody = false;
+d46 3
+a48 1
+    
+d176 6
+a181 1
+        boolean success = false;
+d183 1
+a183 13
+            int i;
+            for (i = 0; i < TheFinalizers.length; i++) {
+                if (TheFinalizers[i] == null)  {
+                    TheFinalizers[i] = finalizer;
+                    ReallyFinalizeSomebody = success = true;
+                    TheRtRun.beRunning();
+                    ////System.out.println("Queueing " + finalizer + " to finalize at index " + i);
+                    break;
+                }
+            }
+        }
+        if (success == false) {
+            throw new Error("Cannot set delayed finalize for Vat Context");
+d308 1
+a308 1
+        ReallyFinalizeSomebody = false;     
+d311 3
+d323 1
+a323 1
+        while (ReallyFinalizeSomebody) {
+a324 1
+            int i;
+d326 3
+a328 10
+                for (i = 0; i < TheFinalizers.length; i++) {
+                    if (TheFinalizers[i] != null)  {
+                        finalizer = TheFinalizers[i];
+                        TheFinalizers[i] = null;
+                        break;
+                    }
+                }
+                if (finalizer == null)  {
+                    ReallyFinalizeSomebody = false;
+                }
+d509 35
+@
+
+
+1.13
+log
+@ProxyDeath, ReallyFinalize called in Vat thread, Channel shortening
+@
+text
+@d182 1
+d343 1
+@
+
+
+1.12
+log
+@more runtime cleanup
+@
+text
+@d12 1
+a12 1
+ * XXX explain reason: process exit & why deamon's don't do it. <p>
+d42 5
+d58 1
+d63 8
+d94 1
+d96 1
+a96 1
+
+d167 24
+d198 1
+d307 9
+d317 31
+d507 10
+@
+
+
+1.11
+log
+@new Trace stuff
+@
+text
+@a230 6
+    // Dummy method to make the compiler happy.
+    static public void enqueue(EObject obj, RtEnvelope envelope) 
+    {
+        throw new RuntimeException("cannot be called");
+    }
+    
+a356 7
+    }
+    
+    // Dummy method to make the compiler happy.
+    static public void enqueue(EObject obj, RtEnvelope envelope,
+                               RtExceptionEnv exceptionEnv) {
+
+        throw new RuntimeException("cannot be called");
+@
+
+
+1.10
+log
+@the superfluosity of unsealers, part 1
+@
+text
+@d107 1
+a107 1
+            tr.$("Created new RtRun thread " + OurNumThreads);
+d171 1
+a171 4
+        if (tr.tracing) {
+            tr.nl();
+            tr.$("dequeued " + currentMsg.envelope);
+        }
+@
+
+
+1.9
+log
+@cheating startup
+@
+text
+@d270 1
+a270 2
+            envelope = EObject_$_Sealer.seal_$_traceAndDeliver$java_dot_lang_dot_String$ec_dot_e_dot_run_dot_RtEnvelope
+                        (trace, envelope);
+d281 1
+a281 1
+    public String cleanupStackTrace(String stackTrace) {
+d348 1
+@
+
+
+1.8
+log
+@minor tweak to error message
+@
+text
+@d432 9
+@
+
+
+1.7
+log
+@new ecomp
+@
+text
+@d190 1
+a190 1
+                               currentMsg.envelope);
+@
+
+
+1.6
+log
+@traceAndDeliver has moved
+@
+text
+@d270 1
+a270 1
+            envelope = EObject_$_Sealer.seal_$_EObject_traceAndDeliver_2
+@
+
+
+1.5
+log
+@ec2->ec3 teething pains
+@
+text
+@d270 1
+a270 1
+            envelope = EObject_$_Sealer.seal_$_EObject_traceAndDeliver_1
+@
+
+
+1.4
+log
+@Saving the Counter example to a checkpoint file with the S-expression
+based Serializers, Openers, & Recipes.  Doing the double file shuffle
+(ensure there's a valid one if we die in the middle).
+
+Dying with an RtBadSealerException when reviving.
+@
+text
+@d130 1
+a130 1
+    static private void setCurrentExceptionEnv(RtExceptionEnv env) {
+d270 1
+a270 1
+            envelope = EObject_$_Sealer.seal_$_EObject_traceAndDeliver_2
+@
+
+
+1.3
+log
+@Chenges to Reflection & Object Streaming
+@
+text
+@d270 1
+a270 1
+            envelope = EObject_$_Sealer.seal_$_EObject_traceAndDeliver_1
+@
+
+
+1.2
+log
+@first checkpoint & restore of live computation
+@
+text
+@d8 2
+a9 2
+ * being run by an RtThread.  Should the runQ run out, run() will
+ * return, and the RtThread will die.  Should anything later get
+d16 1
+a16 1
+ * running in an RtThread.  This allows surgery to be performed (like
+d18 1
+a18 1
+ * might enqueue messages, it should first hold the vatLock, as
+d24 9
+a32 5
+    static public Trace tr = new Trace(false, "RtRun:");
+    static private Object TheVatLock;
+    static private RtRun TheRtRun;
+    static private int OurNumThreads = 0;
+    static private RtThread OurThread = null;
+d36 1
+a36 1
+    private RtQ myQ = new RtQ();
+d40 1
+a40 1
+    boolean myCausalityTracing = false;
+d83 2
+a84 2
+     * If there is not currently an RtThread running this RtRun, this
+     * will start one.
+d88 7
+d99 4
+d105 2
+a106 2
+            OurThread = new RtThread(this, 
+                                     "RtRunloop (" + OurNumThreads + ")");
+d128 1
+a128 1
+     * 'null' is equivalent to 'RtThread.nullExceptionEnv'.  
+d134 1
+a134 1
+        OurThread.CurrentExceptionEnv = env;
+d139 1
+a139 1
+     * 'RtThread.nullExceptionEnv' will always be returned in
+d145 1
+a145 1
+            || OurThread.CurrentExceptionEnv == null) {
+d147 1
+a147 1
+            return RtThread.nullExceptionEnv;
+d149 1
+a149 1
+        return OurThread.CurrentExceptionEnv;
+d188 1
+a188 1
+        } catch (RtRuntimeException e) {
+d348 6
+a353 3
+        if (thread instanceof RtThread) {
+            trace = ((RtThread)thread).cleanupStackTrace(trace) +
+                    " [receiver: " + TheRtRun.myCausalityId + "]";
+d355 1
+a355 1
+                trace = trace + "\n" + TheRtRun.myCurrentTraceString;
+d362 1
+a362 1
+            trace = trace + " [receiver: " + TheRtRun.myCausalityId + "]";
+@
+
+
+1.1
+log
+@This checkin represents significant surgery to the heart of the E
+runtime.  The runQ is now a vat root, so all E computation now lives
+in the vat.  Non-upwards-compatibility: etry/ecatch only works from
+the E runQ thread.
+@
+text
+@d60 19
+@

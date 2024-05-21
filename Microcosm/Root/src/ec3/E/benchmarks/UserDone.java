@@ -1,0 +1,3 @@
+class UserDone extends Exception
+{
+}

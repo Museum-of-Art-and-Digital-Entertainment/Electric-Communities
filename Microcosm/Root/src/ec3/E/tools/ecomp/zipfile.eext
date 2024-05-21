@@ -1,0 +1,374 @@
+# 1 "ec/ecomp/zipfile.java" 
+/* ************************************************************************
+ * Espresso! Class file loading and generation.
+ * Copyright 1995, 1996, 1997 Martin Odersky. All rights reserved.
+ * 
+ * Author     : Martin Odersky
+ * Last change: 19-November-97
+ *************************************************************************/
+
+
+package ec.ecomp;
+
+
+
+
+import java.io.*;
+import java.util.Hashtable;
+
+
+abstract class GeneralFile {
+    abstract String getPath();
+    abstract boolean exists();
+    abstract boolean isDirectory();
+    abstract byte[] read() throws IOException;
+    abstract String[] list() throws IOException;
+    abstract GeneralFile open(String name);
+
+    private static Hashtable opened = new Hashtable();
+
+    static GeneralFile open(String dirname, String name) {
+        if (dirname == null)
+            return new PlainFile(new File(name));
+        else if (dirname.endsWith(".zip") || dirname.endsWith(".jar")) {
+            GeneralFile dir = (GeneralFile)opened.get(dirname);
+            if (dir == null) {
+                dir = new ZipDir(new File(dirname));
+                if (dir.isDirectory())
+                    opened.put(dirname, dir);
+            }
+            return dir.open(name);
+        } else
+            return new PlainFile(new File(dirname, name));
+    }
+        
+/*
+
+    static GeneralFile openFile(GeneralFile directory, String name) {
+        GeneralFile f;
+        if (directory == null) f = new PlainFile(new File(name));
+        else f = directory.open(name);
+        if (!f.exists()) {
+            int splitPos = name.lastIndexOf(File.separatorChar);
+            if (splitPos > 0 && splitPos < name.length() - 1) {
+                directory = openDir(directory, 
+                                    name.substring(0, splitPos));
+                name = name.substring(splitPos + 1);
+                if (directory == null) f = new PlainFile(new File(name));
+                else f = directory.open(name);
+            }
+        }
+        return f;
+    }
+
+    static GeneralFile openDir(GeneralFile directory, String name) {
+        String path;
+        if (directory == null) path = name;
+        else path = directory.getPath() + File.separator + name;
+        GeneralFile f = null; // = (GeneralFile)opened.get(path);
+        if (f == null) {
+            f = openFile(directory, name);
+            if (!f.isDirectory()) {
+                f = openFile(directory, name + ".zip").mkdir();
+            }
+//            opened.put(path, f);
+        }
+        return f;
+    }
+    */
+}
+
+class PlainFile extends GeneralFile {
+
+    File f;
+
+    PlainFile(File f) {
+        this.f = f;
+    }
+
+    String getPath() {
+        return f.getPath();
+    }
+   
+    boolean exists() {
+        return f.exists();
+    }
+
+    boolean isDirectory() {
+        return f.isDirectory();
+    }
+
+    byte[] read() throws IOException {
+        FileInputStream in = new FileInputStream(f);
+        byte[] buf = new byte[in.available()];
+        if (in.read(buf) != buf.length)
+          throw new IOException("read error");
+        in.close();
+        return buf;
+    }
+
+    String[] list() throws IOException {
+        return f.list();
+    }
+
+    GeneralFile open(String name) {
+        return new PlainFile(new File(f, name));
+    }
+
+}
+
+class ZippedFile extends GeneralFile {
+    ZipDir dir;
+    String name;
+    String pathname;
+
+    ZippedFile(ZipDir dir, String name) {
+        this.dir = dir;
+        this.name = name;
+        this.pathname = name;
+        if (!name.endsWith(File.separator)) 
+            this.pathname = this.pathname + File.separator;
+    }
+
+    String getPath() {
+        return dir.getPath() + "(" + name + ")";
+    }
+
+    boolean exists() {
+        return dir.isDirectory() && 
+            (dir.index(name) >= 0 || dir.index(pathname) >= 0);
+    }
+
+    boolean isDirectory() {
+        return dir.isDirectory() && dir.index(pathname) >= 0;
+    }
+
+    byte[] read() throws IOException {
+        if (!dir.isDirectory()) 
+            throw new IOException("cannot open");
+        int index = dir.index(name);
+        if (index < 0)
+          throw new IOException("cannot open");
+        int i = 0;
+        dir.r.seek(dir.offsets[index]);
+        byte[] header = new byte[30];
+        dir.r.readFully(header);
+        if (get4LE(header, 0) != 0x04034b50)
+            throw new IOException("zip file corrupted");
+        if (get2LE(header, 8) != 0) 
+          throw new IOException("zip file is compressed");
+        byte[] buf = new byte[get4LE(header, 18)];
+        dir.r.skipBytes(get2LE(header, 26) + 
+                        get2LE(header, 28));
+        dir.r.readFully(buf);
+        return buf;
+    }
+
+    static String[] list(ZipDir dir, String prefix) {
+        int n = 0;
+        for (int i = 0; i < dir.filenames.length; i++) {
+            if (dir.filenames[i].startsWith(prefix)) {
+                String candidate = 
+                    dir.filenames[i].substring(prefix.length());
+                if (candidate.indexOf(File.separatorChar) < 0)
+                    n++;
+            }
+        }
+        String[] filenames = new String[n];
+        n = 0;
+        for (int i = 0; i < dir.filenames.length; i++) {
+            if (dir.filenames[i].startsWith(prefix)) {
+                String candidate = 
+                    dir.filenames[i].substring(prefix.length());
+                if (candidate.indexOf(File.separatorChar) < 0)
+                    filenames[n++] = candidate;
+            }
+        }
+        return filenames;
+    }
+                
+    String[] list() throws IOException {
+        if (!isDirectory())
+          throw new IOException("not a directory");
+        return list(dir, pathname);
+    }
+
+    GeneralFile open(String name) {
+        return new ZippedFile(dir, pathname + name);
+    }
+
+/** return the two bytes buf[i], buf[i+1] as an unsigned integer in
+ *  little endian format.
+ */
+    static int get2LE(byte[] buf, int pos) {
+        return (buf[pos] & 0xFF) + ((buf[pos+1] & 0xFF) << 8);
+    }
+
+/** return the 4 bytes buf[i..i+3] as an integer in
+ *  little endian format.
+ */
+    static int get4LE(byte[] buf, int pos) {
+        return 
+            (buf[pos] & 0xFF) + 
+            ((buf[pos+1] & 0xFF) << 8) +
+            ((buf[pos+2] & 0xFF) << 16) +
+            ((buf[pos+3] & 0xFF) << 24);
+    }
+}
+
+class ZipDir extends GeneralFile {
+    File f;
+    RandomAccessFile r;
+    String[] filenames;
+    int[] offsets;
+    String prefix;
+
+    ZipDir(File f) {
+        try {
+            this.f = f;
+            this.r = new RandomAccessFile(f, "r");
+            byte[] dirvec = findDir(this.r);
+            int entryCount = ZippedFile.get2LE(dirvec, 0);
+            filenames = new String[entryCount];
+            offsets = new int[entryCount];
+            if (entryCount > 0) {
+                int pos = 2;
+                for (int i = 0; i < entryCount; i++) { 
+                    pos = readEntry(dirvec, pos, i);
+                }
+                sort(0, entryCount - 1);
+            }
+        } catch (IOException e) {
+            r = null;
+        }
+    }
+
+    String getPath() {
+        return f.getPath();
+    }
+   
+    boolean exists() {
+        return r != null;
+    }
+
+    boolean isDirectory() {
+        return r != null;
+    }
+
+    byte[] read() throws IOException {
+        throw new IOException("can't read directory");
+    }
+
+    String[] list() throws IOException {
+        return ZippedFile.list(this, "");
+    }
+
+    GeneralFile open(String name) {
+        return new ZippedFile(this, name);
+    }
+
+    int index(String name) {
+        int lo = 0;
+        int hi = filenames.length - 1;
+        while (lo <= hi) {
+            int med = (hi + lo)/2;
+            int cmp = name.compareTo(filenames[med]);
+            if (cmp < 0) hi = med - 1;
+            else if (cmp > 0) lo = med + 1;
+            else return med;
+        }
+        return -1;
+    }
+
+/** Returns central directory as a byte vector, preceded by two bytes
+ *  indicating the number of entries.
+ */
+    byte[] findDir(RandomAccessFile f) throws IOException {
+        byte[] endbuf = new byte[1024];
+        int endbuflen = endbuf.length;
+        long endbufend = f.length();
+        while (endbufend >= 22) {
+            if (endbufend < endbuflen) endbuflen = (int)endbufend;
+            long endbufpos = endbufend - endbuflen;
+            f.seek(endbufpos);
+            if (f.read(endbuf, 0, endbuflen) != endbuflen)
+                throw new IOException("read error");
+            int i = endbuflen - 22;
+            while (i >= 0 && 
+                   !(endbuf[i  ] == 0x50 &&
+                     endbuf[i+1] == 0x4b &&
+                     endbuf[i+2] == 0x05 &&
+                     endbuf[i+3] == 0x06 &&
+                     endbufpos + i + 22 + 
+                     ZippedFile.get2LE(endbuf, i + 20) 
+                       == f.length())) i--;
+            if (i >= 0) {
+                byte[] dirvec = 
+                    new byte[ZippedFile.get4LE(endbuf, i + 12) + 2];
+                dirvec[0] = endbuf[i + 10];
+                dirvec[1] = endbuf[i + 11];
+                f.seek(ZippedFile.get4LE(endbuf, i + 16));
+                if (f.read(dirvec, 2, dirvec.length - 2) != 
+                    dirvec.length - 2) throw new IOException("read error");
+                return dirvec;
+            } else {
+              endbufend = endbufpos + 21;
+            }
+        }
+        throw new IOException("bad zip file");
+    }
+
+    int readEntry(byte[] dirbuf, int pos, int i) throws IOException {
+        if (ZippedFile.get4LE(dirbuf, pos) != 0x02014b50) 
+          throw new IOException("bad dir entry");
+        if (ZippedFile.get2LE(dirbuf, pos + 10) != 0) 
+          throw new IOException("can't handle compressed zip files");
+        offsets[i] = ZippedFile.get4LE(dirbuf, pos + 42);
+        filenames[i] = 
+            new String(
+                dirbuf, 0, pos + 46, ZippedFile.get2LE(dirbuf, pos + 28))
+            .replace('/', File.separatorChar)
+            .replace('\\', File.separatorChar);
+        return
+            pos + 46 + 
+            ZippedFile.get2LE(dirbuf, pos + 28) + 
+            ZippedFile.get2LE(dirbuf, pos + 30) + 
+            ZippedFile.get2LE(dirbuf, pos + 32);
+    }
+
+/** sort filenames into ascending order:
+ */
+    private void sort(int lo, int hi) {
+        int i = lo;
+        int j = hi;
+        String pivot = filenames[(i+j)/2];
+        do {
+            while (filenames[i].compareTo(pivot) < 0) i++;
+            while (pivot.compareTo(filenames[j]) < 0) j--;
+            if (i <= j) {
+                String temp1 = filenames[i];
+                filenames[i] = filenames[j];
+                filenames[j] = temp1;
+                int temp2 = offsets[i];
+                offsets[i] = offsets[j];
+                offsets[j] = temp2;
+                i++;
+                j--;
+            }
+        } while (i <= j);
+        if (lo < j) sort(lo, j);
+        if (i < hi) sort(i, hi);
+    }
+}
+        
+        
+        
+
+    
+
+
+
+
+
+
+

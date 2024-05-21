@@ -1,0 +1,1189 @@
+# 1 "ec/ecomp/attr.java" 
+/* ************************************************************************
+ * Espresso! Utility routines for attribution
+ * Copyright 1995, 1996, 1997 Martin Odersky. All rights reserved.
+ * 
+ * Author     : Martin Odersky, Michael Philippsen
+ * Last change: 13-November-97
+ *************************************************************************/
+
+
+package ec.ecomp;
+
+
+
+ 
+import java.io.*;
+
+import java.util.Vector;
+
+
+class Attr implements Constants {
+
+/****************************************************************************
+/* diagnostics
+ ***************************************************************************/
+
+/** given a kind, return its name. used for error reporting.
+ */
+    static String kindName(int kind) {
+        switch (kind) {
+        case PCK: return "package";
+        case TYP: return "class";
+        case VAR: return "variable";
+        case VAL: return "value";
+        case FUN: return "function";
+        case CONSTR: return "constructor";
+        default : return "identifier";
+        }
+    }
+
+/** given a kind, return the clasification of all identifiers of that kind.
+ *  used for error reporting.
+ */
+    static String idName(int kind) {
+        return kindName(kind == VAL ? VAR : kind);
+    }
+
+/** given a set of kinds, return the names of its elements as a disjunction
+ */
+    static String kindNames(int kind) {
+        String s[] = new String[4];
+        int i = 0;
+        if ((kind & VAR) != 0) s[i++] = "variable";
+        if ((kind & FUN) != 0) s[i++] = "function";
+        if ((kind & TYP) != 0) s[i++] = "class";
+        if ((kind & PCK) != 0) s[i++] = "package";
+        String names = "";
+        for (int j = 0; j < i - 2; j++)
+            names = names + s[j] + ", ";
+        if (i >= 2)
+            names = names + s[i-2] + " or ";
+        if (i >= 1)
+            names = names + s[i-1];
+        else
+            names = "identifier";
+        return names;
+    }
+
+/** a verbal description of scope s; used for error reporting.
+ */
+    static String location(Scope s) {
+        if (s != null && s.owner != null)
+            return " in " + s.owner;
+        else
+            return "";
+    }
+
+/** a verbal description of the location of object o; used for 
+ *  error reporting.
+ */
+    static String location(Obj o) {
+        if (o.owner != null)
+            return " in " + o.owner;
+        else            
+            return "";
+    }
+
+/** print all scopes starting with scope s and proceeding outwards.
+ *  used for debugging.
+ */
+    static void printscopes(Scope s) {
+        while (s != null) {
+            if (s.owner != null) 
+                System.out.print(s.owner + ": ");
+            for (ScopeEntry e = s.elements(); e != null; e = e.sibling)
+                System.out.print(e.obj + ", ");
+            System.out.println();
+            s = s.next;
+        }
+    }
+
+/** return the class enclosing environment env; 
+ *  null if env is not local to a class.
+ */
+    static ClassObj currentClass(Env env) {
+        return (ClassObj)env.enclClass.obj;
+    }
+
+/****************************************************************************
+/* name resolution support methods
+ ***************************************************************************/
+
+/** does type t contain embedded "error" elements?
+ */
+    static boolean isError(Typ t) {
+        if (t == null) return false;
+        switch (t.tag) {
+        case ERRTYP: 
+            return true;
+        case ARRAY: 
+            return isError(((ArrayTyp)t).elemtyp);
+        case FUNCTION: 
+            FunTyp ft = (FunTyp)t;
+            return isError(ft.argtyps) || isError(ft.restyp);
+        default:
+            return false;
+        }
+    }
+
+    static boolean isError(Typ[] ts) {
+        for (int i = 0; i < ts.length; i++)
+            if (isError(ts[i])) return true;
+        return false;
+    }
+
+/** is class c accessible in evironment env?
+ */
+    static boolean accessible(Env env, ClassObj c) {
+
+        if (env == null) return true;
+
+        return
+            (c.modifiers & PUBLIC) != 0 || 
+            env.packageName == c.packagename;
+    }
+
+/** is obj accessible as a member of class c in evironment env?
+ */
+    static boolean accessible(Env env, ClassObj c, Obj obj) {
+        int mods = obj.modifiers;
+        if ((mods & PROTECTED) != 0) {
+            return
+                env.enclClass.obj.typ.subtype(obj.owner.typ) &&
+                (c.typ.subtype(env.enclClass.obj.typ) 
+//FIX 11/11/96: 
+                 || env.selectSuper
+                 || c == Typ.arrayTyp.obj)
+                ||
+                env.packageName == ((ClassObj)obj.owner).packagename;
+
+        } else if ((mods & PRIVATE) != 0) {
+          if (env.enclClass.obj == obj.owner)
+                return true;
+           else {
+                //some special rule for deflect
+                if (!E2j.nonPureE && !E2j.done) {
+                  Name n1 = env.enclClass.obj.name;
+                  Name n2 = obj.owner.name;
+                  //System.out.println(env.enclClass.obj.name);
+                  //System.out.println(obj.owner.name);
+                  return (   (n1.startsWith(n2) && n1.endsWith(E2j.deflectS))
+                          || (n2.startsWith(n1) && n2.endsWith(E2j.deflectS)));
+                }
+                //some special rule for -esystem
+                if (E2j.nonPureE && !E2j.done) {
+                  Name n1 = env.enclClass.obj.name;
+                  Name n2 = obj.owner.name;
+                  //System.out.println(env.enclClass.obj.name);
+                  //System.out.println(obj.owner.name);
+                  //return (   (n1.startsWith(n2) && n1.endsWith(E2j.implS))
+                  //        || (n2.startsWith(n1) && n2.endsWith(E2j.implS)));
+                  return (   (n1.startsWith(n2) && E2j.endsWithE2j(n1))
+                          || (n2.startsWith(n1) && E2j.endsWithE2j(n2)));
+                }
+              }
+              return false;
+        }   
+
+
+
+
+        else if ((mods & PUBLIC) == 0 && obj.owner.kind == TYP)
+            return env.packageName == ((ClassObj)obj.owner).packagename;
+        else
+            return true;
+    }
+
+/** is function symbol `a' at least as good as function symbol `b'? 
+ *  used to get the best-matching overloaded instance during object lookup.
+ */
+    static boolean asGood(Env env, ClassObj c, Obj a, Obj b) {
+        if (!accessible(env, c, b)) return true;
+        if (!accessible(env, c, a)) return false;
+        if (((a.owner.modifiers | b.owner.modifiers) & INTERFACE) == 0 &&
+            (!a.owner.typ.subtype(b.owner.typ))) return false;
+          Typ[] aargs = ((FunTyp)a.typ).argtyps;
+          Typ[] bargs = ((FunTyp)b.typ).argtyps;
+          if (aargs.length != bargs.length) return false;
+
+          if ((a.name == b.name) &&
+              (a.owner == b.owner) &&
+              is_nonIntf_version((FunTyp)a.typ, (FunTyp)b.typ)) {
+            // System.out.println(a+" is_nonIntf_version of "+b);
+            if (E2j.done) {
+              // The version with _$_Intf is better
+              return true;
+            } else {
+              // The version without _$_Intf is better
+              return false;
+            }
+          }
+
+          for (int i = 0; i < aargs.length; i++)
+            if (!aargs[i].subtype(bargs[i])) return false;
+          return true;
+    }
+
+/*  
+    static boolean asGood(Env env, ClassObj c, Obj a, Obj b) {
+      System.out.print(a + " < " + b + " ? " );
+      boolean res = asGood1(env, c, a, b);
+      System.out.println(res);
+      return res;
+    }
+*/
+  
+/****************************************************************************
+/* symbol table lookup methods
+ ***************************************************************************/
+
+/* for variables:
+ */
+    static Obj findField(Env env, ClassObj c, Name name) {
+        Obj obj = NameError.varNotFound;
+        ScopeEntry e = c.scope.lookup(name);
+        while (e.scope != null) {
+            if (e.obj.kind == VAR) {
+                if (accessible(env, c, e.obj)) return e.obj;
+                else if (obj.kind > HIDDEN) obj = new AccessError(e.obj);
+            }
+            e = e.next();
+        }
+        return obj;
+    }
+
+    static Obj findVar(Env env, Name name) {
+
+      //bug: private variables of super can be accessed
+        Obj obj = NameError.varNotFound;
+
+        ScopeEntry e = env.scope.lookup(name);
+        while (e.scope != null) {
+
+          if (e.obj.kind == VAR) {
+            if (   ((e.obj.modifiers & PRIVATE) != 0)
+                && (e.obj.owner instanceof ClassObj)) {
+              if (accessible(env, (ClassObj)e.obj.owner, e.obj)) return e.obj;
+              else if (obj.kind > HIDDEN) obj = new AccessError(e.obj);
+            } else
+              return e.obj;
+          }
+
+
+
+          e = e.next();
+        }
+        Obj obj1 = Predef.scope.lookup(name).obj;
+        if (obj1 != null && obj1.kind == VAR) return obj1;
+
+        return obj;
+
+
+
+    }
+
+/* for methods:
+ */
+    static Obj findBestMethod(Env env, ClassObj c, 
+                              ScopeEntry e, Typ[] argtyps) {
+        Obj obj = e.obj;
+        ScopeEntry e1 = e.next();
+        while (e1.obj != null) {
+            if (e1.obj.typ.tag == FUNCTION &&
+                Typ.subtypes(argtyps, ((FunTyp)e1.obj.typ).argtyps) &&
+                !asGood(env, c, obj, e1.obj))
+              obj = e1.obj;
+            e1 = e1.next();
+        }
+        if (obj != e.obj) {
+
+            Obj other = null;
+
+            e1 = e;
+            while (e1.obj != null) {
+                if (obj != e1.obj) {
+                    if (e1.obj.typ.tag == FUNCTION &&
+                        Typ.subtypes(
+                            argtyps, ((FunTyp)e1.obj.typ).argtyps) &&
+                        !asGood(env, c, obj, e1.obj) &&
+                        !isError(argtyps)) {
+
+                      if (   (obj.name == e1.obj.name)
+                          && (obj.owner == e1.obj.owner)
+                          && (   is_nonIntf_version((FunTyp)(obj.typ),
+                                                    (FunTyp)(e1.obj.typ))
+                              || is_nonIntf_version((FunTyp)(e1.obj.typ),
+                                                    (FunTyp)(obj.typ)))) {
+                        // skip error
+                      } else {
+
+                      return new AmbiguityError(obj, e1.obj);
+
+                      }
+
+                    }
+                }
+                e1 = e1.next();
+            }
+
+            if (other != null)
+              return new AmbiguityError(obj, other);
+
+        }
+        if (obj.kind >= BAD || accessible(env, c, obj)) return obj;
+        else return new AccessError(obj);       
+    }
+
+    public static Obj findMethod(Env env, ClassObj c,
+                          Name name, Typ[] argtyps) {
+        ScopeEntry e = c.scope.lookup(name);
+        while (e.obj != null) {
+            if (e.obj.typ.tag == FUNCTION &&
+                Typ.subtypes(argtyps, ((FunTyp)e.obj.typ).argtyps)) 
+              return findBestMethod(env, c, e, argtyps);
+            e = e.next();
+        }
+
+        argtyps = stripIntf(env, argtyps);
+        if (argtyps != null)
+          return findMethod(env, c, name, argtyps);
+
+        return NameError.funNotFound;
+    }
+
+    static Obj findPredefFun(Env env, Name name, Typ[] argtyps) {
+        ScopeEntry e = Predef.scope.lookup(name);
+        //System.out.println("looking for " + name);//DEBUG
+        while (e.obj != null) {
+            if (e.obj.typ.tag == FUNCTION &&
+                Typ.subtypes(argtyps, ((FunTyp)e.obj.typ).argtyps))
+              return findBestMethod(env, Predef.clazz, e, argtyps);
+            e = e.next();
+        }
+        return NameError.funNotFound;
+    }   
+
+    static Obj findFun(Env env, Name name, Typ[] argtyps) {
+        //System.out.println("findFun "+name+" "+Basic.toString(argtyps));
+        ScopeEntry e = env.scope.lookup(name);
+        while (e.obj != null) {
+            if (e.obj.typ.tag == FUNCTION &&
+                Typ.subtypes(argtyps, ((FunTyp)e.obj.typ).argtyps)) {
+              return findBestMethod(
+                        env, (ClassObj)env.enclClass.obj, e, argtyps);
+            }
+            e = e.next();
+        }
+
+        Typ[] newtyps = stripIntf(env, argtyps);
+        if (newtyps != null)
+          return findFun(env, name, newtyps);
+
+               
+        return findPredefFun(env, name, argtyps);
+    }
+
+
+  private static Typ[] stripIntf(Env env, Typ[] argtyps) {
+    Typ[] newtyps = null;
+    if (argtyps != null) {
+      for (int i = 0; i < argtyps.length; i++) {
+        if (   argtyps[i].subtype(ePredef.EobjectIntfTyp)
+            && argtyps[i].obj.fullname.endsWith(E2j.intfS)) {
+          // System.out.println("_$_Intf found");
+          if (newtyps == null) {
+            newtyps = new Typ[argtyps.length];
+            for (int j = 0; j < i; j++)
+              newtyps[j] = argtyps[j];
+          }
+          int len = argtyps[i].obj.fullname.len;
+          IdRef newid = Name.toIdRef(0,
+                                     argtyps[i].obj.fullname.subName(0,len-7));
+          // System.out.println("attr newtyp "+newid.name);
+          newtyps[i] = newid.attr(env, TYP, Typ.anyTyp);
+        } else if (newtyps != null)
+          newtyps[i] = argtyps[i];
+      }
+    }
+    return newtyps;
+  }
+
+  
+/* for classes
+ */
+
+    static Obj loadClass(Env env, Name name) {
+        try {
+            ClassObj c = ClassFile.load(name);
+            if (accessible(env, c)) return c;
+            else return new AccessError(c);
+        } catch (IOException ex) {
+            return new ClassLoadError(ex, TYP, name);
+        }
+    }
+
+
+  static boolean is_nonIntf_version(FunTyp lasttyp, FunTyp typ) {
+    if (lasttyp.argtyps.length != typ.argtyps.length)
+      return false;
+    int same = 0;
+    int intf = 0;
+    for (int i = 0; i < lasttyp.argtyps.length; i++) {
+      // System.out.println(lasttyp.argtyps[i].obj.name+" <--> "+
+      //                     typ.argtyps[i].obj.name);
+      Typ typ1 = lasttyp.argtyps[i];
+      Typ typ2 =     typ.argtyps[i];
+      while (typ1 instanceof ArrayTyp)
+        typ1 = ((ArrayTyp)typ1).elemtyp;
+      while (typ2 instanceof ArrayTyp)
+        typ2 = ((ArrayTyp)typ2).elemtyp;
+      if (typ1.obj.name == typ2.obj.name)
+        same++;
+      else if (typ1.obj.name == typ2.obj.name.append(E2j.intfS))
+        intf++;
+    }
+    if (lasttyp.argtyps.length == same)
+      return false;  // handles the no-argument case as well
+    if (lasttyp.argtyps.length != (same + intf))
+      return false;  // at least one different arg typ
+    return (intf != 0);  //true if at least on parameter X->X_$_Intf, others same
+  }
+
+  
+    static Obj findClass(Env env, Scope scope, Name name) {
+        ScopeEntry e = scope.lookup(name);
+        if (e.obj != null) {
+            if (e.next().obj != null) {
+                return new AmbiguityError(e.obj, e.next().obj);
+            } else
+                return loadClass(env, ((ClassObj)e.obj).fullname);
+        } else {
+            return NameError.typeNotFound;
+        }
+    }
+
+    static Obj findClass(Env env, Name name) {
+        Obj obj = Predef.scope.lookup(name).obj;
+        if (obj != null && obj.kind == TYP) return obj;
+        obj = findClass(env, env.toplevel.namedImportScope, name);
+        if (obj.kind < HIDDEN) return obj;
+        Obj obj1 = findClass(env, env.toplevel.packageScope, name);
+        if (obj1.kind < HIDDEN) return obj1;
+        else if (obj.kind > obj1.kind) obj = obj1;
+        obj1 = findClass(env, env.toplevel.starImportScope, name);
+        if (obj1.kind < HIDDEN) return obj1;
+        else if (obj.kind > obj1.kind) obj = obj1;
+        return obj;
+    }
+
+//FIX 6/11/96 catch LoadError
+    static Obj loadPackage(Name name) {
+        try {
+            return ClassFile.loadDir(name);
+        } catch (LoadError ex) {
+            return new ClassLoadError(ex, PCK, name);
+        }
+    }
+ 
+/****************************************************************************
+/* resolution methods
+ ***************************************************************************/
+
+/** resolve an unqualified identifier
+ */
+    static Obj resolveIdent(int pos, Env env, Name name, int kind, Typ pt) {
+//FIX 11/11/96
+        // System.out.println("resolveIdent "+name);
+        Obj obj = NameError.typeNotFound;
+        Typ[] argtyps = null;
+        if (kind == FUN) {
+            argtyps = ((FunTyp)pt).argtyps;
+            obj = findFun(env, name, argtyps);
+
+            if ((obj instanceof NameError) && !E2j.done) {
+              // Already in the parser, an emethod foo is replaced by a
+              // method foo$async. At places where we later on expect an
+              // invocation of an emethod, in the attr-routines, the
+              // given name is replaced by the $async version for resolve.
+              // However, if an emethod is called directly from within an
+              // eclass, we have to add the async here.
+              // Situation: we did not find the function foo(..), therefore, we
+              // try to find foo$async(..)
+              Obj origobj = obj;
+              obj = findFun(env, name.append(E2j.asyncS), argtyps);
+              if ((obj instanceof NameError) && !E2j.done)
+                obj = origobj; //to get the error message right
+            }
+
+        } else {
+            if ((kind & VAR) != 0) {
+                obj = findVar(env, name);
+                if (kind == VAR && (obj.modifiers & FINAL) != 0) {
+                    Report.error(pos, 
+                        obj + " is declared final; cannot be assigned");
+                }
+            }
+            if (obj.kind >= BAD && (kind & FUN) != 0) {
+                Obj obj1 = findFun(env, name, null);
+                if (obj.kind > obj1.kind) obj = obj1;
+            }
+            if (obj.kind >= BAD && (kind & TYP) != 0) {
+                Obj obj1 = findClass(env, name);
+                if (obj.kind > obj1.kind) obj = obj1;
+            }
+            if (obj.kind >= BAD && (kind & PCK) != 0) {
+                obj = loadPackage(name);
+            }
+        }
+        if (obj.kind >= BAD) {
+//FIX 11/11/96
+            ClassObj c = env.enclClass == null ? null
+                : (ClassObj)env.enclClass.obj;
+            obj = access(obj, pos, c, name, argtyps);
+        }
+        return obj;
+    }
+
+/** resolve a qualified identifier
+ */
+    static Obj resolveSelect(int pos, Env env, Name name, 
+                             ClassObj c, int kind, Typ pt) {
+        Obj obj = NameError.varNotFound;
+        Typ[] argtyps = null;
+        if (kind == FUN) {
+            argtyps = ((FunTyp)pt).argtyps;
+            obj = findMethod(env, c, name, argtyps);
+        } else {
+            if ((kind & VAR) != 0) {
+                obj = findField(env, c, name);
+                if (kind == VAR && (obj.modifiers & FINAL) != 0) {
+                    Report.error(pos, 
+                        obj + " is declared final; cannot be assigned");
+                }
+            }
+            if (obj.kind >= BAD && (kind & FUN) != 0) {
+                obj = findMethod(env, c, name, null);
+            }
+        }
+        if (obj.kind >= BAD) {
+            obj = access(obj, pos, c, name, argtyps);
+        }
+        return obj;
+    }
+
+/** resolve constructor object.
+ */
+    static Obj resolveConstructor(int pos, 
+                                  Env env, 
+                                  ClassObj c, 
+                                  Typ pt) {
+        // System.out.println("resolveConstructor: "+c+" Typ "+pt);
+        
+        Typ[] argtyps = ((FunTyp)pt).argtyps;
+        Obj constructor = findMethod(env, c, Predef.initS, argtyps);
+        if (constructor.kind >= BAD)
+            constructor = access(constructor, pos, c, Predef.initS, argtyps);
+        else if (constructor.owner != c)
+           Report.error(pos, "no constructor matching " +
+                        ((FunTyp)pt).argsToString() + " found in " + c);
+        return constructor;
+    }
+
+
+
+/** resolve a fully qualified class name
+ */
+    static Obj resolveClass(int pos, Env env, Name fullname, int kind) {
+        Obj obj = NameError.typeNotFound;
+        if ((kind & TYP) != 0)
+            obj = loadClass(env, fullname);
+        if (obj.kind >= BAD && (kind & PCK) != 0)
+            obj = loadPackage(fullname);
+        if (obj.kind >= BAD)
+            obj = access(obj, pos, fullname);
+        return obj;
+    }
+
+/****************************************************************************
+/* error reporting
+ ***************************************************************************/
+
+    static Obj access(Obj obj, 
+                         int pos, ClassObj c, 
+                         Name name, Typ[] argtyps) {
+        if (obj.kind >= BAD) {
+          // System.out.println("bad access: "+c+"/"+name);
+          // printscopes(c.scope);//DEBUG
+
+          // don't flag access errors if e2j is not done, if the esystem
+          // flag allows _$_Intf/_$_Impl names in the code that might not
+          // exist jet. If the name will still not exist after e2j, the
+          // error is flagged in the second attr phase.
+          if (   E2j.done 
+              || !(E2j.nonPureE || name.endsWith(E2j.deflectS))
+              || !E2j.endsWithE2j(name))
+
+            ((NameError)obj).report(pos, c, name, argtyps);
+          return Typ.errObj;
+        } else {
+            return obj;
+        }
+    }
+
+    static Obj access(Obj obj, int pos, Name name) {
+        if (obj.kind >= BAD)
+            return access(obj, pos, Predef.clazz, name, null);
+        else
+            return obj;
+    }
+
+/****************************************************************************
+/* other checks
+ ***************************************************************************/
+
+/** is it legal to cast from type from to type to?
+ */
+    static boolean canCast(Typ from, Typ to) {
+        if (to.tag == ERRTYP) return true;
+        switch (from.tag) {
+        case ERRTYP:
+            return true;
+        case BYTE: case INT: case SHORT: 
+        case CHAR: case LONG: case FLOAT: case DOUBLE:
+            return to.tag <= DOUBLE;
+        case BOOLEAN:
+            return to.tag == BOOLEAN;
+        case CLASS: case ARRAY: case FUNCTION: case NULLTYP: 
+
+          if (   E2j.nonPureE && !E2j.done //-esystem && first pass
+                && from.subtype(ePredef.EobjectIntfTyp)
+                && to.subtype(ePredef.EobjectIntfTyp))
+              return true; //postpone decision
+
+            return 
+                (  to.tag == CLASS 
+                || to.tag == ARRAY
+                || to.tag == FUNCTION
+                ) 
+                &&
+                (  from.subtype(to) 
+                || to.subtype(from) 
+                || (from.obj.modifiers & INTERFACE) != 0 
+                   && (to.obj.modifiers & FINAL) == 0 
+                || (to.obj.modifiers & INTERFACE) != 0
+                   && (from.obj.modifiers & FINAL) == 0
+                );
+        default:
+            return false;
+        }
+    }
+
+
+/*  
+  static boolean canCastWithoutFixupScopes(Typ from, Typ to) {
+    // in loadClass casCast is called. However, this mey happen
+    // during the enterField phase. Therefore, fixupScopes has not
+    // been called yet. Hence, there might exist cyclic inheritances
+    // the will cause canCast to spinn forever.
+    if ((from.tag == CLASS) && (to.tag == CLASS)) {
+      ClassObj superclass;
+      // chech from-hierarchy for cycles:
+      ClassObj fromobj = (ClassObj)(from.obj);
+      superclass = fromobj.superclass;
+      while (fromobj != null) {
+        while (superclass != null) {
+          if (superclass == fromobj)
+            return false;
+          superclass = superclass.superclass;
+        }
+        fromobj = fromobj.superclass;
+      }
+      // chech to-hierarchy for cycles:
+      ClassObj toobj   = (ClassObj)(to.obj);
+      superclass = toobj.superclass;
+      while (toobj != null) {
+        while (superclass != null) {
+          if (superclass == toobj)
+            return false;
+          superclass = superclass.superclass;
+        }
+        toobj = toobj.superclass;
+      }
+    }
+    return true; // no check
+  }
+*/  
+
+  
+/** if obj is local to a class, check that it is declared static.
+ *  in case of error return Typ.errObj.
+ */ 
+    static Obj checkStatic(int pos, Obj obj) {
+        if ((obj.kind == VAR || obj.kind == FUN) &&
+            obj.owner.kind == TYP &&
+            (obj.modifiers & STATIC) == 0) {
+            Report.error(pos, "non-static " + obj + 
+                  " cannot be referenced from a static context");
+            return Typ.errObj;
+        } else
+            return obj;
+    }
+
+/** if obj is a field, check that it is declared static or final.
+ *  in case of error return Typ.errObj. Called for unqualified rguments of
+ *  this(...) or super(...) calls.
+ */
+    static Obj checkStaticOrFinal(int pos, Obj obj) {
+        if ((obj.kind == VAR || obj.kind == FUN) &&
+            obj.owner.kind == TYP &&
+            (obj.modifiers & (STATIC | FINAL)) == 0) {
+            Report.error(pos, "cannot access " + obj + 
+                         " before superclass constructor is called");
+            return Typ.errObj;
+        } else
+            return obj;
+    }
+
+/** check that obj is not an abstract method
+ */
+    static Obj checkNonAbstract(int pos, Obj obj) {
+        if ((obj.modifiers & ABSTRACT) != 0) {
+            Report.error(pos, "abstract " + obj + 
+                         " cannot be accessed directly");
+            return Typ.errObj;
+        } else
+            return obj;
+    }
+
+/** check that type t is assignable to proto-type pt.
+ *  If it is, return t, otherwise return Typ.errObj.
+ */
+
+
+    static Typ checkTyp(Env env, int pos, Typ t, Typ reqt) {
+
+
+
+        if (reqt.tag == ERRTYP) return reqt;
+        if (t.subtype(reqt)) return t;
+
+        if (!E2j.done) {
+          // The following code handles a problem that is due to separat
+          // compilation of e-code. When e-code is translated, references
+          // to eobjects are replaced by references to their _$_Intf siblings.
+          // Only the latter appear in the compiled class files.
+          // Therefore, if the required Type needs something of type EObject,
+          // and we reach this point, we will try an _$_Intf before giving up.
+          if (   reqt.subtype(ePredef.EobjectTyp)
+              || reqt.subtype(ePredef.EobjectIntfTyp)) {
+            // System.out.println(t.obj.fullname+" given");
+            // System.out.println(reqt.obj.fullname+" to be repl [checkTyp1a]");
+            // see for example milk.yogurt.frack/fruck
+            if (!reqt.obj.fullname.endsWith(E2j.intfS)) {
+              IdRef newid = Name.toIdRef(pos,
+                                         reqt.obj.fullname.append(E2j.intfS));
+              // System.out.println("attr newtyp "+newid.name);
+              boolean nonPureEbefore = E2j.nonPureE;
+              E2j.nonPureE = true; // allow for non-existing classes to be
+                                   // checked without immediate error message
+              Typ result = checkTyp(env, pos, t,
+                                    newid.attr(env, TYP, Typ.anyTyp));
+              E2j.nonPureE = nonPureEbefore;
+              return result;
+            } else if (   t.subtype(ePredef.EobjectTyp)
+                       || t.subtype(ePredef.EobjectIntfTyp)) {
+              // System.out.println(reqt.obj.fullname+" required");
+              // System.out.println(t.obj.fullname+" to be repl [checkTyp1b]");
+              // see for example milk.hooger1/2
+              if (!t.obj.fullname.endsWith(E2j.intfS)) {
+                IdRef newid = Name.toIdRef(pos,
+                                           t.obj.fullname.append(E2j.intfS));
+                // System.out.println("attr newtyp "+newid.name);
+                boolean nonPureEbefore = E2j.nonPureE;
+                E2j.nonPureE = true; // allow for non-existing classes to be
+                                     // checked without immediate error message
+                Typ result = checkTyp(env,pos,
+                                      newid.attr(env, TYP, Typ.anyTyp),reqt);
+                E2j.nonPureE = nonPureEbefore;
+                if (result.tag != ERRTYP)
+                  return result;
+              }
+            }
+          }
+            else if (reqt instanceof FunTyp) {
+            // System.out.print(reqt.toString());
+            // System.out.println(reqt.obj.fullname+" to be repl [checkTyp 2]");
+            Typ[] newtyps = stripIntf(env,((FunTyp)reqt).argtyps);
+            if (newtyps != null) {
+              ((FunTyp)reqt).argtyps = newtyps;
+              // System.out.println(reqt.obj.fullname+" required");
+              return checkTyp(env, pos, t, reqt);
+            }
+          }
+        }
+
+        String problem = "incompatible types";
+        String found = t.toString();
+        String required = reqt.toString();
+        if (t.tag <= DOUBLE && reqt.tag <= DOUBLE)
+            problem = "possible loss of precision";
+        else if (reqt.tag == FUNCTION)
+            if (t.tag == FUNCTION) {
+                FunTyp ft = (FunTyp)t;
+                FunTyp rt = (FunTyp)reqt;
+                if (Typ.subtypes(rt.argtyps, ft.argtyps))
+                    if (!(ft.restyp.subtype(rt.restyp))) {
+                        problem = "incompatible return type";
+                        found = ft.restyp.toString();
+                        required = rt.restyp.toString();
+                    } else {
+                        problem = "incompatible throws list";
+                        found = Basic.toString(TypSet.elems(ft.thrown));
+                        required = Basic.toString(TypSet.elems(rt.thrown));
+                    }
+            } else {
+                required = "function";
+            }
+        Report.error(pos, problem + 
+                    "; found: " + found + 
+                    ", required: " + required);
+        return Typ.errTyp;
+    }
+
+/** return the least common supertype of type a and type b; 
+ *  report an error and return Typ.errTyp if none exists.
+ */
+
+    static Typ join(Env env, int pos, Typ a, Typ b) {
+
+
+
+        if (a.tag == ANYTYP) return b;
+        else if (b.tag == ANYTYP) return a;
+        else if (a.tag <= DOUBLE && b.tag <= DOUBLE) {
+            int tag = a.tag < b.tag ? b.tag : a.tag;
+            while (!a.subtype(Typ.typOfTag[tag]) ||
+                   !b.subtype(Typ.typOfTag[tag])) tag++;
+            return Typ.typOfTag[tag];
+        } else if (a.subtype(b)) return b;
+
+        else
+          return join(env, pos, checkTyp(env, pos, b, a), a);
+
+
+
+    }
+
+/** check that type t is different from 'void'.
+ */
+    static Typ checkNonVoid(int pos, Typ t) {
+        if (t.tag != VOID) return t;
+        Report.error(pos, "'void' type not allowed here");
+        return Typ.errTyp;
+    }
+
+/** check that type t is a class, an array, or the type of null.
+ *  return t if yes, Typ.errTyp otherwise.
+ */
+    static Typ checkObjectTyp(int pos, Typ t) {
+        if (t.tag == CLASS || t.tag == ARRAY || 
+            t.tag == NULLTYP || t.tag == ERRTYP) return t;
+        Report.error(pos, "object type required, but " +  t + " found");
+        return Typ.errTyp;
+    }
+
+/** return an exception in thrown that's not in handled, 
+ *  or null if none exists.
+ */
+    static Typ unHandled(TypSet thrown, TypSet handled) {
+        if (thrown == null) 
+            return null;
+        else if (!thrown.typ.subtype(Predef.errorTyp) &&
+                 !thrown.typ.subtype(Predef.runtimeExceptionTyp) &&
+                 !TypSet.elem(handled, thrown.typ))
+            return thrown.typ;
+        else 
+            return unHandled(thrown.next, handled);
+    }
+
+/** if t is a function type, check that all exceptions thrown by t 
+ *  are in reported
+ */
+
+    static void checkHandled(int pos, Typ t, TypSet reported) {
+
+
+
+        if (t.tag == FUNCTION) {
+            Typ unhandled = unHandled(((FunTyp)t).thrown, reported);
+            if (unhandled != null) {
+                Report.error(pos, "unreported exception: " 
+                             + unhandled +
+                             "; must be caught or declared to be thrown");
+            }
+        }
+    }
+
+/** check that kind is subsumed by reqkind; return true iff it is.
+ */
+    static boolean checkKind(int pos, int kind, int reqkind) {
+        if ((kind & ~reqkind) != 0) {
+            Report.error(pos, kindName(reqkind) + " required, but " + 
+                       kindName(kind) + " found");
+            return false;
+        } else 
+            return true;
+    }
+
+/** check that kind of obj overlaps reqkind; return the obj if it does,
+ *  Typ.errObj otherwise.
+ */
+    static Obj checkKind(int pos, Obj obj, int reqkind) {
+        if ((obj.kind & reqkind) == 0) {
+            Report.error(pos, kindName(reqkind) + " required, but " + 
+                         idName(obj.kind) + " found");
+            return Typ.errObj;
+        } else
+            return obj;
+    }
+
+/** check that mods does not contain elements of both set1 and set2;
+ *  return true if it doesn't.
+ */
+    static boolean checkDisjoint(int pos, int mods, int set1, int set2) {
+        if ((mods & set1) != 0 && (mods & set2) != 0) {
+            Report.error(pos, 
+                "illegal combination of modifiers: " +
+                Obj.modName(Obj.firstMod(mods & set1)) + " and " +
+                Obj.modName(Obj.firstMod(mods & set2)));
+            return false;
+        } else
+            return true;
+    }
+
+/** check that mods is contained in mask and does not contain illegal
+ *  combinations of modifiers; return mods & mask.
+ */
+    static int checkMods (int pos, int mods, int mask) {
+        if ((mods & 0xFFFF & ~mask) != 0)
+            Report.error(pos, "modifier " + 
+                         Obj.modName(Obj.firstMod(mods  & 0xFFFF & ~mask)) + 
+                         " not allowed here");
+        else if (checkDisjoint(pos, mods, 
+                               ABSTRACT | INTERFACE,
+                               FINAL | PRIVATE | STATIC) &&
+                 checkDisjoint(pos, mods, 
+                               PUBLIC, 
+                               PRIVATE | PROTECTED) &&
+                 checkDisjoint(pos, mods, 
+                               PRIVATE, 
+                               PUBLIC | PROTECTED) &&
+                 checkDisjoint(pos, mods, 
+                               TRANSIENT, 
+                               FINAL | STATIC)) {
+        }
+        return mods & mask;
+    }
+
+/** complete modifiers mods after checking them.
+ *  required modidifiers are either imods or cmods, depending on
+ *  whether we are in an interface or not.
+ */
+    static int completeMods(int pos, int mods,
+                        Env env, int cmods, int imods) {
+        if (env.isInterface()) {
+            checkMods(pos, mods, imods);
+//FIX 16-10-96 protection bug
+            return imods;
+//ENDFIX
+        } else {
+            return checkMods(pos, mods, cmods);
+        }
+    }
+
+/** base scope of class c on the scopes of all its superclasses and 
+ *  interfaces, and do the same for them. This cannot be done
+ *  when a class is first loaded or defined since superclasses or
+ *  interfaces might be defined later. Instead, fixups are done lazily,
+ *  when the scope of a class is first needed.
+ */
+    static boolean fixupScope(int pos, ClassObj c) {
+        //System.out.println("fixing " + c);
+        boolean done = true;
+        if (c.scope.next == null) { 
+            // we haven't done a fixup yet
+            c.scope.next = c.scope; // mark to detect cycles
+            Scope nextScope = null;
+            if (c.superclass != null) {
+                done = fixupScope(pos, c.superclass);
+                if (done) nextScope = c.superclass.scope;
+            }
+            if (c.interfaces.length > 0) {
+                nextScope = new Scope(nextScope, c);
+                for (int i = 0; i < c.interfaces.length; i++) {
+                    done = done && fixupScope(pos, c.interfaces[i]);
+                    if (done) nextScope.include(c.interfaces[i].scope);
+                }
+            }
+            c.scope.baseOn(nextScope);
+        } else if (c.scope.next == c.scope) {
+            Report.error(pos, "cyclic inheritance involving " + c);
+            // System.out.println("CYCLIC INHERITANCE");
+//FIX 12/11/91: cyclic inheritance hangs compiler
+            c.superclass = Predef.objectClass;
+            c.interfaces = new ClassObj[0];
+            c.scope.next = Predef.objectClass.scope;
+            done = false;
+        }
+        return done;
+    }
+
+
+
+/****************************************************************************
+/* E-stuff
+ ***************************************************************************/
+
+  private static Vector kandList = new Vector(10);
+  
+  static FunObj findSealer(ClassObj c, Typ[] myargtyps, Name name, int pos) {
+    FunObj sealer = null;
+    kandList.removeAllElements();
+    ScopeEntry e = c.scope.lookup(name);
+    // System.out.println("looking for sealer "+name+"-------------------");
+    while (e.obj != null) {
+      if (e.obj.typ.tag == FUNCTION &&
+          Typ.subtypes(myargtyps, ((FunTyp)e.obj.typ).argtyps)) {
+        kandList.addElement(e.obj);
+      }
+      e = e.next();
+    }
+    Object[] base = new Object[kandList.size()];
+    Object[] kand = new Object[kandList.size()];
+    kandList.copyInto(base);
+    kandList.copyInto(kand);
+    for (int i = 0; i<kand.length; i++) {
+      FunObj fo = (FunObj)kand[i];
+      for (int j = 0; j<base.length; j++) {
+        if (fo.owner.typ.subtype(((FunObj)base[j]).owner.typ)) {
+          // System.out.println(fo.owner.name+" -> "+
+          //             ((FunObj)base[j]).owner.name);
+          kand[i] = base[j];
+          fo = (FunObj)base[j];
+        }
+      }
+    }
+    sealer = (FunObj)kand[0];
+    for (int i = 1; i<kand.length; i++) {
+      if (sealer != kand[i]) {
+        (new AmbiguityError(sealer,
+                            (Obj)kand[i])).report(pos, null, null, null);
+        sealer = null;
+      }
+    }
+    return sealer;
+  }
+
+
+    
+}
+
+class NameError extends Obj {
+
+    static final NameError varNotFound = new NameError(ABSENT_VAR);
+    static final NameError funNotFound = new NameError(ABSENT_FUN);
+    static final NameError typeNotFound = new NameError(ABSENT_TYPE);
+
+    NameError(int kind) {
+        super(kind, 0, null, null);
+    }
+
+    void report(int pos, ClassObj c, Name name, Typ[] argtyps) {
+        String kindname;
+        switch (kind) {
+        case ABSENT_VAR:
+            kindname = "variable"; break;
+        case ABSENT_FUN:
+            kindname = "function"; break;
+        case ABSENT_TYPE:
+            kindname = "class"; break;
+        default:
+            kindname = "identifier";
+        }
+        String idname = name.toString();
+        String args = "";
+        if (argtyps != null) {
+            args = "(" + Basic.toString(argtyps) + ")";
+            if (name == Basic.initS) {
+                kindname = "constructor";
+                idname = c.name.toString() ;
+            }
+        }
+        Report.error(pos, 
+            kindname + " " + idname + args + " not found" +
+            (c != null ? " in " + c : ""));
+    }
+}
+
+class AccessError extends NameError {
+
+    Obj obj;
+
+    AccessError(Obj obj) {
+        super(HIDDEN);
+        this.obj = obj;
+    }
+
+    void report(int pos, ClassObj c, Name name, Typ[] argtyps) {
+        int mods = obj.modifiers & (PRIVATE | PROTECTED);
+        if (mods != 0)
+            Report.error(
+                pos, obj + " has " +
+                Obj.modNames(obj.modifiers & (PUBLIC | PRIVATE | PROTECTED))
+                + "access" + Attr.location(obj));
+        else
+            Report.error(pos, obj + " is not public" + Attr.location(obj) +
+                         "; cannot be accessed from outside package");
+    }
+}
+
+class ClassLoadError extends NameError {
+ 
+    Exception fault;
+//FIX 6/11/96 extend to packages by adding kind field.
+    int kind;
+    Name classname;
+    
+    ClassLoadError(Exception fault, int kind, Name classname) {
+        super(LOADERROR);
+        this.fault = fault;
+        this.kind = kind;
+        this.classname = classname;
+    }
+ 
+    void report(int pos, ClassObj c, Name name, Typ[] argtyps) {
+        Report.error(pos, "cannot access " + Attr.kindName(kind) + " " + 
+                     name + "; " + fault.getMessage());
+    }
+}
+
+class AmbiguityError extends NameError {
+    Obj obj1;
+    Obj obj2;
+
+    AmbiguityError(Obj obj1, Obj obj2) {
+        super(AMBIGUOUS);
+        this.obj1 = obj1;
+        this.obj2 = obj2;
+    }
+
+    void report(int pos, ClassObj c, Name name, Typ[] argtyps) {
+        Report.error(
+            pos, 
+            "reference to " + obj1.name + " is ambiguous, both " +
+            obj1 + Attr.location(obj1) + " and " +
+            obj2 + Attr.location(obj2) + " match");
+    }
+}
+

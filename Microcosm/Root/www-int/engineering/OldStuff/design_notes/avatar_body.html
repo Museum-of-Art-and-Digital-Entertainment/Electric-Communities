@@ -1,0 +1,663 @@
+<HTML>
+<HEAD>
+    <TITLE>Avatar and Avatar Body</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Avatar and Avatar Body</H1>
+
+<em>This page is maintained by <A HREF="mailto:trev@communities.com">Trev</A>.</em>
+
+<h2>Introduction</h2>
+
+In Microcosm the avatar and the avatar body are separate una. This document
+explains why, and outlines what each unum does and how they are linked.
+<p>
+The original motivation for splitting avatar and avatar body was to allow
+a region to provide a body for an avatar on entry. This body might have
+different properties to the usual body - it might have more limited
+features or extra powers appropriate to the region. For example "observers",
+avatars present in a region but not allowed to participate, might share
+a common "observer body" provided by the region. Or a sword fighting
+region might provide you with a body whose head could be lopped off.
+<p>
+In practice this has not been implemented. Instead the avatar body split
+has been used for an entirely different purpose - body swapping. In the
+current Microcosm avatar bodies are always co-hosted with the avatar.
+But the avatar may change bodies, and hence change its appearance. This
+is how the avatar catalog works - it does a body swap.
+
+<h4>Related Documents</h4>
+
+<ul>
+<li><A href="identity.html">Identity</a>
+<li><A href="avatar_change_region.html">Avatar Change Region Ingredient</a>
+</ul>
+
+<h2>Architecture</h2>
+
+<h4>Architecture Overview</h4>
+
+The first three sections describe the avatar unum, the avatar body
+unum and the link between them. The rest describe some of the problems
+that arise because of the split between avatar and body.
+
+<h5>The Avatar Unum</h5>
+
+The avatar unum is a very special unum. It contains all the state that
+belongs to a particular avatar identity - the identity object itself,
+the address book, the inventory, the catalogs, links to the avatar's
+locally hosted realm (containing the private room(s) and the turf).
+<p>
+It can be helpful to think of the avatar as the users session - in a
+sense an instance of the Microcosm application has the purpose of
+allowing an avatar to enter the distributed world, and to allow the
+avatar to see and interact with that world. At the moment, all other
+una are ultimately owned by some avatar, but noone owns an avatar.
+<p>
+Because the avatar is so special it has a lot of capabilities which
+are not available to most una. It is initialized with access to the
+UI, file system and registrar.
+<p>
+The avatar is also special because it doesn't create any client
+presences of itself. It sends out its body as its representative,
+and the body creates client presences.
+
+<h5>The Avatar Body</h5>
+
+The avatar body is a more conventional unum. It has the standard
+containership and composition ingredients, and few special capabilities.
+You can think of it as being a specialized prop, which has a unique
+relationship with the avatar - the "avatar body link".
+<p>
+In the current Microcosm the avatar body is always created by the avatar
+(from the avatar catalog), and is therefore co-hosted with the avatar.
+Each body has only one owner (avatar) and each avatar uses only one body
+at a time.
+<p>
+The avatar body is not just a containable, it is also a slotted
+container. It has a slot for the hand and other slots for masks and
+accessories.
+
+<h5>The Avatar Body Link</h5>
+
+The avatar body link makes use of three facets. The first, on the
+avatar body, is used to set up the relationship between the avatar and
+the body - its the body's "set owner" facet.
+<p>
+If this facet is successfully used to link the avatar and the body
+then two further facets are set up. One, the "body facet for avatar"
+is used by the avatar to do things to the body e.g move it into a new
+region, or notify it of a name change. The other, the "avatar facet
+for body" is used by the body to communicate with the avatar e.g. to
+notify it if the body's "in hand" slot contains something.
+<p>
+Both these facets are set up when the avatar takes ownership of the
+body, and are revoked if the avatar switches to another body.  The
+avatar and the body both have an ingredient devoted to setting up,
+maintaining and revoking these facets - the AvatarLinkToBody
+ingredient in the avatar, and the BodyLinkToAvatar in the body.
+
+<h5>Region Entry and Identity Checking</h5>
+
+Entering a region is mainly a containership operation. That's certainly
+how the design started out, and though the current implementation has
+some session ideas built in the basic region entry operation still looks
+like a containership call.
+<p>
+This means that the "enter region" call has to be made using the
+avatar body, not the avatar, because only the avatar body is a
+containable. This introduces a problem because the region wants to
+have control over which avatars can enter (based on avatar
+identity). But the body is a different object from the avatar; so
+how does the region know who the body represents?
+<p>
+The current mechanism to do this is rather complex (probably too
+complex). The body knows the identity of the avatar who owns it.  It
+also has a facet to talk to the avatar (the "avatar facet for body"
+mentioned earlier).
+<p>
+On region entry the body gives the region an "unum bundle" containing,
+among other things, the identity of the avatar. It also gives the
+region a "set new parent facet" - a containership facet used by the
+entry protocol. Before entry the body uses its facet on the avatar to
+register the "set new parent facet" as one of the capabilities known
+to the avatar's identity (note that only the current body can register
+a facet in this way).
+<p>
+When the region sees the identity in the unum bundle it calls back
+into the identity to check if the provided "set new parent facet" is
+known to the identity. If it is, and the identity is acceptable, then
+it allows entry, otherwise it refuses. This check prevents avatar A
+from presenting a body marked with avatar B's identity. The region
+would detect because when it asked B if the provided "set new parent
+facet" was known to B, B would say no. This process does assume
+a trustworthy body (more on this later).
+<p>
+For more on how the avatar and body change regions, see the
+<li><A href="avatar_change_region.html">avatar change region ingredient</a>
+document.
+
+<h5>Of Hands, Heads and Accessories</h5>
+
+The avatar body is a slotted container, with slots for the hand, head
+(mask) and accessories. So the body contains the "in hand" object and
+any mask and accessories. There are a couple of problems with this.
+<p>
+The first is that the only real link the avatar has to the "in hand"
+object etc. is provided by the body. Given the current co-hosted and
+trusted body this is ok. But what if the body where hosted elsewhere,
+and refused to give up its contents?
+<p>
+The second is that the "in hand" object affects the UI.  For example,
+if the avatar has something in its hand and you click on the floor you
+get a "put down" menu entry. This is handled by the verb and behavior
+mechanism and, in particular, by the AvatarUIContext ingredient, in
+the avatar unum. This ingredient needs to know something about the in
+hand object in order to coordinate the menus. So the body communicates
+any changes in the "in hand" state to the avatar, using the "avatar
+facet for body". This notification is asynchronous, so you have to be
+careful about races.
+
+<h5>Should You Trust Your Body?</h5>
+
+I can imagine three levels of trust for the body:
+<ol>
+<li>Body created and co-hosted by avatar. Completely trusted
+<li>Body created and co-hosted by region. Trusted as much as the region
+<li>Body created by someone else. Untrusted (well, maybe trusted as much
+as the object that created it).
+</ol>
+I'm sure category three has many sub categories. But category one and
+two are, I suspect, the most interesting.
+<p>
+In the current Microcosm we only have category one. This makes things
+nice and simple, and also means you don't have to worry about network
+errors over the avatar body link, which simplifies things considerably.
+<p>
+Some interesting questions come up, should we ever look at category
+two again. It would require a fair bit of work - new region entry
+protocol and more error handling. But it also seems to introduce some
+trust issues. What if a malicious region refuses to give you back your
+"in hand" object and accessories when you leave? If the region hosts
+the body then it has the ultimate say on what contains them, not you.
+If you owned the objects you could retrieve them via the inventory
+but it would still be surprising if your accessories disappeared
+when you changed region.
+<p>
+Confusing the issue further, the region already is the ultimate
+authority on what you see while you're in the region - it introduces
+you to all other objects it contains. So a malicious region can always
+interpose a "man in the middle" between you and its contents. So if
+you pick something up in a region the region could always yank it back
+at any time. I wonder if there is any guarantee we can make to users
+that would make sense to them - would they buy "the region can't take
+things out of your hand unless you picked it up in that region or it
+hosts your body"? To me, this sounds too complicated to be reassuring.
+
+<h4>Design Objectives, Constraints and Assumptions</h4>
+
+<ul>
+<li>The current code assumes a trustworthy, co-hosted avatar body
+<li>The current code is all within the vat so it does not do any
+synchronization or locking.
+</ul>
+
+
+<h2>Detailed Design</h2>
+
+Unfortunately the avatar and avatar body are all Pluribus code so
+I can't use JavaDoc here. But I can include the kind files for
+the facets connecting avatar and body, and the kind files for
+the ingredients in the avatar and the body which maintain the link.
+<p>
+Here's the kind file for the facets; you can find the full code in
+<code>src/cosm1/objects/ingredients/avatar/AvatarBodyLink_kind.plu</code>:
+
+<pre>
+
+  /**
+   * Kind used by body to notify avatar of things it needs to know e.g.
+   * the body has been recalled
+   */
+  export kind ukAvatarFacetForBody {
+
+    /**
+     * Let the avatar know about the body. This method is called by the
+     * body in response to a successful 'uSetOwner' call from the avatar.
+     * @param avatarBody - facet for the avatar to communicate with the body,
+     *   now it is the owner.
+     * @param avatarBodyUIUpdater - otherwise known as the verb handler.
+     *   Needed to register with the ui context manager, which treats the
+     *   avatar body specially.
+     * @param avatarBodyBehaviorManager - needed by the ui context manager,
+     *   and also used by the avatar to invoke behaviors on the body.
+     * @exception eeFacetRevoked - if the avatar has revoked this facet
+     */
+    uRegisterBody(kind ukBodyFacetForAvatar avatarBody,
+                  jiUnumUIUpdater avatarBodyUIUpdater,
+                  kind ikBehaviorManager avatarBodyBehaviorManager);
+
+    /** 
+     * Let the avatar (esp UI context manager) know the "in hand" object has
+     * changed.
+     * @exception eeFacetRevoked - if the avatar has revoked this facet
+     */
+    uNotifyInHandChanged(jInHandObjectDescription description);
+
+    /**
+     * Let the avatar know that another identity has entered the region
+     * @param identity - the identity that entered
+     */
+    uNotifyIdentityEnteredRegion(SturdyIdentity identity);
+
+    /**
+     * Let the avatar know that another identity has left the region
+     * @param identity - the identity that left
+     */
+    uNotifyIdentityLeftRegion(SturdyIdentity identity);
+
+    /**
+     * Notify avatar that the body has been recalled by its owner
+     * @exception eeFacetRevoked - if the avatar has revoked this facet
+     */
+    uNotifyBodyRecalled();
+
+    /**
+     * This kind implements the ukRegisterSetNewParentFacet kind, to give
+     * the body the ability to register ukSetNewParent facets with the
+     * avatar identity. This allows the body to enter regions which do
+     * identity checks.
+     * XXX This may need rethinking when we have remotely hosted bodies
+     * that we can't trust
+     * See Containership_kind.plu for more details about this kind.
+     */
+    kind ukRegisterSetNewParentFacet;
+
+  }
+
+
+  /**
+   * Kind by which avatar controls body 
+   */
+  export kind ukBodyFacetForAvatar {
+
+    /**
+     * Transfer the body to a new region. May throw TOS exception
+     * @param region - the destination region
+     * @param location - location in the destination region
+     * @param bodyInNewRegionFacet - a "use once only" callback facet which
+     *   is called back if the transfer succeeds
+     * @exception eeTOSAddUnumFailed if body fails TOS check
+     * @exception network errors
+     */
+    uChangeRegion(kind ukAddUnum region,
+                  SurfaceLocation location,
+                  kind ukBodyInNewRegion bodyInNewRegionFacet);
+
+    /**
+     * Change the name associated with the body
+     * XXX Needs error handling for network error if body is remotely hosted
+     */
+    uChangeName(String newName);
+
+    /**
+     * Get the body unum
+     */
+    uGetBodyUnum(EResult unumDistributor);
+
+    /**
+     * Notify body that it is no longer owned by the owner to whom it gave this
+     * facet
+     */
+    uReleaseOwnership();
+  }
+
+
+  /**
+   * Kind by which avatar gets ownership of a body
+   */
+  export kind ukBodySetOwner {
+
+    /**
+     * Used by avatar to notify body it has a new owner.
+     * Most bodies only allow a single owner during the lifetime of a body
+     * (there are exceptions e.g. observer bodies). But if this is the type
+     * of body that only allows a single owner it may ethrow the
+     * 'eAvatarBodyAlreadyOwned' exception.
+     *
+     * @param avatarIdentity - the identity of the owner
+     * @param avatarCallback - a facet on the owning avatar that the body
+     *   uses to notify it of changes (e.g. in hand changes). It is also
+     *   used by the body to let the avatar know the 'uSetOwner' request is
+     *   successful (by calling back 'uRegisterBody' on 'avatarCallback')
+     * @exception eeAvatarBodyAlreadyOwned - if body is single owner and is
+     *   already in use
+     * XXX Needs error handling for network error if body is remotely hosted
+     */
+    uSetOwner(SturdyIdentity avatarIdentity,
+              kind ukAvatarFacetForBody avatarCallback);
+
+  }
+
+
+  /**
+   * Exception thrown if you try to call uSetOwner on a body that is already
+   * owned and only allows one owner
+   */
+  class eeAvatarBodyAlreadyOwned extends eeException {
+
+    eeAvatarBodyAlreadyOwned(String msg) {
+      super(msg);
+    }
+
+  }
+
+
+  /**
+   * Callback facet used by body to call back to avatar when the body
+   * successfully enters a new region
+   */
+  export kind ukBodyInNewRegion {
+
+    /**
+     * Let avatar know the transition was a success
+     * @param capabilities - capability table given to the body on entry
+     * @param disconnectHandler - avatar can forward this to an object of
+     *   kind ukBodyRegionDisconnectHandler, in order to receive disconnect
+     *   notifications.
+     * @param viewerTargetDist - the distributor for the viewer-target channel
+     *   passed up to the region.  The region has created a new viewer session
+     *   for this body's identity, and is sending viewer session una to the
+     *   channel for which this is the distributor; so forward this distributor
+     *   to our passed-in-capabilities new view of the region.
+     */
+    uBodyInNewRegion(jEditableCapabilityGroup capabilities,
+                     EResult disconnectHandler,
+                     EResult viewerTargetDist);
+  }
+
+
+  /**
+   * Callback facet used by body to let avatar know that the region containing
+   * the body has disconnected
+   */
+  export kind ukBodyRegionDisconnectHandler {
+
+    /** The body just detected that its region has disconnected */
+    uBodyRegionDisconnected();
+
+  }
+
+</pre>
+
+Here's the interfaces the AvatarLinkToBody ingredient makes available to
+other avatar ingredients. These can be found in
+<code>src/cosm1/objects/ingredients/avatar/AvatarLinkToBody_kind.plu</code>.
+
+<pre>
+
+  /**
+   * Ingredient kind, interfaces for neighbors to use. Note that we also
+   * have jiAvatarLinkToBody, providing Java interfaces for neighbors
+   */
+  export kind ikAvatarLinkToBody {
+    
+    /**
+     * Set the usual (locally hosted) body
+     * All set body calls are serialized internally, to avoid race conditions
+     * @param whenDone - forwarded to etrue when the iSetUsualBody has
+     *   completed. Not forwarded if an exception is thrown. Can be null,
+     *   in which case it is ignored
+     * @exception eeAvatarBodyAlreadyOwned - if body is already owned (should
+     *   never happen for the avatar's usual body, whose uSetOwner capability
+     *   is tightly held).
+     */
+    iSetUsualBody(EResult whenDone);
+
+    /** 
+     * Set the avatar body to be the given body.
+     * All set body calls are serialized internally, to avoid race conditions
+     * @param body - set owner facet on body
+     * @param useAsUsualBody - if this parameter is true, and this call
+     *   succeeds, the given body will become the new "usual" body of the
+     *   avatar, i.e. the one it will default to if it loses contact with
+     *   a body. This parameter should only be true for locally hosted bodies
+     *   which are completely under the control of the avatar (e.g. bodies
+     *   created from the catalog)
+     * @param whenDone - forwarded to etrue when the iSetBody has
+     *   completed. Not forwarded if an exception is thrown. Can be null,
+     *   in which case it is ignored
+     * @exception eeAvatarBodyAlreadyOwned - if body is already owned
+     * XXX needs network error handling for remotely hosted bodies
+     */
+    iSetBody(kind ukBodySetOwner body,
+             boolean useAsUsualBody,
+             EResult whenDone);
+
+    /**
+     * Transfer the body to a new region. May throw TOS exception
+     * @param region - the destination region
+     * @param location - location in the destination region
+     * @param bodyInNewRegionFacet - a "use once only" callback facet which
+     *   is called back if the transfer succeeds
+     * @exception eeTOSAddUnumFailed if body fails TOS check
+     * @exception network errors
+     */
+    iChangeRegion(kind ukAddUnum newRegion,
+                  SurfaceLocation newLocation,
+                  kind ukBodyInNewRegion bodyInNewRegionFacet);
+
+    /**
+     * Called to notify body that the name of the avatar has changed
+     * @param newName - the new name of the avatar
+     * XXX Needs error handling for network error if body is remotely hosted
+     */
+    iChangeName(String newName);
+
+    /**
+     * Get the body unum
+     * XXX Needs error handling for network error if body is remotely hosted
+     */
+    iGetBodyUnum(EResult unumDistributor);
+
+    //
+    // Following are convenience wrappers on body behaviors
+    //
+
+    /**
+     * Move the in hand object, if any into the given container. This wraps
+     * the "putat" body behavior
+     * @param locationInContainer - where it goes in container's space
+     * @param locationInAvatarContainer - where that is in avatar space (so
+     *   the avatar can gesture appropriately to a point in a space it
+     *   understands XXX Trev, what is this? Must ask RobJ. Not used right now)
+     * @param container - which container it is
+     * @param compositor - the compositor facet therefor
+     */
+    iPutInHandIntoContainer(SurfaceLocation locationInContainer,
+                            SurfaceLocation locationInAvatarContainer,
+                            kind ukAddUnum container,
+                            EResult whenDone);
+
+    /**
+     * Pick up the given object - i.e. put it into the avatar's hand
+     * @param avatarAt - where the object is in avatar space (null == pocket?!)
+     * @param containable - facet to ask unum to transfer itself
+     * @param whenDone - forwarded to etrue on success (if non null).
+     *   Forwarded to efalse if the avatar's hand is already full.
+     *   Not forwarded if an exception is thrown
+     * @exception eeTOSAddUnumFailed if there is a TOS exception trying to
+     *   put object into hand. Should only happen if transferring an
+     *   object from an entirely different context e.g. the pocket
+     * @exception XXX not clear at the moment, any other errors will be serious
+     */
+    iPickUp(SurfaceLocation avatarAt,
+            kind ukRequestTransfer containable,
+            EResult whenDone);
+
+    /**
+     * Put the given object into either the avatar's hand or the avatar's
+     * pocket, depending on the "preferHand" flag and whether the avatar's
+     * hand is already full.
+     * Also puts the object into the pocket if a TOS exception prevents
+     * the object going in hand (note that putting into the pocket should
+     * never cause a TOS exception).
+     * @param avatarAt - where the object is in avatar space
+     * @param containable - facet to ask object to transfer itself
+     * @param preferHand - if true, this causes any in hand object to be
+     *   put into the pocket before trying to put 'containable' into
+     *   the hand. This doesn't guarantee 'containable' will end up in hand
+     *   (there could be a last minute race, or a TOS exception), but it
+     *   it makes it more likely. If 'preferHand' is false 'containable'
+     *   is only put in hand if the hand is already empty.
+     * @param whenDone - forwarded to etrue (if non null) if object is put
+     *   in hand. Forwarded to efalse (if non null) if object is put in
+     *   pocket. Not forwarded if an error is thrown. Can be null, in which
+     *   case it is ignored.
+     * @exception eeTOSAddUnumFailed if could not put 'containable' into hand
+     *   because of a TOS exception. By the time this exception reaches the
+     *   caller 'containable' will already have been sent to the pocket
+     * @exception XXX not sure yet - network error?
+     */
+    iPutObjectIntoHandOrPocket(SurfaceLocation avatarAt,
+                               kind ukRequestTransfer containable,
+                               boolean preferHand,
+                               EResult whenDone);
+
+    /**
+     * Put in hand object into pocket
+     * @param whenDone - forwarded to true when object is in pocket,
+     *   or efalse if there is nothing in hand. Can be null in which
+     *   case it is ignored.
+     * XXX exceptions?
+     */
+    iPutInHandIntoPocket(EResult whenDone);
+  }
+
+
+  /**
+   * Java ingredient kind - java methods for neighbors
+   */
+  public interface jiAvatarLinkToBody {
+
+    /**
+     * Return the "set owner" facet of the current body
+     */
+    public kind ukBodySetOwner iGetBodySetOwnerFacet();
+
+    /**
+     * Return the master hashtable of body behaviors. Within the avatar
+     * these can be used freely but they should NOT be handed out to
+     * any other una (the body gives us all the behaviors it feels it
+     * should because we're the current owner of the body; but other
+     * una shouldn't be able to do things to our body).
+     */
+    public Hashtable iGetBodyBehaviors();
+
+    /**
+     * Register interest in changes in the "in hand" object. Interested
+     * parties will be notified with the "inHandChanged" method whenever
+     * the "in hand" object changes.
+     */
+    public void iRegisterInterestInHandChanges(jiInHandChangeInterest interest);
+
+    /**
+     * Return description of current "in hand" object (or null if none)
+     */
+    public jInHandObjectDescription iGetInHandObjectDescription();
+
+  }
+
+</pre>
+
+Finally, here's the interface the BodyLinkToAvatar ingredient presents to
+other body ingredients. These can be found in
+<code>src/cosm1/objects/ingredients/avatarBody/BodyLinkToAvatar_kind.plu</code>.
+
+<pre>
+
+  /**
+   * Interface implemented by link ingredient for use by neighbors
+   */
+  public interface jiBodyLinkToAvatar {
+
+    /**
+     * Is this ingredient part of a presence in the same agency as the host
+     * presence of the avatar which owns it? (returns false if the body has
+     * no owner). This is important because it determines what verbs (menu
+     * items) to show on the body.
+     */
+    boolean iIsOwnersLocalPresenceOfBody();
+
+    /**
+     * Name of owner (null if there is no owner)
+     */
+    SturdyIdentity iGetOwnerIdentity();
+
+    /**
+     * Notify the owner that the "in hand" object has changed. Should only be
+     * called if 'iIsOwnersLocalPresenceOfBody' is true
+     * @param inHandDescription - description of the in hand object
+     */
+    void iNotifyOwnerThatInHandChanged(jInHandObjectDescription description);
+
+    /**
+     * Register to get called back when the owner changes
+     */
+    void iRegisterForOwnerChangeNotifications(jiOwnerChangeInterest interest);
+  }
+
+</pre>
+
+<h4>Testing and Debugging</h4>
+
+<ul>
+<li>Turn on trace category "bodylink" to get tracing messages about the
+avatar to body link.
+</ul>
+
+<h2>Design Issues</h2>
+
+<h4>Open Issues</h4>
+
+<ul>
+<li>I'm not convinced the avatar body split was a good idea. I'm
+certainly not happy with the way it turned out, it seems way too complex
+and messy. Most of this is, obviously, my fault. But I think at least
+part of it is due to not having a clear model of sessions and region
+entry (most of the code was written long before we introduced the
+idea of sessions). I would strongly recommend revisiting the whole
+idea of an avatar body split when sessions and containment are
+redesigned. Even if having a separate avatar and body is the right
+thing to do I suspect the current code will need to be rewritten
+(and maybe better names would help: maybe user session and avatar,
+rather than avatar and avatar body; the current names have caused
+no end of confusion).
+<li>The avatar body's "in hand" code should be checked. This was
+originally written before slotted containership existed, and it
+had some (at the time) unavoidable races that slotted containership
+was going to fix. I've never had time to go back and check that
+the races were properly fixed.
+<li>The avatar body is supposed to be "identity stamped", so that if
+the region is trustworthy it should be impossible for an avatar to
+present a body with an identity other than its own. That means if you
+see the label on an avatar body (e.g. Fred {My Friend Fred}) you
+should be able to trust it. For this to work the region presence
+(actually the composition ingredient in the region presence) is
+supposed to "stamp" the avatar body presenter with the avatar's
+identity, before giving it to the avatar body (the region can be sure
+of the identity because it did an identity check before letting the
+body in, as described earlier in this document). This isn't
+implemented yet; currently the avatar body itself does the stamping,
+which means it can make up any identity it wants.
+</ul>
+
+<p>
+
+<A href="index.html">Back to design notes index</a>
+<br>
+<a href="../index.html">Back to Microcosm engineering main page</a>
+
+</BODY>
+</HTML>

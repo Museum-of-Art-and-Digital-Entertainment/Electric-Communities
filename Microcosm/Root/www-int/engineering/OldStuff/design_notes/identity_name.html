@@ -1,0 +1,166 @@
+<HTML>
+<HEAD>
+    <TITLE>Identity Naming</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Identity Naming</H1>
+
+<em>This page is maintained by <A HREF="mailto:trev@communities.com">Trev</A>.</em>
+
+<h2>Introduction</h2>
+
+The identity naming package gives a way to associate user visible
+names with identity objects (see <A href="identity.html">Identity</a>
+for more on identity objects). Identity objects often represent
+something that is interesting to the user - e.g. in Microcosm avatars
+have identities. But users don't want to see the sturdy refs of
+identities in the UI - they are long, random and confusing. So we need
+a way to map identities to names and vice versa.
+<p>
+Another problem is that the owner of the identity may want to
+change the name associated with the identity over time. For example,
+suppose an avatar is initially called Fred. But over time the owner
+of the avatar develops the character of the avatar and wants him
+to be known as Frederick the Great. This could be confusing to
+people who have previously met the Fred avatar. How do they know
+Frederick the Great is really Fred, particularly as his appearance
+may have changed? And, if there happen to be two Frederick the
+Greats, how does the user know which is which?
+<p>
+The avatar naming package solves this problem by maintaining two names
+for an identity. One, the <em>handle</em>, is the name chosen by the
+owner of the identity. The other, the <em>nick name</em>, is chosen by
+the user who views the identity. Nick names are guaranteed to be
+unique, per viewer (i.e. as a viewer, I can't use the same nick name for
+two identies). When displaying an identity to the user both names are
+used, in the format "nick name {handle}" e.g. Fred {Frederick the Great}.
+One special case: if the nick name and handle are identical, then just
+one name is used e.g. Jill rather than Jill {Jill}.
+<p>
+The avatar naming package provides ways of manipulating nick names
+and handles and ways of associating identities with nick names in
+a name table.
+
+<h4>Related Documents</h4>
+
+<A href="identity.html">Identity</a>
+
+<h2>Architecture</h2>
+
+<h4>Architecture Overview</h4>
+
+IdentityName is a simple class which contains a handle and a nick name. It
+provides static utilities for checking that handles and nick names are well
+formed and also has accessors to get at the handle, the nick name and
+the full name, i.e. "nick name {handle}". IdentityNames are immutable (modulo
+some internal caching).
+<p>
+An IdentityNameTable maps SturdyIdentity objects to IdentityName
+objects and vice versa. This mapping is really between nick names and
+SturdyIdentity objects, because the nick name part of the IdentityName
+is unique within an IdentityNameTable, whereas there may be several
+IdentityNames with the same handle. The IdentityNameTable allows you
+to change nick names (if the user decides on a new nick name for an
+identity) and to update handles (if the owner of the identity decides
+to change its name). When a new SturdyIdentity/handle pair is added to
+the IdentityNameTable it automatically generates a unique nick name
+based on the handle. e.g. If the handle was Mary the nick name would
+probably just be Mary too, unless the nick name Mary is in use in
+which case Mary-1, Mary-2 or something similar would be used.
+<p>
+An IdentityNameRef is an object that represents a mapping between an
+Identity name and an identity, in the context of an IdentityNameTable
+If you have a reference to an IdentityNameRef then you can get at the
+actual SturdyIdentity object and at the IdentityName for that
+identity. IdentityNameRefs are reference counted. As long as someone
+holds on to the IdentityNameRef then the corresponding IdentityNameTable
+will maintain the corresponding nick name to identity mapping. When the
+last reference is dropped the IdentityNameTable moves the mapping onto
+a "recent list" and will eventually drop it all together, on a
+least recently used basis. Holding an IdentityNameRef does not allow
+you to change the nick name or handle of the identity; for that you need
+a reference to the IdentityNameTable.
+
+<h5>Example - Use in Microcosm</h5>
+
+Microcosm currently uses a single IdentityNameTable for avatar
+names. So, for example, whenever you enter a region you are notified
+of the identities and latest handles of any avatars in that
+region. These identities are looked up in the IdentityNameTable. If
+you've encountered them already their handles are updated (if they've
+changed) and the existing nick name is used. If you've never
+encountered them, new nick names are generated (often just the handle,
+but sometimes the handle plus a -<number> suffix e.g Jill-2).
+<p>
+Any parts of the UI that need to display the avatar names - e.g. the
+address book, the labels, speech balloons - are given
+IdentityNameRefs, from which they can extract the full avatar
+namne. As long as the UI code hangs on to its IdentityNameRef it can
+always get at the current avatar name, even if the handle or nick name
+changes.
+<p>
+The address book ingredient keeps a reference to the
+IdentityNameTable.  It uses this to change nick names and handles, as
+needed. If you explicitly put an avatar in your address book, the page
+for that avatar will keep an IdentityNameRef around, guaranteeing that
+the avatar will keep the same nick name (unless you manually change
+it).
+<p>
+If you just encounter an avatar and don't put it in your address book
+its nick name will end up on the recent list and will, eventually, be
+discarded (unless you re-encounter the avatar, which would promote it
+out of the recent list). The address book uses a fairly long recent
+list so it's pretty likely that if you re-encounter an avatar it will
+be given the same name, even if you haven't put it in your address
+book. Sending telepathy to an avatar temporarily promotes its name
+mapping out of the recent list, which also makes it more likely that
+its nick name won't change.
+
+<h4>Design Objectives, Constraints and Assumptions</h4>
+
+<ul>
+<li>The IdentityNameTable itself should only be modified in the E run
+thread; it is not thread safe.
+<li>IdentityNameRefs and IdentityNames can be safely handed to other
+threads because they are immutable (or at least only mutable via their
+package interfaces, which are only exposed to the IdentityNameTable).
+Special care is taken to ensure that finalization of IdentityNameRefs
+is deferred to the E run thread, because it may involve an update to
+the IdentityNameTable.
+</ul>
+
+<h2>Detailed Design</h2>
+
+See the <a HREF="identity/packages.html">JavaDoc</a> for the Identity
+and IdentityName packages.
+
+<h4>Testing and Debugging</h4>
+
+<ul>
+<li>Turn on trace category "identityname" to get details of what the
+IdentityNameTable is up to.
+</ul>
+
+<h2>Design Issues</h2>
+
+<h4>Open Issues</h4>
+
+<ul>
+<li>Should IdentityNames have a (private) reference back to their
+table? At the moment two IdentityNames from different tables could
+compare equal (because they have the same nick name).
+<li>IdentityNameRefs can probably be implemented more simply via
+some kind of weak reference in Java 1.2.
+<li>Should the recent list be an optional part of the IdentityNameTable,
+rather than being built in as it is now? I suspect setting a recent
+list of 0 will break.
+<li>Is it overkill to use a heap algorithm in the recent list?
+</ul>
+
+<p>
+<A href="index.html">Back to design notes index</a>
+<br>
+<a href="../index.html">Back to Microcosm engineering main page</a>
+</BODY>
+</HTML>

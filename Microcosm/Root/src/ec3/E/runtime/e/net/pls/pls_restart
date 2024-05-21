@@ -1,0 +1,84 @@
+#!/bin/sh
+
+# to restart a process location server, run this command with the
+# name of the checkpoint file as the argument:
+#
+# pls_restart /home/eng/pls-location/gracie.communities.com_1666.evat
+#
+
+forground=false
+if [ x$1 = x-fg ]; then 
+    forground=true
+    shift
+fi
+
+LOCATION_DIR=${PLS_LOCATION_DIR:-/home/eng/pls-location}
+JAVA_DIR=${PLS_JAVA_DIR:-/home/eng/java-1.1.3/solaris/java-1.1.3}
+CRYPTIX_DIR=${PLS_CRYPTIX_DIR:-/home/eng/cryptix-2.2}
+
+if [ x$1 = x ]; then
+	echo "You must specify the port of the PLS to restart."
+	exit 1
+fi
+
+HostName=`uname -n | sed 's/\.communities\.com//'`
+#FQDN="${HostName}.`domainname`" XXX anybody know how to get the domainname portably?
+FQDN="${HostName}.communities.com"
+Port=$1
+
+base=${LOCATION_DIR}/${FQDN}_${Port}
+
+if [ ! -f $base.evat ]; then
+    echo $base.evat: file not found
+    exit 1
+fi
+
+RELEASE_DIR=${PLS_RELEASE_DIR:-${base}.Release}
+
+CLASSPATH=$JAVA_DIR/lib/classes.zip:$RELEASE_DIR/classes:$RELEASE_DIR/compute/classes:$RELEASE_DIR/crew/classes:$RELEASE_DIR/guest/classes:$RELEASE_DIR/steward/classes:$CRYPTIX_DIR/classes.zip
+
+LD_LIBRARY_PATH=/usr/lib:/usr/ucblib:$JAVA_DIR/lib/sparc:$RELEASE_DIR/lib:$RELEASE_DIR/solaris/lib:$RELEASE_DIR/native/solaris/lib
+
+export JAVA_DIR CLASSPATH LD_LIBRARY_PATH
+
+# Fri Sep 12 13:50:27 PDT 1997
+now=`date | sed '
+s/....\(...\).\(..\).\(........\).....\(....\)/\4.\1.\2.\3/
+s/Jan/01/
+s/Feb/02/
+s/Mar/03/
+s/Apr/04/
+s/May/05/
+s/Jun/06/
+s/Jul/07/
+s/Aug/08/
+s/Sep/09/
+s/Oct/10/
+s/Nov/11/
+s/Dec/12/
+s/ /0/g
+'`
+
+if [ -f $base.pid ]; then
+    pid=`cat $base.pid`
+    if kill -0 $pid 2> /dev/null ; then
+	echo
+	echo previous incarnation of PLS $base is being killed
+	echo
+	kill -9 $pid
+    fi
+fi
+
+echo
+echo logging to $base.log.$now
+rm -f $base.log
+ln -s $base.log.$now $base.log
+echo
+
+if $forground; then
+    echo $$ > $base.pid
+    exec $JAVA_DIR/bin/java ec.e.quake.Revive $base.evat -ECproperties $base.props -ECproperties $base.trace > $base.log.$now 2>&1
+else
+    $JAVA_DIR/bin/java ec.e.quake.Revive $base.evat -ECproperties $base.props -ECproperties $base.trace > $base.log.$now 2>&1 &
+    echo $! > $base.pid
+fi

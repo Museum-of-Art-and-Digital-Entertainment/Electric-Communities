@@ -1,0 +1,73 @@
+<!--NewPage-->
+<!-- Created by Masa Maeda on 05.14.97  -->
+<!-- Copyright 1997 Electric Communitites. -->
+<!-- All rights reserved worldwide.  -->
+<!-- Proprietary and confidential. -->
+<HTML>
+<HEAD>
+<pre>
+<a href="PPTut3.html">Previous</a>  <a
+href="PPTut5.html">Next</a>  <a
+href="PPTutI.html">Index</a>  <a
+href="PPTut1.html">Home</a></pre>
+<TITLE>The PeekPoke Tutorial</TITLE>
+</HEAD>
+<BODY>
+<P><HR WIDTH="100%" SIZE=2></P>
+<P>&nbsp;</P>
+<B><P>Step 1. Determine Una components</P></B>
+<P>Start the code for Pluribus una with an una structure that contains two unum kinds as
+depicted in Figure 2 and call them, to say, <FONT FACE="Courier">uPeek</FONT> and <FONT
+FACE="Courier">uPoke</FONT>. To determine the unum kind it is necessary to identify the
+messages needed to communicate with the unum. The unum <FONT FACE="Courier">kind</FONT>
+is as follows.</P>
+<P><HR WIDTH="80%" SIZE=2></P>
+<PRE>
+	// ----- Create Unum structure kind -----
+
+	// unum kind for peekable
+	export kind ukPeekable {
+	  uPeek(String whoPeeked);
+	}
+
+	// unum kind for pokeable
+	export kind ukPokeable {
+	  uPoke(String whoPoked);
+	}
+</PRE>
+<P><HR WIDTH="80%" SIZE=2></P>
+<P>The kind structure is defined, and behaves like a java interface. Note that
+an unum kind implements a single ingredient and the definition of such ingredients takes
+place in the ingredient implementation. The <FONT FACE="Courier">export</FONT> keyword
+indicates that the associated unum kind is accessible beyond the scope determined by a
+pluribus unit; where a unit is equivalent to a java package and is discussed later in this
+tutorial. This makes possible for the unum to actually communicate externally.</P>
+<P>The Unum Structure Kind groups the unum kinds that unum structures will implement.
+The code is as follows.</P>
+<P><HR WIDTH="80%" SIZE=2></P>
+<PRE>
+	// unum structure kind for PeekPokeAble
+	export kind PeekPokeAble {
+	  kind ukPeekable;
+	  kind ukPokeable;
+	}
+</PRE>
+<P><HR WIDTH="100%" SIZE=2></P>
+<pre>
+<a href="PPTut3.html">Previous</a>  <a
+href="PPTut5.html">Next</a>  <a
+href="PPTutI.html">Index</a>  <a
+href="PPTut1.html">Home</a></pre>
+</HTML>
+
+
+
+
+
+
+
+
+
+
+
+

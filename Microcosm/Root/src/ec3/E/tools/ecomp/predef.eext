@@ -1,0 +1,307 @@
+# 1 "ec/ecomp/predef.java" 
+/* ************************************************************************
+ * Espresso! Predefined identifiers and operators.
+ * Copyright 1995, 1996, 1997 Martin Odersky. All rights reserved.
+ * 
+ * Author     : Martin Odersky, Michael Philippsen.
+ * Last change: 15-December-97
+ *************************************************************************/
+
+
+package ec.ecomp;
+
+
+
+
+class Predef implements /*imports*/ Constants {
+
+/** classes defined by the language:
+ */
+    static ClassObj objectClass;        
+    static ClassObj stringClass;
+    static ClassObj throwableClass;
+    static ClassObj errorClass;
+//    static ClassObj exceptionClass;
+    static ClassObj runtimeExceptionClass;
+
+/** and their types:
+ */
+    static Typ objectTyp;
+    static Typ stringTyp;
+    static Typ throwableTyp;
+    static Typ errorTyp;
+
+//  static Typ exceptionTyp;
+    static Typ runtimeExceptionTyp;
+
+/** the type set consisting of all  throwable types:
+ */
+    static TypSet anyTypSet;
+
+/** the length field of an array.
+ */
+    static VarObj lengthVar;
+
+/** the scope of global classes and all predefined identifiers 
+ *  and operators.
+ */
+    static Scope scope = new Scope(null, null);
+
+//FIX 21/10/96:
+/** the class of all predefined objects
+ */
+    static ClassObj clazz = 
+        new ClassObj(PUBLIC, Name.fromString(""), null);
+ 
+    static { 
+            clazz.typ = new Typ(CLASS, clazz);
+            clazz.scope = scope;
+            scope.owner = clazz;
+    }
+  
+/** the scope of all objects visible when qualified by an array.
+ */
+    static Scope arrayScope;
+
+/** the names of constructor methods and class initializers.
+ */
+    static Name initS = Name.fromString("<init>");
+    static Name clinitS = Name.fromString("<clinit>");
+
+/** enter a constant.
+ */
+    private static void enterConstant(String name, Object value, Typ typ) {
+        VarObj c = new VarObj(PUBLIC | STATIC | FINAL, 
+                              Name.fromString(name), 
+                              typ);
+        c.value = value;
+        scope.enter(c);
+    }
+
+/** enter a binary operation. opcode = the bytecode of the
+ *  operation. If two ops are needed they are encoded as
+ *  (op1 << ByteCodeTags.preShift) + op2.
+ */
+    private static void enterBinop(String name,
+                                   Typ left, Typ right, Typ res,
+                                   int opcode) {
+        Typ [] argtyps = {left, right};
+        scope.enter(
+            new OperatorObj(Name.fromString(name), 
+                            new FunTyp(argtyps, res, null), 
+                            opcode));
+    }
+
+/** enter a unary operation.
+ */
+
+    static void enterUnop(String name, Typ arg, Typ res,
+
+
+
+                                  int opcode) {
+        Typ [] argtyps = {arg};
+        scope.enter(
+            new OperatorObj(Name.fromString(name), 
+                            new FunTyp(argtyps, res, null), 
+                            opcode));
+    }
+
+/** load class in package "java.lang.".
+ */
+    protected static ClassObj loadClass(String name) {
+        try {
+            return ClassFile.load(Name.fromString("java.lang." + name));
+        } catch (LoadError e) {
+            Report.error
+                (Report.noPos, 
+                 "error while loading class " + name + ": " + e);
+            return (new Typ(CLASS, Name.fromString(name))).obj;
+        }
+    }
+
+/** enter all predefined identifiers and operators.
+ */
+    static void init() {
+        scope.enter(Typ.byteTyp.obj);
+        scope.enter(Typ.shortTyp.obj);
+        scope.enter(Typ.charTyp.obj);
+        scope.enter(Typ.intTyp.obj);
+        scope.enter(Typ.longTyp.obj);
+        scope.enter(Typ.floatTyp.obj);
+        scope.enter(Typ.doubleTyp.obj);
+        scope.enter(Typ.booleanTyp.obj);
+        scope.enter(Typ.voidTyp.obj);
+        scope.enter(Typ.anyTyp.obj);
+        scope.enter(Typ.errTyp.obj);
+
+        objectClass = loadClass("Object");
+        objectTyp = objectClass.typ;
+
+        stringClass = loadClass("String");
+        stringTyp = stringClass.typ;
+
+        throwableClass = loadClass("Throwable");
+        throwableTyp = throwableClass.typ;
+
+        errorClass = loadClass("Error");
+        errorTyp = errorClass.typ;
+
+        runtimeExceptionClass = loadClass("RuntimeException");
+        runtimeExceptionTyp = runtimeExceptionClass.typ;
+
+        anyTypSet = new TypSet(throwableTyp, null);
+
+        ClassObj arrayClass = Typ.arrayTyp.obj;
+        arrayClass.superclass = objectClass;
+        arrayClass.scope = new Scope(null, arrayClass);
+        lengthVar = new VarObj(PUBLIC | FINAL, 
+                               Name.fromString("length"), 
+                               Typ.intTyp);
+        arrayClass.scope.enter(lengthVar);
+
+        enterConstant("null", Basic.nullValue, Typ.nullTyp);
+        enterConstant("true", new Integer(1), Typ.booleanTyp);
+        enterConstant("false", new Integer(0), Typ.booleanTyp);
+        
+        enterUnop("+", Typ.intTyp, Typ.intTyp, nop);
+        enterUnop("+", Typ.longTyp, Typ.longTyp, nop);
+        enterUnop("+", Typ.floatTyp, Typ.floatTyp, nop);
+        enterUnop("+", Typ.doubleTyp, Typ.doubleTyp, nop);
+        enterUnop("-", Typ.intTyp, Typ.intTyp, ineg);
+        enterUnop("-", Typ.longTyp, Typ.longTyp, lneg);
+        enterUnop("-", Typ.floatTyp, Typ.floatTyp, fneg);
+        enterUnop("-", Typ.doubleTyp, Typ.doubleTyp, dneg);
+        enterUnop("~", Typ.intTyp, Typ.intTyp, ixor);
+        enterUnop("~", Typ.longTyp, Typ.longTyp, lxor);
+        enterUnop("++", Typ.byteTyp, Typ.byteTyp, iadd);
+        enterUnop("++", Typ.shortTyp, Typ.shortTyp, iadd);
+        enterUnop("++", Typ.charTyp, Typ.charTyp, iadd);
+        enterUnop("++", Typ.intTyp, Typ.intTyp, iadd);
+        enterUnop("++", Typ.longTyp, Typ.longTyp, ladd);
+        enterUnop("++", Typ.floatTyp, Typ.floatTyp, fadd);
+        enterUnop("++", Typ.doubleTyp, Typ.doubleTyp, dadd);
+        enterUnop("--", Typ.byteTyp, Typ.byteTyp, isub);
+        enterUnop("--", Typ.shortTyp, Typ.shortTyp, isub);
+        enterUnop("--", Typ.charTyp, Typ.charTyp, isub);
+        enterUnop("--", Typ.intTyp, Typ.intTyp, isub);
+        enterUnop("--", Typ.longTyp, Typ.longTyp, lsub);
+        enterUnop("--", Typ.floatTyp, Typ.floatTyp, fsub);
+        enterUnop("--", Typ.doubleTyp, Typ.doubleTyp, dsub);
+        enterUnop("!", Typ.booleanTyp, Typ.booleanTyp, bool_not);
+        
+        enterBinop("+", Typ.intTyp, Typ.intTyp, Typ.intTyp, iadd);
+        enterBinop("+", Typ.longTyp, Typ.longTyp, Typ.longTyp, ladd);
+        enterBinop("+", Typ.floatTyp, Typ.floatTyp, Typ.floatTyp, fadd);
+        enterBinop("+", Typ.doubleTyp, Typ.doubleTyp, Typ.doubleTyp, dadd);
+//FIX 22/10/96
+        enterBinop("+", stringTyp, stringTyp, stringTyp, string_add);
+        enterBinop("+", stringTyp, Typ.anyTyp, stringTyp, string_add);
+        enterBinop("+", Typ.anyTyp, stringTyp, stringTyp, string_add);
+        enterBinop("-", Typ.intTyp, Typ.intTyp, Typ.intTyp, isub);
+        enterBinop("-", Typ.longTyp, Typ.longTyp, Typ.longTyp, lsub);
+        enterBinop("-", Typ.floatTyp, Typ.floatTyp, Typ.floatTyp, fsub);
+        enterBinop("-", Typ.doubleTyp, Typ.doubleTyp, Typ.doubleTyp, dsub);
+        enterBinop("*", Typ.intTyp, Typ.intTyp, Typ.intTyp, imul);
+        enterBinop("*", Typ.longTyp, Typ.longTyp, Typ.longTyp, lmul);
+        enterBinop("*", Typ.floatTyp, Typ.floatTyp, Typ.floatTyp, fmul);
+        enterBinop("*", Typ.doubleTyp, Typ.doubleTyp, Typ.doubleTyp, dmul);
+        enterBinop("/", Typ.intTyp, Typ.intTyp, Typ.intTyp, idiv);
+        enterBinop("/", Typ.longTyp, Typ.longTyp, Typ.longTyp, ldiv);
+        enterBinop("/", Typ.floatTyp, Typ.floatTyp, Typ.floatTyp, fdiv);
+        enterBinop("/", Typ.doubleTyp, Typ.doubleTyp, Typ.doubleTyp, ddiv);
+        enterBinop("%", Typ.intTyp, Typ.intTyp, Typ.intTyp, imod);
+        enterBinop("%", Typ.longTyp, Typ.longTyp, Typ.longTyp, lmod);
+        enterBinop("%", Typ.floatTyp, Typ.floatTyp, Typ.floatTyp, fmod);
+        enterBinop("%", Typ.doubleTyp, Typ.doubleTyp, Typ.doubleTyp, dmod);
+        enterBinop("&", Typ.intTyp, Typ.intTyp, Typ.intTyp, iand);
+        enterBinop("&", Typ.longTyp, Typ.longTyp, Typ.longTyp, land);
+        enterBinop("|", Typ.intTyp, Typ.intTyp, Typ.intTyp, ior);
+        enterBinop("|", Typ.longTyp, Typ.longTyp, Typ.longTyp, lor);
+        enterBinop("^", Typ.intTyp, Typ.intTyp, Typ.intTyp, ixor);
+        enterBinop("^", Typ.longTyp, Typ.longTyp, Typ.longTyp, lxor);
+        enterBinop("<<", Typ.intTyp, Typ.intTyp, Typ.intTyp, ishl);
+        enterBinop("<<", Typ.longTyp, Typ.intTyp, Typ.longTyp, lshl);
+        enterBinop(">>", Typ.intTyp, Typ.intTyp, Typ.intTyp, ishr);
+        enterBinop(">>", Typ.longTyp, Typ.intTyp, Typ.longTyp, lshr);
+        enterBinop(">>>", Typ.intTyp, Typ.intTyp, Typ.intTyp, iushr);
+        enterBinop(">>>", Typ.longTyp, Typ.intTyp, Typ.longTyp, lushr);
+
+        enterBinop("<", Typ.intTyp, Typ.intTyp, Typ.booleanTyp, 
+                   if_icmplt);
+        enterBinop("<", Typ.longTyp, Typ.longTyp, Typ.booleanTyp, 
+                   (lcmp << preShift) + iflt);
+        enterBinop("<", Typ.floatTyp, Typ.floatTyp, Typ.booleanTyp, 
+                   (fcmpg << preShift) + iflt);
+        enterBinop("<", Typ.doubleTyp, Typ.doubleTyp, Typ.booleanTyp, 
+                   (dcmpg << preShift) + iflt);
+
+        enterBinop(">", Typ.intTyp, Typ.intTyp, Typ.booleanTyp, 
+                   if_icmpgt);
+        enterBinop(">", Typ.longTyp, Typ.longTyp, Typ.booleanTyp, 
+                   (lcmp << preShift) + ifgt);
+        enterBinop(">", Typ.floatTyp, Typ.floatTyp, Typ.booleanTyp,
+                   (fcmpl << preShift) + ifgt);
+        enterBinop(">", Typ.doubleTyp, Typ.doubleTyp, Typ.booleanTyp,
+                   (dcmpl << preShift) + ifgt);
+
+        enterBinop("<=", Typ.intTyp, Typ.intTyp, Typ.booleanTyp, 
+                   if_icmple);
+        enterBinop("<=", Typ.longTyp, Typ.longTyp, Typ.booleanTyp, 
+                   (lcmp << preShift) + ifle);
+        enterBinop("<=", Typ.floatTyp, Typ.floatTyp, Typ.booleanTyp,
+                   (fcmpg << preShift) + ifle);
+        enterBinop("<=", Typ.doubleTyp, Typ.doubleTyp, Typ.booleanTyp,
+                   (dcmpg << preShift) + ifle);
+
+
+        enterBinop(">=", Typ.intTyp, Typ.intTyp, Typ.booleanTyp, 
+                   if_icmpge);
+        enterBinop(">=", Typ.longTyp, Typ.longTyp, Typ.booleanTyp,
+                   (lcmp << preShift) + ifge);
+        enterBinop(">=", Typ.floatTyp, Typ.floatTyp, Typ.booleanTyp,
+                   (fcmpl << preShift) + ifge);
+        enterBinop(">=", Typ.doubleTyp, Typ.doubleTyp, Typ.booleanTyp,
+                   (dcmpl << preShift) + ifge);
+
+        enterBinop("==", Typ.intTyp, Typ.intTyp, Typ.booleanTyp, 
+                   if_icmpeq);
+        enterBinop("==", Typ.longTyp, Typ.longTyp, Typ.booleanTyp,
+                   (lcmp << preShift) + ifeq);
+        enterBinop("==", Typ.floatTyp, Typ.floatTyp, Typ.booleanTyp,
+                   (fcmpl << preShift) + ifeq);
+        enterBinop("==", Typ.doubleTyp, Typ.doubleTyp, Typ.booleanTyp,
+                   (dcmpl << preShift) + ifeq);
+        enterBinop("==", Typ.booleanTyp, Typ.booleanTyp, Typ.booleanTyp, 
+                   if_icmpeq);
+        enterBinop("==", objectTyp, objectTyp, Typ.booleanTyp, 
+                   if_acmpeq);
+
+        enterBinop("!=", Typ.intTyp, Typ.intTyp, Typ.booleanTyp, 
+                   if_icmpne);
+        enterBinop("!=", Typ.longTyp, Typ.longTyp, Typ.booleanTyp,
+                   (lcmp << preShift) + ifne);
+        enterBinop("!=", Typ.floatTyp, Typ.floatTyp, Typ.booleanTyp,
+                   (fcmpl << preShift) + ifne);
+        enterBinop("!=", Typ.doubleTyp, Typ.doubleTyp, Typ.booleanTyp,
+                   (dcmpl << preShift) + ifne);
+        enterBinop("!=", Typ.booleanTyp, Typ.booleanTyp, Typ.booleanTyp, 
+                   if_icmpne);
+        enterBinop("!=", objectTyp, objectTyp, Typ.booleanTyp, 
+                   if_acmpne);
+
+        enterBinop("&", Typ.booleanTyp, Typ.booleanTyp, Typ.booleanTyp, 
+                   iand);
+        enterBinop("|", Typ.booleanTyp, Typ.booleanTyp, Typ.booleanTyp, 
+                   ior);
+        enterBinop("^", Typ.booleanTyp, Typ.booleanTyp, Typ.booleanTyp, 
+                   ixor);
+        enterBinop("&&", Typ.booleanTyp, Typ.booleanTyp, Typ.booleanTyp, 
+                   bool_and);
+        enterBinop("||", Typ.booleanTyp, Typ.booleanTyp, Typ.booleanTyp, 
+                   bool_or);
+
+        ePredef.einit();
+
+    }
+}

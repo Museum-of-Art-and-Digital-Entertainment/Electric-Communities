@@ -1,0 +1,118 @@
+// File     Lexical\Comment.ez
+// Summary  Lexical analysis of comments
+// 
+                  println( "Begin Test" )
+//
+//  001  Title    // comment with no source code
+//       Result   Pass
+//       Test     
+                  // Yet another test comment
+//
+//       Expect   nothing happens
+//       Actual   nothing happens
+// 
+//  002  Title    // comment with source code
+//       Result   Pass
+//       Test     
+                  // Yet another test comment
+                  println( "A" )
+//
+//       Expect   Begin Test
+//                A
+//
+//       Actual   Begin Test
+//                A
+// 
+//  003  Title    // comment before source code
+//       Result   Pass
+//       Test     
+                  // A test
+                  println( "B")
+                  println( "C")
+//
+//       Expect   B
+//                C
+//
+//       Actual   B
+//                C
+//
+//  004  Title    // comment before and after source code
+//       Result   Pass
+//       Test     
+                  // A test
+                  println( "D" )
+                  println( "E" )
+                  // A test
+//
+//       Expect   D
+//                E
+//
+//       Actual   D
+//                E
+//
+//  005  Title    // comment intermixed in source code
+//       Result   Pass
+//       Test     
+                  // A test
+                  println( "F" )
+                  // A test
+                  println( "G" )
+                  // A test
+//
+//       Expect   F
+//                G
+//
+//       Actual   F
+//                G
+//
+//  006  Title    // comment at end of line
+//       Result   Pass
+//       Test     
+                  // A test
+                  println ("H") // comment here
+                  // A test
+                  println ("I") // another comment here
+                  // A test
+//
+//       Expect   H
+//                I
+//
+//       Actual   H
+//                I
+//
+//  007  Title    # comment with no source code
+//       Result   Pass
+//       Test     
+                  # This is a comment
+//
+//       Expect   nothing happens
+//       Actual   nothing happens
+// 
+//  008  Title    # comment with source code
+//       Result   Pass
+//       Test     
+                  # This is a comment
+                  println ("J")
+//
+//       Expect   J
+//
+//       Actual   J
+//
+//  009  Title    # comment at end of line
+//       Result   Pass
+//       Test     
+                  # A test
+                  println ("K") # comment here
+                  # A test
+                  println ("L") # another comment here
+                  # A test
+//
+//       Expect   K
+//                L
+//
+//       Actual   K
+//                L
+//
+                  println( "End Test" )
+//
+

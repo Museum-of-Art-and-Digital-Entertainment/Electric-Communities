@@ -1,0 +1,38 @@
+define cat := object {
+	to sub1(x) { x - 1 }
+	to add1(x) { x + 1 }
+	to printsub1(foo) {
+		.sub1(foo) print
+	}
+}
+cat sub1(2)
+cat add1(2)
+cat printsub1(3 + 4)
+cat add1(20) print
+
+
+define z1 := 0
+define cat := object {
+	to sub1(x) { x - 1 }
+	to add1(x) { x + 1 }
+	to printsub1(foo) {
+		.sub1(foo) print
+	}
+	to addit(x) { z1 := z1 + x }
+}
+
+
+define makecat := {
+ define z1 := 0
+ object {
+	to sub1(x) { x - 1 }
+	to add1(x) { x + 1 }
+	to printsub1(foo) {
+		.sub1(foo) print
+	}
+	to addit(x) { z1 := z1 + x }
+ }
+}
+
+define furr := makecat run
+furr addit(20)

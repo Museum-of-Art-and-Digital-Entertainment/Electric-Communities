@@ -1,0 +1,93 @@
+#!/bin/csh -f
+#
+# Minimal make for E runtime. Run with environment variable
+# BUILD set to the destination for the build (classes in
+# $BUILD/classes and libraries in $BUILD/lib, etc.).
+# It defaults to the current directory. Also, run with
+# JAVAHOME set to the base of the Java distribution. It
+# defaults to "/home/eng/java-1.1.3/solaris/java-1.1.3"
+
+if ($?BUILD) then
+	set build="$BUILD"
+else
+	set build="."
+endif
+
+if ($?JAVAHOME) then
+	set javahome="$JAVAHOME"
+else
+	set javahome="/home/eng/java-1.1.3/solaris/java-1.1.3"
+endif
+
+set arch=`arch`
+if ("$arch" == "sun4") then
+	set arch=solaris
+endif
+
+set gcc="gcc -g -I$javahome/include -I$javahome/include/$arch -I$build/headers -c"
+
+mkdir -p $build/classes
+mkdir -p $build/lib
+mkdir -p $build/headers
+mkdir -p $build/stubs
+mkdir -p $build/obj
+
+set FILES_1 = (\
+	e/run/RtNetDummies.java \
+	e/run/RtRunDummies.java \
+	e/run/RtFileDummies.java \
+	e/run/RtStartDummies.java \
+)
+
+set FILES_2 = (\
+	e/run/InternalClosures.java \
+	e/run/OnceOnlyException.java \
+	e/run/RtInterfaces.java \
+	e/run/RtRun.java \
+	e/run/RtRuntimeException.java \
+	e/run/RtWeakCell.java \
+	e/run/RtWeakling.java \
+	e/run/Trace.java \
+	e/run/myE.java \
+	util/EMainThread.java \
+	util/EThreadGroup.java \
+	util/NestedError.java \
+	util/NestedThrowable.java \
+	util/NestedThrowableVector.java \
+	util/PEHashtable.java \
+	util/ReadOnlyHashtable.java \
+)
+
+set FILES_3 = (\
+	e/lang/EDouble.e \
+	e/lang/EFloat.e \
+	e/lang/EInteger.e \
+	e/lang/ELong.e \
+	e/lang/EPrintStream.e \
+	e/lang/EString.e \
+	e/run/EBoolean.e \
+	e/run/EChannelHelper.e \
+	e/run/ENull.e \
+)
+
+set FILES_EXPORT = ec.e.run.RtWeakCell
+
+set FILES_C = e/run/RtWeakCell.c
+
+echo ecomp $FILES_1
+ecomp -d $build/classes -e2jdone $FILES_1
+echo ecomp $FILES_2
+ecomp -d $build/classes -e2jdone $FILES_2
+echo ecomp $FILES_3
+ecomp -d $build/classes -esystem $FILES_3
+echo javah $FILES_EXPORT
+javah -classpath ${CLASSPATH}:$build/classes -d $build/stubs -stubs $FILES_EXPORT
+javah -classpath ${CLASSPATH}:$build/classes -d $build/headers $FILES_EXPORT
+foreach x ($FILES_C $build/stubs/*.c)
+	set out = $build/obj/`basename $x .c`.o
+	echo gcc $x -o $out
+	$gcc $x -o $out
+end
+echo "Building library"
+ld -G -o $build/lib/librun.so $build/obj/*.o
+echo "Done"

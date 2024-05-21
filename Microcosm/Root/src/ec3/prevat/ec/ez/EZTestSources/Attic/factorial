@@ -1,0 +1,12 @@
+
+define facDisp := dispatch {
+	to fac n {
+		if (n <= 0) {
+			(1)
+		} else {
+			(n * (facDisp fac (n - 1)))
+		}
+	}
+}
+
+((facDisp fac 6) print)

@@ -1,0 +1,73 @@
+export unit unum_Simple {
+
+  package ec.pl.examples.simple;
+
+  import ec.e.lang.*;
+  import ec.e.net.ERegistrar;
+  import ec.e.net.ERegistration;
+
+  public eclass Simple implements Agent
+  {
+      emethod go (EEnvironment env) {
+    
+    System.out.println("In Simple.go()");
+    
+    // Here, if we were instructed to do so, we would typically attempt
+    // to connect to this unum elsewhere.  In this example, we don't care.
+    
+    kind ikSimple simple = new unum uiSimple();
+    // FYI, arguments sent to createUnum() are the same used by the 
+    // presence init methods.  In this case, there are none.
+    
+    simple<-acceptMessageAndDoSomething(true);
+    
+    System.out.println("End of Simple.go()");
+    
+      }
+  }
+
+  unit ing_Simple;
+
+  export kind pkSimple {
+    kind ikSimple;
+  }
+
+  presence Structure psSimple {
+    kind pkSimple;
+    ingredient Simple { 
+      kind ikSimple;
+      deliver unum ukSimple;
+      deliver presence pkSimple;
+    }
+  }
+
+  presence Impl piSimple {
+    Structure psSimple;
+    ingredient Simple template {
+  Impl iiSimple;
+    }
+    prime init() {
+      System.out.println("Entering prime init method of Simple");
+    }
+    init() {
+      System.out.println("Entering non-prime init method of Simple");
+    }
+    make pSimple;
+  }
+
+  export kind ukSimple {
+    kind ikSimple;
+  }
+
+  export unum Structure usSimple {
+    kind ukSimple;
+    presence pSimple kind pkSimple makes pSimple;
+    prime pSimple;
+  }
+
+  unum Impl uiSimple {
+    Structure usSimple;
+    presence pSimple Impl piSimple;
+  }
+
+}  

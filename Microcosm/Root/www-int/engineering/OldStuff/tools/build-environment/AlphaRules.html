@@ -1,0 +1,145 @@
+<HTML>
+<HEAD>
+    <TITLE>Rules for Checking In for Alpha</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Rules for Checking In for Alpha</H1>
+
+<em>This page is maintained by <A HREF="mailto:trev@communities.com">Trev</A>.
+Please let me know of any errors ASAP so I can fix them.
+<br>
+<b>Warning:</b> these pages change frequently. If you've looked at them
+recently hit "reload" on your browser to make sure you're seeing the
+latest version.
+</em>
+<p>
+
+<h2>Checkin Policy</h2>
+
+From now until Alpha ALL changes must be build buddied, except for
+changes which are 100% changes to comments (e.g. adding JavaDoc,
+@author tags). If a change is 99% comment changes at 1% code changes,
+then you still need a build buddy.
+
+<p>
+
+When your build buddy has built with your changes you MUST test
+the changes with your buddy. You should always:
+<ul>
+<li>Test the functionality you know has changed (e.g. if I'd added
+  a field to the address book my buddy and I would check the new
+  field worked as expected)
+<li>Test related functionality (e.g. check the rest of the address
+  book too, to make sure the new field didn't break anything else)
+
+<li>Do the <a href="Checkin.html#SmokeTest">developer smoke
+test</a>. Note that this test includes a host/client test and a
+save/restore test (suggestions for improvements welcome).
+
+</ul>
+
+In addition, if you make changes to the Comm system, Pluribus Runtime,
+Containership, or Composition then you should do a host/client/client
+(3 way) test.
+
+<p>
+
+See below for more on finding build buddies and testing on multiple
+machines. 
+
+<h2>So Why Have a Policy?</h2>
+
+Alpha is getting close. The tree has to be more stable than it's ever
+been before. Just that is a good reason to impose stricter
+guidelines. Also, we've tried staying with the current, more flexible,
+policy and have had some build breakages, which could have been
+avoided. Some important things to realize:
+
+<ul>
+
+<li>It's not just us (Gang of Three) imposing policy because we like
+policy. Imposing policy is one of the least pleasant parts of our job,
+and where we can do without it, we do. In this case stability is
+really important and the tradeoff of imposing more policy to buy more
+stability makes sense. We've also had complaints from developers who
+feel that we've not been firm enough in imposing policy and preventing
+build breaks. They feel that they take care and use the policies but
+still have to pay the price for people who don't.
+
+<li>We're not imposing a policy because we think people are dumb. Even
+the best developers make mistakes; these policies are a way of
+reducing the chance of mistakes at a time when mistakes are especially
+costly.
+
+<li>Even the stricter policies won't completely prevent errors. The
+hub test killing bug would have got through our current smoke test
+(though Masa's new Build Sensei smoke test will catch such errors
+in the future). Again, we're trying to reduce the odds of an error.
+That has costs, but this close to Alpha it's worth it.
+
+</ul>
+
+<h2>Finding a Build Buddy</h2>
+
+Sending mail to everybody asking for a buddy doesn't work well -
+everyone thinks someone else will handle it. Talking to individuals
+is more effective.
+<p>
+Some people have started sending out mail when they're available
+as buddies. Thanks very much to everyone doing this; it's a
+great idea and should continue.
+<p>
+The build machine is also available and can be used as a build
+buddy. Make sure it has an up to date tree, apply your changes, then
+rebuild from scratch and test. You can find this machine on the second
+floor in the last cube opposite the window (near Ellen's office). Masa
+has written some documentation on how to use it; it's on the web pages
+and is also printed out next to the machine.
+<p>
+We're also working on other ways to make it easier to find build
+buddies (if you have ideas let us know).
+
+
+<h2>Testing on Multiple Machines</h2>
+
+Doing host/client testing on a single machine is very slow, and doing
+host/client/client testing is just about impossible. This section
+describes how you get other machines to help with your testing.
+<p>
+If you have a build buddy, you can do the host client test with them,
+once they have built your changes. This works well and is more fun
+(and often more thorough) than testing on your own.
+<p>
+Alternatively, you can build a "release" and install it on another
+machine. Once you've completed a normal build you can go into /src and
+type:
+<p>
+make build-zipclasses
+<p>
+This zips up all your classes into the
+<code>Release/classes/ucosm.zip</code> file.  It only takes 3 or 4
+minutes. And afterwards you have a complete, self contained release in
+your <code>/Build/Release</code> directory.
+<p>
+You can copy this release directory to another machine, click on
+<code>regUpdate.exe</code> (in the bin subdirectory) and then connect
+back to your usual machine by double clicking on a teleport pad
+file. I export my <code>/Build</code> directory on my home machine so
+I can get at teleport pads (in
+<code>/Build/Release/PublishedRefs</code>) from other machines.
+<p>
+So how do you find another machine? You can borrow someone else's
+(just don't overwrite their <code>/Build</code> area!). There are also
+several machines available for testing:
+<ul>
+<li>The build machine (upstairs, last cube by window)
+<li>Mike and Trev's test machine (Mike's desk)
+<li>The test machines (Alison and Scott's cubes upstairs; see Masa or Paul
+if they seem to be in use)
+</ul>
+
+<p>
+<A href="index.html">Back to the index</a>
+</BODY>
+</HTML>

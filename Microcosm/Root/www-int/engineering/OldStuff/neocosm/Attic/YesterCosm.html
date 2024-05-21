@@ -1,0 +1,140 @@
+<HTML>
+<HEAD>
+   <TITLE>YesterCosm</TITLE>
+</HEAD>
+<BODY>
+
+<H1>YesterCosm</H1>
+<H2>A collection of memory & performance related info from January 1998</H2>
+
+<H3>RAM cost per object</H3>
+<H4>[Tony]</H4>
+I did some tests involving memory and number of una.
+<P>
+I created a simple realm text with one tiny region and one region of varying 
+size. In my tests I land in the small region and never visit the other region. 
+This should be measuring the cost of simply hosting una, and not presenting them.
+<P>
+Here are the numbers (from the NT Task Manger):
+<P>
+Mem is MemoryUsage (working set)<BR>
+VM is Virtual Memory
+<P>
+<TABLE BORDER CELLSPACING=1 BORDERCOLOR="#000080" CELLPADDING=7 WIDTH=295>
+<TR><TD WIDTH="16%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Una </B></FONT></TD>
+<TD WIDTH="18%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Mem</B></FONT></TD>
+<TD WIDTH="18%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>VM</B></FONT></TD>
+<TD WIDTH="25%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>Mem/una</B></FONT></TD>
+<TD WIDTH="22%" VALIGN="TOP" BGCOLOR="#000080">
+<B><FONT SIZE=2 COLOR="#ffffff"><P>VM/una</B></FONT></TD>
+</TR>
+<TR><TD WIDTH="16%" VALIGN="TOP">
+<FONT SIZE=2><P>10</FONT></TD>
+<TD WIDTH="18%" VALIGN="TOP">
+<FONT SIZE=2><P>20781</FONT></TD>
+<TD WIDTH="18%" VALIGN="TOP">
+<FONT SIZE=2><P>21669</FONT></TD>
+<TD WIDTH="25%" VALIGN="TOP">&nbsp;</TD>
+<TD WIDTH="22%" VALIGN="TOP">&nbsp;</TD>
+</TR>
+<TR><TD WIDTH="16%" VALIGN="TOP">
+<FONT SIZE=2><P>100</FONT></TD>
+<TD WIDTH="18%" VALIGN="TOP">
+<FONT SIZE=2><P>22001</FONT></TD>
+<TD WIDTH="18%" VALIGN="TOP">
+<FONT SIZE=2><P>22873</FONT></TD>
+<TD WIDTH="25%" VALIGN="TOP">
+<FONT SIZE=2><P>15.01</FONT></TD>
+<TD WIDTH="22%" VALIGN="TOP">
+<FONT SIZE=2><P>23.73</FONT></TD>
+</TR>
+<TR><TD WIDTH="16%" VALIGN="TOP">
+<FONT SIZE=2><P>300</FONT></TD>
+<TD WIDTH="18%" VALIGN="TOP">
+<FONT SIZE=2><P>25179</FONT></TD>
+<TD WIDTH="18%" VALIGN="TOP">
+<FONT SIZE=2><P>26355</FONT></TD>
+<TD WIDTH="25%" VALIGN="TOP">
+<FONT SIZE=2><P>15.60</FONT></TD>
+<TD WIDTH="22%" VALIGN="TOP">
+<FONT SIZE=2><P>19.52</FONT></TD>
+</TR>
+<TR><TD WIDTH="16%" VALIGN="TOP">
+<FONT SIZE=2><P>500</FONT></TD>
+<TD WIDTH="18%" VALIGN="TOP">
+<FONT SIZE=2><P>28795</FONT></TD>
+<TD WIDTH="18%" VALIGN="TOP">
+<FONT SIZE=2><P>29684</FONT></TD>
+<TD WIDTH="25%" VALIGN="TOP">
+<FONT SIZE=2><P>16.59</FONT></TD>
+<TD WIDTH="22%" VALIGN="TOP">
+<FONT SIZE=2><P>18.37</FONT></TD>
+</TR>
+<TR><TD WIDTH="16%" VALIGN="TOP">
+<FONT SIZE=2><P>1000</FONT></TD>
+<TD WIDTH="18%" VALIGN="TOP">
+<FONT SIZE=2><P>31448</FONT></TD>
+<TD WIDTH="18%" VALIGN="TOP">
+<FONT SIZE=2><P>37933</FONT></TD>
+<TD WIDTH="25%" VALIGN="TOP">
+<FONT SIZE=2><P>10.95</FONT></TD>
+<TD WIDTH="22%" VALIGN="TOP">
+<FONT SIZE=2><P>17.43</FONT></TD>
+</TR>
+<TR><TD WIDTH="16%" VALIGN="TOP">
+<FONT SIZE=2><P>1500</FONT></TD>
+<TD WIDTH="18%" VALIGN="TOP">
+<FONT SIZE=2><P>34359</FONT></TD>
+<TD WIDTH="18%" VALIGN="TOP">
+<FONT SIZE=2><P>45980</FONT></TD>
+<TD WIDTH="25%" VALIGN="TOP">
+<FONT SIZE=2><P>9.24</FONT></TD>
+<TD WIDTH="22%" VALIGN="TOP">
+<FONT SIZE=2><P>16.99</FONT></TD>
+</TR>
+<TR><TD WIDTH="16%" VALIGN="TOP">
+<FONT SIZE=2><P>2000</FONT></TD>
+<TD WIDTH="18%" VALIGN="TOP">
+<FONT SIZE=2><P>37803</FONT></TD>
+<TD WIDTH="18%" VALIGN="TOP">
+<FONT SIZE=2><P>54119</FONT></TD>
+<TD WIDTH="25%" VALIGN="TOP">
+<FONT SIZE=2><P>8.65</FONT></TD>
+<TD WIDTH="22%" VALIGN="TOP">
+<FONT SIZE=2><P>16.81</FONT></TD>
+</TR>
+</TABLE>
+<P>
+
+Depending on whether you trust Mem Usage (aka working set) or Virtual memory, it seems like 
+we're using 15-20k per object. Woof.
+
+
+<H3>Startup & Usage Times: the memory curve</H3>
+<H4>[Tony]</H4>
+Paul and I ran a lot of tests back in January, measuring both startup time, as well as
+the time it took to do a number of common in-world operations...
+<P>
+Startup		Measured from when you select your avatar to when you arrive in the first region<BR>
+Test 1		Teleport from AztecTurf to GreatRoundSquare<BR>
+Test 2		Walk a lap around the GreatRoundSquare<BR>
+Test 3		Open Address Book window, Catalog window, open basic Catalog<BR>
+Test 4		Teleport to Red Room, then The City<BR>
+<P>
+The 'Cruise' measurements referenced below are The sum of Test1-Test4.
+<P>
+Note that the important thing about this chart is not so much the absolute numbers, but
+what happens to the curve when the machine has varying amounts of memory. The curve appears
+to flatten somewhere around 40MB, and we get very little increase in perfomance as we go higher.
+<P>
+Below 40MB, there's simply not enough physical memory to support the software, and virtual memory paging
+kicks in.
+<P>
+<IMG SRC="YesterCosmGraph.gif">
+
+</BODY>
+</HTML>

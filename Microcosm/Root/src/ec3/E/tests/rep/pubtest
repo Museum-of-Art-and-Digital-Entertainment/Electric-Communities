@@ -1,0 +1,50 @@
+#! /bin/csh -f
+
+# First time, run this as % pubtest curate
+# Thereafter run this as % pubtest yes (or some other word, we don't care).
+# If you don't want to refresh the repository dirs, like if you want
+# to save published stuff, just run pubtest without arguments.
+
+if (${#argv} == 1) then
+# If given any argument, such as "create", Create two directory structures
+
+  if ( "$1" == "curate") then
+    ./curator in=testrepository.cur cur=Repository
+  endif
+
+  rm -rf publisher requestor
+  mkdir publisher requestor
+
+  cd publisher
+  mkdir ECHome ECHome/Dist ECHome/Extras ECHome/Publish ECHome/Cache ECHome/Cert
+
+  cd ../requestor
+  mkdir ECHome ECHome/Dist ECHome/Extras ECHome/Publish ECHome/Cache ECHome/Cert
+
+  cd ..
+  cp Repository publisher/ECHome/Dist/Repository
+  cp Repository requestor/ECHome/Dist/Repository
+
+endif
+
+rm -f publisher-sturdyref
+
+# Both publisher and requestor dirs should now have small Repositories.
+# We cd to one to run a publisher program and to the other to run the receiver program.
+# This guarantees no sneaky copying of data between them.
+
+# Notice the ampersand after the first line.
+# This test program will leave processes running and you will need to
+# manually kill them after each run.
+
+cd requestor
+java ec.e.start.EBoot ec.tests.rep.pubtest reg=../publisher-sturdyref -ECproperties ../run.props &
+
+cd ..
+sleep 20
+ls -l publisher-sturdyref
+
+cd publisher
+java ec.e.start.EBoot ec.tests.rep.pubtest lookup=../publisher-sturdyref -ECproperties ../run.props
+
+

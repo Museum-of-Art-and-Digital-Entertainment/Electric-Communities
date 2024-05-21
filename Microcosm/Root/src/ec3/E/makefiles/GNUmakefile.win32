@@ -1,0 +1,7 @@
+WIN32FILES = $(TOP)/E/dist/Win32
+all:
+	mkdir -p $(BUILD)/bin
+	@chmod -R +w $(BUILD)/bin
+	cp -R $(WIN32FILES)/bin $(BUILD)
+	mkdir -p $(BUILD)/classes/ec
+	cp -R $(WIN32FILES)/classes/ec/ecomp $(BUILD)/classes/ec

@@ -1,0 +1,1587 @@
+# 1 "ec/ecomp/classfile.java" 
+/* ************************************************************************
+ * Espresso! Class file loading and generation.
+ * Copyright 1995, 1996, 1997 Martin Odersky. All rights reserved.
+ * 
+ * Author     : Martin Odersky, Michael Philippsen
+ * Last change: 17-December-97
+ *************************************************************************/
+
+
+package ec.ecomp;
+
+
+
+
+import java.util.Vector;
+import java.util.Hashtable;
+import java.util.Enumeration;
+import java.io.*;
+import java.util.zip.*;
+
+/** exception to signal an error during class loading.
+ */
+class LoadError extends IOException {
+    LoadError(String s) {
+        super(s);
+    }
+}
+
+/** exception to signal an error during class generation.
+ */
+class StoreError extends IOException {
+    StoreError(String s) {
+        super(s);
+    }
+}
+
+/** A field or method reference (see class file format)
+ */
+class Reference {
+    int tag;             // one of CONSTANT_Fieldref, 
+                         // CONSTANT_Methodref, CONSTANT_InterfaceMethodref
+    NameRef className;
+    NameAndType nameType;
+
+    Reference(int tag, NameRef className, NameAndType nameType) {
+        this.tag = tag;
+        this.className = className;
+        this.nameType = nameType;
+    }
+
+/** references need to be hashable to avoid generating them more than once.
+ *  overrides Object.
+ */
+    public int hashCode() {
+        return (tag << 20) ^ 
+            (className.hashCode() << 10) ^ 
+            nameType.hashCode();
+    }
+
+/** overrides Object.
+ */
+    public boolean equals(Object other) {
+        if (other instanceof Reference) {
+            Reference r = (Reference)other;
+            return tag == r.tag &&
+                className.equals(r.className) &&
+                nameType.equals(r.nameType);
+        } else
+            return false;
+    }
+
+/** overrides Object.
+ */
+    public String toString() {
+        return "REFERENCE " + tag + " " + className + " " + nameType;
+    }
+}
+
+class NameRef {
+    int tag;    // one of CONSTANT_Class, CONSTANT_String, 
+    Name name;
+
+    NameRef(int tag, Name name) {
+        this.tag = tag;
+        this.name = name;
+    }
+
+/** name-refs need to be hashable to avoid generating them more than once.
+ *  overrides Object.
+ */
+    public int hashCode() {
+        return (tag << 20) ^ name.index;
+    }
+
+/** overrides Object.
+ */
+    public boolean equals(Object other) {
+        if (other instanceof NameRef) {
+            NameRef n = (NameRef)other;
+            return tag == n.tag && name.index == n.name.index;
+        } else
+            return false;
+    }
+
+/** overrides Object.
+ */
+    public String toString() {
+        return "NAMEREF " + tag + " " + name;
+    }
+}
+
+/** the name and type signature of a method or field.
+ */
+class NameAndType {
+    Name name;
+    Name sig; 
+
+    NameAndType(Name name, Name sig) {
+        this.name = name;
+        this.sig = sig;
+    }
+
+/** name-and-types need to be hashable to avoid generating them more than once.
+ *  overrides Object.
+ */
+    public int hashCode() {
+        return (name.index << 15) ^ sig.index;
+    }
+
+/** overrides Object.
+ */
+    public boolean equals(Object other) {
+        if (other instanceof NameAndType) {
+            NameAndType n = (NameAndType)other;
+            return name.index == n.name.index && sig.index == n.sig.index;
+        } else
+            return false;
+    }
+
+/** overrides Object.
+ */
+    public String toString() {
+        return "NAMETYPE " + name + " " + sig;
+    }
+}
+
+/** class file loading and generation.
+ */
+class ClassFile implements Constants {
+
+/** can be reassigned from outside: 
+ *  the output directory.
+ */
+    static String outDir = null;
+
+/** the string used as separator in class paths
+ */
+    static String pathSep = System.getProperty("path.separator");
+
+/** can be reassigned from outside: 
+ *  the value of the CLASSPATH environment variable.
+ */
+    static String classPath = System.getProperty("java.class.path") + pathSep;
+
+/** a hashtable containing the loaded classes; key: Name, value: ClassObj
+ *  should be updated from outside to reflect defined classes.
+ */
+    static Hashtable loaded = new Hashtable();
+
+/************************************************************************
+ * Constants
+ ***********************************************************************/
+
+    private static final int JAVA_MAGIC = 0xCAFEBABE;
+    private static final int JAVA_MAJOR_VERSION = 45;
+    private static final int JAVA_MINOR_VERSION = 3;
+
+    private static Name ConstantValueS = Name.fromString("ConstantValue");
+    private static Name LineNumberTableS = Name.fromString("LineNumberTable");
+    private static Name LocalVariableTableS = Name.fromString("LocalVariableTable");
+    private static Name CodeS = Name.fromString("Code");
+    private static Name ExceptionsS = Name.fromString("Exceptions");
+    private static Name SourceFileS = Name.fromString("SourceFile");
+    private static Name FullTypeS = Name.fromString("FullType");
+    private static Name PeriodS = Name.fromString(".");
+    private static Name emptyS = Name.fromString("");
+    private static Name closureS = Name.fromString("$closure");
+
+    private static Name BYTEsig = Name.fromString("B");
+    private static Name SHORTsig = Name.fromString("S");
+    private static Name CHARsig = Name.fromString("C");
+    private static Name INTsig = Name.fromString("I");
+    private static Name LONGsig = Name.fromString("J");
+    private static Name FLOATsig = Name.fromString("F");
+    private static Name DOUBLEsig = Name.fromString("D");
+    private static Name BOOLEANsig = Name.fromString("Z");
+    private static Name VOIDsig = Name.fromString("V");
+    private static Name ARRAYsig = Name.fromString("[");
+    private static Name ARGBEGINsig = Name.fromString("(");
+    private static Name ARGENDsig = Name.fromString(")");
+    private static Name THROWSBEGINsig = Name.fromString("<");
+    private static Name THROWSENDsig = Name.fromString(">");
+
+/************************************************************************
+ * Error Reporting
+ ***********************************************************************/
+
+    private static void loadError(String msg) throws LoadError {
+        throw new LoadError(msg);
+    }
+
+    private static void exceeded(String resource) throws StoreError {
+        throw new StoreError(resource + " exceeded");
+    }
+
+    private static void unrecogized(Name attrName) {
+        if (Switches.checkAttributes)
+            System.out.println("unrecogized attribute: " + attrName);
+    }
+
+/************************************************************************
+ * String Translation Routines
+ ***********************************************************************/
+
+/* this is a big mess, caused by java's insistence to use "/" as a separator
+ * in class names rather than "." which would be (1) more consistent,
+ * (2) OS-independent, (3) more efficient.
+ */
+
+/** return internal representation of buf[offset..offset+len-1],
+ *  converting '/' to '.'.
+ */
+    private static byte[] internalize(byte[] buf, int offset, int len) {
+        byte[] translated = new byte[len];
+        for (int j = 0; j < len; j++) {
+            byte b = buf[offset + j];
+            if (b == (byte)'/') translated[j] = (byte)'.';
+            else translated[j] = b;
+        }
+        return translated;
+    }
+
+/** return external representation of buf[offset..offset+len-1],
+ *  converting '.' to '/'.
+ */
+    private static byte[] externalize(byte[] buf, int offset, int len) {
+        byte[] translated = new byte[len];
+        for (int j = 0; j < len; j++) {
+            byte b = buf[offset + j];
+            if (b == (byte)'.') translated[j] = (byte)'/';
+            else translated[j] = b;
+        }
+        return translated;
+    }
+
+/** return internal representation of file name s,
+ *  converting File.separatorChar to '.'.
+ */
+    static Name internalizeFileName(String s) {
+        byte[] ascii = 
+             Convert.string2ascii(s.replace(File.separatorChar, '.'));
+         return Name.fromAscii(ascii, 0, ascii.length);
+    }
+
+/** return external representation of file name s,
+ *  converting '.' to File.separatorChar.
+ */
+    static String externalizeFileName(Name n) {
+        byte[] ascii = n.toAscii();
+        String s = Convert.ascii2string(ascii, 0, ascii.length);
+         return s.replace('.', File.separatorChar);
+    }
+
+/** return the last part of a class name.
+ */
+    static Name shortName(Name classname) {
+        return classname.subName(classname.lastPos((byte)'.') + 1, 
+                                 classname.len);
+    }
+
+/** return the package name of a class name, excluding the trailing '.',
+ *  null if not existent
+ */
+    static Name packagePart(Name classname) {
+        int limit = classname.lastPos((byte)'.');
+        if (limit < 0) return null;
+        else return classname.subName(0, limit);
+    }
+
+/** return the package part of a class name, including the trailing '.',
+ *  empty string if not existent.
+ */
+    static Name packagePrefix(Name classname) {
+        Name pp = packagePart(classname);
+        if (pp == null) return emptyS;
+        else return pp.append(PeriodS);
+    }
+
+/*******************************************************************
+ * ClASS INPUT
+ ******************************************************************/
+
+/** todo[processed..] contains all classes that are referenced 
+ *  but not yet loaded.
+ */
+    private static Vector todo;          
+    private static int processed;
+
+/** the buffer containing the class file; the current input pointer.
+ */
+    private static byte[] buf;
+    private static int bp;
+
+/** the objects of the constant pool.
+ */
+    private static Object[] poolObj;
+
+/** for every constant pool entry, an index into buf where the
+ *  defining section of the entry is found.
+ */
+    private static int[] poolIdx;
+
+/************************************************************************
+ * Buffer Access
+ ***********************************************************************/
+
+/** read a character.
+ */
+    private static char nextChar() {
+        return 
+            (char)(((buf[bp++] & 0xFF) << 8) + 
+                   (buf[bp++] & 0xFF));
+    }
+
+/** read an integer.
+ */
+    private static int nextInt() {
+        return 
+            ((buf[bp++] & 0xFF) << 24) + 
+            ((buf[bp++] & 0xFF) << 16) + 
+            ((buf[bp++] & 0xFF) << 8) + 
+            (buf[bp++] & 0xFF);
+    }
+   
+/** extract a character at position bp from buf. 
+ */
+    private static char getChar(int bp) {
+        return 
+            (char)(((buf[bp] & 0xFF) << 8) + 
+                   (buf[bp+1] & 0xFF));
+    }
+
+/** extract an integer at position bp from buf. 
+ */
+    private static int getInt(int bp) {
+        return 
+            ((buf[bp] & 0xFF) << 24) + 
+            ((buf[bp+1] & 0xFF) << 16) + 
+            ((buf[bp+2] & 0xFF) << 8) + 
+            (buf[bp+3] & 0xFF);
+    }
+    
+/** extract a long integer at position bp from buf. 
+ */
+    private static long getLong(int bp) {
+        DataInputStream bufin = 
+            new DataInputStream(new ByteArrayInputStream(buf, bp, 8));
+        try {
+            return bufin.readLong();
+        } catch (IOException e) {
+            throw new CompilerError("get");
+        }
+    }
+        
+/** extract a float at position bp from buf. 
+ */
+    private static float getFloat(int bp) {
+        DataInputStream bufin = 
+            new DataInputStream(new ByteArrayInputStream(buf, bp, 4));
+        try {
+            return bufin.readFloat();
+        } catch (IOException e) {
+            throw new CompilerError("get");
+        }
+    }
+        
+/** extract a double at position bp from buf. 
+ */
+    private static double getDouble(int bp) {
+        DataInputStream bufin = 
+            new DataInputStream(new ByteArrayInputStream(buf, bp, 8));
+        try {
+            return bufin.readDouble();
+        } catch (IOException e) {
+            throw new CompilerError("get");
+        }
+    }
+
+/************************************************************************
+ * Constant Pool Access
+ ***********************************************************************/
+
+/** index all constant pool entries, writing their start addresses into
+ *  poolIdx.
+ */
+    private static void indexPool() throws LoadError {
+        poolIdx = new int[nextChar()];
+        poolObj = new Object[poolIdx.length];
+        int i = 1;
+        while (i < poolIdx.length) {
+            poolIdx[i++] = bp;
+            byte tag = buf[bp++];
+            switch (tag) {
+            case CONSTANT_Utf8: case CONSTANT_Unicode: {
+                int len = nextChar();
+                bp = bp + len;
+                break;
+            }
+            case CONSTANT_Class:
+            case CONSTANT_String:
+                bp = bp + 2;
+                break;
+            case CONSTANT_Fieldref: 
+            case CONSTANT_Methodref:
+            case CONSTANT_InterfaceMethodref:
+            case CONSTANT_NameandType:
+            case CONSTANT_Integer:
+            case CONSTANT_Float:
+                bp = bp + 4;
+                break;
+            case CONSTANT_Long:
+            case CONSTANT_Double:
+                bp = bp + 8;
+                i++;
+                break;
+            default:
+                throw new LoadError("bad constant pool tag: " + tag);
+            }
+        }
+    }
+
+/** read constant pool entry at start address i, use poolObj as a cache.
+ */
+    private static Object readPool(int i) {
+        if (poolObj[i] == null) {
+            int index = poolIdx[i];
+            byte tag = buf[index];
+            switch (tag) {
+            case CONSTANT_Utf8:
+                poolObj[i] = Name.fromAscii(buf, 
+                                            index + 3, 
+                                            getChar(index + 1));
+                break;
+            case CONSTANT_Unicode:
+                throw new CompilerError("can't read unicode strings in class files");
+            case CONSTANT_Class:
+                poolObj[i] = new NameRef(tag, 
+                                         readExternal(getChar(index + 1)));
+                break;
+            case CONSTANT_String:
+                poolObj[i] = new NameRef(tag, 
+                                   (Name)readPool(getChar(index + 1)));
+                break;
+            case CONSTANT_Fieldref: 
+            case CONSTANT_Methodref:
+            case CONSTANT_InterfaceMethodref:
+                poolObj[i] = new Reference(tag,
+                                  (NameRef)readPool(getChar(index + 1)),
+                                   (NameAndType)readPool(getChar(index + 3)));
+                break;
+            case CONSTANT_NameandType:
+                poolObj[i] = 
+                    new NameAndType((Name)readPool(getChar(index + 1)),
+                                    readExternal(getChar(index + 3)));
+                break;
+            case CONSTANT_Integer:
+                poolObj[i] = new Integer(getInt(index + 1));
+                break;
+            case CONSTANT_Float:
+                poolObj[i] = new Float(getFloat(index + 1));
+                break;
+            case CONSTANT_Long:
+                poolObj[i] = new Long(getLong(index + 1));
+                break;
+            case CONSTANT_Double:
+                poolObj[i] = new Double(getDouble(index + 1));
+                break;
+            default:
+                throw new CompilerError("bad constant pool tag: " + tag);
+            }
+        }
+        return poolObj[i];
+    }
+
+/** read a constant pool string and convert to internal representation.
+ */
+    private static Name readExternal(int i) {
+        if (poolObj[i] == null) {
+            int index = poolIdx[i];
+            if (buf[index] == CONSTANT_Utf8) {
+                int len = getChar(index + 1);
+                byte[] translated = internalize(buf, index + 3, len);
+                poolObj[i] = Name.fromAscii(translated, 0, len);
+            }
+        }
+        return (Name)poolObj[i];
+    }        
+
+/************************************************************************
+ * Reading Types
+ ***********************************************************************/
+
+/** the length of the signature at signature[offset..].
+ */
+    private static int sigLen(byte signature[], int offset) {
+        switch (signature[offset]) {
+        case 'B':
+        case 'C':
+        case 'D':
+        case 'F':
+        case 'I':
+        case 'J':
+        case 'S':
+        case 'V':
+        case 'Z':
+            return 1;
+        case 'L': {
+            int i = 1;
+            while (signature[offset + i] != ';') i++;
+            return i + 1;
+        }
+        case '[': {
+            int i = 1;
+            while ('0' <= signature[offset + i] && 
+                   signature[offset + i] <= '9') i++;
+            return i + sigLen(signature, offset + i);
+        }
+        case '(': {
+            int i = 1;
+            while (signature[offset + i] != ')') i++;
+            return i + 1 + sigLen(signature, offset + i + 1);
+        }
+        default:
+            return 10;     // to give some kind of output
+        }
+    }
+
+/** the type represented by signature[offset..].
+ */
+    private static Typ sig2type(byte[] signature, int offset) throws LoadError {
+        switch (signature[offset]) {
+        case 'B':
+            return Typ.byteTyp;
+        case 'C':
+            return Typ.charTyp;
+        case 'D':
+            return Typ.doubleTyp;
+        case 'F':
+            return Typ.floatTyp;
+        case 'I':
+            return Typ.intTyp;
+        case 'J':
+            return Typ.longTyp;
+        case 'L':
+            return 
+                loadClass(Name.fromAscii(signature, 
+                                         offset + 1, 
+                                         sigLen(signature, offset) - 2))
+                .typ;
+        case 'S':
+            return Typ.shortTyp;
+        case 'V':
+            return Typ.voidTyp;
+        case 'Z':
+            return Typ.booleanTyp;
+        case '[':
+            offset++; 
+            while ('0' <= signature[offset] && signature[offset] <= '9')
+                offset++; 
+            return new ArrayTyp(sig2type(signature, offset));
+        case '(':
+            offset++;
+            Typ[] args = new Typ[6];
+            int nargs = 0;
+            while (signature[offset] != ')') {
+                if (nargs == args.length) {
+                    Typ[] newargs = new Typ[args.length * 2];
+                    System.arraycopy(args, 0, newargs, 0, args.length);
+                    args = newargs;
+                }
+                args[nargs++] = sig2type(signature, offset);
+                offset = offset + sigLen(signature, offset);
+            }
+            offset++;
+            Typ[] argtyps = new Typ[nargs];
+            System.arraycopy(args, 0, argtyps, 0, nargs);
+            Typ restyp = sig2type(signature, offset);
+            offset = offset + sigLen(signature, offset);
+            TypSet thrown = null;
+            if (offset < signature.length && signature[offset] == '<') {
+                offset++;
+                while (signature[offset] != '>') {
+                    thrown = TypSet.incl(thrown, 
+                                         sig2type(signature, offset));
+                    offset = offset + sigLen(signature, offset);
+                }
+            }
+            return new FunTyp(argtyps, restyp, thrown);
+        default:
+            loadError("bad signature: " + 
+                      Convert.ascii2string(signature, offset, 
+                                           sigLen(signature, offset)));
+            return null;
+        }
+    }
+
+/** read a constant pool string and convert to a type.
+ */
+    private static Typ readType(int i) throws LoadError {
+        return sig2type(internalize(buf, 
+                                    poolIdx[i] + 3, 
+                                    getChar(poolIdx[i] + 1)),
+                        0);
+    }
+
+/************************************************************************
+ * Reading Code
+ ***********************************************************************/
+
+/** read code block.
+ */
+    private static Code readCode(Obj owner) throws LoadError {
+        Code code = new Code(owner, 
+                             owner.name.equals(Basic.clinitS),
+                             false);
+        code.max_stack = nextChar();
+        code.max_locals = nextChar();
+        code.cp = nextInt();
+        code.code = new byte[code.cp];
+        System.arraycopy(buf, bp, code.code, 0, code.cp);
+        code.ncatches = nextChar();
+        code.exc_start_pc = new char[code.ncatches];
+        code.exc_end_pc = new char[code.ncatches];
+        code.exc_handler_pc = new char[code.ncatches];
+        code.exc_catch_type = new char[code.ncatches];
+        for (int i = 0; i < code.ncatches; i++) {
+            code.exc_start_pc[i] = nextChar();
+            code.exc_end_pc[i] = nextChar();
+            code.exc_handler_pc[i] = nextChar();
+            code.exc_catch_type[i] = nextChar();
+        }
+        int attrCount = nextChar();
+        for (int j = 0; j < attrCount; j++) {
+            Name attrName = (Name)readPool(nextChar());
+            int attrLen = nextInt();
+            if (attrName.index == LineNumberTableS.index) {
+                code.nlines = nextChar();
+                code.line_start_pc = new char[code.nlines];
+                code.line_number = new char[code.nlines];
+                for (int i = 0; i < code.nlines; i++) {
+                    code.line_start_pc[i] = nextChar();
+                    code.line_number[i] = nextChar();
+                }
+            } else if (attrName.index == LocalVariableTableS.index) {
+                code.nvars = nextChar();
+                code.lvar_start_pc = new char[code.nvars];
+                code.lvar_end_pc = new char[code.nvars];
+                code.lvar = new VarObj[code.nvars];
+                for (int i = 0; i < code.nvars; i++) {
+                    code.lvar_start_pc[i] = nextChar();
+                    code.lvar_end_pc[i] = 
+                        (char)(code.lvar_start_pc[i] + nextChar());
+                    code.lvar[i] = 
+                        new VarObj(0, 
+                                   (Name)readPool(nextChar()),
+                                   readType(nextChar()));
+                    code.lvar[i].adr = nextChar();
+                }
+            } else {
+                unrecogized(attrName);
+                bp = bp + attrLen;
+            }
+        }
+        return code;
+    }
+
+/************************************************************************
+ * Reading Objects
+ ***********************************************************************/
+
+/** read a class name.
+ */
+    private static Name readClassName() {
+        int i = nextChar();
+        if (i == 0) return null;
+        else return ((NameRef)readPool(i)).name;
+    }
+
+/** read a field.
+ */
+    private static VarObj readField() throws LoadError {
+        int modifiers = nextChar();
+        Name name = (Name)readPool(nextChar());
+        Typ typ = readType(nextChar());
+        VarObj v = new VarObj(modifiers, name, typ);
+        char ac = nextChar();
+        for (int i = 0; i < ac; i++) {
+            Name attrName = (Name)readPool(nextChar());
+            int attrLen = nextInt();
+            if (attrName.index == ConstantValueS.index) {
+                v.value = readPool(nextChar());
+                if (v.value instanceof NameRef)
+                    v.value = ((NameRef)v.value).name;
+            } else if (attrName.index == FullTypeS.index) {
+                v.alttyp = v.typ;
+                v.typ = readType(nextChar());
+            } else {
+                unrecogized(attrName);
+                bp = bp + attrLen;
+            }
+        }
+        return v;
+    }
+
+/** read a method.
+ */
+    private static FunObj readMethod() throws LoadError {
+        int modifiers = nextChar();
+        Name name = (Name)readPool(nextChar());
+        FunTyp typ = (FunTyp)readType(nextChar());
+        FunObj f = new FunObj(modifiers, name, typ);
+        char ac = nextChar();
+        for (int i = 0; i < ac; i++) {
+            Name attrName = (Name)readPool(nextChar());
+            int attrLen = nextInt();
+            if (attrName.index == CodeS.index) {
+                if (Switches.readAllOfClassFile) f.code = readCode(f);
+                else {
+                    bp = bp + attrLen;
+                }
+            } else if (attrName.index == ExceptionsS.index) {
+                int nexceptions = nextChar();
+                for (int j = 0; j < nexceptions; j++) {
+                    Name excName = readClassName();
+                    typ.thrown = TypSet.incl(typ.thrown, 
+                                             loadClass(excName).typ);
+                }
+            } else if (attrName.index == FullTypeS.index) {
+                f.alttyp = f.typ;
+                f.typ = readType(nextChar());
+            } else {
+                unrecogized(attrName);
+                bp = bp + attrLen;
+            }
+        }
+        return f;
+    }
+
+/** read a class (i.e. all of a class file).
+ */
+    private static void readClass(ClassObj c) throws LoadError {
+// FIX 6/11/96 remove if load erorr
+      try {
+        int magic = nextInt();
+        if (magic != JAVA_MAGIC) loadError("bad class file");
+
+        int minorVersion = nextChar();
+        int majorVersion = nextChar();
+        if (majorVersion != JAVA_MAJOR_VERSION ||
+            minorVersion < JAVA_MINOR_VERSION)
+            loadError("class file has wrong version " + 
+                      majorVersion + "." + minorVersion + ", should be " +
+                      JAVA_MAJOR_VERSION + "." + JAVA_MINOR_VERSION);
+
+        indexPool();
+
+        c.modifiers = nextChar();
+
+        Name ownname = readClassName();
+        if (!c.fullname.equals(ownname))
+            loadError("class file: " + c.fullname + 
+                      " contains wrong class: " + ownname);
+
+        c.superclass = loadClass(readClassName());
+        c.interfaces = new ClassObj[nextChar()];
+        for (int i = 0; i < c.interfaces.length; i++) {
+            c.interfaces[i] = loadClass(readClassName());
+        }
+
+        char fieldCount = nextChar();
+        for (int i = 0; i < fieldCount; i++)
+            c.scope.enter(readField());
+
+        char methodCount = nextChar();
+        for (int i = 0; i < methodCount; i++) {
+            FunObj f = readMethod();
+            if (f.name.startsWith(closureS)) c.nclosures++;
+            c.scope.enter(f);
+        }
+        
+        char attrCount = nextChar();
+        for (int i = 0; i < attrCount; i++) {
+            Name attrName = (Name)readPool(nextChar());
+            int attrLen = nextInt();
+            if (attrName.index == SourceFileS.index) {
+                c.sourcefile = (Name)readPool(nextChar());
+            } else {
+                unrecogized(attrName);
+                bp = bp + attrLen;
+            }
+        }
+
+        if (Switches.readAllOfClassFile) {
+            for (int i = 1; i < poolObj.length; i++) readPool(i);
+            c.pool = new Pool();
+            c.pool.pp = poolObj.length;
+            c.pool.pool = poolObj;
+        }
+      } catch (LoadError ex) {
+          loaded.remove(c.fullname);
+          throw ex;
+      }
+    }
+
+/************************************************************************
+ * Accessing Files
+ ***********************************************************************/
+
+    private static boolean isZip(String name) {
+        return name.endsWith(".zip") || name.endsWith(".jar");
+    }
+
+    static Hashtable dirs = new Hashtable();
+
+    static ZipFile openDir(String dirname) throws IOException {
+        ZipFile zdir = (ZipFile)dirs.get(dirname);
+        if (zdir == null) {
+            zdir = new ZipFile(dirname);
+            dirs.put(dirname, zdir);
+        }
+        return zdir;
+    }
+
+/** open class file for reading
+ */
+    private static InputStream openFile(String dirname, String name) {
+        InputStream result = null;
+        String filename = null;
+        try {
+            if (isZip(dirname)) {
+                ZipFile zdir = openDir(dirname);
+                ZipEntry e = zdir.getEntry(name.replace('\\', '/'));
+                if (e != null) {
+                    result = zdir.getInputStream(e);
+                    if (Switches.verbose)
+                        filename = zdir.getName() + "(" + e.toString() + ")";
+                }
+            } else {
+                File f = new File(dirname, name);
+                result = new FileInputStream(f);
+                if (Switches.verbose)
+                    filename = f.toString();
+            }
+        } catch (IOException ex) {
+        }
+        if (result != null && Switches.verbose)
+            System.out.println("[loading " + filename + "]");
+        return result;
+    }
+
+/** List all files in subdirectory `name' of `dirname'
+ */
+    private static String[] list(String dirname, String name) {
+        try {
+            if (isZip(dirname)) {
+                ZipFile zdir = openDir(dirname);
+                if (name.length() != 0) {
+                    name = name.replace('\\', '/');
+                    if (!name.endsWith("/")) name = name + "/";
+                }
+                int namelen = name.length();
+                int count = 0;
+                for (java.util.Enumeration e = zdir.entries(); 
+                     e.hasMoreElements(); ) {
+                    ZipEntry entry = (ZipEntry)e.nextElement();
+                    String ename = entry.getName();
+                    if (ename.startsWith(name)) {
+                        String suffix = ename.substring(namelen);
+                        if (suffix.length() > 0 && suffix.indexOf('/') < 0) {
+                            count++;
+                        }
+                    }
+                }
+                String[] filenames = new String[count];
+                count = 0;
+                for (java.util.Enumeration e = zdir.entries(); 
+                     e.hasMoreElements(); ) {
+                    ZipEntry entry = (ZipEntry)e.nextElement();
+                    String ename = entry.getName();
+                    if (ename.startsWith(name)) {
+                        String suffix = ename.substring(namelen);
+                        if (suffix.length() > 0 && suffix.indexOf('/') < 0) {
+                            filenames[count++] = suffix;
+                        }
+                    }
+                }
+                return filenames;
+            } else {
+                File f = name.length() != 0 
+                    ? new File(dirname, name) 
+                    : new File(dirname);
+                return f.list();
+            }
+        } catch (IOException ex) {
+            return null;
+        }
+    }
+
+/************************************************************************
+ * Loading Classes
+ ***********************************************************************/
+
+/** Return first occurrence of class file with given name in class path.
+ *  first search current directory.
+ */
+    public static InputStream findClassFile(String name) throws LoadError {
+        if (name.indexOf(File.separatorChar) < 0) {
+            InputStream f = openFile(".", name);
+            if (f != null) return f;
+        }
+        return find(name);
+    }
+
+/** Return first occurrence of class file with given name in class path.
+ *  first search current directory.
+ */
+    public static InputStream find(String name) throws LoadError {
+        if (Switches.printSearch)
+            System.out.println("looking for " + name);
+        InputStream f = null;
+        int i = 0;
+        while (f == null && i < classPath.length()) {
+            int end = classPath.indexOf(pathSep, i);
+            String dirname = classPath.substring(i, end);
+            f = openFile(dirname, name);
+            i = end + 1;
+        }
+        return f;
+    }
+
+/** generate a new class object with given name and register it to be loaded.
+ */
+    private static ClassObj loadClass(Name classname) throws LoadError {
+        if (classname == null) return null;
+        ClassObj c = (ClassObj)loaded.get(classname);
+        if (c == null) {
+            int i = processed;
+            while (i < todo.size() && 
+                 !((ClassObj)todo.elementAt(i)).fullname.equals(classname)) 
+                i++;
+            if (i < todo.size()) {
+                c = (ClassObj)todo.elementAt(i);
+            } else {
+                c = new ClassObj();
+                c.name = shortName(classname);
+                c.fullname = classname;
+                c.packagename = packagePrefix(classname);
+                c.typ = new Typ(CLASS, c);
+                c.scope = new Scope(null, c);
+                c.interfaces = new ClassObj[0];
+                todo.addElement(c);
+            }
+//FIX 6/11/96
+        } else if (c.kind == PCK) {
+            loadError("package and class with same name: " + classname);
+        }
+        return c;
+    }
+
+/** complete loading class c.
+ */
+    private static void completeClass(ClassObj c) throws IOException {
+        long msec = System.currentTimeMillis();
+        String filename = externalizeFileName(c.fullname) + ".class";
+        InputStream f = findClassFile(filename);
+        if (f == null) loadError("file " + filename + " not found");
+        buf = new byte[f.available()];
+        f.read(buf);
+        f.close();
+        bp = 0;
+        loaded.put(c.fullname, c);
+        readClass(c);
+        if (Switches.verbose) {
+            System.out.println((System.currentTimeMillis() - msec) + "ms]");
+        }
+    }
+
+/** load a class with name classname. Also load all referenced classes.
+ */
+//FIX 21/10/96 load() now takes just one argument
+//FIX 6/11/96 throws LoadError
+    public static ClassObj load(Name classname) throws LoadError {
+        todo = new Vector();
+        processed = 0;
+        try {
+          ClassObj c = loadClass(classname);
+
+              int firstWave = todo.size();
+              while (processed < todo.size()) {
+                 try {
+                   completeClass((ClassObj)todo.elementAt(processed));
+                 } catch (LoadError e) {
+                     if (processed < firstWave) {
+                         throw e;
+                     } else {
+                         /* XXX Perhaps a warning message is in order here? */
+                     }
+                 }
+                 processed++;
+              }
+
+
+
+
+
+
+            return c;
+        } catch (LoadError e) {
+            throw e;
+        } catch (IOException e) {
+            throw new LoadError(e.toString());
+        }
+    }
+
+/** load an import handle corresponding to a directory.
+ */
+//FIX 6/11/96 throws LoadError
+   public static ClassObj loadDir(Name fullname) throws LoadError {
+        ClassObj c = (ClassObj)loaded.get(fullname);
+        if (c == null) {
+// FIX 17-7-96 -- error loading package
+            c = new ClassObj(fullname, shortName(fullname));
+            loaded.put(fullname, c);
+// FIX 9-10-96: still problems with missing packages, so we comment this out.
+//            String dirname = externalizeFileName(fullname);        
+//            GeneralFile dir = find(dirname);
+//            if (!dir.isDirectory())
+//                loadError("directory " + dirname + " not found");
+// ENDFIX
+//FIX 6/11/96
+        } else if (c.kind == TYP) {
+            loadError("package and class with same name: " + fullname);
+        }
+        return c;
+   }
+        
+/** return all import handles for all class files found in directory name.
+ */
+    public static Scope directory(Name name) throws IOException {
+        ClassObj c = loadDir(name);
+        if (c.scope == null) {
+            c.scope = new Scope(null, c);
+            String dirname = externalizeFileName(c.fullname);
+//FIX 26/8/96, should search all directories on classpath
+            int i = 0;
+            while (i < classPath.length()) {
+              int end = classPath.indexOf(pathSep, i);
+              String pathname = classPath.substring(i, end);
+              String[] filenames = list(pathname, dirname);
+              if (filenames != null) {
+                for (int j = 0; j < filenames.length; j++) {
+                  if (filenames[j].endsWith(".class")) {
+                    Name shortname = 
+                      Name.fromString(
+                                      filenames[j].substring(
+                                                 0, filenames[j].length()-6));
+                    Name fullname =
+                      ClassObj.formFullName(shortname, c);
+                    if (c.scope.lookup(shortname).obj == null) {
+                      c.scope.enter(
+                                    new ClassObj(fullname, shortname));
+                    }
+                  }
+                }
+              }
+              i = end + 1;
+            }
+
+        }
+        // in case of E it is necessary to reconstruct the scopes, because
+        // an include with * could affect newly created classes like (..._$_Intf)
+
+        
+            for (Enumeration e = loaded.elements(); e.hasMoreElements();) {
+                ClassObj c1 = (ClassObj)e.nextElement();
+                Name pp = packagePart(c1.fullname);
+                if (pp != null && pp.equals(c.fullname) &&
+                    c.scope.lookup(c1.name).scope != c.scope)
+                    c.scope.enter(new ClassObj(c1.fullname, c1.name));
+            }
+
+
+
+
+        return c.scope;
+//ENDFIX
+    }
+
+/*******************************************************************
+ * CLASS OUTPUT
+ ******************************************************************/
+ 
+/** the initial sizes of the object and constant pool output buffers.
+ *  sizes are increased when buffers get full.
+ */
+    private final static int DATA_BUF_SIZE = 0x10000;
+    private final static int POOL_BUF_SIZE = 0x10000;
+
+/** the object and constant pool output buffers.
+ */
+    private static byte[] databuf = new byte[DATA_BUF_SIZE];
+    private static byte[] poolbuf = new byte[POOL_BUF_SIZE];
+
+/** the currently active output buffer, and the number of bytes written to it.
+ */
+    private static byte[] out;
+    private static int op;
+
+/** double the size of the active output buffer.
+ */
+    private static void doubleOut() {
+        byte[] newout = new byte[out.length * 2];
+        System.arraycopy(out, 0, newout, 0, out.length);
+        out = newout;
+    }
+
+/** append a byte to the active output buffer.
+ */
+    private static void writeByte(int b) {
+        if (op == out.length) doubleOut();
+        out[op++] = (byte)b;
+    }
+
+/** append xs[offset..offset+len-1] to the active output buffer.
+ */
+    private static void writeBytes(byte[] xs, int offset, int len) {
+        while (op + len > out.length) doubleOut();
+        System.arraycopy(xs, offset, out, op, len);
+        op = op + len;
+    }
+
+/** append a character to the active output buffer.
+ */
+    private static void writeChar(int x) {
+        if (op + 2 > out.length) doubleOut();
+        out[op++] = (byte)((x >> 8) & 0xFF);
+        out[op++] = (byte)(x & 0xFF);
+    }
+            
+/** append an integer to the active output buffer.
+ */
+    private static void writeInt(int x) {
+        if (op + 4 > out.length) doubleOut();
+        out[op++] = (byte)((x >> 24) & 0xFF);
+        out[op++] = (byte)((x >> 16) & 0xFF);
+        out[op++] = (byte)((x >> 8) & 0xFF);
+        out[op++] = (byte)(x & 0xFF);
+    }
+
+/** append a long to the active output buffer.
+ */
+    private static void writeLong(long x) {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream(8);
+        DataOutputStream bufout = new DataOutputStream(buffer);
+        try {
+            bufout.writeLong(x);
+            writeBytes(buffer.toByteArray(), 0, 8);
+        } catch (IOException e) {
+            throw new CompilerError("write");
+        }
+    }
+            
+/** append a float to the active output buffer.
+ */
+    private static void writeFloat(float x) {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream(4);
+        DataOutputStream bufout = new DataOutputStream(buffer);
+        try {
+            bufout.writeFloat(x);
+            writeBytes(buffer.toByteArray(), 0, 4);
+        } catch (IOException e) {
+            throw new CompilerError("write");
+        }
+    }
+            
+/** append a double to the active output buffer.
+ */
+    private static void writeDouble(double x) {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream(8);
+        DataOutputStream bufout = new DataOutputStream(buffer);
+        try {
+            bufout.writeDouble(x);
+            writeBytes(buffer.toByteArray(), 0, 8);
+        } catch (IOException e) {
+            throw new CompilerError("write");
+        }
+    }
+
+    private static void putChar(int op, int x) {
+        out[op] = (byte)((x >> 8) & 0xFF);
+        out[op+1] = (byte)(x & 0xFF);
+    }
+            
+/*******************************************************************
+ * Signature Generation
+ ******************************************************************/
+
+/** return signature of type typ.
+ */
+    public static Name typeSig(Typ typ, boolean full) {
+        switch (typ.tag) {
+        case BYTE: return BYTEsig;
+        case SHORT: return SHORTsig;
+        case CHAR: return CHARsig;
+        case INT: return INTsig;
+        case LONG: return LONGsig;
+        case FLOAT: return FLOATsig;
+        case DOUBLE: return DOUBLEsig;
+        case BOOLEAN: return BOOLEANsig;
+        case VOID: return VOIDsig;
+        case CLASS: {
+
+            byte[] ascii;
+            if (   !E2j.done 
+                && (   typ.subtype(ePredef.EobjectTyp)
+                    || typ.subtype(ePredef.EobjectIntfTyp)
+                    || typ.obj.useEforErrors)
+                && !(typ.obj.fullname.endsWith(E2j.intfS))) {
+              ascii = new byte[typ.obj.fullname.len + 7 + 2];
+              ascii[0] = (byte)'L';
+              typ.obj.fullname.copyAscii(ascii, 1);
+              E2j.intfS.copyAscii(ascii, ascii.length - 8);
+              ascii[ascii.length - 1] = (byte)';';
+              return Name.fromAscii(externalize(ascii, 0, ascii.length),
+                                    0, ascii.length);
+            } else {
+              ascii = new byte[typ.obj.fullname.len + 2];
+
+
+
+              ascii[0] = (byte)'L';
+              typ.obj.fullname.copyAscii(ascii, 1);
+              ascii[ascii.length - 1] = (byte)';';
+              return Name.fromAscii(externalize(ascii, 0, ascii.length),
+                                    0, ascii.length);
+
+            }
+
+        }
+        case ARRAY:
+            return ARRAYsig.append(typeSig(((ArrayTyp)typ).elemtyp, full));
+        case FUNCTION: {
+            FunTyp ft = (FunTyp)typ;
+            int compCount = ft.argtyps.length + 3;
+            if (full && ft.thrown != null) 
+                compCount = compCount + TypSet.size(ft.thrown) + 2;
+            Name[] components = new Name[compCount];
+            int j = 0;
+            components[j++] = ARGBEGINsig;
+            for (int i = 0; i < ft.argtyps.length; i++)
+                components[j++] = typeSig(ft.argtyps[i], full);
+            components[j++] = ARGENDsig;
+            components[j++] = typeSig(ft.restyp, full);        
+            if (full && ft.thrown != null) {
+                components[j++] = THROWSBEGINsig;
+                TypSet thrown = ft.thrown;
+                while (thrown != null) {                
+                    components[j++] = typeSig(thrown.typ, full);
+                    thrown = thrown.next;
+                }
+                components[j++] = THROWSENDsig;
+            }
+            return Name.concat(components);
+        }
+        default: 
+            throw new CompilerError("typeSig");
+        }
+    }
+
+/*******************************************************************
+ * Writing the Constant Pool
+ ******************************************************************/
+
+/** write constant pool to active output buffer. 
+ *  Note: during writing, constant pool
+ *  might grow since some parts of constants still need to be entered.
+ */
+    private static void writePool(Pool pool) {
+        int pool_count_index = op;
+        writeChar(0);
+        int i = 1;
+        while (i < pool.pp) {
+            Object value = pool.pool[i];
+            if (Switches.checks) Basic.assert(value != null);
+            if (value instanceof Name) {
+                writeByte(CONSTANT_Utf8);
+                byte[] ascii = ((Name)value).toAscii();
+                writeChar(ascii.length);
+                writeBytes(ascii, 0, ascii.length);
+            } else if (value instanceof Integer) {
+                writeByte(CONSTANT_Integer);
+                writeInt(((Integer)value).intValue());
+            } else if (value instanceof Long) {
+                writeByte(CONSTANT_Long);
+                writeLong(((Long)value).longValue());
+                i++;
+            } else if (value instanceof Float) {
+                writeByte(CONSTANT_Float);
+                writeFloat(((Float)value).floatValue());
+            } else if (value instanceof Double) {
+                writeByte(CONSTANT_Double);
+                writeDouble(((Double)value).doubleValue());
+                i++;
+            } else if (value instanceof NameRef) {
+                NameRef n = (NameRef)value;
+                writeByte((byte)(n.tag));
+                Name ename;
+                if (n.tag == CONSTANT_Class) {
+                    byte[] ascii = n.name.toAscii();
+                    ename = 
+                        Name.fromAscii(externalize(ascii, 0, ascii.length),
+                                       0, ascii.length);
+                } else 
+                    ename = n.name;
+                writeChar(pool.put(ename));
+            } else if (value instanceof Reference) {
+                Reference r = (Reference)value;
+                writeByte((byte)r.tag);
+                writeChar(pool.put(r.className));
+                writeChar(pool.put(r.nameType));
+            } else if (value instanceof NameAndType) {
+                NameAndType nt = (NameAndType)value;
+                writeByte(CONSTANT_NameandType);
+                writeChar(pool.put(nt.name));
+                writeChar(pool.put(nt.sig));
+            } else {
+                throw new CompilerError("writePool " + value);
+            }
+            i++;
+        }
+        putChar(pool_count_index, pool.pp);
+    }
+
+/*******************************************************************
+ * Writing Attributes
+ ******************************************************************/
+
+/** write header for an attribute to active output buffer.
+ */
+    private static void writeAttr(Pool pool, Name attrName, int attrLen) {
+        writeChar(pool.put(attrName));
+        writeInt(attrLen);
+    }
+
+
+/** write code attribute, entering all object references into given pool.
+ */
+    private static void writeCode(Pool pool, Code code) {
+        int attrLen = 2 + 2 + 
+            4  + 1 * code.cp +
+            2 + (2 + 2 + 2 + 2) * code.ncatches + 
+            2; 
+        int nsubattrs = 0;
+        if (code.nlines > 0) {
+            attrLen = attrLen + 8 + 4 * code.nlines;
+            nsubattrs++;
+        }
+        if (code.nvars > 0) {
+            attrLen = attrLen + 8 + 10 * code.nvars;
+            nsubattrs++;
+        }
+        writeAttr(pool, CodeS, attrLen);
+        writeChar(code.max_stack);
+        writeChar(code.max_locals);
+        writeInt(code.cp);
+        writeBytes(code.code, 0, code.cp);
+        writeChar(code.ncatches);
+        for (int i = 0; i < code.ncatches; i++) {
+            writeChar(code.exc_start_pc[i]);
+            writeChar(code.exc_end_pc[i]);
+            writeChar(code.exc_handler_pc[i]);
+            writeChar(code.exc_catch_type[i]);
+        }
+        writeChar(nsubattrs);
+        if (code.nlines > 0) {
+            writeAttr(pool, LineNumberTableS, 2 + 4 * code.nlines);
+            writeChar(code.nlines);
+            for (int i = 0; i < code.nlines; i++) {
+                writeChar(code.line_start_pc[i]);
+                writeChar(code.line_number[i]);
+            }
+        }
+        if (code.nvars > 0) {
+            writeAttr(pool, LocalVariableTableS, 2 + 10 * code.nvars);
+            writeChar(code.nvars);
+            for (int i = 0; i < code.nvars; i++) {
+                writeChar(code.lvar_start_pc[i]);
+                writeChar(code.lvar_end_pc[i] - code.lvar_start_pc[i]);
+                writeChar(pool.put(code.lvar[i].name));
+                writeChar(pool.put(typeSig(code.lvar[i].typ, false)));
+                writeChar(code.lvar[i].adr);
+            }
+        }
+    }
+
+/***********************************************************************
+ * Writing Objects
+ **********************************************************************/
+
+/** write class reference, entering class name reference into given pool.
+ */
+    private static void writeClassName(Pool pool, ClassObj c) {
+        writeChar(pool.put(new NameRef(CONSTANT_Class, c.fullname)));
+    }
+
+/** write field or method name reference, entering the name into given pool.
+ */
+    private static void writeFieldName(Pool pool, Obj obj) {
+        if ((obj.modifiers & PRIVATE) != 0 && Switches.obfuscate)
+            writeChar(pool.put(Name.fromString("_$" + obj.name.index)));
+        else
+            writeChar(pool.put(obj.name));
+    }
+
+/** write field object, entering all references into given pool.
+ */
+    private static void writeField(Pool pool, VarObj v) {
+        writeChar(v.modifiers);
+        writeFieldName(pool, v);
+        writeChar(pool.put(typeSig(v.typ, false)));
+        int nattrs = 0;
+        if (v.value != null) nattrs++;
+        if (v.alttyp != null) nattrs++;
+        writeChar(nattrs);
+        if (v.value != null) {
+            writeAttr(pool, ConstantValueS, 2);
+            writeChar(pool.put(v.value));
+        } 
+        if (v.alttyp != null) {
+            writeAttr(pool, FullTypeS, 2);
+            writeChar(pool.put(typeSig(v.alttyp, true)));
+        }
+    }
+
+/** write method object, entering all references into given pool.
+ *  Note: it is important that the "Exception" attribute be issued
+ *  before the "FullType" attribute in case both are present.
+ */
+    private static void writeMethod(Pool pool, FunObj f) {
+        writeChar(f.modifiers);
+        writeFieldName(pool, f);
+        writeChar(pool.put(typeSig(f.typ, false)));
+        TypSet thrown = ((FunTyp)f.typ).thrown;
+        int nattrs = 0;
+        if (f.code != null) nattrs++;
+        if (thrown != null) nattrs++;
+        if (f.alttyp != null) nattrs++;
+        writeChar(nattrs);
+        if (f.code != null) {
+            writeCode(pool, f.code);
+            f.code = null;
+        }
+        if (thrown != null) {
+            int nexceptions = TypSet.size(thrown);
+            writeAttr(pool, ExceptionsS, 2 + 2 * nexceptions);
+            writeChar(nexceptions);
+            for (int i = 0; i < nexceptions; i++) {
+                writeClassName(pool, thrown.typ.obj);
+                thrown = thrown.next;
+            }
+        }
+        if (f.alttyp != null) {
+            writeAttr(pool, FullTypeS, 2);
+            writeChar(pool.put(typeSig(f.alttyp, true)));
+        }
+    }
+
+/** write class object c to outstream.
+ */
+    public static void writeClass(FileOutputStream outstream,
+                           ClassObj c) throws StoreError {
+        try {
+            out = databuf;
+            op = 0;
+            writeChar(c.modifiers);
+            writeClassName(c.pool, c);
+            if (c.superclass != null)
+                writeClassName(c.pool, c.superclass);
+            else
+                writeChar(0);
+            writeChar(c.interfaces.length);
+            for (int i = 0; i < c.interfaces.length; i++)
+                 writeClassName(c.pool, c.interfaces[i]);
+            int fields_count = 0;
+            int methods_count = 0;
+            ScopeEntry elems = c.scope.elements();
+
+            //element's sequence in ByteCode differs from javac behavior
+            ScopeEntry[] elemsArray = ScopeEntry.toArray(elems);
+
+            for (ScopeEntry e = elems; e != null; e = e.sibling)
+              if (e.obj instanceof VarObj) fields_count++;
+              else methods_count++;
+            writeChar(fields_count);
+
+            for (int i = 0; i < elemsArray.length; i++)
+              if (elemsArray[i].obj instanceof VarObj)
+                writeField(c.pool, (VarObj)elemsArray[i].obj);
+            writeChar(methods_count);
+            for (int i = 0; i < elemsArray.length; i++)
+              if (!(elemsArray[i].obj instanceof VarObj))
+                writeMethod(c.pool, (FunObj)elemsArray[i].obj);
+# 1531 "ec/ecomp/classfile.java"
+
+            if (c.sourcefile != null) {
+                writeChar(1);
+                writeAttr(c.pool, SourceFileS, 2);
+                writeChar(c.pool.put(c.sourcefile));
+            } else
+                writeChar(0);
+            databuf = out;
+            int datasize = op;
+
+            if (c.pool.pp > 0xFFFF) exceeded("constant pool size");
+
+            out = poolbuf;
+            op = 0;
+            writeInt(JAVA_MAGIC);
+            writeChar(JAVA_MINOR_VERSION);
+            writeChar(JAVA_MAJOR_VERSION);
+            writePool(c.pool);
+            c.pool = null;
+            writeBytes(databuf, 0, datasize);
+            poolbuf = out;
+            
+            outstream.write(out, 0, op);
+
+        } catch (StoreError e) {
+            throw e;
+        } catch (IOException e) {
+            throw new StoreError(e.toString());
+        }
+    }
+
+/** open file given by a packagename from root directory `outdir'.
+ *  create intermediate directories if they don't exist already
+ */
+    static File openFull(File outdir, String name) throws IOException {
+        int start = 0;
+        int end = name.indexOf('.');
+        while (end >= start) {
+            outdir = new File(outdir, name.substring(start, end));
+            if (!outdir.exists()) outdir.mkdir();
+            start = end + 1;
+            end = name.indexOf('.', start);
+        }
+        return new File(outdir, name.substring(start) + ".class");
+    }
+
+/** open proper class file to output class c.
+ */
+    public static File openOutput(ClassObj c) throws IOException {
+        if (outDir == null) {
+            String classfileName = c.name + ".class";
+            String sourcedir = Basic.parentName(c.sourcefile.toString());
+            if (sourcedir == null)
+              return new File(classfileName);
+            else
+              return new File(sourcedir, classfileName);
+        } else {
+            return openFull(new File(outDir), c.fullname.toString());
+        }
+    }
+}
+
+

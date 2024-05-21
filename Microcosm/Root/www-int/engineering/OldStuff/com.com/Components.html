@@ -1,0 +1,261 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="Author" CONTENT="F. Randall Farmer">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.05 [en] (WinNT; I) [Netscape]">
+   <TITLE>Complete ComCom Components</TITLE>
+</HEAD>
+<BODY>
+
+<CENTER>
+<H1>
+Complete ComCom Project Components List</H1></CENTER>
+
+<CENTER>Copyright &copy;1998, Electric Communities, All Rights Reserved.
+Proprietary and Confidential. Do not distribute.</CENTER>
+
+
+<P><B><FONT SIZE=+1>NOTE: This list is a complete component list. It includes
+all perceived optional features that have been discussed. A separate document
+outlines how various components can be combined for numerous product <A HREF="../../../D%7C/D%7C/www-int/engineering/OldStuff/com.com/MarketingStratigiesMatrix.html">marketing
+and development strategies</A>. Either off-the-shelf solutions or potential
+partnerships with outside parties may provide many of these components.&nbsp;
+Do not panic. :-)</FONT></B>&nbsp; <B><FONT SIZE=+1>The relative importance
+of each component is indicated in &lt;&lt;double angle braces.>></FONT></B>
+<BR>&nbsp;
+<BR>There is a <A HREF="../../../D%7C/D%7C/www-int/engineering/OldStuff/com.com/ECIDNetworkDiagram.html">diagram</A>
+of how the key components listed here interconnect. <FONT COLOR="#009900">Recent
+changes are in dark green.</FONT>
+<H3>
+<A NAME="ECID client"></A>ECID lightweight client <FONT SIZE=-2>&lt;&lt;required
+for all strategies>></FONT></H3>
+The ECID client software is a lightweight application that is designed
+to be operational at all times. It manages user network information including
+identity generation, capability granting (for contacts lists,) and reputation
+aggregation (through client side certificates and non-EC identity tables.)
+It mediates identity and location information with third party programs,
+including web browsers, and uses EC’s secure communications library for
+peer-to-peer and sever connections. A Java-based prototype for ECID is
+a natural outgrowth of current development plans. See <A HREF="../../../D%7C/D%7C/www-int/engineering/OldStuff/com.com/SampleScreens.html">sample
+screens</A>.
+
+<P>Subsystems:
+<BLOCKQUOTE>&nbsp;EC secure communications layer
+<BR>&nbsp;EC secure identity frameworks
+<BR>&nbsp;Identity certificate manager and service to applications (like
+browsers)
+<BR>&nbsp;Non-EC identity manager (mapping table)
+<BR>&nbsp;Preferences and user interface
+<BR>&nbsp;Capability manager interface
+<BR>&nbsp; By-identity backlinks to capability recipients</BLOCKQUOTE>
+
+<H3>
+<A NAME="Inter-application communications"></A>Inter-application communications
+library <FONT SIZE=-2>&lt;&lt;required for all strategies>></FONT></H3>
+This (small) <FONT COLOR="#009900">DLL and source library</FONT> provide
+an API for applications to communicate with <A HREF="#ECID client">ECID
+clients</A>. This allows applications to benefit from the secure identity
+and communications frameworks without having to include all of Java. This
+interfaces also include communications tools for establishing an application-specific
+location model. It should be made available as C++ and Java class libraries.
+<H3>
+<A NAME="Palace Pager Plug-in"></A><FONT COLOR="#009900">Palace Pager Plug-in
+<FONT SIZE=-2>&lt;&lt;required for all the Phase I incremental release
+strategy>></FONT></FONT></H3>
+<FONT COLOR="#009900">This plug-in enables cross-palace messaging and buddy
+location services. I communicates exclusively with ECID (via the <A HREF="#Inter-application communications">IACL</A>)
+and the Palace Client (via the standard Palace Plug-in Interface). A user
+can request theses capabilities of other target] palace avatars that are
+online with him/her currently. The user can assign their own unique nicknames
+to each target user. Once the target grants these capabilities, the user
+can send text balloons to the target even if they aren't in the same palace
+(example: "@page claire When you coming over?" appears in a word balloon
+on Claire's machine as "ESP from Randy on SouthPark palace in Main Entrance:
+When you coming over?") Likewise Randy could type @whereis claire and would
+eventually see a balloon stating "Claire is on The Mansion in Harry's Bar."</FONT>
+<H3>
+<A NAME="PLS"></A>Process location service (PLS)&nbsp; <FONT SIZE=-2>&lt;&lt;required
+for all strategies>></FONT></H3>
+The process location service provides authenticated information about the
+location of an <A HREF="#ECID client">ECID client</A> on the Internet.
+This leverages EC’s current PLS plans. <STRIKE><FONT COLOR="#009900">ECID
+would add the feature for people to leave capability requests and replies
+on the PLS server, for delivery when the ECID Client next connects. This
+is used for Contact List Requests, etc.</FONT></STRIKE> It'd also be good
+if the <A HREF="#PLS">PLS</A> could provide forwarding service to get around
+firewalls.
+
+<P>Subsystems:
+<BLOCKQUOTE>&nbsp;Securely map Process ID to IP address
+<BR><STRIKE><FONT COLOR="#009900">&nbsp;Hold capability request/replies
+for off-line processes. (“May I be your buddy?”)</FONT></STRIKE>
+<BR><STRIKE><FONT COLOR="#009900">&nbsp;Expiration policy management for
+mapping and holds.</FONT></STRIKE>
+<BR>&nbsp;Packet forwarding service (later.)</BLOCKQUOTE>
+
+<H3>
+<A NAME="Capability Manager"></A><FONT COLOR="#009900">Capability Manager
+[Store and Forward]&nbsp; <FONT SIZE=-2>&lt;&lt;required for all strategies,
+Phase II>></FONT></FONT></H3>
+<FONT COLOR="#009900">This server provides an asynchronous rendezvous point
+for people to leave capability requests and replies for delivery when the
+ECID Client next connects. This is used for Contact List Requests, etc.</FONT>
+<I><FONT COLOR="#009900">[It could also be used to hold other messages
+like mail, URLs, and files subject to policy restrictions.]</FONT></I>
+
+<P><FONT COLOR="#009900">Subsystems:</FONT>
+<BLOCKQUOTE><FONT COLOR="#009900">&nbsp;Hold capability request/replies
+for off-line processes. (“May I be your buddy?”)&nbsp;</FONT>
+<BR><FONT COLOR="#009900">&nbsp;Expiration policy management for mapping
+and holds.</FONT>
+<BR><FONT COLOR="#009900">&nbsp;<I>[Other store and forward messages like
+mail, etc.?]</I></FONT></BLOCKQUOTE>
+
+<H3>
+<A NAME="ECID Server"></A>ECID Server <FONT SIZE=-2>&lt;&lt;required only
+for <A HREF="../../../D%7C/D%7C/www-int/engineering/OldStuff/com.com/MarketingStratigiesMatrix.html">strategies
+1 &amp; 2</A>, which have been all but eliminated/delayed>></FONT></H3>
+Some of the ComCom scenarios mention an ECID Server. This server is only
+required if the <A HREF="#ComCom">ComCom Server</A> doesn’t exist. It tracks/aggregates
+location and session information, which is not distributed to end-users.
+Abstractly, this is a simple logging mechanism.
+<H3>
+<A NAME="ComCom client"></A>ComCom “People &amp; Places” client <FONT SIZE=-2>&lt;&lt;required
+for most strategies>></FONT></H3>
+This is an important evolution of “Buddy List” applications. Besides the
+usual instant messaging, chat, and group management, ComCom adds important
+identity security features (by being closely linked with ECID). It also
+adds new “Favorite Places List” functions: Not only can you see your friends,
+you can see where they are (what web pages, what virtual worlds, etc.)
+Users can also monitor traffic at favorite locations (web pages, worlds,
+rooms) and click-to-connect to those communities.&nbsp; This would be new
+work, all done by EC, but would NOT have the security requirements that
+ECID does, so can be developed using tools other than Java. See <A HREF="../../../D%7C/D%7C/www-int/engineering/OldStuff/com.com/SampleScreens.html">sample
+screens</A>.
+
+<P>Subsystems: (see <A HREF="ComCom/ComComClient.html">ComCom Client Spec</A>)
+<BLOCKQUOTE>&nbsp;Buddies list &amp; management
+<BR>&nbsp;Locations list &amp; management
+<BR>&nbsp;Group list &amp; management
+<BR>&nbsp;Application launching (click-to-join)
+<BR>&nbsp;&nbsp; Application viewer plug-ins <I>[Is this needed?]</I>
+<BR>&nbsp;Instant messaging
+<BR>&nbsp;Peer chat <I>[Use DynaChat?]</I>
+<BR>&nbsp;Web tours</BLOCKQUOTE>
+
+<H3>
+<A NAME="ComCom"></A>ComCom Server <FONT SIZE=-2>&lt;&lt;required for most
+strategies>></FONT></H3>
+The ComCom Server handles <A HREF="#ComCom client">ComCom client</A> connections,
+and tracks status and location information gathered from <A HREF="#ECID client">ECID</A>.
+It then passes this information to ComCom clients that provide the correct
+capabilities. This is all new software.
+
+<P>Subsystems:
+<BLOCKQUOTE>
+ (see <A HREF="ComCom/ComComServer.html">ComCom Server Spec</A>)
+ </BLOCKQUOTE>
+
+<H3>
+<A NAME="Directory"></A>Directory Server <FONT SIZE=-2>&lt;&lt;required
+for all strategies, may be a large part 3rd party>></FONT></H3>
+The directory server is used to lookup ECIDs from text keys like name,
+handle, and keyword. The <A HREF="#ECID client">ECID client</A> can register
+with an arbitrary number of directory servers. Secure connections are used
+for entry creation and editing.&nbsp; The directory servers should be built
+out of standard components, such as LDAP servers. The connection protocol
+should be standardized so that third party directory servers can be consulted
+by the <A HREF="#ComCom client">ComCom client</A>.
+
+<P>Subsystems:
+<BLOCKQUOTE>&nbsp;Maps arbitrary search criteria to identity information
+<BR>&nbsp;Identity information may be format agnostic (the requester will
+know what to do with it)
+<BR>&nbsp;Add/Edit/Remove entry requires authenticated connection.
+<BR>&nbsp;Expiration policy</BLOCKQUOTE>
+The <A HREF="../../../D%7C/D%7C/www-int/engineering/OldStuff/com.com/directories/directory.html">ComCom
+Directory Design Document</A> describes LDAP directories and how they will
+be used with ComCom and ECID.
+<H3>
+<A NAME="Group Server"></A>Group Proxy Server <FONT SIZE=-2>&lt;&lt;optional,
+may be delayed>></FONT></H3>
+The group proxy server is a proposed scaling solution for point-to-group
+messaging. Peer messaging is severely constrained by the number of open
+connections and the speed of modems. The Group Proxy server acts as a communications
+concentrator, acting as a set of hierarchical “hosts” for large group communication
+(conferencing and auditorium/broadcast) functions. Though this is new software,
+it isn’t a FCS requirement.
+
+<P>Subsystems:
+<BLOCKQUOTE>&nbsp;Provides a multicast rendezvous point for large group
+messaging
+<BR>&nbsp;Can registers with <A HREF="#PLS">PLS</A> as the individual members
+<BR>&nbsp;Provides moderation options (back channels and speaker control.)</BLOCKQUOTE>
+
+<H3>
+<A NAME="DynaChat Client"></A>DynaChat client/plugin <FONT SIZE=-2>&lt;&lt;optional,
+may be delayed, may be 3rd party, may prototype with palace>></FONT></H3>
+The DynaChat client looks like a traditional chat client. Unlike most,
+it should also be able act as a small scale chat server as well (like buddy
+list chat.) What makes it special is that the conversations can be dynamically
+tied to a Location (such as a Web page.) EC owns The Palace, which can
+be used as the DynaChat client. Third party suppliers should also be considered.
+
+<P>Subsystems:
+<BLOCKQUOTE>&nbsp;Linked to web browser location
+<BR>&nbsp;Local ID may be (optionally/required to be) tied to ECID</BLOCKQUOTE>
+
+<H3>
+<A NAME="DynaChat Server"></A>DynaChat Server <FONT SIZE=-2>&lt;&lt;optional,
+may be delayed, may be 3rd party, may prototype with palace>></FONT></H3>
+The DynaChat server is a standard chat server. It uses ECIDs, creates rooms
+on accepts demand, and provides tracking data to the <A HREF="#ComCom">ComCom
+server</A> and corporate customers. It also provides for a full set of
+moderation tools. It is expected that this server will be licensed from
+a third party. The Palace servers could be used to prototype this functionality.
+EC will also investigate contracting operations of DynaChat servers.
+<H3>
+<A NAME="MetaThread Client"></A>MetaThread client/plugin <FONT SIZE=-2>&lt;&lt;optional,
+may be delayed, may be 3rd party>></FONT></H3>
+The MetaThread client is a BBS client. What makes it special is that the
+discussion threads are all location based (such as related to a web page.)
+The identities of posters are ECIDs. This client should be provided by
+a third party. Serious consideration should be given to using Net News
+readers, esp. the ones built into browsers already.
+
+<P>Subsystems:
+<BLOCKQUOTE>&nbsp;Browsing/Marking/Reading/Posting interface.
+<BR>&nbsp;Local ID may be (optionally/required to be) tied to ECID</BLOCKQUOTE>
+
+<H3>
+<A NAME="MetaThread Server"></A>MetaThread server <FONT SIZE=-2>&lt;&lt;optional,
+may be delayed, may be 3rd party>></FONT></H3>
+The MetaThread server is a BBS server. It accepts ECIDs for posting messages,
+thereby allowing for identity reputation to evolve. Most of this server
+should be provided by a third party. Serious considerations should be given
+to Net News protocols/software, as it is compatible with many readers.
+As with the <A HREF="#DynaChat Server">DynaChat server</A>, EC will investigate
+contracting third parties for full scale operations.
+<H3>
+<A NAME="Certificate Service"></A>Certificate Service (for use with Client
+Side Certificates) <FONT SIZE=-2>&lt;&lt;optional, will be delayed, 3rd
+party>></FONT></H3>
+This third party component provides the full certification infrastructure
+including the minting, renewal and verification of certificates. The <A HREF="#ECID client">ECID
+client</A> will accept and manage certificates created by this system.
+[ See the VeriSign home page for more details on <A HREF="http://www.verisign.com/client/about/index.html">Client
+Side Certificates</A>. ]
+<H3>
+<A NAME="Advertising Server"></A>Advertising Server <FONT SIZE=-2>&lt;&lt;optional,
+will be delayed, 3rd party>></FONT></H3>
+The advertising server provides standard (web page compatible) format advertisements.
+This server uses 100% standard protocols, so many third party providers
+are available. Unlike standard web browsers, the <A HREF="#ECID client">ECID
+client</A> can provide session data to the advert server (not just eyeballs,
+by exposure time,) so the preferred partner would be able to accept this
+information.
+<BR>
+<HR WIDTH="100%">
+<BR>This page is maintained by <A HREF="mailto:randy@communities.com">Randy</A>.
+</BODY>
+</HTML>

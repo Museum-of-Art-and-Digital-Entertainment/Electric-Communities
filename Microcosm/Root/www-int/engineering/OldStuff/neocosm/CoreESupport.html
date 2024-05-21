@@ -1,0 +1,142 @@
+<HTML>
+
+<HEAD>
+
+<TITLE>Design Document Template</TITLE>
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="GENERATOR" CONTENT="Internet Assistant for Microsoft Word 2.0z">
+</HEAD>
+
+<BODY>
+
+<H1>Core E Language Support </H1>
+
+<P>
+<B>Last updated:</B> [98/05/15 Chip]
+<P>
+<I>This page was written by <A HREF="mailto/chip@communities.com"><I>Chip,</I></A>
+loosely based on <A HREF="mailto/arturo@communities.com"><I>Arturo's</I></A>
+excellent <A HREF="http://www-int.communities.com/engineering/OldStuff/neocosm/SubsystemDocTemplate.html"><I>template.</I></A>
+<BR>
+</I>
+<H2>Introduction </H2>
+
+<P>
+We created a set of classes to provide primitive data types and
+other basic building block components for E. These are distinct
+from the runtime classes (such as channels) which are necessary
+for E to work at all. Rather, these were to be the basic data
+objects for optimistic computation.
+<P>
+Note that due to the sorry state of this collection, I am deviating
+from the established format for the Cosm Subsystem Survey as it
+is makes little sense for this case.<BR>
+
+<H2>Requirements </H2>
+
+<P>
+The requirement which these classes were to meet was simply to
+provide a set of optimistic analogs to the standard set of Java
+scalar classes (<B>Integer</B>, <B>Long</B>, <B>String</B>, <B>Double</B>,
+etc). The idea was that each such Java class should map to a corresponding
+eclass with the same functionality as the Java class' associated
+primitive type, but with the operations provided via an optimistic
+interface.
+<P>
+At the same time, we also felt a need for optimistic support for
+other Java language features, and these were grouped with the
+core eclasses for convenience.<BR>
+
+<H2>What we've got</H2>
+
+<P>
+The design of the basic set of core E language eclasses is quite
+simple. For each of the Java scalar wrapper classes (<B>Integer</B>
+et al), we create a corresponding eclass with the same name but
+with the letter &quot;E&quot; prepended to the name. For example,
+the Java class <B>Integer</B> corresponds to the eclass <B>EInteger</B>.
+The eclass has a constructor which accepts a parameter of the
+scalar type it wraps and a <B>value()</B> method which returns
+this wrapped scalar value. Thus <B>EInteger</B> holds, and its
+value() method returns, an <B>int</B>. Finally, each of the primitive
+operations supported by the wrapped scalar class has an associated
+emethod which performs the same operation optimistically using
+E messaging. For example, the Java integer &quot;+&quot; operation
+maps to the <B>EInteger</B> add operation:
+<PRE>
+<FONT SIZE=2>    /** Add two EIntegers, resulting in a new EInteger */
+    emethod add(EInteger operand, EResult result) {
+        ewhen operand (int operandValue) {
+            result &lt;- forward(new EInteger(myValue + operandValue));
+        }
+    }
+</FONT>
+</PRE>
+
+<P>
+Note that the operands to the arithmetic operation are both <B>EIntegers</B>
+(the first operand is the recipient of the message, the second
+is the first argument) and the channel for the result is explicitly
+passed as an argument.
+<P>
+The current collection of support eclasses includes <B>EBoolean</B>,
+<B>EDouble</B>, <B>EFloat</B>, <B>EInteger</B>, <B>ELong</B> and
+<B>EString</B> (for reasons lost to history we never did an <B>ECharacter</B>
+or <B>EShort</B>). Of these, only <B>EBoolean</B>, <B>EInteger</B>
+and <B>EString</B> are ever actually used (<B>ELong</B> is imported
+in a few places but not used; this should be cleaned up). In addition,
+despite of the extensive protocols which these objecs offer, the
+only way they are ever used is as optimistic value holders (i.e.,
+the only methods that ever get invoked are the constructor and
+<B>value()</B>). Given the inherent overhead in the E runtime,
+the ability to do, for example, arithmetic in an optimistic manner
+has proven to be of academic interest only.
+<P>
+The set of core E support classes also includes some other miscellany:
+<P>
+The eclass <B>EPrintStream</B> wraps a Java <B>PrintStream</B>
+object and handles the case of being asked to print an <B>EObject</B>
+by doing an ewhen to wait for its value. Due to the asynchrony
+of ewhen, this is of dubious value and is not used anywhere in
+the current code base.
+<P>
+Similarly, an eclass <B>ETrace</B> provides an asynchronous wrapping
+of the <B>RtTrace</B> protocol, and is unused, being basically
+useless.
+<P>
+The class <B>EServices</B> provides a Vat-safe access to the <B>System</B>
+class. Currently the only <B>System</B> class operation which
+it supports is the static <B>arraycopy()</B> method - the one
+service <B>System</B> provides which any object legitimately ought
+to be able to use. This was implemented to allow us to remove
+the <B>System</B> class from &quot;safe Java&quot;, but in practice
+turns out not to be used anywhere.
+<P>
+The eclass <B>EObjectFuture</B> holds onto an <B>EObject</B>,
+while the class <B>jObjectFuture</B> holds onto an ordinary Java
+object. Both of these classes provide a <B>value()</B> method
+such that they may be used as the target of an ewhen operation.
+In contrast to much of the rest of this package, these two classes
+actually are used somewhat (in ingredient code).
+<P>
+All of these classes and eclasses are in the package <B>ec.e.lang</B>,
+with the exception of <B>EBoolean</B> which is in <B>ec.e.run</B>
+because it is used extensively by the E runtime itself and so
+needs to be in the same package with the runtime in order to avoid
+circular build dependencies.<BR>
+
+<H2>What to do </H2>
+
+<P>
+In spite of the effort invested in these classes, as a practical
+matter the only use we get out of any of them is as futures. However,
+new E eliminates the need for specialized classes to do this.
+I propose that as part of the conversion to New E we get rid of
+the whole <B>ec.e.lang</B> package. We would need to replace the
+60 or so current uses of <B>EBoolean</B>, <B>EInteger</B>, <B>EString</B>,
+<B>EObjectFuture</B> and <B>jObjectFuture</B> with the appropriate
+corresponding New E idioms.
+</BODY>
+
+</HTML>

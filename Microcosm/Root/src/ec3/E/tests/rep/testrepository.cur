@@ -1,0 +1,4 @@
+erase
+cradd "Animals.java"	"animals"
+cradd "dhtest.java"	"dhtest"
+ll

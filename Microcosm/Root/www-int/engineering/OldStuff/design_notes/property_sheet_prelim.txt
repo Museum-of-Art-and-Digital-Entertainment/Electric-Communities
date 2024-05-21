@@ -1,0 +1,935 @@
+PropertySheet Preliminary Investigation - Wayne Smith
+
+Introduction
+
+        This exploratory design note covers design and implementation issues
+        for the PropertySheet. The sections derive from analysis
+        of the GUI spec and hopefully cover all significant issues.
+        This is a background document, however, and although it
+        suggests some possible solutions, it doesn't provide definitive
+        specifications, which task is left to a following document.
+
+The property ingredient: introduction
+
+        "Property" is being used in this design note to refer
+        to a modifiable property that might appear in
+        a Microcosm PropertySheet [ So it's a "PropertySheetProperty"
+        so we might want to refer to it as a "PSProperty" to avoid
+        confusion with a Java Property].
+
+        Any unum instance with at least one property will need to manage
+        one or more Property Sheet GUIs and one or more modifiable state 
+        variables (located in one or more ingredients of the unum) 
+        which are represented  as properties in the PropertySheet.
+        A dedicated ingredient, e.g. a property ingredient, can
+        manage property issues for the unum (and seems the clear way
+        to do so).      
+
+UI interface
+
+        The PropertySheet has 2 sections:
+
+                a) a "header' containing the name, owner, and icon
+                   of the object being modified or inspected.
+
+                b) one or more lists of property entries, where
+                each entry requires at least:
+
+                        1) a name
+                        2) one or more modifiable values of a
+                           type specific to the entry
+
+                  Some entries are groupings and contain subentries 
+                  (e.g. Position) each of which has a name and a
+                 modifiable value.
+
+        Once a PropertySheet GUI has been created, only values
+        of properties will change (due to either user or system
+        update). All other information is fixed at GUI creation
+        time.
+
+        The PropertySheet GUI for a given object should be
+        dynamically createable from initialization information
+        from the object. Following the above needs of the GUI,
+        at initialization the GUI needs:
+
+        a) the name, owner, and icon (string) of the object
+        b) one or more vectors of property entries, where
+        each entry (e.g. a PSProperty object)  needs at least:
+
+                1) a type to characterize it
+                2) the current value of the state variable
+                it represents        
+        
+        Note that if the characterizing type is an enumerated type
+        known to both the object and the GUI, it may not be
+        necessary (except perhaps for debugging) to carry
+        more in the entry. The GUI may want to use its own
+        names (since that is a presentational matter) rather
+        than any designated by the object (although a name
+        designated in the PSProperty object may be useful for
+        debugging). 
+
+        It would be possible to extract such information (a name,
+        type, and value) using the Reflection API in the GUI,
+        but to be fine-grained (single property updating) that
+        would mean a class per property. The GUI would have
+        to do a bunch of extraction work and would probably
+        want to get a list just like the PSProperty object Vector
+        would be (that it would get from the first approach).
+
+        The type of the modifiable value may be common to multiple
+        property instances (whereas an enumerated type that included
+        the name would be unique). It would seem easier for maintenance
+        if the PSProperty object specified as much information as
+        possible so that the GUI could get it from there and not
+        have to keep a separate overlapping description of each
+        property. 
+
+        Note there is additional information in the form, for example,
+        of units ("meters", "degrees") that would have to be kept
+        somewhere for certain properties. Is there any reason not
+        to keep this in the PSProperty object?
+
+        The way in which the value will be modified seems type 
+        specific [ or could it vary between properties with
+        values of the same type].
+
+        Until we have a complete list of properties, it may
+        not be clear all the info a PSProperty need carry
+        and whether auxillary information per type or per property
+        should be kept by the GUI [ i.e. would this create a
+        maintenance or can we enumerated property types in
+        such a way as to separate object and GUI information
+        of interest effectively]. 
+
+        * Clarify this using some examples *
+
+        After initialization, the GUI will be sending the object
+        update information. The "live" propertysheet specification
+        suggests that one property update would be included in
+        a message [but we can design to accept a vector
+        of such updates]. 
+
+        After initialization, the GUI may receive property updates
+        from the object. These updates will be in the same 
+        form as the updates sent GUI to object (e.g. a vector
+        of PSProperty objects).
+
+setup (creating GUI)
+
+        Covered in previous section.
+
+
+PropertySheet.java
+                
+        property representation (to GUI, in world)
+        
+        * Note above, need to clarify what GUI needs. Also PSProperty
+        object must contain info about its source so when the
+        Property ingredient receives the update from the GUI
+        it can route it to the proper ingredient.
+
+Kind: appearance/behavior
+
+        If there are sufficient properties and based on GUI appearance,
+        PSProperties may be of kind "appearance" or "behavior" [in this
+        release, later there will be an "owner" kind]. Each PSProperty
+        object can easily be created with that information (so when
+        get list of properties to support, distinguish kind).
+
+        Note: assume there will be no ownership properties in 1.0, i.e
+        these were to be "recall object" and "transfer ownership".
+        The former probably needs titled ownership support. The
+        latter probably isn't needed, since if host=owner then
+        only the host has the capability to transfer ownership,
+        is that right, or can the host give that capabiltity away.
+        Find out from Ellen just what "transfer ownership" property
+        means.
+
+Types and edit alternatives (more than one for any type?)
+
+        Alluded to above, * need to determine if edit/presentation
+        characteristics vary with property variable type. [Use
+        of an enumerated type would resolve this. Note the
+        object really doesn't care, just the GUI, since the
+        value will be the same no matter how edited in the GUI.]
+
+Presentation of a set of values (e.g. for sound, animation...)
+
+        Here again, this seems like a GUI concern, excepting
+        that the object probably will want (for security reasons)
+        to validate the value, i.e. it doesn't care about the
+        full range of values that may be presented to the user
+        but does care that any chosen value is within the
+        valid range.
+
+        The examples suggest that the GUI and object will need
+        an interface to the catalog and/or repository to access
+        the set of values. *
+
+Info from GUI to unum (protocols)
+
+        Seems just an emethod "updatePSProperties" that passes
+        a Vector of PSProperties (perhaps also one that just
+        passes a single PSProperty, this would be the one
+        used in the current "live" update model).
+
+        * Check TradingMachine interface. Do we want a general 
+        message, as with TradingMachine,
+        in the event other changes (e.g. cancel) need to be 
+        reported. Seems so. 
+
+        Note an einterface like the TradingMachine unum had is needed.
+
+        * Note that the GUI may need to know type info that is not defined
+        until cosm/objects builds, so the GUI may need to be built
+       after cosm/objects.
+
+        * so there's some work here to clarify all the messages
+        the GUI may send. Look at the TradingMachine TradeMessage class.
+
+Subsequent info from unum to GUI (modify mode not inspect mode) 
+                (protocols)
+
+        * Here again, look at the TradingMachine. It would
+        seem an update message is the basic one, but there
+        may need to be others, so a general message class
+        like TradeMessage is probably useful.
+
+Property sheet reuse
+
+        * Ask John about this, I think if we don't want to leave
+        a PropertySheet GUI up, we knock it down and bring up
+        a new one rather than reuse it as such. After all
+        it's connected to an object and so it someone selects
+        another object, what's gained by trying to pass it (and
+        how would that be done). Also means the GUI has
+        to reinit itself. 
+
+Cancellation
+
+        Note that for trading, a new unum was created. In this
+        case an ingredient of the object (so already existing)
+        manages one or more GUIs. After a GUI has been cancelled
+        the object's property ingredient may have no active GUIs
+        (i.e. no modifys in progress) but later new ones may
+        become active. So on cancellation the ingredient needs
+        to forget about the cancelling GUI and if there are
+        no GUIs left for it, it may want to let the ingredients
+        with properties it is working with in that object know
+        so that they needn't report updates of any relevant state
+        (i.e. state associated with a property sheet property).
+        There may be some races leading to an ingredient reporting
+        a change when there are no longer active PropertySheet GUIs,
+        in which case the property ingredient should ignore the
+        information.
+
+Determining all properties (types for GUI) to appear on property sheet 
+
+        * There should be some action on this soon, e.g. input
+        (including probably meeting) with Ellen, Charles, John,
+        Randy)...this should become part of the UI spec...and
+        maybe some policy as we add unum as to what would
+        be a property.
+ 
+Property ingredient and its role with modifiable ingredients of a modifiable
+unum
+
+        Assume for now that all modifiable ingredients of the unum are
+        available to the property sheet [but consider filtering, see
+        below]. Assume each ingredient specifies which properties
+        it has [filtering also possible at this level], so let's
+        assume the property creation is local to the ingredient
+        [ po: prevent modify until unum init is complete ] 
+
+  Protocols between modifiable ingredients and modify ingredient
+        (publish, collect, update..., cancel)
+
+        Assume a modifiable ingredient (i.e. one with one or more
+        properties) publishes at startup to the property ingredient
+        simply that it is publishable. 
+
+        Assume the property ingredient when it gets a request
+        for modify/insepct will go to each pubished ingredient
+        and request its properties (synchronously, e.g. use
+        a synchronous callback, cf within avatar such registering
+        with a Java method callback.
+
+        Assume that the property ingredient will send all the
+        properties it gets to the GUI and receive back updates
+        for which the source ingredient is indicated (po: filler
+        facet for each property to prevent tampering? What's
+        the point...anyway, here's where an id/name is needed,
+        so this update is applied to the proper property/state 
+        in the source ingredient. 
+
+        So the modifiable ingredient must supply an update (synchronous
+        also) so that the update can be applied. Now at this point
+        the property ingredient would have:
+                1) list of all modifiable ingredients
+                2) list of all properties (with assoicated ingredient
+                        marked)
+                3) for now assume one GUI but that could be a list
+                too (see below).
+        When it gets the out-of-world (GUI) update it may do
+        some simple validation (i.e. proper ingredient specification)
+        and then pass it via an updateProperties or updateProperty
+        method to the source ingredient, which would validate
+        it as needed and then apply it if okay. If it isn't
+        okay, the property ingredient needs to be informed
+        (errno or error string) [If multiple updates are
+        allowed from the GUI, may have problem here if multiple
+        errors, but that's well localized (with little impact to 
+        implementation) and can be addressed when needed]. If the
+        update is okay, applying it means updating the state variable
+        the property is associated with (which could be a property
+        object if it made sense to implement it that way, see
+        below for why that may be useful) AND perhaps taking
+        some action base on the state variable change [e.g. the
+        object moves because a position coordinate changed].
+
+        Upon a successful update, the source ingredient should
+        send the new value to the property ingredient which
+        should make the change in its associated property object
+        and inform the GUI that the change was okay (and if multiple
+        GUI, see below, update others) [so
+        the collect operation is something that only needs to be
+        done when a GUI is created...this assumes that a property
+        wouldn't be unpublished and that the property sheets and
+        property ingredient wont get out of sync, i.e. a new
+        collect for a new GUI won't contain anything the
+        existing GUI's and property ingredient aren't aware of.
+        The property ingredient could of course check but 
+        actually it needn't even do a collect again because
+        if there's at least one active GUI and its getting
+        updates from the ingredients (based on the updates
+        it carries to them or its own from other events, e.g.
+        in-world) then the collect wouldn't give anything new,
+        the property ingredient can init the new GUI based
+        on the local info it has. Note on the successful
+        update when the source ingredient sends back an update
+        to the property ingredient (for success case) it
+        would send the GUI an okay message which may as
+        well be the property object as validated by the
+        source ingredient (then GUI can optimistically apply
+        but also get full confirmation of value, needn't
+        really track that update from property ingredient
+        was associated with one of its update messages,
+        just can take it and apply as is.
+
+  Handling concurrency, ordering      
+
+        Similar issues arise as did in the Trading Machine and
+        can be handled in the same way (assuming partially ordered
+        E isn't available soon or doesn't address our needs):
+
+        1) Each GUI will insure that the messages it sends are
+        ordered.
+
+        2) The PropertySheet ingredient will serialize inputs,
+        which may come from multiple GUIs (or from in-world
+        events, e.g. updates from the modifiable ingredients.
+        That suggests that the modifiable ingredient updates
+        be asynchronous (emethod). *
+
+        3) The Property ingredient will be ready whenever
+        it creates a GUI but may need to block on modify/inspect
+        requests from the object until initialized [see what
+        the PropertySheet init is like, note that all the
+        modifiable ingredients must publish, how to
+        be sure they have all published? That's a small
+        window and probably needn't be resolved immediately.
+
+        4) Unlike the TradingMachine, new requests (for GUI)
+        could arrive at any time, so these need to be
+        serialized/blocked so that the property ingredient
+        isn't confused...this is like the multiple in and
+        out of world input sources that the TradingMachine
+        had, can be handled in same way, seems no special
+        need for priority within the queue (juts FIFO).
+
+        So there are critical regions but there do not yet
+        appear to be different states (there's the PPM mode
+        which probably will function simply as a permission
+        to make updates via a PPM inputter, so not really a
+        state as such requring a machine).
+
+Consistency 
+        
+        What if when x submits change, last value it had was no longer
+         current), does that matter?). Doesn't seem to, seems what
+        matters is the new value submitter wanted (why would one
+        updater care about a change of another updater, the
+        relevant info from any change to another updater might be 
+        the change value and the fact that another updater changed it.
+        But can't see offhand why that would matter, so a policy
+        of applying an valid update (i.e. valid value) seems 
+        fine. If not, the old value would have to be carried,
+        either trusting the GUI to return both or keeping a copy
+        of the property values for each GUI as well as the master
+        value (i.e. the one the modifiable ingredients report).
+
+Menu interface (modify capability, modify/inspect)
+
+        A modifiable object's pie menu must indicate either modify
+        or inspect (for all presences, need to spend more
+        analysis on the client presence case below) depending
+        on whether the user to whom the menu is presented
+        has modify capability. Determining modify capability
+        will always require determining the owner (host) of
+        the object (if the user is that owner the menu entry
+        is "modify" otherwise check the owning avatar's 
+        "can be edited by" entry (Ellen thinks this will
+        go in the inventory of this avatar, at this object's
+        entry...Charles thinks it could still be put into
+        the property sheet but restricted so that only
+        the owner can edit that one property...because if
+        it was given to a group any one of them could remove
+        the capability from the others. if it goes in the
+        property sheet it would be a special case of
+        being modifiable only by owner. Would owner
+        want any inspecting user or any with modify 
+        to see who all those with modify capability are? Seems
+        if only owner should edit it shouldn't be seen except
+        by owner...so maybe it only goes into property sheet
+        and is visible and modifiable to owner, not even
+        presented to any other. However, since it is a meta-data,
+        i.e. about the PropertySheet itself, does it belong
+        there. Consider update issues when multiple GUIs
+        are up, being a special case it seems to require
+        special handling in a bunch of places (e.g. validate
+        also in modifiable ingredient that contains this,
+        which would be what? I've been assuming that
+        the property ingredient contribute no properties,
+        but offhand can't see why it couldn't
+
+        [N.B. the property ingredient must track which
+        GUIs are modifies and which are inspect only. It
+        should never accept an update from an inspect GUI]
+
+Is it host? (determining "ownership" host)
+
+        I'm assuming this is simple, i.e. for any object,
+        where is it hosted (i.e. go to its host presence if
+        that info isn't local, find out what that host presence's
+        (host) region's host avatar is (and from that identity
+        the user is determined).
+
+Is it in hand?
+
+        If a modifiable object is in the hand of an avatar, then in the
+        agency hosted by that avatar the object's piemenu should
+        offer "inspect" not "modify" (because it seems too much trouble
+        managing the change in inhandness when changing position
+        property info. It will therefore be possible to move
+        an object so that it appears to be in hand but the system
+        doesn't regard it as so. This is something we can re-visit
+        later on. If we allow modification of an in-hand object,
+        how would it be clear if the position was slightly changed
+        if it was still in hand or not and if not, how to indicate
+        that to the user. Similar if the user modified an out-of-hand
+        object, we'd need some functionality to determine if a
+        new position qualified as in hand, we'd have to internally
+        put it in hand (whoa, what if there was something already
+        in hand...* so how do we handle it if someone puts something
+        directly on/over something else, probably just do it but
+        in the in-hand case it's confusing if the item seems to
+        be the one in hand but the one underneath really is...
+        of course when the avatar moved it could become clear (surprise).
+
+        So we'll have in the case above to compare the inhand object
+        when constructing object menu and always give it "inspect"
+        if it is the in hand one (of the avatar who hosts that agency).  
+
+        Note: this restriction was suggested by the impact of a
+        change in position. Once all the properties are known,
+        each should be assessed to determine whether any other
+        condition in the world would make an object problematic
+        if modified (warranting another restriction perhaps)
+
+Modifiable ingredient responsibilities
+
+        Here's what each ingredient with modifiable properties needs to
+        do
+
+        0) (state the implied protocols clearly soon)
+
+        1) property "creation"/specification
+
+        I'm assuming that each modifiable ingredient specify it's
+        properties. That could be by wrapping the associated
+        state so that all updates to that state come in via
+        the wrapper (which would be a useful way to control     
+        passing update info to the properties ingredient
+        when a modify session is in progress). Or it could
+        be by creating a PSProperty object for each state
+        variable, insuring that updates get back to the
+        state variable, and that updates to state variables
+        get back to the properties ingredient. The former
+        is attractive because it avoids having to remember
+        to update the properties ingredient whenever a
+        modifiable property's state variable changes. But
+        in cases of updating a subfield of a modifiable 
+        object, it may not be convenient to go thru the
+        wrapper to do the update. So may still need some
+        explicit calls to get the update propogated to
+        the properties ingredient. The alternative of
+        not using a wrapper seems like it will become
+        error-prone through maintenance even if the former
+        approach may mean changing a lot of code to use
+        the wrapped version [See once property list
+        is clearer how some code for some properties would be effected.]
+
+        2) validation
+        
+        upon receiving an update message from the property ingredient,
+        verify that the update PCProperty argument has a valid 
+        value. This may be a no-op if the full range of values
+        for this type is acceptable. Error if it isn't.
+
+        3) update (and in world effect)
+
+        if the PCProperty argument of an update message is valid,
+        change the associated state variable and take any
+        action to update Microcosm based on the new value.
+
+        Note that an update message from the property ingredient
+        may be assumed to have multiple PCProperty objects,
+        in which case each can be validated and updated (seems
+        no reason to prefer validate all then update all to
+        validate and update each in turn, but probably easier
+        to do the latter. This assumes that that each property
+        can update in isolation, if not may need to validate
+        all associated properties before updating. 
+
+        Note that there may not be a reason to prefer updating
+        the variable first to acting on the new value first. Assume
+        until learn otherwise that updating first is the convention,
+        but seems no reason why one ingredient may not do otherwise.
+        One odd case would be if the successful Microcosm action
+        on the new value were somehow needed to validate the value.
+        If so, the ingredient with this need could handle it
+        as needed. 
+
+        4) response to property ingredient (errno /errmsg, updated value). 
+        
+        The modifiable ingredient may receive one of the following
+        messages from the property ingredient:
+
+        a) collect, which should never fail, just return whatever
+        properties it has. If it published itself to the property
+        ingredient, presumably it will have at least one.
+
+        Collect may as well be synchronous.
+        
+        b) update, for which a errmsg/errno may be given else
+        an errno of 0 (e.g. errmsg=null). [I'd prefer to use
+        errno's even if it means more updating of PropertySheet.java,
+        the GUI will probably find it easier if it needs to
+        do more than slap up the string to know the kind of
+        error that occurred (and if it needed to know the string
+        would have to be known, i.e. in PropertySheet.java, so
+        the errno seems easier and gives GUI flexibility in presenting
+        a message.
+
+        c) done, for which no response is expected, this message
+        enabling the ingredient to know that there's no active PropertySheet
+        GUI for this object. Well, this is an optimization, it
+        would imply that when a new GUI was needed, that another
+        collect would be done (fresh) although just the values
+        would have changed (assuming properties remain published
+        throughout the object life. But with Microcosm up "forever",
+        is it desirable to make such an assumption. Why would a
+        property become unpublished?). We can adjust for the
+        removal or new arrival or a property when the need arises,
+        seems can ignore that for now.
+ 
+
+        Note that having the ingredient manage property information
+        means that even non-init state (i.e. state that doesn't
+        appear in the state bundle) could be a property. [It has
+        been the custom for some ingredients to have state that
+        is not set via the realm text/ingredient factory mechanism
+        and this often is not included in the state bundle. The
+        approach presented is agnostic as to where the state
+        came from and so can allow any such state variable to be
+        a property].
+
+Use case flow: simple case
+
+        [ Later, perhaps, construct a diagram to match this use case ]
+
+        1. Assume a single agency Microcosm
+
+        2. By restriction of the case, only one property sheet will
+           be active for the unum being modified.
+
+        3. Assume  an unum of type U1 and instance (i.e. object) 
+        Obj1 with 2 modifiable ingredients named
+        M1 and M2 and 1 property ingredient named P1.
+         Assume M1 contains 2 properties V1 and V2,
+        M2 contains one property V3. The state associated with
+        the properties is "int v1 = 4;", "long v2 = 8;", "boolean v3 = true;". 
+         
+        4. During system initialization, when Obj1 initializes it
+        initializes P1 before M1 and M2. During
+        init, M1 and M2 register with P1 so that P1 nows who its
+        modifiable ingredients are (the "callback being the ingredient
+        which must implement a ModifiableIngredient interface
+        for subsequent calls from P1).
+  
+        5. In order to avoid PPM mode for this case, assume
+        the user has gone into his avatar's inventory and
+        for the object Obj1 selected "Modify". 
+
+        6. A modify request is sent to the object Obj1 (presumably
+        via a "modify" behavior mechanism).
+        
+        7. The modify request is send to Obj1's  host presence where it
+        is routed by Obj1's unum router to the properties ingredient.
+
+        8. The properties ingredient is in an inactive state so makes
+        a collect call (synchronous)  to each of the ingredients that 
+        have registered with it. Assume the collect call has
+        a Vector argument (which is empty at the beginning of the call)
+        to which it expects properties will be added. 
+
+        9. M1 is called first and adds Properties objects representing
+        V1 and V2. Lets suppose each Property object supplies everything
+        the GUI needs, so at least
+
+                V1 = { name="v1", type=int, value=4, kind=appearance, source = 0 }
+                V2 = { name ="v2", type=long, value=8, kind=behavior, source = 0 }
+
+        We'll defer the exact form for the type and value. The type
+        could be a class and the value an object, for example, e.g.
+        for v1 type=int.class, value=new Integer(4). Or it may
+        prove to be a useful optimization (helpful perhaps
+        cross-agency, expensive within) to specify the type
+        via a string naming a class, for use by Class.forName.
+
+        The source field identifies to P1 where the property came from.
+        [ Assume for now the GUI can be trusted not to change this.
+        Since this is a one agency case this will be true]
+
+        Then M2 supplies
+
+                V3 = { name="v3", type=boolean, value=true, kind=behavior. source = 1}
+
+        After calling M1 and M2, P1 can construct a vector V1 representing
+        all the properties of Obj1. 
+
+        10. Obj1 gets a PropertySheetGUI instance and inits via
+
+                init(name=Obj1, owner="You", icon="Obj1IconString,
+                        Properties=V1)
+
+        where the name, owner, and icon are all determinable for
+        any unum instance. 
+
+        11. The GUI is dynamically constructed based on the
+        init arguments. We'll assume that the editing characteristic
+        of each field are directly determinable from the field type.
+
+        12. The user changes the property "v2"'s value from 8 to 12.
+
+        13. The GUI sends an update emethod call to P1. Assume its argument
+        is a Vector V2 containing a Property object for "v2" with
+        the desired change
+
+              V2 = { name ="v2", type=long, value=12, kind=behavior, source=0 }
+
+        [We're assuming there is no need to report the previous value,
+        i.e. that consistency checking is not relevant].
+
+        14. P1 processes the update from the GUI. It may do some simple
+        validation checking (i.e. it verifies that source field matches
+        a known source, checks that V2 is non-empty (and perhaps that
+        it contains only Property objects), determines that M1 is source 0,
+        calls M1 (synchronously) with an update(V2) call. 
+
+        15. M1's update method extracts the Property object from V2.
+        It determines it matches a property it has ("v2") and that
+        the new value is a valid one for v2. It 
+        applies the update (to get "long v2=12" as the new state).
+        It takes whatever action is a consequence of the state change
+        [ This is problematic with respect to P1 having made a
+        synchronous call...so assume P1 calls asynchronously. Then P1
+        may not need to wait/ewhen, perhaps it can take the reply from
+        M1 as just another new input].
+
+successful branch:
+
+        16. M1 replies to P1 for a successful update by sending P1
+        an update(V2) message. 
+
+        17. P1 processes the update msg. In its vector of
+        all Properties, it changes "v2"'s value to the new one.
+        It then makes an update(V2.clone()) call to the GUI
+        
+        18. The GUI may update (or ignore) the message.
+        If it is going to ignore, it will be necessary to
+        carry additional info (e.g. a message_number/id)
+        through the sequence so that the GUI can know this
+        is a message it already acted optimistically on.
+
+failure branch:
+
+        19. The value 12 is invalid for v2, so M1 doesn't
+        apply the update, but insteads  sets an errno
+        (we'll assume each update message included this)
+        and replies to P1 giving the errno and (or with) 
+        the  rejected property object and the correct property
+        object (current valid value).[This suggests one
+        property value with the old and new value would
+        be useful)]
+
+        20. P1 does not update it's copy of v2 because
+        the errno indicates there was an error. It
+        sends it to the GUI (via an update call), which backs out its
+        optimistic change, replacing it with the old
+        value (from the property object correct value sent
+        in the update call). Based on the errno, it
+        displays an error message to the user.
+
+both branches go to here to continue:
+
+        21. The user cancels the GUI.
+
+        22. The GUI sends a cancel message (i.e. assuming one
+        general message type this would be a message type
+        indicator of CANCEL in it (rather than UPDATE)) (and
+        kills itself immediately)
+
+        23. P1 notes that the GUI connection is gone. It
+        alerts M1 and M2 with a "done" call, then it goes
+        into an inactive state.
+
+
+Multiple presences (updates to other presences)
+
+        The property ingredient host should control all
+        updating [so control is at the object owner's agency
+        in this host=owner model]. That suggests that
+        the property values are those of the host ingredient presences,
+        is that always desirable (e.g. what if another avatar
+        with modify capability on the object wishes to modify it
+        AND the client presence values of the properties differ
+        from the host presence values. Or if there is a client
+        presence property that doesn't even appear in the host
+        (or if only in the host and only apparent there, should
+        the client see it). * Find out if it is meaningful
+        to have a different host/client state value for the
+        same property.
+
+        If we go assume host-centric control, then 
+        all updates will be sent to the host and applied
+        there, propagated from there. That means possibly client
+        update messages which themselves must be validated
+        and applied. Depends on a case by case ingredient
+        property basis.  
+
+        The problem here is that if the modifying user is seeing
+        a client presence of the object, do we want to
+        send the update to the host, have it applied there
+        first, and then come back to this and other client
+        presences (I suppose we could insure this client presence
+        got the update first) or do we want to apply the
+        change locally if possible and then tell the host
+        which can then tell clients (presumably skipping this one).
+        Perhaps many properties will require host updating first
+        anyway and that seems like a good way to start, can
+        always handle special client presence updating needs
+        later. Seems that any effectively peer-peer presences (do
+        we have any) may want to be handled differently than host-client.
+        But starting host-centric doesn't seem to hurt.
+
+Multiple objects being modified by one user
+
+        Since each object has its own property ingredient controlling
+        interaction with the user, this doesn't appear to 
+        require any special handling.
+
+Multiple property sheets for one object (one or more users)
+
+        Notification to other property sheets upon a change would
+        be needed, notification to all property sheets if in world change
+        (see below). The approach of having the property ingredient
+        reply to an update with an update (success or error) means
+        that updates originating from one of the PropertySheet GUIs
+        and updates originating in-world can be treated the same,
+        i.e. sent to all GUIs.
+
+        The ordering layer of the property ingredient would
+        insure updates from GUIs are handled one at a time
+        in the order received.
+
+Modification via inventory (not PPM)
+
+        It will be possible from an avatar's inventory for a given
+        object to select "modify" (perhaps "inspect also so even
+        if one has permission to modify one gets a read-only view
+        if one only wants to view). In that case Precise Positioning
+        Mode does not apply. In all other respects the modify session
+        should proceed the same.
+
+PPM (Precise Positioning Mode)
+
+        It should be possible to handle PPM as another inputter
+        (just like the GUI or for that matter the modifiable
+        ingredients). If PPM is applicable (modify menu selection),
+        then presumably the modify ingredient will init a PPM
+        "instance" along with a GUI instance (and these will
+        live and die together, i.e. cancel of GUI means kill
+        the associated PPM). 
+ 
+        Presumbly PPM instances never get update messages sent
+        to them, since they are actively tracking the
+        properties of interest to them. [Should the properties
+        ingredient know/check that the updates coming from a PPM
+        refer to properties allowed for the PPM?]
+
+        If there are multiple GUIs for an object, how many PPMs
+        are needed? One per user? If two users (with say clients
+        of the object) are both in PPM mode, does that mean
+        2 separate PPMs, one on each client. Is the move
+        of the object only reflected locally until some
+        time it is accepted/stopped? What is the host presence
+        of the object doing when 2 clients are moving in
+        different ways, how are the users moves of the object
+        coordinated. Can we limit it to one PPM per object,
+        so if one user has it the others are locked out?
+
+        The PPM updates should be reflected on any Property
+        Sheets active for the object. Presumably the Property
+        Sheet will show the same properties as the PPM instance
+        is updating (or does that get confusing if the user
+        changes via the PropertySheet a property that PPM
+        is changing), it would mean updates sent to the PPM
+        and maybe a jolt for the PPM (the update to the
+        modifiable ingredient and the PPM would be competing
+        to change the position unless the PPM doesn't make
+        the change but insteads sends updates just as the
+        PropertySheet GUIs do (but is the PPM input trustworthy,
+        especially if it could come from a remote site, that
+        suggests the PPM must submit updates to the property
+        ingredient and let the modifiable ingredient own any
+        updating effect.
+
+In world changes to a modifiable object with active property sheet
+
+        There may be some event (in world or even out of world
+        in some other way perhaps than the property sheet) that
+        changes a property (or properties) of an object. This
+        should cause any property sheets of the object to
+        be updated.         
+
+May be edited by
+
+        In the inventory of an avatar for a given object (or alternatively
+        in a special property of the property list, see discussion above)
+        avatars would be specified who might also (beside the specifying
+        owner) modify the object. 
+
+        Specification would be by avatar lookup (use of address book), see
+        the UI spec for a complete explanation.
+
+        For an avatar granted "may be edited by" capability, modify (rather
+        than inspect) will show in the menu selection on the client presence
+        (on the agency of the avatar granted the capability) for the
+        object for which the capability has been granted. 
+
+        Note: it seems anyone may inspect an object, that there
+        is no "inspect" capability (i.e. it's either modify or
+        inspect). Would there ever be a problem in someone having
+        inspect capability?
+
+
+Behavior locks
+
+        Is there any current state for these locks and use of
+        such locks to restrict behavior? If not then in addition
+        to updating the lock it may be necessary not only to 
+        define it in the appropriate ingredient and insure its
+        initialization but also to use it to enforce the locking
+        of the behavior. [Seems that the lock is on changing the
+        behavior, does this mean via the PropertySheet or in any
+        way, so if it means a lock on a PropertySheet change
+        the need for the lock would not have arisen before. 
+        
+Unum filtering
+
+        So far the assumption has been that an unum has all the
+        properties that its ingredients contribute. Would there
+        be a usefulness to restrict that somehow on a per unum basis?
+        Where would that be specified? (see next section)
+
+Any other filtering/activation 
+
+        Would some startup specification of which properties are
+        active be useful (e.g. a Properties.txt). That could
+        be one way of implementing an Unum filter or supply
+        some other filtering constraints (e.g. never this property
+        no matter in what unum, but what's the gain over changing
+        that hard in the ingredient, i.e. how is dynamic (at least
+        at startup) property control useful. If this file is
+        at the user's site, they could simply alter it (so is
+        it convenient to the user so they can have the GUI not
+        display properties they aren't interested in)/
+
+Lend 
+        
+        It's assumed that under the host=owner model of ownership
+        lending is not meaningful and so UI spec items related
+        to lending/borrowing are not being addressed at this time
+        [ although nothing in the implementation should make it
+        difficult to address these later when titled ownership
+        is supported ].
+
+Security (facets, possible spoof attempts ...)
+
+        [ Need to consider security issues, e.g. how is
+        modify capability secured to prevent anyone without
+        modify capability from doing a successful modify, 
+        how is property update secured so that a property isn't 
+        changed to an inappropriate value (this requires
+        simply proper validation routines), etc. Consider
+        use cases and where security might be breached. 
+
+Exceptions, error conditions
+
+        [ Need to consider possible failures and
+        how to address them. Expect that this can be handled
+        as encountered, offhand don't see any unusual situations
+        that will be difficult to handle.] Consider use
+        cases and what failures might occur, how each failure
+        would be handled.
+        
+Recovery (from quake)
+
+        Each properties ingredient that had active GUIs should
+        be active to re-init with the information it has when
+        it awakens. It will also be necessary, if any session
+        was in PPM mode, to restart the PPM instance (based
+        presumably on the current object location...).
+
+Clone/destroy
+        
+    What if an object which is being modified is destroyed?
+
+    What about trying to clone while an object is being modified? Consider
+    someone trading an object (when trading is in) which is being
+    modified. Would modification of an object in a trade be allowed?
+    Seems unwise. But how would it be prevented? Keep this in mind
+    when work on the trading machine resumes. 
+
+    There will need to be some control over clone and modify as well
+    as destroy and modify. For example, one cloning has begun it
+    might be good policy to inhibit modifying. Also, once destroying
+    has begun, modifies seem wasted; also the destroy logic must
+    insure that the property ingredient can clean up (e.g. kill or sever
+    GUI and PPM instances) 
+
+    Question: do clone/destroy have any other relationship to PropertySheet?
+

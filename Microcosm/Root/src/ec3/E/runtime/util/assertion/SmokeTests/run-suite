@@ -1,0 +1,61 @@
+announce()
+{
+  echo ======================= $SUITE_PREFIX$name "($COMPILER version)"
+}
+
+
+compile()
+{
+  if [ "$VERBOSE" = "true" ]
+  then
+    echo "== Compilation phase."
+  fi
+
+  $COMPILER $name.java 
+  if [ "$?" != 0 ]
+  then
+    echo == COMPILATION FAILURE ==
+    exit 1
+  fi
+}
+
+run()
+{
+  if [ "$VERBOSE" = "true" ]
+  then
+    echo "== Run phase."
+  fi
+
+  java -verify $name > $name.out.tmp 2>&1
+  diff $name.out.expected $name.out.tmp 
+
+  if [ "$?" != 0 ] 
+  then
+    echo == PROGRAM OUTPUT DIFFERS ==
+    exit 1
+  fi
+
+}
+
+clean()
+{
+  /bin/rm -f *.class *.tmp
+}
+
+run_one()
+{
+  name=$1
+  COMPILER=$2
+  announce
+  compile
+  run
+  clean
+}
+
+SUITE_PREFIX=assertion/
+
+run_one Tests javac
+run_one Tests ecomp
+
+exit 0
+

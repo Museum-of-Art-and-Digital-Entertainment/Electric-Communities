@@ -1,0 +1,833 @@
+// File     Expressions\Int.ez
+// Summary  Testing simple expressions that contain integers
+//
+//  001  Title    Print a single number
+//       Result   Pass
+//       Test     
+                  100
+//       Expect   value: 100
+//       Actual   value: 100
+//
+//  002  Title    Bit complement -1
+//       Result   Pass
+//       Test     
+                  ~(-1)
+//
+//       Expect   value: 0
+//       Actual   value: 0
+// 
+//  003  Title    Bit complement 0
+//       Result   Pass
+//       Test     
+                  ~0
+//
+//       Expect   value: -1
+//       Actual   value: -1
+// 
+//  004  Title    Bit complement 1
+//       Result   Pass
+//       Test     
+                  ~1
+//
+//       Expect   value: -2
+//       Actual   value: -2
+// 
+//  005  Title    Not a number
+//       Result   Fail
+//       Test     
+                  !1
+//
+//       Expect   error message without stack trace
+//       Actual   java.lang.RuntimeException: invalid operation for EZInteger
+//                at ec.ez.prim.EZInteger.not(EZInteger.java:117)
+//                at ec.ez.prim.SugarMethodNode.innerExecute(SugarMethodNode.java:49)
+//                at ec.ez.prim.JavaMemberNode.execute(JavaMemberNode.java:51)
+//                at ec.ez.prim.SimpleScript.execute(SimpleScript.java:41)
+//                at ec.ez.prim.EZUniversal.perform(EZUniversal.java:27)
+//                at ec.ez.ezvm.CallExpr.eval(CallExpr.java:64)
+//                at ec.ez.syntax.Listener.doOne(Listener.java:145)
+//                at ec.ez.syntax.Listener.loop(Listener.java:117)
+//                at ec.ez.syntax.Listener.evalInput(Listener.java:107)
+//                at ec.ez.syntax.EZRunTask.run(ListenerFrame.java:316)
+//                at java.lang.Thread.run(Thread.java:474)
+//                java.lang.RuntimeException: invalid operation for EZInteger
+//                null
+//                ^
+// 
+//  006  Title    Not applied to a single number
+//       Result   Fail
+//       Test     
+                  !10
+//
+//       Expect   error message without stack trace
+//       Actual   java.lang.RuntimeException: invalid operation for EZInteger
+//                at ec.ez.prim.EZInteger.not(EZInteger.java:117)
+//                at ec.ez.prim.SugarMethodNode.innerExecute(SugarMethodNode.java:49)
+//                at ec.ez.prim.JavaMemberNode.execute(JavaMemberNode.java:51)
+//                at ec.ez.prim.SimpleScript.execute(SimpleScript.java:41)
+//                at ec.ez.prim.EZUniversal.perform(EZUniversal.java:27)
+//                at ec.ez.ezvm.CallExpr.eval(CallExpr.java:64)
+//                at ec.ez.syntax.Listener.doOne(Listener.java:145)
+//                at ec.ez.syntax.Listener.loop(Listener.java:117)
+//                at ec.ez.syntax.Listener.evalInput(Listener.java:107)
+//                at ec.ez.syntax.EZRunTask.run(ListenerFrame.java:316)
+//                at java.lang.Thread.run(Thread.java:474)
+//                java.lang.RuntimeException: invalid operation for EZInteger
+//                null
+//                ^
+// 
+//  007  Title    Add
+//       Result   Pass
+//       Test     
+                  1 + 10 + 100
+//
+//       Expect   value: 111
+//       Actual   value: 111
+// 
+//  008  Title    Add +prefix (negative case)
+//       Result   Fail
+//       Test     
+                  +1
+//
+//       Expect   error message without stack trace
+//       Actual   ec.ez.syntax.SyntaxException: syntax error
+//                at ec.ez.syntax.EZParser.yyerror(EZParser.java:1173)
+//                at ec.ez.syntax.EZParser.yyparse(EZParser.java:1817)
+//                at ec.ez.syntax.EZParser.parseCommand(EZParser.java:1147)
+//                at ec.ez.syntax.Listener.doOne(Listener.java:132)
+//                at ec.ez.syntax.Listener.loop(Listener.java:117)
+//                at ec.ez.syntax.Listener.evalInput(Listener.java:107)
+//                at ec.ez.syntax.EZRunTask.run(ListenerFrame.java:316)
+//                at java.lang.Thread.run(Thread.java:474)
+//                ec.ez.syntax.SyntaxException: syntax error
+// 
+//  009  Title    Add ++prefix (negative case)
+//       Result   Fail
+//       Test     
+                  ++1
+//
+//       Expect   error message without stack trace
+//       Actual   ec.ez.syntax.SyntaxException: syntax error
+//                at ec.ez.syntax.EZParser.yyerror(EZParser.java:1173)
+//                at ec.ez.syntax.EZParser.yyparse(EZParser.java:1817)
+//                at ec.ez.syntax.EZParser.parseCommand(EZParser.java:1147)
+//                at ec.ez.syntax.Listener.doOne(Listener.java:132)
+//                at ec.ez.syntax.Listener.loop(Listener.java:117)
+//                at ec.ez.syntax.Listener.evalInput(Listener.java:107)
+//                at ec.ez.syntax.EZRunTask.run(ListenerFrame.java:316)
+//                at java.lang.Thread.run(Thread.java:474)
+//                ec.ez.syntax.SyntaxException: syntax error
+//
+//  010  Title    Add postfix+ (negative case)
+//       Result   Fail
+//       Test     
+                  1+
+//
+//       Expect   error message without stack trace
+//       Actual   ec.ez.syntax.SyntaxException: syntax error
+//                at ec.ez.syntax.EZParser.yyerror(EZParser.java:1173)
+//                at ec.ez.syntax.EZParser.yyparse(EZParser.java:1817)
+//                at ec.ez.syntax.EZParser.parseCommand(EZParser.java:1147)
+//                at ec.ez.syntax.Listener.doOne(Listener.java:132)
+//                at ec.ez.syntax.Listener.loop(Listener.java:117)
+//                at ec.ez.syntax.Listener.evalInput(Listener.java:107)
+//                at ec.ez.syntax.EZRunTask.run(ListenerFrame.java:316)
+//                at java.lang.Thread.run(Thread.java:474)
+//                ec.ez.syntax.SyntaxException: syntax error
+//
+//  011  Title    Add postfix++ (negative case)
+//       Result   Fail
+//       Test     
+                  1++
+//
+//       Expect   error message without stack trace
+//       Actual   ec.ez.syntax.SyntaxException: syntax error
+//                at ec.ez.syntax.EZParser.yyerror(EZParser.java:1173)
+//                at ec.ez.syntax.EZParser.yyparse(EZParser.java:1817)
+//                at ec.ez.syntax.EZParser.parseCommand(EZParser.java:1147)
+//                at ec.ez.syntax.Listener.doOne(Listener.java:132)
+//                at ec.ez.syntax.Listener.loop(Listener.java:117)
+//                at ec.ez.syntax.Listener.evalInput(Listener.java:107)
+//                at ec.ez.syntax.EZRunTask.run(ListenerFrame.java:316)
+//                at java.lang.Thread.run(Thread.java:474)
+//                ec.ez.syntax.SyntaxException: syntax error
+//
+// 
+//  012  Title    Subtract
+//       Result   Pass
+//       Test     
+                  765 - 600 - 60 - 5
+//
+//       Expect   value: 100
+//       Actual   value: 100
+// 
+//  013  Title    Subtract -prefix (Negate)
+//       Result   Pass
+//       Test     
+                  -100
+//
+//       Expect   value: -100
+//       Actual   value: -100
+// 
+//  014  Title    Subtract twice with parenthesis (Negate)
+//       Result   Pass
+//       Test     
+                  -(-100)
+//
+//       Expect   value: 100
+//       Actual   value: 100
+// 
+//  015  Title    Subtract --prefix (negative case)
+//       Result   Fail
+//       Test     
+                  --100
+//
+//       Expect   error message without stack trace
+//       Actual   ec.ez.syntax.SyntaxException: syntax error
+//                at ec.ez.syntax.EZParser.yyerror(EZParser.java:1173)
+//                at ec.ez.syntax.EZParser.yyparse(EZParser.java:1817)
+//                at ec.ez.syntax.EZParser.parseCommand(EZParser.java:1147)
+//                at ec.ez.syntax.Listener.doOne(Listener.java:132)
+//                at ec.ez.syntax.Listener.loop(Listener.java:117)
+//                at ec.ez.syntax.Listener.evalInput(Listener.java:107)
+//                at ec.ez.syntax.EZRunTask.run(ListenerFrame.java:316)
+//                at java.lang.Thread.run(Thread.java:474)
+//                ec.ez.syntax.SyntaxException: syntax error
+//
+//  016  Title    Subtract postfix- (negative case)
+//       Result   Fail
+//       Test     
+                  100-
+//
+//       Expect   error message without stack trace
+//       Actual   ec.ez.syntax.SyntaxException: syntax error
+//                at ec.ez.syntax.EZParser.yyerror(EZParser.java:1173)
+//                at ec.ez.syntax.EZParser.yyparse(EZParser.java:1817)
+//                at ec.ez.syntax.EZParser.parseCommand(EZParser.java:1147)
+//                at ec.ez.syntax.Listener.doOne(Listener.java:132)
+//                at ec.ez.syntax.Listener.loop(Listener.java:117)
+//                at ec.ez.syntax.Listener.evalInput(Listener.java:107)
+//                at ec.ez.syntax.EZRunTask.run(ListenerFrame.java:316)
+//                at java.lang.Thread.run(Thread.java:474)
+//                ec.ez.syntax.SyntaxException: syntax error
+//
+//  017  Title    Subtract postfix-- (negative case)
+//       Result   Fail
+//       Test     
+                  100--
+//
+//       Expect   error message without stack trace
+//       Actual   ec.ez.syntax.SyntaxException: syntax error
+//                at ec.ez.syntax.EZParser.yyerror(EZParser.java:1173)
+//                at ec.ez.syntax.EZParser.yyparse(EZParser.java:1817)
+//                at ec.ez.syntax.EZParser.parseCommand(EZParser.java:1147)
+//                at ec.ez.syntax.Listener.doOne(Listener.java:132)
+//                at ec.ez.syntax.Listener.loop(Listener.java:117)
+//                at ec.ez.syntax.Listener.evalInput(Listener.java:107)
+//                at ec.ez.syntax.EZRunTask.run(ListenerFrame.java:316)
+//                at java.lang.Thread.run(Thread.java:474)
+//                ec.ez.syntax.SyntaxException: syntax error
+// 
+//  018  Title    Multiply
+//       Result   Pass
+//       Test     
+                  10 * 3
+//
+//       Expect   value: 30
+//       Actual   value: 30
+// 
+//  019  Title    Multiply *prefix (negative case)
+//       Result   Fail
+//       Test     
+                  *11
+//
+//       Expect   error message without stack trace
+//       Actual   ec.ez.syntax.SyntaxException: syntax error
+//                at ec.ez.syntax.EZParser.yyerror(EZParser.java:1173)
+//                at ec.ez.syntax.EZParser.yyparse(EZParser.java:1817)
+//                at ec.ez.syntax.EZParser.parseCommand(EZParser.java:1147)
+//                at ec.ez.syntax.Listener.doOne(Listener.java:132)
+//                at ec.ez.syntax.Listener.loop(Listener.java:117)
+//                at ec.ez.syntax.Listener.evalInput(Listener.java:107)
+//                at ec.ez.syntax.EZRunTask.run(ListenerFrame.java:316)
+//                at java.lang.Thread.run(Thread.java:474)
+//                ec.ez.syntax.SyntaxException: syntax error
+// 
+//  020  Title    Multiply **prefix (negative case)
+//       Result   Fail
+//       Test     
+                  **77
+//
+//       Expect   error message without stack trace
+//       Actual   ec.ez.syntax.SyntaxException: syntax error
+//                at ec.ez.syntax.EZParser.yyerror(EZParser.java:1173)
+//                at ec.ez.syntax.EZParser.yyparse(EZParser.java:1817)
+//                at ec.ez.syntax.EZParser.parseCommand(EZParser.java:1147)
+//                at ec.ez.syntax.Listener.doOne(Listener.java:132)
+//                at ec.ez.syntax.Listener.loop(Listener.java:117)
+//                at ec.ez.syntax.Listener.evalInput(Listener.java:107)
+//                at ec.ez.syntax.EZRunTask.run(ListenerFrame.java:316)
+//                at java.lang.Thread.run(Thread.java:474)
+//                ec.ez.syntax.SyntaxException: syntax error
+// 
+//  021  Title    Multiply postfix* (negative case)
+//       Result   Fail
+//       Test     
+                  6*
+//
+//       Expect   error message without stack trace
+//       Actual   ec.ez.syntax.SyntaxException: syntax error
+//                at ec.ez.syntax.EZParser.yyerror(EZParser.java:1173)
+//                at ec.ez.syntax.EZParser.yyparse(EZParser.java:1817)
+//                at ec.ez.syntax.EZParser.parseCommand(EZParser.java:1147)
+//                at ec.ez.syntax.Listener.doOne(Listener.java:132)
+//                at ec.ez.syntax.Listener.loop(Listener.java:117)
+//                at ec.ez.syntax.Listener.evalInput(Listener.java:107)
+//                at ec.ez.syntax.EZRunTask.run(ListenerFrame.java:316)
+//                at java.lang.Thread.run(Thread.java:474)
+//                ec.ez.syntax.SyntaxException: syntax error
+// 
+//  022  Title    Multiply postfix** (negative case)
+//       Result   Fail
+//       Test     
+                  69**
+//
+//       Expect   error message without stack trace
+//       Actual   ec.ez.syntax.SyntaxException: syntax error
+//                at ec.ez.syntax.EZParser.yyerror(EZParser.java:1173)
+//                at ec.ez.syntax.EZParser.yyparse(EZParser.java:1817)
+//                at ec.ez.syntax.EZParser.parseCommand(EZParser.java:1147)
+//                at ec.ez.syntax.Listener.doOne(Listener.java:132)
+//                at ec.ez.syntax.Listener.loop(Listener.java:117)
+//                at ec.ez.syntax.Listener.evalInput(Listener.java:107)
+//                at ec.ez.syntax.EZRunTask.run(ListenerFrame.java:316)
+//                at java.lang.Thread.run(Thread.java:474)
+//                ec.ez.syntax.SyntaxException: syntax error
+// 
+// 
+//  023  Title    ApproxDivide with no remainder
+//       Result   Pass
+//       Test     
+                  8/2 
+//
+//       Expect   value: 4.0
+//       Actual   value: 4.0
+// 
+//  024  Title    ApproxDivide results in remainder
+//       Result   Pass (?)
+//       Test     
+                  10/3
+//
+//       Expect   value: 3.3333333333333335
+//       Actual   value: 3.3333333333333333
+// 
+//  025  Title    ApproxDivide results in remainder
+//       Result   Pass
+//       Test     
+                  10/7
+//
+//       Expect   value: 1.4285714285714286
+//       Actual   value: 1.4285714285714286
+// 
+//  026  Title    ApproxDivide /prefix (negative case)
+//       Result   Fail
+//       Test     
+                  /321
+//
+//       Expect   error message without stack trace
+//       Actual   ec.ez.syntax.SyntaxException: syntax error
+//                at ec.ez.syntax.EZParser.yyerror(EZParser.java:1173)
+//                at ec.ez.syntax.EZParser.yyparse(EZParser.java:1817)
+//                at ec.ez.syntax.EZParser.parseCommand(EZParser.java:1147)
+//                at ec.ez.syntax.Listener.doOne(Listener.java:132)
+//                at ec.ez.syntax.Listener.loop(Listener.java:117)
+//                at ec.ez.syntax.Listener.evalInput(Listener.java:107)
+//                at ec.ez.syntax.EZRunTask.run(ListenerFrame.java:316)
+//                at java.lang.Thread.run(Thread.java:474)
+//                ec.ez.syntax.SyntaxException: syntax error
+// 
+//  027  Title    ApproxDivide postfix/ (negative case)
+//       Result   Fail
+//       Test     
+                  321/
+//
+//       Expect   error message without stack trace
+//       Actual   ec.ez.syntax.SyntaxException: syntax error
+//                at ec.ez.syntax.EZParser.yyerror(EZParser.java:1173)
+//                at ec.ez.syntax.EZParser.yyparse(EZParser.java:1817)
+//                at ec.ez.syntax.EZParser.parseCommand(EZParser.java:1147)
+//                at ec.ez.syntax.Listener.doOne(Listener.java:132)
+//                at ec.ez.syntax.Listener.loop(Listener.java:117)
+//                at ec.ez.syntax.Listener.evalInput(Listener.java:107)
+//                at ec.ez.syntax.EZRunTask.run(ListenerFrame.java:316)
+//                at java.lang.Thread.run(Thread.java:474)
+//                ec.ez.syntax.SyntaxException: syntax error
+// 
+//  028  Title    ApproxDivide by zero
+//       Result   Pass
+//       Test     
+                  2/0
+//
+//       Expect   value: Infinity
+//       Actual   value: Infinity
+// 
+//  029  Title    ApproxDivide into zero
+//       Result   Pass
+//       Test     
+                  0/7
+//
+//       Expect   value: 0.0
+//       Actual   value: 0.0
+// 
+//  030  Title    ApproxDivide zero by zero
+//       Result   Pass
+//       Test     
+                  0/0
+//
+//       Expect   value: NaN
+//       Actual   value: NaN
+// 
+//  031  Title    Backslash symbol (negative case)
+//       Result   Fail
+//       Test     
+                  100\20
+//
+//       Expect   error message without stack trace
+//       Actual   ec.ez.syntax.SyntaxException: unrecognized character
+//                at ec.ez.syntax.EZLexer.getNextToken(EZLexer.java:285)
+//                at ec.ez.syntax.EZLexer.nextToken(EZLexer.java:120)
+//                at ec.ez.syntax.EZParser.yylex(EZParser.java:1157)
+//                at ec.ez.syntax.EZParser.yyparse(EZParser.java:1778)
+//                at ec.ez.syntax.EZParser.parseCommand(EZParser.java:1147)
+//                at ec.ez.syntax.Listener.doOne(Listener.java:132)
+//                at ec.ez.syntax.Listener.loop(Listener.java:117)
+//                at ec.ez.syntax.Listener.evalInput(Listener.java:107)
+//                at ec.ez.syntax.EZRunTask.run(ListenerFrame.java:316)
+//                at java.lang.Thread.run(Thread.java:474)
+//                ec.ez.syntax.SyntaxException: unrecognized character
+//                100\20
+//                ^
+//  
+//  032  Title    Backslash symbol \prefix (negative case)
+//       Result   Fail
+//       Test     
+                  \321
+//
+//       Expect   error message without stack trace
+//       Actual   ec.ez.syntax.SyntaxException: unrecognized character
+//                at ec.ez.syntax.Lexer.getNextToken(Lexer.java:292)
+//                at ec.ez.syntax.Lexer.nextToken(Lexer.java:115)
+//                at ec.ez.syntax.Parser.nextToken(Parser.java:126)
+//                at ec.ez.syntax.Parser.<init>(Parser.java:74)
+//                at ec.ez.syntax.Listener.evalInput(Listener.java:76)
+//                at ec.ez.syntax.EZRunTask.run(ListenerFrame.java:311)
+//                at java.lang.Thread.run(Thread.java:481)
+// 
+//  033  Title    Backslash symbol postfix\ (negative case)
+//       Result   Fail
+//       Test     
+                  321\
+//
+//       Expect   error message without stack trace
+//       Actual   ec.ez.syntax.SyntaxException: unrecognized character
+//                at ec.ez.syntax.EZLexer.getNextToken(EZLexer.java:285)
+//                at ec.ez.syntax.EZLexer.nextToken(EZLexer.java:120)
+//                at ec.ez.syntax.EZParser.yylex(EZParser.java:1157)
+//                at ec.ez.syntax.EZParser.yyparse(EZParser.java:1778)
+//                at ec.ez.syntax.EZParser.parseCommand(EZParser.java:1147)
+//                at ec.ez.syntax.Listener.doOne(Listener.java:132)
+//                at ec.ez.syntax.Listener.loop(Listener.java:117)
+//                at ec.ez.syntax.Listener.evalInput(Listener.java:107)
+//                at ec.ez.syntax.EZRunTask.run(ListenerFrame.java:316)
+//                at java.lang.Thread.run(Thread.java:474)
+//                ec.ez.syntax.SyntaxException: unrecognized character
+//                321\
+//                ^
+// 
+//  034  Title    Remainder equal zero
+//       Result   Pass
+//       Test     
+                  1000 % 100
+//
+//       Expect   value: 0
+//       Actual   value: 0
+// 
+//  035  Title    Remainder equal is non-zero
+//       Result   Pass
+//       Test     
+                  2000 % 101
+//
+//       Expect   value: 81
+//       Actual   value: 81
+// 
+//  036  Title    Remainder %prefix (negative case)
+//       Result   Fail
+//       Test     
+                  %500
+//
+//       Expect   error message without stack trace
+//       Actual   ec.ez.syntax.SyntaxException: syntax error
+//                at ec.ez.syntax.EZParser.yyerror(EZParser.java:1173)
+//                at ec.ez.syntax.EZParser.yyparse(EZParser.java:1817)
+//                at ec.ez.syntax.EZParser.parseCommand(EZParser.java:1147)
+//                at ec.ez.syntax.Listener.doOne(Listener.java:132)
+//                at ec.ez.syntax.Listener.loop(Listener.java:117)
+//                at ec.ez.syntax.Listener.evalInput(Listener.java:107)
+//                at ec.ez.syntax.EZRunTask.run(ListenerFrame.java:316)
+//                at java.lang.Thread.run(Thread.java:474)
+//                ec.ez.syntax.SyntaxException: syntax error
+//                %500
+//                ^
+// 
+//  037  Title    Remainder postfix% (negative case)
+//       Result   Fail
+//       Test     
+                  707%
+//
+//       Expect   error message without stack trace
+//       Actual   ec.ez.syntax.SyntaxException: syntax error
+//                at ec.ez.syntax.EZParser.yyerror(EZParser.java:1173)
+//                at ec.ez.syntax.EZParser.yyparse(EZParser.java:1817)
+//                at ec.ez.syntax.EZParser.parseCommand(EZParser.java:1147)
+//                at ec.ez.syntax.Listener.doOne(Listener.java:132)
+//                at ec.ez.syntax.Listener.loop(Listener.java:117)
+//                at ec.ez.syntax.Listener.evalInput(Listener.java:107)
+//                at ec.ez.syntax.EZRunTask.run(ListenerFrame.java:316)
+//                at java.lang.Thread.run(Thread.java:474)
+//                ec.ez.syntax.SyntaxException: syntax error
+//                null
+//                ^
+// 
+//  038  Title    Modulo with zero remainder
+//       Result   Pass
+//       Test     
+                  40 %% 8
+//
+//       Expect   value: 0
+//       Actual   value: 0
+// 
+//  039  Title    Modulo with non-zero remainder
+//       Result   Pass
+//       Test     
+                  66 %% 7
+//
+//       Expect   value: 3
+//       Actual   value: 3
+// 
+//  040  Title    Modulo %%prefix (negative case)
+//       Result   Fail
+//       Test     
+                  %%1
+//
+//       Expect   error message without stack trace
+//       Actual   ec.ez.syntax.SyntaxException: syntax error
+//                at ec.ez.syntax.EZParser.yyerror(EZParser.java:1173)
+//                at ec.ez.syntax.EZParser.yyparse(EZParser.java:1817)
+//                at ec.ez.syntax.EZParser.parseCommand(EZParser.java:1147)
+//                at ec.ez.syntax.Listener.doOne(Listener.java:132)
+//                at ec.ez.syntax.Listener.loop(Listener.java:117)
+//                at ec.ez.syntax.Listener.evalInput(Listener.java:107)
+//                at ec.ez.syntax.EZRunTask.run(ListenerFrame.java:316)
+//                at java.lang.Thread.run(Thread.java:474)
+//                ec.ez.syntax.SyntaxException: syntax error
+//                %%1
+//                ^
+// 
+//  041  Title    Modulo postfix%% (negative case)
+//       Result   Fail
+//       Test     
+                  40%%
+//
+//       Expect   error message without stack trace
+//       Actual   ec.ez.syntax.SyntaxException: syntax error
+//                at ec.ez.syntax.EZParser.yyerror(EZParser.java:1173)
+//                at ec.ez.syntax.EZParser.yyparse(EZParser.java:1817)
+//                at ec.ez.syntax.EZParser.parseCommand(EZParser.java:1147)
+//                at ec.ez.syntax.Listener.doOne(Listener.java:132)
+//                at ec.ez.syntax.Listener.loop(Listener.java:117)
+//                at ec.ez.syntax.Listener.evalInput(Listener.java:107)
+//                at ec.ez.syntax.EZRunTask.run(ListenerFrame.java:316)
+//                at java.lang.Thread.run(Thread.java:474)
+//                ec.ez.syntax.SyntaxException: syntax error
+//                null
+//                ^
+// 
+//  042  Title    Exponentiation
+//       Result   Pass
+//       Test     
+                  10**2
+//
+//       Expect   value: 100
+//       Actual   value: 100
+// 
+//  043  Title    Left shift two numbers
+//       Result   Fail
+//       Test     
+                  (1<<2)
+//
+//       Expect   value: 4
+//       Actual   ec.ez.collect.NotFoundException: leftShift/1
+//                at ec.ez.collect.NullMarker.optDecode(NullMarker.java:23)
+//                at ec.ez.collect.NameTableEditorImpl.get(NameTableEditorImpl.java:58)
+//                at ec.ez.prim.SimpleScript.execute(SimpleScript.java:40)
+//                at ec.ez.prim.EZUniversal.perform(EZUniversal.java:27)
+//                at ec.ez.ezvm.CallExpr.eval(CallExpr.java:64)
+//                at ec.ez.syntax.Listener.doOne(Listener.java:145)
+//                at ec.ez.syntax.Listener.loop(Listener.java:117)
+//                at ec.ez.syntax.Listener.evalInput(Listener.java:107)
+//                at ec.ez.syntax.EZRunTask.run(ListenerFrame.java:316)
+//                at java.lang.Thread.run(Thread.java:474)
+//                ec.ez.collect.NotFoundException: leftShift/1
+//                null
+//                ^
+// 
+//  044  Title    Right shift two numbers
+//       Result   Fail
+//       Test     
+                  (1>>2)
+//
+//       Expect   value: 0
+//       Actual   java.lang.ClassCastException: 
+//                at ec.ez.syntax.EZParser.exprs(EZParser.java:1478)
+//                at ec.ez.syntax.EZParser.call(EZParser.java:1489)
+//                at ec.ez.syntax.EZParser.yyparse(EZParser.java:1970)
+//                at ec.ez.syntax.EZParser.parseCommand(EZParser.java:1147)
+//                at ec.ez.syntax.Listener.doOne(Listener.java:132)
+//                at ec.ez.syntax.Listener.loop(Listener.java:117)
+//                at ec.ez.syntax.Listener.evalInput(Listener.java:107)
+//                at ec.ez.syntax.EZRunTask.run(ListenerFrame.java:316)
+//                at java.lang.Thread.run(Thread.java:474)
+//                java.lang.ClassCastException: 
+//                (1>>2)
+//                ^
+// 
+//  045  Title    Logical right shift two numbers (negative case)
+//       Result   Fail
+//       Test     
+                  (1>>>2)
+//
+//       Expect   error message without stack trace
+//       Actual   ec.ez.syntax.SyntaxException: syntax error
+//                at ec.ez.syntax.EZParser.yyerror(EZParser.java:1173)
+//                at ec.ez.syntax.EZParser.yyparse(EZParser.java:1817)
+//                at ec.ez.syntax.EZParser.parseCommand(EZParser.java:1147)
+//                at ec.ez.syntax.Listener.doOne(Listener.java:132)
+//                at ec.ez.syntax.Listener.loop(Listener.java:117)
+//                at ec.ez.syntax.Listener.evalInput(Listener.java:107)
+//                at ec.ez.syntax.EZRunTask.run(ListenerFrame.java:316)
+//                at java.lang.Thread.run(Thread.java:474)
+//                ec.ez.syntax.SyntaxException: syntax error
+//                (1>>>2)
+//                ^
+// 
+//  046  Title    Less than or equal when less than
+//       Result   Pass
+//       Test     
+                  (1 <= 2)
+//
+//       Expect   value: true
+//       Actual   value: true
+// 
+//  047  Title    Less than or equal when equal
+//       Result   Pass
+//       Test     
+                  (144 <= 144)
+//
+//       Expect   value: true
+//       Actual   value: true
+// 
+//  048  Title    Less than or equal when greater than
+//       Result   Pass
+//       Test     
+                  (2000 <= 1000)
+//
+//       Expect   value: false
+//       Actual   value: false
+// 
+//  049  Title    Equal when less than
+//       Result   Pass
+//       Test     
+                  (2==1024)
+//
+//       Expect   value: false
+//       Actual   value: false
+// 
+//  050  Title    Equal when equal
+//       Result   Pass
+//       Test     
+                  (256==256)
+//
+//       Expect   value: true
+//       Actual   value: true
+// 
+//  051  Title    Equal when greater than
+//       Result   Pass
+//       Test     
+                  (512==256)
+//
+//       Expect   value: false
+//       Actual   value: false
+// 
+//  052  Title    Symbol "=" (negative case)
+//       Result   Fail
+//       Test     
+                  1=1
+//
+//       Expect   error message without stack trace
+//       Actual   ec.ez.syntax.SyntaxException: use ':=' for assignment, or '==' for equality
+//                at ec.ez.syntax.EZLexer.getNextToken(EZLexer.java:245)
+//                at ec.ez.syntax.EZLexer.nextToken(EZLexer.java:120)
+//                at ec.ez.syntax.EZParser.yylex(EZParser.java:1157)
+//                at ec.ez.syntax.EZParser.yyparse(EZParser.java:1778)
+//                at ec.ez.syntax.EZParser.parseCommand(EZParser.java:1147)
+//                at ec.ez.syntax.Listener.doOne(Listener.java:132)
+//                at ec.ez.syntax.Listener.loop(Listener.java:117)
+//                at ec.ez.syntax.Listener.evalInput(Listener.java:107)
+//                at ec.ez.syntax.EZRunTask.run(ListenerFrame.java:316)
+//                at java.lang.Thread.run(Thread.java:474)
+//                ec.ez.syntax.SyntaxException: use ':=' for assignment, or '==' for equality
+//                1=1
+//                ^
+// 
+//  053  Title    Equal ":=" (negative case)
+//       Result   Fail
+//       Test     
+                  (256:=256 print)
+//
+//       Expect   error message without stack trace
+//       Actual   ec.ez.syntax.SyntaxException: 
+//                Assignment can only be done to nouns, collection elements, and tuples of same
+//                at ec.ez.syntax.EZParser.assign(EZParser.java:1623)
+//                at ec.ez.syntax.EZParser.yyparse(EZParser.java:1898)
+//                at ec.ez.syntax.EZParser.parseCommand(EZParser.java:1147)
+//                at ec.ez.syntax.Listener.doOne(Listener.java:132)
+//                at ec.ez.syntax.Listener.loop(Listener.java:117)
+//                at ec.ez.syntax.Listener.evalInput(Listener.java:107)
+//                at ec.ez.syntax.EZRunTask.run(ListenerFrame.java:316)
+//                at java.lang.Thread.run(Thread.java:474)
+//                ec.ez.syntax.SyntaxException: 
+//                Assignment can only be done to nouns, collection elements, and tuples of same
+//                (256:=256 print)
+//                ^
+// 
+//  054  Title    Not equal when equal
+//       Result   Pass
+//       Test     
+                  256 != 256
+//
+//       Expect   value: false
+//       Actual   value: false
+// 
+//  055  Title    Not equal when greater than
+//       Result   Pass
+//       Test     
+                  1025!=257
+//
+//       Expect   value: true
+//       Actual   value: true
+// 
+//  056  Title    Symbol "!==" (negative case)
+//       Result   Fail
+//       Test     
+                  1!==1
+//
+//       Expect   Error message without stack trace
+//       Actual   ec.ez.syntax.SyntaxException: use ':=' for assignment, or '==' for equality
+//                at ec.ez.syntax.EZLexer.getNextToken(EZLexer.java:245)
+//                at ec.ez.syntax.EZLexer.nextToken(EZLexer.java:120)
+//                at ec.ez.syntax.EZParser.yylex(EZParser.java:1157)
+//                at ec.ez.syntax.EZParser.yyparse(EZParser.java:1778)
+//                at ec.ez.syntax.EZParser.parseCommand(EZParser.java:1147)
+//                at ec.ez.syntax.Listener.doOne(Listener.java:132)
+//                at ec.ez.syntax.Listener.loop(Listener.java:117)
+//                at ec.ez.syntax.Listener.evalInput(Listener.java:107)
+//                at ec.ez.syntax.EZRunTask.run(ListenerFrame.java:316)
+//                at java.lang.Thread.run(Thread.java:474)
+//                ec.ez.syntax.SyntaxException: use ':=' for assignment, or '==' for equality
+//                1!==1
+//                ^
+// 
+//  057  Title    Symbol "!:=" (negative case)
+//       Result   Fail
+//       Test     
+                  (256!:=256)
+//
+//       Expect   error message without stack trace
+//       Actual   ec.ez.syntax.SyntaxException: syntax error
+//                at ec.ez.syntax.EZParser.yyerror(EZParser.java:1173)
+//                at ec.ez.syntax.EZParser.yyparse(EZParser.java:1817)
+//                at ec.ez.syntax.EZParser.parseCommand(EZParser.java:1147)
+//                at ec.ez.syntax.Listener.doOne(Listener.java:132)
+//                at ec.ez.syntax.Listener.loop(Listener.java:117)
+//                at ec.ez.syntax.Listener.evalInput(Listener.java:107)
+//                at ec.ez.syntax.EZRunTask.run(ListenerFrame.java:316)
+//                at java.lang.Thread.run(Thread.java:474)
+//                ec.ez.syntax.SyntaxException: syntax error
+//                (256!:=256)
+//                ^
+// 
+//  058  Title    And applied to numbers (1 & 1)
+//       Result   Pass
+//       Test     
+                  (1 & 1)
+//
+//       Expect   value: 1
+//       Actual   value: 1
+// 
+//  059  Title    And applied to numbers (0 & 0)
+//       Result   Pass
+//       Test     
+                  (0 & 0)
+//
+//       Expect   value: 0
+//       Actual   value: 0
+// 
+//  060  Title    And applied to numbers (1 & 0)
+//       Result   Pass
+//       Test     
+                  (1 & 0)
+//
+//       Expect   value: 0
+//       Actual   value: 0
+// 
+//  061  Title    And applied to numbers (0 & 1)
+//       Result   Pass
+//       Test     
+                  (0 & 1)
+//
+//       Expect   value: 0
+//       Actual   value: 0
+// 
+//  062  Title    And applied to booleans (true & true)
+//       Result   Pass
+//       Test     
+                  (true & true)
+//
+//       Expect   value: true
+//       Actual   value: true
+// 
+//  063  Title    And applied to booleans (false & false)
+//       Result   Pass
+//       Test     
+                  (false & false)
+//
+//       Expect   value: false
+//       Actual   value: false
+// 
+//  064  Title    And applied to booleans (true & false)
+//       Result   Pass
+//       Test     
+                  (true & false)
+//
+//       Expect   value: false
+//       Actual   value: false
+// 
+//  065  Title    And applied to booleans (false & true)
+//       Result   Pass
+//       Test     
+                  (false & true)
+//
+//       Expect   value: false
+//       Actual   value: false
+//
+

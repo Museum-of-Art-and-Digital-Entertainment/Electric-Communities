@@ -1,0 +1,51 @@
+---------------- initial state created by RegistrarMaker --------
+Registrar:
+
+myFlattenedSearchPath = const, but should be tunable
+mySearchPath = const, but should be tunable
+
+myOnTheAir = false
+myListenAddr = null
+myProcessLocationServerSet = set of SturdyRef's from RegisterWith
+myHibernationNoticer = null
+myRegisteredObjects = empty hashtable
+
+
+RegistrarHelper:
+
+myListenAddr = null
+myShutdownNoticer = null
+
+
+ConnectionsManager:
+
+myActiveConnectionLimit = const, but should be tunable
+
+myListener = null
+myConnections = empty hashtable
+myActiveConnections = empty hashtable
+myListenerInterest = unforwarded channel
+myMessageSerialNumber = 0
+myPreparingToHibernate = false
+myHibernationNoticer = null
+
+SturdyRefMaker: no mutable state
+SturdyRefImporter: no mutable state
+SturdyRefExporter: no mutable state
+SturdyRefFileImporter: no mutable state (except lazy evaluation)
+SturdyRefFileExporter: no mutable state (except lazy evaluation)
+SturdyRefURLImporter: no mutable state (except lazy evaluation)
+SturdyRefFollower: no mutable state
+
+----------------- end of state created by RegistrarMaker ------------
+
+Objects accessable from Registrar:
+
+Registrar
+SturdyRefMaker
+SturdyRefImporter
+SturdyRefExporter
+SturdyRefFileImporter (with EEnvironment)
+SturdyRefFileExporter (with EEnvironment)
+SturdyRefURLImporter (with EEnvironment)
+ConnectionsManager

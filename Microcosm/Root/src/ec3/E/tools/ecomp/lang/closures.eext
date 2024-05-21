@@ -1,0 +1,38 @@
+# 1 "ec/ecomp/lang/closures.java" 
+/* ************************************************************************
+ * Espresso! Abstract syntax tree nodes for expressions
+ * Copyright 1995, 1996, 1997 Martin Odersky. All rights reserved.
+ * 
+ * Author     : Martin Odersky
+ * Last change: 11-December-97
+ *************************************************************************/
+
+
+package ec.ecomp.lang;
+# 13 "ec/ecomp/lang/closures.java" 
+
+
+public class MessageNotUnderstood extends RuntimeException {
+    public MessageNotUnderstood(int x) {
+        super("tag=" + x);
+    }
+};
+
+public abstract class Closure {
+
+    public abstract Object $apply(Object[] args); 
+
+    public static Object[] combine(Object[] x, Object[] y) {
+        Object z[] = new Object[x.length + y.length];
+        System.arraycopy(x, 0, z, 0, x.length);
+        System.arraycopy(y, 0, z, x.length, y.length);
+        return z;
+    }
+
+
+
+
+}
+
+
+

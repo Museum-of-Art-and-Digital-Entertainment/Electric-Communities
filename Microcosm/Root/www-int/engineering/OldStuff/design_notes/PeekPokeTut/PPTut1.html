@@ -1,0 +1,113 @@
+<!--NewPage-->
+<!-- Created by Masa Maeda on 05.14.97  -->
+<!-- Copyright 1997 Electric Communitites. -->
+<!-- All rights reserved worldwide.  -->
+<!-- Proprietary and confidential. -->
+<HTML>
+<HEAD>
+<pre>          <a href="PPTut2.html">Next</a>  <a
+href="PPTutI.html">Index</a>  <a
+href="http://www-int.communities.com">EC internal web page</a></pre>
+<TITLE>The PeekPoke Tutorial</TITLE>
+</HEAD>
+<BODY>
+<P><HR WIDTH="100%" SIZE=2></P>
+<B><FONT SIZE=6>
+<P>The PeekPoke Tutorial</P>
+</B>
+</FONT><FONT SIZE=2><P></P>
+<P>Copyright 1997 Electric Communities, all rights
+reserved.&#9;&#9;Proprietary and
+Confidential</P>
+</FONT>
+<P></P>
+<B><P>Summary</P></B>
+<P>The Pluribus language was developed to describe Electric
+Communities' Distributed object
+Model.  The basic element of this model is the unum. In this
+tutorial a model for the creation
+of two Una to allow communication amongst distributed objects is
+introduced. The code needed
+to generate a framework for the Una environment and the code needed
+to establish the
+communication between a server, henceforth host, and a client is
+presented in Part One. This
+is the fundamental host/server model from which other behavior can
+be implemented. The code
+for a multi-client environment, in which a message is securely
+spread to all clients is
+introduced in Part Two. In addition to behavior, an Unum may have a
+state that holds on host
+and clients and is not sent as a message but handled inside the unum
+itself. States are
+presented in Part Three.</P>
+<P></P>
+<B><P>What's in a Presence</P></B>
+<FONT SIZE=2>
+</FONT><P>An unum is an object whose state and behavior can be
+spread across agencies and is
+represented in an agency as a presence. Presences consist of
+traditional-style objects called
+ingredients that provide the actual code for the presence.</P>
+<P><HR WIDTH="80%" SIZE=2></P>
+
+<h2><IMG SRC="figure1.gif" WIDTH="490" HEIGHT="300" BORDER="1" HSPACE="40"></h2>
+<P ALIGN="CENTER">Figure 1.  Structure of a Presence</P>
+<P><HR WIDTH="80%" SIZE=2></P>
+<P></P>
+<P>A sample presence with a description of its elements is shown in
+Figure 1. The vertical
+dotted line on the right denotes, graphically, the limit of a
+presence implementation with
+respect to others. At the outermost layer is the Unum Structure Kind
+which is simply the set
+of unum interfaces utilized to communicate with the unum. This
+interfaces are the same for all
+presences of the unum.  The Unum Structure groups all Presence
+Structures of the unum and
+define which presence is to be the prime, i.e., the host presence.
+The Unum Implementation
+associates these structures with their respective implementations.
+The Presence Structure Kind
+is the set of presence interfaces for communication with other
+presences. The Presence
+Structure groups,for each unum kind,its ingredient and the means to
+route both unum messages
+and presence messages to the ingredient implementation. In the
+Presence Implementation the
+constituent ingredients are actually defined and the behavior when a
+new client is created is
+determined. The Ingredient Structure Kind groups the ingredients of
+the presence by kind and
+it is the Ingredient Implementation where the ingredients, presences
+and una are instantiated.
+For a detailed description see Chapter 1 of the Pluribus
+Programmer's Manual.
+
+In Figure 1 the Presence Structure for two unum kinds is depicted.
+The bold ones represent the
+unum kinds whereas the single ones represent presence kinds. Note
+that graphically identical
+kinds connected through an arrow are actually the same one kind and
+not two separate ones. In
+general, any number of unum and presence kinds is allowed in an
+implementation. The only
+consideration is that there should be as many unum kinds as presence
+kinds in an unum. Details
+of each one of these elements will be discussed in detail next.</P>
+<P></P>
+<P><HR WIDTH="100%" SIZE=2></P>
+<pre>          <a href="PPTut2.html">Next</a>  <a
+href="PPTutI.html">Index</a>  <a
+href="http://www-int.communities.com">EC internal web page</a></pre>
+</HTML>
+
+
+
+
+
+
+
+
+
+

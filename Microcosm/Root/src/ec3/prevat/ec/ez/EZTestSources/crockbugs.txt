@@ -1,0 +1,75 @@
+
+I'm trying to run this little prime number tester, and I've been running
+into problems.
+
+define test := dispatch {
+  to isPrime n {
+    if (n != (n truncate)) {
+      false
+    } else {
+      define nsqrt := n sqrt
+      define factor := 3
+      define prime := ((n _/ 2) * 2) != n
+      while (factor <= nsqrt && prime) {
+        if (((n _/ factor) * factor) == n) {
+          prime := false
+        } else {
+          factor += 2
+      } }
+      prime
+} } }
+
+1.5 truncate
+
+value: 1
+//ok
+
+(1 != 2)
+
+value: true
+//ok
+
+(1.5 != 1.5 truncate)
+
+, 2: ec.ez.collect.NotFoundException: truncate/0
+null
+//what th--?!
+
+5.0 truncate
+value: 5
+
+5 truncate
+boom
+
+Subject: (4.0 _/ 2.0) * 2.0
+
+
+boom
+
+truncate applied to an integer produces an error. ouch!
+
+define fast := dispatch {
+  to sqrt n {
+    if (n <= 0) {0} else {
+      define b := n / 2
+      while (((n/b - b) abs) > (0.00001 * b)) {
+        b := (n/b + b)/2
+      }
+      b
+} } }
+
+
+
+
+
+
+
+define fast := dispatch {
+  to sqrt n {
+    if (n <= 0) {0} else {
+      define b := n / 2
+      while (((n/b - b) abs) > (0.00001 * b)) {
+        b := (n/b + b)/2
+      }
+      {b}
+} } }

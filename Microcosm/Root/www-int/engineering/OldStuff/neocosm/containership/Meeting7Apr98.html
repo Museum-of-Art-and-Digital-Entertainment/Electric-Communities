@@ -1,0 +1,184 @@
+<HTML>
+<HEAD>
+    <TITLE>Containership Requirements Meeting, 7th April 98</TITLE>
+</HEAD>
+<BODY>
+<H1>Containership Requirements Meeting 7th April 98</H1>
+
+
+<em>This page is maintained by <A HREF="mailto:trev@communities.com">Trev</A>.
+Please let me know of any errors ASAP so I can fix them.
+<br>
+<b>Warning:</b> these pages change frequently. If you've looked at them
+recently hit "reload" on your browser to make sure you're seeing the
+latest version.
+</em>
+<p>
+
+<h2>Present at Meeting</h2>
+
+Arturo, Bill, Markm, Eric, ScottL, RobJ, Trev
+
+
+<h2>Meeting Process</h2>
+
+We started the meeting by talking about how the meetings have been going
+and how they should proceed.
+
+<p>
+I was worried the previous meetings had "shut people out" - that
+people hadn't been able to get their point heard when they wanted
+to. But, when asked, everyone present thought that the only
+difficulties had been those you'd expect at any large meeting; it's
+always going to be harder to get your say if more people are in a
+meeting. (By the way, in the rest of this meeting I thought people
+were very careful to let people have their say, without interrupting).
+<p>
+We all agreed that we needed to move to a smaller group (or smaller
+groups) when we start doing design. But larger groups are good for
+getting shared understanding and scoping the problem, which is what
+we are doing right now.
+<p>
+We also need to set time limits for meetings (we did for this meeting
+and it still ran over, but only by 10 minutes or so).
+
+
+<h2>Requirements Discussion</h2>
+
+<h4>The problem we discussed</h4>
+
+The entire meeting was spent on the first requirement on our "to
+be discussed" list:
+<p>
+"An object should not be contained by some container without consent
+from both the object and the container i.e. both container and object
+have to agree that the object is in the container; either the
+container or the object can veto the relationship."
+<p>
+The main point we discovered was the tension between this and our
+first agreed upon requirement (which we clarified slightly):
+<p>
+"A region provides a shared "space" in which all objects recursively
+and openly contained by the region are visible to some set of
+viewers. Both the objects and the viewers can be distributed across
+the network i.e. the authoratitive state of N objects in a region may
+be on N different machines."
+<p>
+The "shared space" requirement is one of the big problems Scott's
+DObject work solves i.e. managing sessions of distributed objects. This
+alone is a hard problem. The "consenting container/containee" is also
+fairly hard. But combining them both is much harder because you have
+two distributed structures that have to be kept in synch (e.g. if
+avatar Fred holds a table which has a book on it, and then Fred moves
+to another region, the book has to change region too).
+<p>
+One realization is that this problem would be trivial if all the
+objects were hosted on the same machine and could communicate
+synchronously and reliably. As Scott points out, some trivial problems
+become hard or impossible when distributed across the network.
+
+
+<h4>Example</h4>
+
+We spent a lot of time looking at diagrams of a containership tree
+(more of a twig really) where A openly contains B which openly
+contains C (e.g. A's an avatar holding a table B containing a book
+C). Suppose A, B and C are all hosted on different machines. What
+happens when A moves into a region R, on yet another machine? R has to
+know about the A, B, C relationships in order to show A, B and C to
+all viewers of the region. So that means that R has to have
+relationships with A, B and C. We discussed how these relationships
+should be established and maintained. We referred to the different
+relationships as "blue" and "green" lines according to our diagram;
+that doesn't help here so I'll refer to them as "containership" and
+"session" relationships. E.g. B and C would have a containership
+relationship because B contains C. R would have session relationships
+with both B and C because they're in the same session.
+
+
+<h4>Introducing a tree into a new region</h4>
+
+Thinking how the relationships are established made us realize how
+much a container controls its containees, even things it recursively
+contains. If A moves to region R, then B and C are relying on A to
+perform the introduction to R (and all of A, B and C are relying on R
+to introduce them to the viewers of R). This also gives lots of
+opportunity for "men in the middle".
+<p>
+For example, a well behaved A, on entering R, will introduce B
+(contained in A) to R. But it could introduce B to something that
+looks like R but is, in fact, under A's control. B could short circuit
+directly to R and do an equality check, but only if B has some idea of
+which region it "should" be in. This lead to a discussion of identity;
+if both B and R had an identity then it would make more sense for B to
+have an idea of what region it "should" be in. MarkM thought that
+ownership would drive the need for identity; until we have identity
+props don't really need identity (though Scott could see some uses
+even without ownership).
+
+
+<h4>Maintaining multiple relationships</h4>
+
+So we have the containership relationships and the session
+relationships, and they're related i.e. The region R has a session
+relationship with C because A is in R and A openly contains B which
+contains C. All the relationships here are distributed.
+<p>
+One worry is what happens if one part of the linked relationships
+fails, due to network partition? e.g. What if the session relationship
+is represented via a network link between R and C and the
+containership relationship is represented via a network link between B
+and C. What happens if just one of those links go down? How does the
+system get to a new consistent state? It was pointed out that message
+delivery patterns and network topologies needn't correspond exactly,
+but network topology does have an impact on error handling (e.g.
+it's much easier to understand what happens if one arm of a star
+fails vs one link in a web).
+
+
+<h4>The Current Protocol</h4>
+
+We discussed the current protocol briefly. It maintains a cache
+of the containership tree at each level e.g. A would cache knowledge
+of B and C. On entering a region A lets R know that it contains B
+and C. R then gives A "entry relationships" for A, B and C. A sets
+up its own relationship with R, and passes the others on to B (which
+passes C's on to C).
+<p>
+When a tree is being moved it is "locked" so no additions can take
+place until the move is done. Things can still remove themselves from
+the tree (either due to explicit action or network failure). But
+handling this is deferred until the move is complete. e.g. suppose the
+machine hosting C dies while the A, B, C tree is moving into R.  A
+still tells R about A, B and C. But when the R to C relationship is
+set up and propogated down to C an error will occur, and the usual
+clean up will take place.
+<p>
+Eric proposed a very similar scheme, without the emphasis on cacheing
+and atomicity, but keeping the approach of propogating changes up and
+down the tree.
+<p>
+Bill wondered about a scheme were all messages, including those to do
+with the session relationship, were relayed up and down the tree. This
+has the advantage of a single message path (messages from C always go
+via B then A then R), which makes it clear what happens if that path
+fails. But it introduces more latency and chances for man in the
+middle problems.
+
+
+<h4>Things to think about</h4>
+
+Arturo suggested that it would be useful to think about two approaches
+<ol>
+<li>Starting with sessions and adding hierarchical containership (this
+fits well with Scott's DObject work)
+<li>Starting with the containership relationships and adding sessions
+(this is what we did with the current containership work).
+</ol>
+
+<p>
+
+<A HREF="index.html">Back to design discussion page</A>
+
+</BODY>
+</HTML>

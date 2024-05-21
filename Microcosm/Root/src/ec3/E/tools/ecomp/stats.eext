@@ -1,0 +1,1176 @@
+# 1 "ec/ecomp/stats.java" 
+/* ************************************************************************
+ * Espresso! Abstract syntax tree nodes for statements
+ * Copyright 1995, 1996, 1997 Martin Odersky. All rights reserved.
+ * 
+ * Author     : Martin Odersky, Michael Philippsen.
+ * Last change: 17-December-97
+ *************************************************************************/
+
+
+package ec.ecomp;
+
+
+
+
+import java.util.Hashtable;
+import java.util.Vector;
+
+/** a class for statements that can be targets of breaks and continues.
+ *  subclasses are all loop classes, Switch, and Labelled.
+ */
+class JumpTarget extends AST {
+    Label exit = null;
+    Label cont = null;
+    Bits exitCapt = null;
+    Bits contCapt = null;
+
+    JumpTarget(int pos, int tag) {
+        super(pos, tag);
+    }
+}
+
+/** a class for statements that transfer control. subclasses are
+ *  Break, Continue, Return and Throw.
+ */
+class Jump extends AST {
+
+/** a vector of all try statements whose finally clauses need to
+ *  be called before the jump takes place.
+ */
+  //FIX 21-Feb-97: finalizers not re-initialized on second pass
+  Vector finalizers;
+
+    Jump(int pos, int tag) {
+        super(pos, tag);
+    }
+
+/** include capt in the 'captured' sets of all intervening tries.
+ */
+    void markCaptured(Bits capt) {
+        for (int i = 0; i < finalizers.size(); i++) {
+            ((Try)finalizers.elementAt(i)).captured.orSet(capt);
+        }
+     }
+
+/** generate code to call finalizers before jumping.
+ */
+    void finalisation() {
+        for (int i = 0; i < finalizers.size(); i++) {
+            ((Try)finalizers.elementAt(i)).finalisation();
+        }
+    }
+
+/** search target of continue or break
+ */
+    JumpTarget findTarget(Env env, Name label) {
+        JumpTarget target = null;
+        Env env1 = env;
+        if (label != null) {
+            while (env1 != null && 
+                   env1.parent.tag != SEQ &&
+                   env1.parent.tag != LAMBDA &&
+                   !(env1.parent.tag == LABELLED &&
+                     ((Labelled)env1.parent).label.equals(label))) {
+                if (env1.parent.tag == TRY)
+                    finalizers.addElement(env1.parent);
+                env1 = env1.next;
+            }
+            if (env1 != null && env1.parent.tag == LABELLED)
+                target = (JumpTarget)env1.parent;
+            else
+                Report.error(pos, "undefined label: " + label);
+        } else {
+            while (env1 != null && 
+                   env1.parent.tag != SEQ &&
+                   env1.parent.tag != LAMBDA &&
+                   env1.parent.tag != FORLOOP &&
+                   env1.parent.tag != WHILELOOP &&
+                   env1.parent.tag != DOLOOP &&
+                   (tag != BREAK || env1.parent.tag != SWITCH)) {
+                if (env1.parent.tag == TRY)
+                    finalizers.addElement(env1.parent);
+                env1 = env1.next;
+            }
+            
+            if (env1 != null && 
+                env1.parent.tag != SEQ &&
+                env1.parent.tag != LAMBDA) {
+                target = (JumpTarget)env1.parent;
+            } else if (tag == BREAK) {
+                Report.error(pos, "break outside of loop or switch");
+            } else {
+                Report.error(pos, "continue outside of loop");
+            }
+        }
+        return target;
+    }
+}
+
+class Break extends Jump {
+    Name label;
+
+/** the statement that's left; attributed.
+ */
+    JumpTarget target; 
+
+    Break(int pos, Name label) {
+        super(pos, BREAK);
+        this.label = label;
+    }
+
+    Typ attr(Env env, int kind, Typ pt) {
+        //FIX 21-Feb-97: finalizers not re-initialized on second pass
+        finalizers = new Vector();
+        target = findTarget(env, label);
+        typ = pt;
+        return typ;
+    }
+
+    Item gen() {
+        Gen.statBegin(pos);
+        finalisation();
+        target.exit = Gen.mergeLabels(target.exit, Gen.branch(goto_));
+        return Item.voidItem;
+    }
+        
+    void print(int prec) {
+        System.out.print("break");
+        if (label != null) System.out.print(" " + label);
+    }
+}
+
+class Case extends AST {
+    AST pat;
+    AST[] stats;
+
+/** the value of the pattern pat; set by the containing Switch class.
+ */
+    int val;                  
+
+/** valid (i.e. non-duplicate case); set by the containing Switch class.
+ */
+    boolean valid = false;    
+
+    Case(int pos, AST pat, ASTS stats) {
+        super(pos, CASE);
+        this.pat = pat;
+        this.stats = stats.shrink();
+    }
+
+    Typ attr(Env env, int kind, Typ pt) {
+        if (pat != null) pat.attr(env, VAL, Typ.intTyp);
+        typ = pt;
+        for (int i = 0; i < stats.length; i++)
+
+            typ = Attr.join(env, stats[i].pos,
+
+
+
+                            typ, stats[i].attr(env, VAL, pt));
+        return typ;
+    }
+
+    Item gen( ) {
+        for (int i = 0; i < stats.length; i++)
+            stats[i].genDrop();
+        return Item.voidItem;
+    }
+
+    void print (int prec) {
+        Pretty.align();
+        if (pat == null) {
+            System.out.print("default");
+        } else {
+            System.out.print("case ");
+            pat.print();
+        }
+        System.out.print(":\n");
+        Pretty.indent();
+        printStats(stats);
+        Pretty.undent();
+    }
+}
+  
+
+class Conditional extends AST {
+    AST cond;
+    AST thenpart;
+    AST elsepart;
+
+    Conditional(int pos, int op, AST cond, AST thenpart, AST elsepart) {
+        super(pos, op);
+        this.cond = cond;
+        this.thenpart = thenpart;
+        this.elsepart = elsepart;
+    }
+
+    boolean isExpr() { return true; }
+
+    boolean isConstant() {
+        return 
+            cond.isConstant() && 
+            thenpart.isConstant() &&
+            elsepart.isConstant();
+    }
+
+    Typ attr(Env env, int kind, Typ pt) {
+        if (Attr.checkKind(pos, VAL, kind)) {
+            cond.attr(env, VAL, Typ.booleanTyp);
+
+            typ = Attr.join(env, thenpart.pos,
+
+
+
+                            pt, thenpart.attr(env, VAL, pt));
+            if (elsepart != null)
+
+                typ = Attr.join(env, elsepart.pos,
+
+
+
+                                typ, elsepart.attr(env, VAL, pt));
+        } else
+            typ = Typ.errTyp;
+        return typ;
+    }
+
+    Item gen() {
+        if (elsepart != null && cond.isConstant()) {
+            ImmediateItem condItem = (ImmediateItem)cond.gen();
+            if (((Number)condItem.value).intValue() != 0)
+                return thenpart.gen();
+            else
+                return elsepart.gen();
+        } else {
+            if (tag == CONDSTAT) Gen.statBegin(pos);
+            Label thenExit = null;
+            CondItem c = cond.gen().mkCond();
+            Label elseLab = c.jumpFalse();
+            if (c.trueJumps != null || c.opcode != Gen.dontgoto) {
+                Gen.resolve(c.trueJumps);
+                if (tag == CONDSTAT) thenpart.genDrop();
+                else thenpart.gen().coerce(thenpart.typ, typ).load(typ);
+                thenExit = Gen.branch(goto_);
+            }
+            if (elsepart != null) {
+                if (elseLab != null) {
+                    Gen.resolve(elseLab);
+                    if (tag == CONDSTAT) elsepart.genDrop();
+                    else elsepart.gen().coerce(elsepart.typ, typ).load(typ);
+                }
+                Gen.resolve(thenExit);
+            } else {
+                Gen.resolve(thenExit);
+                Gen.resolve(elseLab);
+            }
+            return tag == CONDSTAT ? Item.voidItem : Item.stackItem;
+        }
+    }
+
+    void print(int prec) {
+        if (tag == CONDSTAT) {
+            System.out.print("if (");
+            cond.print();
+            System.out.print(") ");
+
+            thenpart.printAsSubstatement();
+
+
+
+            if (elsepart != null) {
+                System.out.print(" else ");
+
+                elsepart.printAsElse();
+
+
+
+            }
+        } else {
+            Pretty.open(prec, condPrec);
+            cond.print(condPrec);
+            System.out.print(" ? ");
+            thenpart.print(condPrec);
+            System.out.print(" : ");
+            elsepart.print(condPrec);
+            Pretty.close(prec, condPrec);
+        }
+    }
+
+
+    void printEndStatement() {
+    }
+
+    void printAsElse() {
+      print();
+    }
+
+
+}
+
+
+class Continue extends Jump {
+    Name label;
+
+/** the statement that's continued; attributed.
+ */
+    JumpTarget target; // attributed
+
+    Continue(int pos, Name label) {
+        super(pos, CONTINUE);
+        this.label = label;
+    }
+
+    Typ attr(Env env, int kind, Typ pt) {
+        //FIX 21-Feb-97: finalizers not re-initialized on second pass
+        finalizers = new Vector();
+        target = findTarget(env, label);
+        if (target instanceof Labelled) {
+            Labelled l = (Labelled)target;
+            if (l.stat.tag != FORLOOP &&
+                l.stat.tag != WHILELOOP &&
+                l.stat.tag != DOLOOP)
+                Report.error(pos, "not a loop label: " + label);
+            else
+                target = (JumpTarget)l.stat;
+        }
+        typ = pt;
+        return typ;
+    }
+
+    Item gen() {
+        Gen.statBegin(pos);
+        finalisation();
+        target.cont = Gen.mergeLabels(target.cont, Gen.branch(goto_));
+        return Item.voidItem;
+    }
+        
+    void print(int prec) {
+        System.out.print("continue");
+        if (label != null) System.out.print(" " + label);
+    }
+}
+  
+
+class DoLoop extends JumpTarget {
+    AST cond;
+    AST body;
+
+    DoLoop(int pos, AST body, AST cond) {
+        super(pos, DOLOOP);
+        this.cond = cond;
+        this.body = body;
+        this.contCapt = new Bits();
+        this.exitCapt = new Bits();
+    }
+
+    Typ attr(Env env, int kind, Typ pt) {
+        Env loopEnv = new Env(env, this);
+        typ = body.attr(loopEnv, VAL, pt);
+        cond.attr(env, VAL, Typ.booleanTyp);
+        return typ;
+    }
+
+    Item gen() {
+        int startPc = Gen.curPc();
+        body.genDrop();
+        Gen.resolve(cont);
+        Gen.statBegin(cond.pos);
+        CondItem c = cond.gen().mkCond();
+        Gen.resolve(c.jumpTrue(), startPc);
+        Gen.resolve(c.falseJumps);
+        Gen.resolve(exit);
+        return Item.voidItem;
+    }
+
+    void print (int prec) {
+        System.out.print("do ");
+
+        body.printAsSubstatement();
+        Pretty.align();
+        System.out.print("while (");
+
+
+
+
+        cond.print();
+        System.out.print(")");
+    }
+}
+
+/** a class representing expression statements.
+ */
+class Exec extends AST {
+    AST expr;
+
+    Exec(int pos, AST expr) {
+        super(pos, EXEC);
+        this.expr = expr;
+    }
+    
+    Typ attr(Env env, int kind, Typ pt) {
+        if (kind == CONSTR || Attr.checkKind(pos, VAL, kind)) {
+            expr.attr(env, kind, Typ.anyTyp);
+            typ = pt;
+        } else 
+            typ = Typ.errTyp;
+        // to get better code, convert postinc/decs to preinc/decs.
+         if (expr.tag == POSTINC) expr.tag = PREINC;
+        else if (expr.tag == POSTDEC) expr.tag = PREDEC;
+        return typ;
+    }
+
+    Item gen() {
+        Gen.statBegin(pos);
+        expr.genDrop();
+        return Item.voidItem;
+    }
+
+    void print(int prec) {
+        expr.print();
+    }
+}
+
+class ForLoop extends JumpTarget {
+    AST[] e1;
+    AST e2;
+    AST[] e3;
+    AST body;
+
+    ForLoop(int pos, ASTS e1, AST e2, ASTS e3, AST body) {
+        super(pos, FORLOOP);
+        this.e1 = e1.shrink();
+        this.e2 = e2; 
+        this.e3 = e3.shrink();
+        this.body = body;
+        this.contCapt = new Bits();
+        this.exitCapt = new Bits();
+    }
+
+    Typ attr(Env env, int kind, Typ pt) {
+        Env forEnv = new Env(env, env.parent, env.scope.duplicate());
+        for (int i = 0; i < e1.length; i++)
+            e1[i].attr(forEnv, VAL, Typ.anyTyp);
+        if (e2 != null) e2.attr(forEnv, VAL, Typ.booleanTyp);
+        forEnv.parent = this;
+        for (int i = 0; i < e3.length; i++) {
+            e3[i].attr(forEnv, VAL, Typ.anyTyp);
+            // to get better code, convert postinc/decs to preinc/decs.
+            if (e3[i].tag == POSTINC) e3[i].tag = PREINC;
+            else if (e3[i].tag == POSTDEC) e3[i].tag = PREDEC;
+        }
+        typ = body.attr(forEnv, VAL, pt);
+        forEnv.scope.leave();
+        return typ;
+    }
+
+    Item gen() {
+        if (e1.length > 0) Gen.statBegin(e1[0].pos);
+        for (int i = 0; i < e1.length; i++) e1[i].genDrop();
+        int startPc = Gen.curPc();
+        CondItem c;
+        if (e2 != null) {
+            Gen.statBegin(e2.pos);
+            c = e2.gen().mkCond();
+        } else
+            c = new CondItem(goto_);
+        exit = c.jumpFalse();
+        if (c.trueJumps != null || c.opcode != Gen.dontgoto) {
+            Gen.resolve(c.trueJumps);
+            body.genDrop();
+            Gen.resolve(cont);
+            if (e3.length > 0) Gen.statBegin(e3[0].pos);
+            for (int i = 0; i < e3.length; i++) e3[i].genDrop();
+            Gen.resolve(Gen.branch(goto_), startPc);
+        }
+        Gen.resolve(exit);
+        return Item.voidItem;
+    }
+
+    void print(int prec) {
+        System.out.print("for (");
+
+        if (e1.length > 0) {
+          if (e1[0] instanceof VarDef) {
+            e1[0].print();
+            for (int i = 1; i < e1.length; i++) {
+                System.out.print(", ");
+                VarDef tmp = (VarDef)e1[i];
+                System.out.print(" "+tmp.name);
+                if (tmp.init != null) {
+                  System.out.print(" = ");
+                  tmp.init.print();
+                }
+            }
+          } else {
+
+            printSeq(e1);
+
+          }
+        }
+
+        System.out.print("; ");
+        if (e2 != null) e2.print();
+        System.out.print("; ");
+        printSeq(e3);
+        System.out.print(") ");
+
+        body.printAsSubstatement();
+
+
+
+    }
+
+
+    void printEndStatement() {
+    }
+
+}
+
+
+class Labelled extends JumpTarget {
+    Name label;
+    AST stat;
+
+    Labelled(int pos, Name label, AST stat) { 
+        super(pos, LABELLED);
+        this.label = label;
+        this.stat = stat;
+        this.exitCapt = new Bits();
+    }
+
+    Typ attr(Env env, int kind, Typ pt) {
+        typ = stat.attr(new Env(env, this), kind, pt);
+        return typ;
+    }
+
+    Item gen() {
+        stat.genDrop();
+        Gen.resolve(exit);
+        return Item.voidItem;
+    }
+
+    void print(int prec) {
+        System.out.print(label + ": ");
+        stat.print();
+    }
+}
+
+class Return extends Jump {
+    AST expr;
+
+/** the function defition or seq block enclosing the return statement
+ */
+    AST enclBlock;
+
+    Return(int pos, AST expr) {
+        super(pos, RETURN);
+        this.expr = expr;
+    }
+
+    Typ attr(Env env, int kind, Typ pt) {
+        //FIX 21-Feb-97: finalizers not re-initialized on second pass
+        finalizers = new Vector();
+        Env env1 = env;
+        while (env1 != null && 
+               env1.parent.tag != FUNDEF &&
+               env1.parent.tag != LAMBDA &&
+               env1.parent.tag != SEQ) {
+            if (env1.parent.tag == TRY)
+                finalizers.addElement(env1.parent);
+            env1 = env1.next;
+        }
+        if (env1 != null) {
+            enclBlock = env1.parent;
+            if (pt.tag == VOID) {
+                if (expr == null) {
+                    typ = pt;
+                } else {
+                    Report.error(expr.pos, 
+                                 "can't return a value from function whose result type is void");
+                    typ = Typ.errTyp;
+                }
+            } else if (expr == null) {
+                Report.error(pos, "missing return value");
+                typ = Typ.errTyp;
+            } else {
+                typ = expr.attr(env, VAL, pt);
+            }
+        } else {
+            Report.error(pos, "static initializer cannot return");
+            typ = Typ.errTyp;
+        }
+        return typ;
+    }
+
+//FIX 21/8/96: finalisation too early when returning an expression
+    Item gen() {
+        Gen.statBegin(pos);
+        if (expr != null) {
+            Typ returnTyp = null;
+            if (enclBlock.tag == SEQ)
+                returnTyp = enclBlock.typ;
+            else
+                returnTyp = ((FunTyp)((FunDef)enclBlock).obj.typ).restyp;
+            Item returnItem = expr.gen().coerce(expr.typ, returnTyp);
+            if (finalizers.size() > 0) {
+                returnItem.load(returnTyp);
+//FIX 21/5/97
+                returnItem = new LocalItem(pos, Gen.newLocal(returnTyp));
+                returnItem.store(returnTyp);
+            }
+            finalisation();
+            returnItem.load(returnTyp);
+            if (enclBlock.tag == SEQ) {
+                Sequence enclSeq = (Sequence)enclBlock;
+                enclSeq.retLab =
+                    Gen.mergeLabels(enclSeq.retLab, Gen.branch(goto_));
+            } else {
+                Gen.emitop(ireturn + Gen.typecode(returnTyp));
+            }
+        } else {
+            finalisation();
+            Gen.emitop(return_);
+        }
+        return Item.voidItem;
+    }
+//ENDFIX
+
+    void print(int prec) {
+        System.out.print("return ");
+        if (expr != null) expr.print();
+    }
+}
+
+class Switch extends JumpTarget {
+    AST sel;
+    Case[] cases;
+
+    Switch(int pos, AST sel, ASTS cases) {
+        super(pos, SWITCH);
+        this.sel = sel;
+        this.cases = new Case[cases.length];
+        for (int i = 0; i < cases.length; i++) 
+            this.cases[i] = (Case)cases.elems[i];
+        this.exitCapt = new Bits();
+    }
+
+    Typ attr(Env env, int kind, Typ pt) {
+        sel.attr(env, VAL, Typ.intTyp);
+        Env switchEnv = new Env(env, this);
+        typ = pt;
+        for (int i = 0; i < cases.length; i++)
+
+            typ = Attr.join(env, cases[i].pos,
+
+
+
+                            typ, 
+                            cases[i].attr(switchEnv, VAL, pt));
+        return typ;
+    }
+
+    Item gen() {
+        Gen.statBegin(pos);
+        sel.genLoad();
+        int lo = Integer.MAX_VALUE;
+        int hi = Integer.MIN_VALUE;
+        int n = 0;
+        Hashtable values = new Hashtable();
+        boolean hasDefault = false;
+
+        for (int i = 0; i < cases.length; i++) {
+            if (cases[i].pat != null) {
+                Item pattern = cases[i].pat.gen();
+                if (pattern instanceof ImmediateItem) {
+                    Object pvalue = ((ImmediateItem)pattern).value;
+                    if (values.get(pvalue) == null) {
+                        values.put(pvalue, pvalue);
+                        int val = ((Integer)pvalue).intValue();
+                        if (val < lo) lo = val;
+                        if (hi < val) hi = val;
+                        n++;
+                        cases[i].val = val;
+                        cases[i].valid = true;
+                    } else
+                        Report.error(cases[i].pos, "duplicate case label");
+                } else 
+                    Report.error(cases[i].pos, "constant expression required");
+            } else { 
+                if (hasDefault)
+                    Report.error(cases[i].pos, "duplicate default label");
+                else {
+                    cases[i].valid = true;
+                    hasDefault = true;
+                }
+            }
+        }
+
+        long table_space_cost = (long)4 + (hi - lo + 1); // words
+        long table_time_cost = 3; // comparisons
+        long lookup_space_cost = (long)3 + 2 * n;
+        long lookup_time_cost = n;
+        int opcode = 
+            table_space_cost + 3 * table_time_cost <=
+            lookup_space_cost + 3 * lookup_time_cost
+            ?
+            tableswitch : lookupswitch;
+
+        if (Gen.alive) {
+            Bits uninits = Gen.uninitSet();
+            int startPc = Gen.curPc();
+            Gen.emitop(opcode);
+            Gen.align(4);
+            int tableBase = Gen.curPc();
+            Gen.emit4(-1);
+            if (opcode == tableswitch) {
+                Gen.emit4(lo);
+                Gen.emit4(hi);
+                for (int i = lo; i <= hi; i++)
+                    Gen.emit4(-1);
+            } else {
+                Gen.emit4(n);
+                for (int i = 0; i < n; i++) {
+                    Gen.emit4(-1); Gen.emit4(-1);
+                }
+            }
+
+            n = 0;
+            for (int i = 0; i < cases.length; i++) {
+                if (cases[i].valid)
+                    if (cases[i].pat != null)
+                        if (opcode == tableswitch)
+                            Gen.put4(tableBase + 4*(cases[i].val-lo+3),
+                                     Gen.curPc() - startPc);
+                        else {
+                            int caseidx = tableBase + 8 * (n + 1);
+                            Gen.put4(caseidx, cases[i].val);
+                            Gen.put4(caseidx + 4, Gen.curPc() - startPc);
+                            n++;
+                        }
+                    else
+                        Gen.put4(tableBase, Gen.curPc() - startPc);
+                Gen.entryPoint(0, uninits);
+                cases[i].genDrop();
+            }
+
+            Gen.resolve(exit);
+            if (Gen.get4(tableBase) == -1) {
+                Gen.put4(tableBase, Gen.curPc() - startPc);
+                Gen.entryPoint(0, uninits);
+            }
+            if (opcode == tableswitch) {
+                int defaultOffset = Gen.get4(tableBase);
+                for (int i = lo; i <= hi; i++) {
+                    if (Gen.get4(tableBase + 4 * (i - lo + 3)) == -1)
+                        Gen.put4(tableBase + 4 * (i - lo + 3), 
+                                 defaultOffset);
+                }
+//FIX 15/4/97
+//FIX 5/5/97
+            } else if (1 <= n) {
+                sortLabels(tableBase, 1, n);
+            }
+        }
+        return Item.voidItem;
+    }
+
+//FIX 15/4/97
+    static void sortLabels(int base, int lo, int hi) {
+        int i = lo;
+        int j = hi;
+        int pivot = Gen.get4(base + ((i+j)/2)*8);
+        do {
+            while (Gen.get4(base + i*8) < pivot) i++;
+            while (pivot < Gen.get4(base + j*8)) j--;
+            if (i <= j) {
+                int temp = Gen.get4(base + i*8);
+                Gen.put4(base + i*8, Gen.get4(base + j*8));
+                Gen.put4(base + j*8, temp);
+                temp = Gen.get4(base + i*8 + 4);
+                Gen.put4(base + i*8 + 4, Gen.get4(base + j*8 + 4));
+                Gen.put4(base + j*8 + 4, temp);
+                i++;
+                j--;
+            }
+        } while (i <= j);
+        if (lo < j) sortLabels(base, lo, j);
+        if (i < hi) sortLabels(base, i, hi);
+    }
+ 
+    void print (int prec) {
+        System.out.print("switch (");
+        sel.print();
+        System.out.print(") {\n");
+        for (int i = 0; i < cases.length; i++) cases[i].print();
+        Pretty.align();
+
+        System.out.println("}");
+
+
+
+    }
+
+
+    void printEndStatement() {
+    }
+
+}
+
+
+class Synchronized extends Try {
+    AST lock;
+
+/** the item that addresses the lock object; attributed.
+ */
+    Item lockVar;
+
+    Synchronized(int pos, AST lock, AST stat) {
+        super(pos, stat, new ASTS(), new Block(pos, new ASTS()));
+        this.lock = lock;
+    }
+
+    Typ attr(Env env, int kind, Typ pt) {
+        //FIX 25/6/97
+        Attr.checkObjectTyp(lock.pos, lock.attr(env, VAL, Typ.anyTyp));
+        return super.attr(env, kind, pt);
+    }
+
+/** generate lock exit code; overrides Try.
+ */
+    void genFinal() {
+        lockVar.load(lock.typ);
+        Gen.emitop(monitorexit);
+    }        
+
+    Item gen() {
+        Gen.statBegin(pos);
+        lockVar = new LocalItem(pos, Gen.newLocal(lock.typ));
+        lock.genLoad();
+        lockVar.store(lock.typ);
+        lockVar.load(lock.typ);
+        Gen.emitop(monitorenter);
+        super.gen();
+//FIX 21/8/96 too pessimistic about initialized vars in synchronzied
+        if (Gen.alive) Gen.entryPoint(Gen.stackSize(), uninitsEnd);
+//ENDFIX
+        return Item.voidItem;
+    }
+
+    void print (int prec) {
+        System.out.print("synchronized (");
+        lock.print();
+        System.out.print(") ");
+
+        body.printAsSubstatement();
+
+
+
+    }
+
+
+    void printEndStatement() {
+    }
+
+}
+
+class Throw extends Jump {
+    AST expr;
+
+    Throw(int pos, AST expr) {
+        super(pos, THROW);
+        this.expr = expr;
+    }
+    
+    Typ attr(Env env, int kind, Typ pt) {
+        //FIX 21-Feb-97: finalizers not re-initialized on second pass
+        finalizers = new Vector();
+        Env env1 = env;
+        while (env1 != null && 
+               env1.parent.tag != FUNDEF &&
+               env1.parent.tag != LAMBDA) {
+            if (env1.parent.tag == TRY)
+                finalizers.addElement(env1.parent);
+            env1 = env1.next;
+        }        
+        Typ etyp = expr.attr(env, VAL, Predef.throwableTyp);
+        Typ unhandled = Attr.unHandled(new TypSet(etyp, null),
+                                       env.reported);   
+        if (unhandled != null)
+ 
+        {
+          if (!E2j.done && (env.enclKeep != null) && (this instanceof eThrow)){
+            // ignore ethrow
+          } else {
+            if ((env.enclMeth.mods & EMETHOD) != 0) 
+              Report.warning(pos, "unreported exception: " +
+                             unhandled +
+                             "; must be caught or declared to be thrown");
+            else
+              Report.error(pos, "unreported exception: " +
+                           unhandled +
+                           "; must be caught or declared to be thrown");
+          }
+        }
+
+
+
+
+
+        typ = pt;
+        return typ;
+    }
+
+    Item gen() {
+        Gen.statBegin(pos);
+        expr.genLoad();
+        Gen.emitop(athrow);
+        return Item.voidItem;
+    }
+
+    void print(int prec) {
+        System.out.print("throw ");
+        expr.print();
+    }
+}
+
+class Try extends AST {
+    AST body;
+    FunDef[] catchers;
+    AST finalizer;
+
+/** the start and end addresses of the statement block.
+ */
+    int startPc;
+    int endPc;
+
+/** a label for all jsr's to the finally clause.
+ */
+    Label finalLabel = null;
+
+/** an item that addresses a variable in which the 
+ *  caught exception in stored.
+ */
+    LocalItem excVar;
+
+/** excVar's address.
+ */
+    int excVarAdr = -1;
+
+/** the initialization vector at the beginning of the statement.
+ */
+    Bits uninits;
+//FIX 21/8/96 too pessimistic about initialized vars in synchronzied
+    Bits uninitsEnd;
+//ENDFIX
+
+/** the set of all variables that are captured at some jump that leaves the
+ *  try statement.
+ */
+    Bits captured;
+
+    Try(int pos, AST body, ASTS catchers, AST finalizer) {
+        super(pos, TRY);
+        this.body = body;
+        this.catchers = new FunDef[catchers.length];
+        for (int i = 0; i < catchers.length; i++) 
+            this.catchers[i] = (FunDef)catchers.elems[i];
+        this.finalizer = finalizer;
+        this.captured = new Bits();
+    }
+
+    Typ attr(Env env, int kind, Typ pt) {
+        typ = pt;
+        Env tryEnv = new Env(env, this);
+        for (int i = 0; i < catchers.length; i++)
+
+            typ = Attr.join(env, catchers[i].pos,
+
+
+
+                            typ, 
+                            catchers[i].attr(tryEnv, VAL, pt));
+        if (finalizer != null)
+
+            typ = Attr.join(env, finalizer.pos,
+
+
+
+                            typ, 
+                            finalizer.attr(tryEnv, VAL, pt));
+        for (int i = 0; i < catchers.length; i++)
+            tryEnv.reported = TypSet.incl(tryEnv.reported, 
+                                          catchers[i].params[0].obj.typ);
+        typ = body.attr(tryEnv, VAL, pt);
+        return typ;
+    }
+  
+/** generate code to call the finally clause.
+ */
+    void finalisation() {
+        if (finalizer != null && Gen.alive) {
+            finalLabel = new Label(Gen.curPc(), 
+                                   finalLabel, 
+                                   1, 
+                                   Gen.uninitSet());
+            Gen.emitJump(finalLabel, jsr);
+        }
+    }
+
+/** generate the finally clause; is overridden by Synchronized.
+ */
+    void genFinal() {
+        finalizer.genDrop();
+    }
+
+    Item gen() {
+        uninits = Gen.uninitSet();
+//FIX 21/8/96: did not detect initialized variables in finally clause
+        Bits uninitsFinally = Gen.uninitSet();
+//ENDFIX
+        startPc = Gen.curPc();
+        body.genDrop();
+//FIX 21/8/96 too pessimistic about initialized vars in synchronzied
+        uninitsEnd = Gen.uninitSet();
+//ENDFIX
+        endPc = Gen.curPc();
+        finalisation();
+        Label contLabel = Gen.branch(goto_);
+        if (catchers.length != 0 || finalizer != null)
+            excVar = new LocalItem(pos, Gen.newLocal(Predef.throwableTyp));
+//FIX 17/5/97
+        if (startPc != endPc && catchers.length != 0) {
+          for (int i = 0; i < catchers.length; i++) {
+            catchers[i].genDrop();
+            finalisation();
+            contLabel = Gen.mergeLabels(contLabel, Gen.branch(goto_));
+          }
+        }
+        if (finalizer != null) {
+            Gen.entryPoint(1, uninits);
+//FIX 21/8/96: possibly bad offset in exception table
+            Gen.registerCatch(startPc, Gen.curPc(), Gen.curPc(), 0);
+//ENDFIX
+            excVar.store(Predef.throwableTyp);
+            finalisation();
+            excVar.load(Predef.throwableTyp);
+            Gen.emitop(athrow);
+            Gen.entryPoint(1);
+            Gen.resolve(finalLabel);
+            LocalItem retVar = 
+                new LocalItem(pos, Gen.newLocal(Predef.objectTyp));
+            retVar.store(Predef.objectTyp);
+            genFinal();
+//FIX 21/8/96: did not detect initialized variables in finally clause
+            uninitsFinally = Gen.uninitSet();
+//ENDFIX
+            Gen.emitop1w(ret, retVar.disp);
+            Gen.alive = false;
+        }
+        Gen.resolve(contLabel);
+//FIX 21/8/96: did not detect initialized variables in finally clause
+//FIX 5/12/96
+        if (finalizer != null && Gen.alive) {
+//FIX 19/11/97
+          if (catchers.length == 0) 
+            uninitsFinally.andSet(uninitsEnd);
+//ENDFIX 19/11
+          Gen.entryPoint(0, uninitsFinally);
+        }
+//ENDFIX
+        return Item.voidItem;
+    }
+
+    void print (int prec) {
+        System.out.print("try ");
+        body.print();
+        for (int i = 0; i < catchers.length; i++) {
+            System.out.print(" catch");
+            catchers[i].print();
+        }
+        if (finalizer != null) {
+            System.out.print(" finally ");
+            finalizer.print();
+        }
+    }
+}
+
+class WhileLoop extends JumpTarget {
+    AST cond;
+    AST body;
+
+    WhileLoop(int pos, AST cond, AST body) {
+        super(pos, WHILELOOP);
+        this.cond = cond;
+        this.body = body;
+        this.contCapt = new Bits();
+        this.exitCapt = new Bits();
+    }
+
+    Typ attr(Env env, int kind, Typ pt) {
+        cond.attr(env, VAL, Typ.booleanTyp);
+        Env loopEnv = new Env(env, this);
+        typ = body.attr(loopEnv, VAL, pt);
+        return typ;
+    }
+
+    Item gen() {
+        Gen.statBegin(pos);
+        int startPc = Gen.curPc();
+        CondItem c = cond.gen().mkCond();
+        exit = c.jumpFalse();
+        if (c.trueJumps != null || c.opcode != Gen.dontgoto) {
+            Gen.resolve(c.trueJumps);
+            body.genDrop();
+            Gen.resolve(cont);
+            Gen.resolve(Gen.branch(goto_), startPc);
+        } 
+        Gen.resolve(exit);
+        return Item.voidItem;
+    }
+
+    void print (int prec) {
+        System.out.print("while (");
+        cond.print();
+        System.out.print(") ");
+
+        body.printAsSubstatement();
+
+
+
+    }
+
+
+    void printEndStatement() {
+    }
+
+}
+
+class Sequence extends AST {
+    Block body;
+
+    Label retLab = null;
+    
+    Sequence(int pos, Block body) {
+        super(pos, SEQ);
+        this.body = body;
+    }
+
+    boolean isExpr() { return true; }
+
+    Typ attr(Env env, int kind, Typ pt) {
+        typ = body.attr(new Env(env, this), kind, pt);
+        return typ;
+    }
+
+    Item gen() {
+        body.genLoad();
+        Gen.resolve(retLab);
+        return Item.stackItem;
+    }
+
+    void print (int prec) {
+        System.out.print("seq ");
+        body.print(prec);
+    }
+}

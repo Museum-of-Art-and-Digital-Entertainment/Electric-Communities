@@ -1,0 +1,74 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>GENERAL:</TITLE>
+<META NAME="Template" CONTENT="C:\PROGRAM FILES\MICROSOFT OFFICE\OFFICE\html.dot">
+</HEAD>
+<BODY LINK="#0000ff" VLINK="#800080">
+<B><FONT SIZE=6><P>Meeting notes on </B></FONT><FONT SIZE=5>"</FONT><FONT SIZE=4>High level review of multipoint comm approach" </FONT><FONT SIZE=5>June 2, 1998. <B>Participants:</B> ScottL, Bill, Bob, Arturo</P>
+
+<B><U><FONT SIZE=5><P>GENERAL:</P>
+</B></U></FONT><P>- PURPOSE: concensus on high level design</P>
+<P>- PROPOSAL: View Class + Star topology</P>
+<P>- Names do matter</P>
+<P>- PROBLEM: regions with avatars, chairs, rocks</P>
+<P>&#9;-&gt; analyze all the way through</P>
+<P>- Work out scenario:</P>
+<P>&#9;-&gt; avatar, 2 rocks, region</P>
+<P>&#9;-&gt; 2 avatars in region</P>
+<P>entry, exit, and a link connection failure =&gt; work out details</P>
+<B><U><FONT SIZE=5><P>REQUIREMENTS:</P>
+</B></U></FONT><P>- expose a connection at higher level so it can be shut down</P>
+<P>&#9;-&gt; simulation/test</P>
+<P>&#9;-&gt; kick avatar out</P>
+<P>- reliable multicast</P>
+<P>&#9;-&gt; hides topology</P>
+<P>&#9;-&gt; messages within</P>
+<P>group delivered or eventual notification of failure</P>
+<P>- leverage work</P>
+<P>- ignore beyond start topology &amp; mace topology</P>
+<P>&#9;-&gt; firewall?</P>
+<P>- API: "be a group &amp; provide these services"</P>
+<P>&#9;-&gt; "make it reliable"</P>
+<B><U><FONT SIZE=5><P>ISSUES:</P>
+</B></U></FONT><P>- look at state-input &amp; state-output stream</P>
+<P>- find place to tear down a connection</P>
+<P>- UI interface to connections</P>
+<P>- where should keys for identity be kept?</P>
+
+<UL>
+
+<UL>
+<LI>keep registrar? </LI>
+<LI>Connection manager</LI></UL>
+</UL>
+
+<P>- push key pair down (yes) to connections manager</P>
+<P>- definition of reliable multicast?</P>
+<P>- methodical failure analysis (point to point &amp; multicast)</P>
+
+<UL>
+
+<UL>
+<LI>at comm level</LI></UL>
+</UL>
+
+<P>- What happens if participants are hostile?</P>
+<P>- Trust fan-out locations</P>
+<P>- Is View API the multipoint messaging API?</P>
+<P>- Flat group abstraction must be grouped</P>
+
+<UL>
+
+<UL>
+<LI>region membership consistent for all objects in region </LI>
+<LI>link group abstraction? </LI>
+<LI>Larger group abstraction </LI>
+<LI>Failure is issue</LI>
+<LI>Example: region &amp; avatar under comm failure</LI></UL>
+</UL>
+
+<P><IMG SRC="Image1.gif" WIDTH=464 HEIGHT=348>&nbsp;</P>
+<P>&nbsp;</P></BODY>
+</HTML>

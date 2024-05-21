@@ -1,0 +1,387 @@
+# 1 "ec/ecomp/main.java" 
+/* ************************************************************************
+ * Espresso! Main driver routine
+ * Copyright 1995, 1996, 1997 Martin Odersky. All rights reserved.
+ * 
+ * Author     : Martin Odersky, Michael Philippsen
+ * Last change: 15-December-97
+ *************************************************************************/
+
+
+package ec.ecomp;
+
+
+
+
+import java.io.*;
+
+class Main implements /*imports*/ Constants {
+
+/** the version of ecomp
+ */
+    static private String ecompVersionString =
+    "ecomp v3.110 1997-12-31; pre-ekeep; Happy holidays!";
+
+/** we parsed at least one file:
+ */ 
+    static boolean someFiles = false;
+    
+/** try to open input file with name filename:
+ */
+    static FileInputStream openIn(String filename) {
+        try {
+            File f = new File(filename);
+            if (f == null) return null;
+            return new FileInputStream(f);
+        } catch (IOException e) {
+            Report.error(Report.noPos, "can't read: " + filename);
+            return null;
+        }
+    } 
+
+/** parse file with name filename:
+ */
+    static TopLevel parse(String filename) {
+        long msec = System.currentTimeMillis();
+        FileInputStream infile = openIn(filename);
+        if (infile != null) {
+            if (Switches.verbose) {
+                System.out.print("[parsing " + filename + " ");
+                System.out.flush();
+                someFiles = true;
+            }
+            Report.open(filename);
+            Scanner scanner = new Scanner(infile);
+            Parser parser = new Parser(scanner);
+            ASTS asts = parser.compilationUnit();
+            try { infile.close(); } catch (IOException e) {}
+            Report.close();
+               if (Switches.verbose) {
+                System.out.println((System.currentTimeMillis() - msec) + 
+                                   "ms]");
+            }
+            return new TopLevel(asts, Report.filename);
+        } else 
+            return null;
+    }
+
+/** print number of error or warning count
+ */
+    static void printCount(String kind, int count) {
+        if (count != 0) {
+            System.out.print(count);
+            System.out.println(" " + kind + 
+                               ((count == 1) ? "" : "s"));
+        }
+    }
+
+/** print internal error message:
+ */
+    static void errorMsg() {
+        System.out.println(
+            "\n\nAn exception has occurred in the compiler."); 
+        System.out.println(
+            "Please file a bug report by sending your program and the following diagnostic to");
+        System.out.println(
+
+            "ec_bugs@communities.com.\n\n   Thank you.\n");
+
+
+
+    }
+
+/** main function:
+ */
+    public static void main (String argv []) throws Exception {
+        if (argv.length == 0)
+            System.out.println(
+"Usage: espresso [-g][-verbose][-obfuscate][-d dir][-classpath path] {file.java}");
+        else {
+
+            Switches.extended = true;
+            String resultFile = "";
+
+            try        {
+                long msec = System.currentTimeMillis();
+                String[] expandedArgv = Win32 ? expand(argv) : argv;
+                TopLevel[] trees = new TopLevel[expandedArgv.length];
+                String[] outDir = new String[expandedArgv.length];
+                int i = 0;
+                while (i < expandedArgv.length) {
+                    trees[i] = null;
+                    outDir[i] = null;
+                    String arg = expandedArgv[i];
+
+                    if (arg.equals("-clearclasspath")) {
+                      ClassFile.classPath = "";
+                    } else if (arg.equals("-resultfile") &&
+                               i+1 < expandedArgv.length) {
+                      resultFile = expandedArgv[i+1];
+                      i++;
+                    } else
+
+                           if (arg.equals("-classpath") && 
+                        i+1 < expandedArgv.length) {
+                        ClassFile.classPath = 
+                            expandedArgv[i+1] + 
+                            ClassFile.pathSep + 
+                            ClassFile.classPath;
+                        i++;
+                    } else if (arg.equals("-d") && 
+                               i+1 < expandedArgv.length) {
+                        outDir[i] = expandedArgv[i+1];
+                        i++;
+                    } else if (arg.equals("-verbose")) {
+                        Switches.verbose = true;
+                    } else if (arg.equals("-obfuscate")) {
+                        Switches.obfuscate = true;
+                    } else if (arg.equals("-g")) {
+                        Switches.debugInfo = true;
+
+
+
+
+
+                    } else if (arg.equals("-printtree")) {
+                        Switches.printTree = true;
+                    } else if (arg.equals("-printsearch")) {
+                        Switches.printSearch = true;
+
+                    } else if (arg.equals("-preprinttree")) {
+                        Switches.prePrintTree = true;
+                    } else if (arg.equals("-cafesucks")) {
+                        Switches.cafeSucks = true;
+
+                    } else if (arg.equals("-prompt")) {
+                        Switches.promptOnError = true;
+
+                    } else if (arg.equals("-debug")) {
+                        Switches.WithDebugCode = true;
+                    } else if (arg.equals("-e2jdone")) {
+                        E2j.done = true;
+                    } else if (arg.equals("-esystem")) {
+                        E2j.nonPureE = true;
+                    } else if (arg.equals("-version")) {
+                        System.out.println(ecompVersionString);
+                    } else if (arg.equals("-printe2jtree")) {
+                        Switches.printE2jTree = true;
+                    } else if (arg.equals("-nowarn")) {
+                        Switches.noWarn = true;
+                    } else if (arg.equals("-nooutput")) {
+                        Switches.noOutput = true;
+
+                    } else if (arg.startsWith("-")) {
+                        System.out.println("unrecognized option: " + arg);
+                    } else {
+                        if (Switches.verbose && !someFiles) {
+
+                            System.out.println("E-Compiler based on EspressoGrinder 1.08, 11-Nov-96;");
+                            System.out.println("Copyright 1995,96 Martin Odersky and Michael Philippsen.");
+                            System.out.println("All rights reserved.");
+
+
+
+                        }
+                        trees[i] = parse(arg); 
+                    }
+                    i++;
+                }
+                if (Report.nerrors == 0) {
+
+                    if (Switches.prePrintTree) {
+                      for (int j = 0; j < trees.length; j++) {
+                        if (trees[j] != null) {
+                          trees[j].print();
+                        }
+                      }
+                    }
+
+                    if (Switches.verbose && someFiles)
+                        System.out.println("[preprocessing]");
+                    for (int j = 0; j < trees.length; j++)
+                        if (trees[j] != null) trees[j].enter();
+                    Predef.init();
+                    for (int j = 0; j < trees.length; j++)
+                        if (trees[j] != null) trees[j].enterFields();
+                    for (int j = 0; j < trees.length; j++)
+                        if (trees[j] != null) trees[j].attr();
+
+                    if (!E2j.done && Report.nerrors == 0) {
+                      if (Switches.verbose && someFiles)
+                        System.out.println("[e2j]");
+                      trees = E2j.e2j(trees);
+                    }
+
+                    if (Switches.extended && Report.nerrors == 0) {
+                        trees = Simplify.simplify(trees);
+                    }
+
+                    if (! Switches.noOutput) {
+
+                      for (int j = 0; j < trees.length; j++) {
+                        if (outDir[j] != null)
+                          ClassFile.outDir = outDir[j];
+                        if (trees[j] != null) {
+                          trees[j].genDrop();
+                        }       
+                      }
+
+                    }
+
+                }
+                if (Switches.verbose) {
+                    System.out.println("[total " +
+                                       (System.currentTimeMillis() - msec) + 
+                                       "ms]");
+                }
+                printCount("error", Report.nerrors);
+                printCount("warning", Report.nwarnings);
+
+                if (!resultFile.equals("")) {
+                  generateResultFile(resultFile, Report.nerrors > 0 ? -1 : 0);
+                }
+
+                System.exit(Report.nerrors > 0 ? -1 : 0);
+            } catch (Exception e) {
+                errorMsg();
+
+                e.printStackTrace();
+                if (!resultFile.equals("")) {
+                  generateResultFile(resultFile, -1);
+                }
+                System.exit(-1);
+                //throw(e);
+
+
+
+            }
+        }
+    }
+
+
+    /** Send results to the specified file
+     */
+    static void generateResultFile(String fileName, int result) {
+      try {
+        FileOutputStream fos = new FileOutputStream(fileName);
+        PrintStream ps = new PrintStream(fos);
+        ps.print(result);
+        fos.close();
+      } catch (IOException e) {
+        System.out.println("Error writing result to file " + fileName);
+        System.exit(-1);
+      }
+    }
+
+
+/**************************************************************************
+ * The rest of this module is only relevant for the Windows version;
+ * where wildcards in command-line arguments are not expanded by the shell.
+ *************************************************************************/
+    
+/** are we running on Windows?
+ */
+    static boolean Win32 = File.separatorChar == '\\';
+
+/** a buffer that contains the expanded arguments:
+ */
+    static String[] expargs = new String[4];
+    static int argcount;
+
+/** append a string to the expargs buffer:
+ */
+    static void addArg(String s) {
+        if (argcount == expargs.length) {
+            String[] newargs = new String[argcount * 2];
+            System.arraycopy(expargs, 0, newargs, 0, argcount);
+            expargs = newargs;
+        }
+        expargs[argcount++] = s;
+    }
+
+/** return all defined elements of the exparg buffer:
+ */
+    static String[] truncate(String[] xs, int i) {
+        String[] newxs = new String[i];
+        System.arraycopy(xs, 0, newxs, 0, i);
+        return newxs;
+    }
+
+/** is string not an option and has it embedded '*' or '?' characters?
+ */
+    static boolean hasWildcards(String s) {
+        return 
+            s.length() > 0 &&
+            s.charAt(0) != '-' &&
+            (s.indexOf('*') >= 0 || s.indexOf("?") >= 0);
+    }
+
+/** does string s[soffset..] match pattern p[poffset..]? 
+ *  p can contain wildcards.
+ */
+    static boolean matches(String s, int soffset, 
+                           String p, int poffset) {
+        if (poffset >= p.length())
+            return soffset >= s.length();
+        else if (p.charAt(poffset) == '*')
+            return 
+                matches(s, soffset, p, poffset + 1) ||
+                (soffset < s.length() &&
+                 matches(s, soffset + 1, p, poffset));
+        else 
+            return
+                soffset < s.length() &&
+                (p.charAt(poffset) == '?' ||
+                 Character.toUpperCase(s.charAt(soffset)) == 
+                 Character.toUpperCase(p.charAt(poffset))) &&
+                matches(s, soffset + 1, p, poffset + 1);
+    }
+
+/** add all files matching pattern string s to buffer expargs.
+ */
+    static void addExpansion(String s) throws IOException {
+            File f = new File(s);
+        String path = f.getParent();
+        String name = f.getName();
+        if (path == null)
+            if (s.indexOf("\\") == 0) path = "";
+            else path = ".";
+        File dir = new File(path + "\\");
+        if (dir == null) { addArg(s); return; }
+        String[] files = dir.list();
+        if (files != null)
+            for (int j = 0; j < files.length; j++) {
+                    if (matches(files[j], 0, name, 0)) {
+                     addArg(path + File.separator + files[j]);
+                    }
+        }
+    }
+
+/** expand all arguments in argv.
+ */
+    static String[] expand(String[] argv) throws IOException {
+        argcount = 0;
+        for (int i = 0; i < argv.length; i++)
+            if (hasWildcards(argv[i]))
+                addExpansion(argv[i]);
+            else
+                addArg(argv[i]);
+        return truncate(expargs, argcount);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

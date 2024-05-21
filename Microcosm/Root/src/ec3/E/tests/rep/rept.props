@@ -1,0 +1,12 @@
+Agent=ec.cosm.objects.agent.MicrocosmText
+#UI=ec.cosm.gui.framework.GUIFrameworkOwner
+#LoginUI=ec.cosm.gui.login.GUILoginPresenter
+#AvatarDirectory=Avatars
+#AvatarMaleBody=animations/AgentZed.appearance2d
+#AvatarFemaleBody=animations/Dax.appearance2d
+#PublishDir=PublishedRefs
+ECHome=ECHome
+TraceLog_repositorytiming=debug
+TraceLog_StartupTimer=debug
+TraceLog_write=true
+TraceLog_name=cosmlog.txt

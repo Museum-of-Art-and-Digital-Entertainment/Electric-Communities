@@ -1,0 +1,11 @@
+#all:
+#	mkdir -p $(BUILD)/bin/sparc
+#	@chmod -R u+w $(BUILD)/bin
+#	cp -R /usr/local/java-1.0/bin/ecomp $(BUILD)/bin
+#	cp -R /usr/local/java-1.0/bin/.java_wrapper $(BUILD)/bin
+#	cp -R /usr/local/java-1.0/bin/sparc/javaec* $(BUILD)/bin/sparc
+#	cd $(BUILD)/bin; ln -s sparc sun4
+#	cd $(BUILD)/bin; ln -s .java_wrapper javaec
+#	cd $(BUILD)/bin; ln -s .java_wrapper javaec_g
+#	mkdir -p $(BUILD)/classes/ec/ecomp
+#	cp -R /usr/local/java-1.0/classes/ec/ecomp $(BUILD)/classes/ec/

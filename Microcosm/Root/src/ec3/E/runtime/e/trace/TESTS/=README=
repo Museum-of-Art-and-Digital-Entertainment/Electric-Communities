@@ -1,0 +1,146 @@
+NOTE:  Many of these tests are "write once, run exactly on windows".
+They contain pathnames with evil backslashes.
+
+
+java ec.e.run.test.Simple
+	Basic smoke test
+
+java ec.e.run.test.Default
+	Check that default settings behave as intended.  
+	Check that the log is sent to the right place.
+	Check that messages of only the right levels are in the log.
+	Check that messages of only the right levels are in the buffer
+	dump.
+
+rm *.txt
+java ec.e.run.test.Fill 
+rm *.txt
+java ec.e.run.test.Fill many
+rm *.txt
+java ec.e.run.test.Fill one
+rm *.txt
+java ec.e.run.test.Fill 1
+	
+	Tests filling up of the log files.  In the first case, there
+	should be several log files, each added in sequence.  Ditto
+	for the second.  Each older log should point to the next
+	newer. In the third and fourth cases, there should be a single
+	backup file; older log information will be lost.
+
+java ec.e.run.test.MemLeak
+	Checks that the buffer does indeed discard entries.  Let it
+	run for a while and check the size of the process.
+
+rm *.txt
+java ec.e.run.test.Multilog1
+rm *.txt my.log
+java ec.e.run.test.Multilog2
+rm *.txt *.notxt another \temp\3Log.txt
+java ec.e.run.test.Multilog3
+	Checks switching between log files using TraceLog_reopen.
+	Run each test and follow the printed instructions.
+
+java ec.e.run.test.Test     Also uses Setup.java and Other.java
+	Check Setup.java to see what subsystems have been set to what
+	levels and check the output in test.txt against them.
+
+java ec.e.run.test.Threads
+	Check whether two threads writing the tracelog at the same
+	time can trash output.  Look in "threads.log" for garbled or
+	intermixed lines.
+
+java ec.e.run.test.Threads2
+	Like threads, but also ensures that the log file fills up.
+	Check threads2sub1.log* and threads2sub2.log* for garbled output.
+	Runs for a LONG time.
+
+java ec.e.run.test.Throws 
+	Checks the versions of the trace functions that print objects
+	and throwables.  Check that the latter are printed correctly
+	at every tracing level.  Logfile is throws.txt.
+
+java ec.e.run.test.MethodsCheck
+	Check that methods internally check whether the appropriate
+	cache boolean is set.  You should see one error-level message.
+
+java ec.e.run.test.Changing
+	Various tests of changing the default and subsystem-specific
+	logging and tracing levels.  Follow instructions in changing.txt
+	and changingdump.txt (the trace buffer).
+
+java ec.e.run.test.UserError
+	Various plausible user input errors. A slightly weak test in
+	that it doesn't check that the erroneous test has no effect.
+
+java ec.e.run.test.BufferTests
+	Changes to the internal buffer size.  Follow instructions on 
+	stdout.
+
+del c:\temp\dump.txt
+touch unwrite.txt
+chmod a-w unwrite.txt
+java ec.e.run.test.Dump
+	Buffer Dumping to various files.  Follow instructions on stdout.
+
+java ec.e.run.test.LogTests
+	Changes to the log size.  Follow instructions on 
+	stdout.
+
+rm *.txt c:\temp\*.txt *.NOtxt*
+touch c:\temp\Asfile.txt
+echo "overwritten" > overwrite.0.txt
+echo "ignored" > overwrite.1.txt
+echo "move to 0.txt" > overwrite.txt
+java ec.e.run.test.Reopen
+	Opening and closing logfiles.  Start by looking in Reopen*.txt.
+	Note that there are numerous backup files created; read them
+	in order.
+/*
+	Skipped the following, because can't seem to make an unwriteable
+	directory on Windows.
+
+	mkdir c:\temp\unwriteable
+	touch c:\temp\unwriteable\unwriteable.txt
+	chmod a-w c:\temp\unwriteable\unwriteable.txt
+	chmod a-w c:\temp\unwriteable
+*/
+
+java ec.e.run.test.Stdout | grep full
+	Stdout should never fill up.
+
+rm *.txt *.dump
+java ec.e.run.test.Tag
+	Follow instructions in log.
+
+
+java ec.e.run.test.ErrorWatcher one
+java ec.e.run.test.ErrorWatcher two
+java ec.e.run.test.ErrorWatcher three
+java ec.e.run.test.ErrorWatcher four
+	Log is to ErrorWatcher.txt.
+	For "one", expect:
+	- a warning about unregistering when nothing's been registered.
+	- duplicate registration of a traceErrorWatcher.
+	- an unregistration by an object other than that which originally
+	  registered.
+	- a trace dump resulting from notifyOptional.
+	For "two":
+	- a trace dump resulting from notifyFatal.
+	For "three":
+	- A message that notifyOptional called before any watcher registered.
+	- a trace dump resulting from notifyOptional.
+	- another trace dump resulting from notifyOptional.
+	For "four":
+	- A message that notifyFatal called before any watcher registered.
+	- a trace dump resulting from notifyFatal.
+
+java ec.e.run.test.Timing
+	Check the new timing field.  See Timing.expected.  You'll have
+	to read the source to see in detail what should be expected.
+
+=== Timings
+
+
+java ec.e.run.tests.Many <arg>
+	Time required for 1000 iterations dumped to the log and internal
+	buffer.  Give "-" as arg if you want to time stdout.

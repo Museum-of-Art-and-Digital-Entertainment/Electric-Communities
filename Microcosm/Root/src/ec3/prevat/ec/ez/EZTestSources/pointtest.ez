@@ -1,0 +1,10 @@
+define Point := to(myX, myY) {
+    object {
+        to x { myX }
+        to y { myY }
+    }
+}
+
+define foo := Point(3, 5)
+foo x
+foo y

@@ -1,0 +1,63 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.05 [en] (WinNT; I) [Netscape]">
+   <META NAME="Author" CONTENT="Bob Schumaker">
+   <META NAME="Description" CONTENT="An overview of the hub management batch files for NT.">
+   <TITLE>Hub Management Tools</TITLE>
+</HEAD>
+<BODY>
+
+<H1>
+Production Hub Server Management Tools</H1>
+<I>This page is maintained by <A HREF="mailto:cobblers@communities.com">Bob</A>.</I>
+<BR><I>Please let me know of any errors ASAP so I can fix them.</I>
+
+<I>Hub Management Tools - NT Batch Files</I></H1>
+<B>Last updated:</B><I> [98/05/20 <A HREF="cobblers@communities.com">Bob</A>]</I>
+<H2>
+Introduction</H2>
+The tools for starting and maintaining a hub on an NT machine are intended
+to be as simple and efficient to use as possible. To that end, they hide
+most of the gory details at the expense of using a set of default behavior.
+<H2>Requirements</H2>
+The only requirement for using the Hub Management Tools is an installed
+version of EC Habitats. The scripts assume that the default location for
+the installation was chosen (<I>Program Files/EC Habitats</I>).
+<H2>Hub configuration setup</H2>
+<UL>
+<LI>Check out the management files with the command <CODE>cvs co hubconfig</CODE></LI>
+<LI>Set up a service subdirectory (several examples are provided)
+<UL>There are five environment variables that need to be set for each new hub setup. Create
+a batch file to set them and give it a mnemonic name.
+<LI><CODE>SVCNAME</CODE> -- the name of the service with which to install the hub</LI>
+<LI><CODE>RLMNAME</CODE> -- the name of the Realm to load at startup (with no previous checkpoint)</LI?
+<LI><CODE>PROPSNAME</CODE> -- the name of the props file (in \hubconfig)</LI>
+<LI><CODE>AVATAR</CODE> -- the name of the main avatar for the hub</LI>
+<LI><CODE>FTPHOSTNAME</CODE> -- where to ftp the .mcm files for this hub</LI>
+</UL>
+<LI>Create a subdirectory of <CODE>hubconfig</CODE> with the name specified in the environment
+variable <CODE>SVCNAME</CODE></LI>
+<LI>Create an FTP script to use for publishing the .mcm files (use the existing ones as a template).</LI>
+<LI>Edit <CODE>hubwhich.bat</CODE> to look for the batch file created previously. Put a copy of it
+in \hubconfig (and in \hubconfig\%SVCNAME% if you are going to check this configuration into CVS).</LI>
+<LI>At this point, running the <CODE>hubsetup.bat</CODE> batch file should install and run your
+new hub as an NT service.</LI>
+</UL>
+<H2>NT PLS configuration setup</H2>
+<UL>
+<LI>Acquire the files as above</LI>
+<LI>The existing PLS subdirectory contains an exemplar <CODE>pls.bat</CODE> which should
+work as is (assuming you are only going to run one PLS per box, and you are only going to run
+one, aren't you?)</LI>
+<LI>Copy <CODE>pls/pls.bat</CODE> into the \hubconfig directory.</LI>
+<LI>Execute plssetup.bat</LI>
+<LI>Stand back and wait</LI>
+<LI>If you are lucky, at this point the PLS is up and running, and the appropriate magic files
+have been FTPed to <CODE>ftp.communities.com</CODE></LI>
+<LI>More work needs to be done to manage this service effectively. Currently, the only way to
+shut down the PLS service is to restart the machine -- wait until <EM>after</EM> it has
+written its preliminary evat file.</LI>
+<UL>
+</BODY>
+</HTML>

@@ -1,0 +1,184 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="Author" CONTENT="F. Randall Farmer">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.05 [en] (WinNT; I) [Netscape]">
+   <TITLE>ECID &amp; ComCom Networking Diagram</TITLE>
+</HEAD>
+<BODY>
+
+<CENTER>
+<H1>
+ECID &amp; ComCom Proposed Networking Diagram</H1></CENTER>
+
+<CENTER>Fouth Draft, 8/4/98 by <A HREF="randy@communities.com">F. Randall
+Farmer</A></CENTER>
+
+<CENTER>Copyright &copy;1998, Electric Communities, All Rights Reserved.
+Proprietary and Confidential. Do not distribute.</CENTER>
+
+<CENTER>&nbsp;</CENTER>
+
+<CENTER>
+<H6>
+<IMG SRC="ECIDComComNetworkDiagram.gif" ></H6></CENTER>
+
+<CENTER>&nbsp;</CENTER>
+Desciptions of the various modules are found in the <A HREF="Components.html">Complete
+ComCom Components</A> document. The <A HREF="ECIDComComNetworkDiagram.vsd">original</A>
+Visio 5.0 document is available.
+
+<P>The appliations boxes surrounded with a broken line do not show all
+of their <A HREF="#Excluded traffic">network connections</A> here. Servers
+for the PC-side applications are not shown in order to simplify the diagram
+and focus on the ComCom/ECID connectivity. <FONT COLOR="#009900">Changes
+from last version are in dark green.</FONT><FONT COLOR="#009900"></FONT>
+
+<P><FONT COLOR="#009900">There is a registration/authorization pattern
+emerging for both the Directory and ComCom servers. I expect to integrate
+that in the next version of this document.</FONT>
+<H1>
+Connection types</H1>
+
+<H3>
+<A NAME="A"></A>A:&nbsp; Application message traffic</H3>
+All identity and location information is exchanged between ECID and other
+applications over these connections. Web browsers already support this
+kind of communication. The Palace, 'Cosm and 3rd Party applications will
+need to include the inter application communications library which EC will
+provide via open source to the net. This uses standard "plug-in" techniques
+and is required for all supported platforms <FONT COLOR="#009900">(</FONT><FONT COLOR="#33FF33">Win95</FONT><FONT COLOR="#009900">,
+</FONT><FONT COLOR="#FFFF00">Mac</FONT><FONT COLOR="#009900">, and </FONT><FONT COLOR="#33CCFF">Unix</FONT><FONT COLOR="#009900">.)</FONT>
+<H3>
+<A NAME="B"></A>B: (Buddies) ComCom traffic</H3>
+The ComCom Client connects using standard internet protocols to a ComCom
+server. The client passes ID &amp; Location information it gets via a type-<A HREF="#A">A</A>
+message pipe from ECID to the server. In turn, the server notifies other
+authorized [see PO Box server description] ComCom clients of location and
+status. These connections are unsecured and as lightweight as possible.
+The servers will need to cope with thousands of connections a minute and
+can't afford the overhead of authentication. See <A HREF="#ComCom identity">ComCom
+Identity Verification</A> for a pattern to allow users to explicitly verify
+user identity without touching the ComCom server. I've provided a sample
+connection history for a typical <A HREF="#Palace location">palace session</A>.
+<H3>
+<A NAME="C"></A>C: Capability transfer traffic</H3>
+ComCom and other applications will want to ask ECID to get capabilities
+from other ECIDs on the net (Usually the result of a type-<A HREF="#L">L</A>
+directory lookup connection). If the target ECID is not online, the P.O.
+Box will hold requests and their replies. Naturally, when ECID starts up,
+it will need this connection to check for requests. These connections require
+authentication, but are need not be done often (less than once per day.)
+<H3>
+<A NAME="E"></A>E: ECID to ECID traffic</H3>
+The core of peer-to-peer communication. Fully authenticated connection.
+Often type-<A HREF="#P">P</A> traffic (a PLS lookup) will proceed establishing
+this connection. Can be used for secure peer-peer chat. Used (on-demand)
+to validate identity information for ComCom. Also used for direct capability
+transfer (short circuiting the type-<A HREF="#C">C</A> traffic.)&nbsp;
+<FONT COLOR="#009900">In Phase 1, type-E messages are limited to capability
+transfer, @page (aka telepathy), and @whereis messages.</FONT>
+<H3>
+<A NAME="L"></A>L: Directory Lookup traffic</H3>
+A simple LDAP connection is used to lookup IDs (including, but not limited
+to ECIDs) from arbitrary text search criteria. This is how you find the
+digital IDs of your old friend Mark Machismo from Minnesota. The application
+that is doing the lookup will parse the record and make a connection to
+the appropriate server. In the case of adding my friend to ComCom, it'll
+look up the ECID (registered previously with a type-<A HREF="#R">R</A>
+connection) and then ask ECID (via the type-<A HREF="#A">A</A> connection)
+to get the capabilities to watch him. Theses connections are infrequent,
+unsecured, and on-demand.
+
+<P>FYI: The traffic from there is -
+<BR><A HREF="#P">P</A> (fail) <A HREF="#C">C</A> (cache request) (wait
+a day or more) <A HREF="#C">C</A> (get capabilities) <A HREF="#A">A</A>
+(hand to ComCom) <A HREF="#B">B</A> (send to server)&nbsp; or
+<BR><A HREF="#P">P</A> (success) <A HREF="#E">E</A> (get capabilities)
+<A HREF="#A">A</A> (hand to ComCom) <A HREF="#B">B</A> (send to server)
+<H3>
+<A NAME="M"></A>M: Cosm to Cosm traffic</H3>
+Microcosm traffic is not a part of this spec per say. It is included to
+dispel any confusion about ECIDs role in communication. ECID does not handle
+all secure or "E" message traffic. Only identity and location information
+that needs to go to other processes.
+<H3>
+<A NAME="P"></A>P: PLS Registration/Lookup traffic</H3>
+The PLS messaging on this connection is that which is currently spec'd
+for Microcosm: Register and Lookup IP address by E-style process id. The
+r167 compatible implementation is inadequate as is because it doesn't use
+authenticated connections for registration and doesn't cope with duplicate
+process registrations. The full current spec is <I><FONT COLOR="#009900">[where?]</FONT></I>.
+Resitrations are refreshed every <I><FONT COLOR="#009900">[hour?]</FONT>.</I>
+<H3>
+<A NAME="R"></A>R: Directory Registration traffic</H3>
+An authenticated registration <I>[Jeff, please help here] </I>scheme is
+used in conjunction with the LDAP based servers to register ECIDs and allow
+for their editing and deletion. Though the authenticated connections are
+heavyweight, they are only formed when a new identity is created (very
+rare), or when the identity is edited in some way (a name change, email
+change, etc.)
+<H3>
+<A NAME="Excluded traffic"></A>Excluded traffic</H3>
+The traffic related to external certificate authority, DynaChat, MetaThread,
+and group proxy servers are not included here because they are not required
+for the absolute minimum functionality of ComCom/ECID to work with Palace/Cosm
+software. <I>[Traffic issues for these connections is TBD] </I>Traffic
+for the Palace, Cosm, Web, and any other future 3rd party servers is not
+shown because it doesn't affect the design in any significant way.
+<H1>
+Some important traffic patterns</H1>
+
+<H3>
+<A NAME="ComCom identity"></A>ComCom identity verification pattern</H3>
+<I><FONT COLOR="#009900">[Note: Since the first draft of this document,
+a design has been proposed that would provide lightwieght authentication
+on Type-<A HREF="#B">B</A> messages, so this next section may be moot.
+On the other hand, there may be other reasons to do an explicit identity
+verification, so I've left it in for now.]</FONT></I>
+
+<P>ComCom connections (type <A HREF="#B">B</A>) may be unsecured, as they
+must be as lightweight as possible. This presents a spoofing problem, as
+a malicious program could connect to a ComCom server and present status
+and location information in another, unknowing user's stead. One work around
+is to provide a Verify User option in ComCom. This feature would use the
+ECID the user already has on file to "call-back" the true owner of the
+ECID process to verify his ComCom session. This verification process does
+not touch the ComCom server. The message pattern is:
+
+<P>User 1 is potentially being spoofed. User 2 chooses Verify User from
+ComCom.
+
+<P>#2 uses his stored ECID for #1:
+<BR><A HREF="#P">P</A> (lookup: fails) Result: #1 is being spoofed.
+<BR><A HREF="#P">P</A> (lookup: succeeds) #2 uses connection capability
+granted by #1:
+<BR>&nbsp; <A HREF="#E">E</A>&nbsp; (CheckValidComCom: fails) Result #1
+is being spoofed
+<BR>&nbsp; <A HREF="#E">E</A>&nbsp; (CheckValidComCom: succeeds) Result
+#1 is validated.
+<H3>
+&nbsp;<A NAME="Palace location"></A>Palace location pattern</H3>
+&nbsp;The pattern for the Palace connecting to ComCom and reporting avatar
+and location information is as follows:
+
+<P>(Launch ECID, ComCom and the Palace application in that order) <I>[Handle
+other startup orders?]</I>
+<BR><A HREF="#A">A</A><SUP>c</SUP> (Connect ComCom to ECID) Send ECID information
+to ComCom, then on to the server via <A HREF="#B">B</A>
+<BR><A HREF="#A">A</A><SUP>p</SUP> (Connect Palace to ECID) Send ID information
+to the Palace application.
+<BR>(Palace user selects server and avatar) Palace client <I>may</I> send
+ECID info to palace server along with standard regcode, etc.
+<BR>Via <A HREF="#A">A</A><SUP>p</SUP> (Local ident: Avatar Name) via <A HREF="#A">A</A><SUP>c</SUP>
+(same message) via <A HREF="#B">B</A> (same)
+<BR>(Avatar arrives in room) via <A HREF="#A">A</A><SUP>p</SUP> (Location
+change: Server Name, Room Name) via <A HREF="#A">A</A><SUP>c</SUP> (same)
+via <A HREF="#B">B</A> (same)
+
+<P>The favorites server then fans the message(s) out through <A HREF="#B">B</A><SUP>1..n
+</SUP>connections. <I><STRIKE><FONT COLOR="#009900">[Critical TBD: are
+B connections Push or Pull?]</FONT></STRIKE></I>
+<BR>&nbsp;
+</BODY>
+</HTML>

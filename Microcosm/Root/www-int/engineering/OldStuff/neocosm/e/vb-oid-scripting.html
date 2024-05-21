@@ -1,0 +1,219 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<!--last modified on Monday, February 02, 1998 01:15 PM -->
+<HTML>
+
+<HEAD>
+	<META NAME="GENERATOR" Content="Visual Page 1.0 for Windows">
+	<META NAME="Author" Content="Mark S. Miller">
+	<META HTTP-EQUIV="Content-Type" CONTENT="text/html;CHARSET=iso-8859-1">
+	<TITLE>Original VB-like Examples</TITLE>
+</HEAD>
+
+<BODY BACKGROUND="wood.gif">
+
+<H1 ALIGN="CENTER">Original VB-based Scripting Proposal</H1>
+<P>This is the original email message from Tony that started all this off. <A HREF="e-world-scripting.html">Here</A>
+is my current best response on what these examples would look like in E for those in the C syntactic tradition,
+and <A HREF="e-vb-oid-scripting.html">here</A> are the same examples expressed in E for those in the Visual Basic
+syntactic tradition. The examples in this message and the E-based response are now cross-linked to each other
+so you can easily see how the examples compare.</P>
+<P>
+<HR ALIGN="CENTER">
+</P>
+<PRE>Date: Fri, 26 Sep 1997 14:04:30 -0700
+To: markm@communities.com, crock@communities.com, marcs@communities.com,
+        jay@communities.com
+From: Tony Grant &lt;tony@communities.com&gt;
+Subject: E
+</PRE>
+<P>I've spoken briefly with most of you about E and my hopes that it will truly be just that. Mark has asked me
+to provide a few samples of Visual Basic syntax. I've listed some sample scripts that I'd love to use. I'll state
+briefly what the script should do and then provide some VB-like pseudo code to illustrate how simple I would like
+things to be. [MarkM: This is not literal VB syntax, but enough to give you the flavor]</P>
+<P>This also makes a couple of assumptions about E that I haven't heard anything completely final about: it can
+be both a word scripting tool: Run Microcosm and do tests via a script mechanism</P>
+<P>One question I have about the syntax is how much overhead is needed for any particular script. Crock and I briefly
+discussed how neat it would be to have an E script for every unum which is not much more than a giant text field.
+It would be great if the script could simply state the little bit of functionality and nothing else. In my mind,
+this is what separates a script from a program. Users of the scripting language shouldn't have to deal with:</P>
+<P>
+<PRE>  #include &lt;stdio.h&gt; or
+  import EZ.Avatars.Speech
+</PRE>
+<P>or any other overhead junk.</P>
+<P>
+<HR ALIGN="CENTER">
+[<A NAME="cosm-api"></A><A HREF="e-world-scripting.html#cosm-api">See the E Version</A>]</P>
+<P>Some of the neat behavioral stuff we can do depends on the events that we've defined. I know we'll at least
+have timer events, RegionEntry, RegionExit, Bump ( walked into an object) , Click... I think we're also doing Speech
+(triggered when anybody says something in a region. And maybe some others.</P>
+<P>In VB, each of these would be a Method available to each object, and each Method would have a defined set of
+parameters relevant to the event:</P>
+<P>
+<PRE>Click()
+Bump()
+RegionEntry(AvatarName as String)
+RegionExit(AvatarName as String)
+Speech(AvatarName as String, Text as String)
+...
+</PRE>
+<P>Useful functions and data:</P>
+<P>
+<PRE>MyName
+ListObjects()
+ListAvatars()
+ListPortals()
+ListTeleportPads()
+ListLocalRegions()
+ListGestures()  [gestures known to this object]
+PlayGesture(GestureName as String)
+Say(Text as String)
+
+Launch (AvatarName as String,RegionName as String)
+WalkTo (RegionName as String)
+TeleportTo (RegionName as String)
+</PRE>
+<P>Here are some script examples:</P>
+<P>
+<HR ALIGN="CENTER">
+[<A NAME="example1"></A> <A HREF="e-world-scripting.html#example1">See the E for C Version</A>] [<A HREF="e-vb-oid-scripting.html#example1">See
+the E for VB Version</A>]</P>
+<P>1. Launch Microcosm with Yappy as the avatar and have him transition back and forth between CentralPark region
+and BeachResort.</P>
+<P>This would help us to find any memory leaks occurring on transitions. I don't know how much overhead would be
+involved in this, but it would be great if it we're simple:</P>
+<P>
+<PRE>   Launch(&quot;Dax&quot;,&quot;CentralPark&quot;)
+
+   For i = 1 to 100
+      TeleportTo(&quot;BeachResort&quot;)
+      TeleportTo(&quot;CentralPark&quot;)
+   Next i
+</PRE>
+<P>
+<HR ALIGN="CENTER">
+[<A NAME="example2"></A> <A HREF="e-world-scripting.html#example2">See the E for C Version</A>] [<A HREF="e-vb-oid-scripting.html#example2">See
+the E for VB Version</A>]</P>
+<P>2. Visit every region in a realm. This would a great script to run after new art checking to make sure that
+none of the new regions have broken the world.</P>
+<P>
+<PRE>   Launch(&quot;Dax&quot;,&quot;CentralPark&quot;)
+
+   regions = ListLocalRegions
+   For each r in regions
+      TeleportTo (r)
+   Next
+</PRE>
+<P>Alternatively:</P>
+<P>
+<PRE>   Launch(&quot;Dax&quot;,&quot;CentralPark&quot;)
+
+   regions = ListLocalRegions
+   For i = 1 to regions.Size
+      TeleportTo regions(i)
+   Next
+</PRE>
+<P>
+<HR ALIGN="CENTER">
+[<A NAME="example3"></A> <A HREF="e-world-scripting.html#example3">See the E for C Version</A>] [<A HREF="e-vb-oid-scripting.html#example3">See
+the E for VB Version</A>]</P>
+<P>3. Simple Click response:</P>
+<P>
+<PRE>   Define Sub Click()
+      Say (&quot;Ow!&quot;)
+   End Sub
+</PRE>
+<P>
+<HR ALIGN="CENTER">
+[<A NAME="example4"></A> <A HREF="e-world-scripting.html#example4">See the E for C Version</A>] [<A HREF="e-vb-oid-scripting.html#example4">See
+the E for VB Version</A>]</P>
+<P>4. The next generation Click response. Play a random gesture.</P>
+<P>
+<PRE>   Define Sub Click()
+      gestures = ListGestures()
+      size = gestures.Size
+      n = Random(size)
+      PlayGesture(gestures(n))
+   End Sub
+</PRE>
+<P>
+<HR ALIGN="CENTER">
+[<A NAME="example5"></A> <A HREF="e-world-scripting.html#example5">See the E for C Version</A>] [<A HREF="e-vb-oid-scripting.html#example5">See
+the E for VB Version</A>]</P>
+<P>5. A greeting bot. When an avatar enters the region, the bot welcomes him or her:</P>
+<P>
+<PRE>   Define Sub RegionEntry(AvatarName as String)
+      Say(&quot;Hi &quot; + AvatarName + &quot;. Welcome to KidsWorld!&quot;)
+   End Sub
+</PRE>
+<P>
+<HR ALIGN="CENTER">
+[<A NAME="example6"></A> <A HREF="e-world-scripting.html#example6">See the E for C Version</A>] [<A HREF="e-vb-oid-scripting.html#example6">See
+the E for VB Version</A>]</P>
+<P>6. A ridiculously simple Eliza:</P>
+<P>
+<PRE>   Define Sub Speech(AvatarName as String, Text as String)
+      Say (&quot;That's interesting &quot; + AvatarName + &quot;. Tell me more about &quot; &amp;Text)
+   End Sub
+</PRE>
+<P>
+<HR ALIGN="CENTER">
+[<A NAME="example7"></A> <A HREF="e-world-scripting.html#example7">See the E for C Version</A>] [<A HREF="e-vb-oid-scripting.html#example7">See
+the E for VB Version</A>]</P>
+<P>7. Have a bot in your Turf that reacts to the mention of your name.</P>
+<P>
+<PRE>   Define Sub Speech(AvatarName as String, Text as String)
+      If InStr(MyName,Text)
+         PlayGesture(&quot;Spin&quot;)
+         Say (&quot;I sure do love &quot; + MyName)
+      End If
+   End Sub
+</PRE>
+<P>
+<HR ALIGN="CENTER">
+[<A NAME="example8"></A> <A HREF="e-world-scripting.html#example8">See the E for C Version</A>] [<A HREF="e-vb-oid-scripting.html#example8">See
+the E for VB Version</A>]</P>
+<P>8. The wandering avatar: (no error checking for a region with no portals)</P>
+<P>
+<PRE>
+   Launch(&quot;Dax&quot;,&quot;CentralPark&quot;)
+
+   For i = 1 to 100
+      regions = ListRegions()
+      size = regions.Size
+      n = random(size)
+      WalkTo (regions(n))
+   Next i
+</PRE>
+<P><IMG SRC="kilroy.gif" WIDTH="560" HEIGHT="26" ALIGN="BOTTOM" BORDER="0"></P>
+<P>This is my target. If things we're this easy, I'd be ecstatic. I don't particularly care about If...EndIf and
+For...Next vs. braces, although scripting languages do seem to tend towards the former. It's arguably more <I>human</I>
+readable (as opposed to more <I>programmer</I>-readable).</P>
+<P>I'd like a user who's never programmed before to be able to select from a list of default script behaviors,
+look at the text and understand what's going on. She could then change a text string and be thrilled to se the
+behavior reflected in Microcosm. Feeling more ambitious, she cuts and pastes a few scripts together and starts
+becoming comfortable with the syntax. Soon her turf is crawling with lively objects...</P>
+<P><BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+
+
+</BODY>
+
+</HTML>

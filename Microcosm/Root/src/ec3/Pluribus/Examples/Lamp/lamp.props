@@ -1,0 +1,3 @@
+RegisterWithURLs=ftp://www.communities.invalid/pub/pls-location/george.communities.invalid_1667;ftp://www.communities.invalid/pub/pls-location/gracie.communities.invalid_1667;ftp://www.communities.invalid/pub/pls-location/harpo.communities.invalid_1667
+SearchPath=george.communities.invalid:1667;gracie.communities.invalid:1667;harpo.communities.invalid:1667
+

@@ -1,0 +1,558 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.04 [en] (Win95; I) [Netscape]">
+   <TITLE>Technical Sound Specification - EC Habitat
+</TITLE>
+</HEAD>
+<BODY>
+<H1>Sound Overview and Specification</H1>
+<P><B>Last updated: </B>[98/07/09 <A HREF="mailto:wolfs@mci2000.com">Wolf</A>]
+
+<P>Author(s): <A HREF="mailto:wolfs@mci2000.com">Wolf</A>.
+<H2>Introduction</H2>
+This specification is a first pass at describing existing sound/audio functionality
+in EC Habitats, MicroCosm and related technologies, and using this description as a basis for an improved audio spec from a sound designer's perspective. Sound / audio at the
+moment (and in this spec) is limited to .WAV format PCM digital audio.
+In the future this spec may be appended to include streaming audio, compressed
+audio, general MIDI or card-specific wavetable synthesis.
+<BR>The base API underlying the sound functionality in Habitat and related
+technologies is Microsoft's DirectSound API, developed under DXSDK version
+3. Only a limited subset of what is available through DirectSound is currently
+available in Habitat. Recommendations and requests for future sound functionality
+should be reviewed to determine whether the requested feature can be accommodated
+within the DirectSound API (if sticking with DirectSound is in the plan,
+at least), and should try to avoid features that must be programmed using
+Java classes or native code.
+<H3>Related Documents</H3>
+<A HREF="ProductionOverview.html">Production overview - how to use Production tools, etc <A HREF="mailto:tony@communities.com">(Tony)</A></A><BR>
+<A HREF="../audio/Audio-Subsystem.html">Audio subsystem documentation</A> (<A HREF="mailto:ronin@communities.com">Ronin</A>)
+<H3>
+Current Sound Types</H3>
+Sounds in current EC technology can be divided into the following broad
+categories:<UL>
+<LI>
+In-world sounds - looping and non looping</LI>
+
+<BR>Defined as sounds that originate from objects, regions, realms or other
+Habitat components, part of the experience of a specific world.
+<LI>
+Interface sounds</LI>
+
+<BR>Defined as sounds that can either result from user action in the interface.
+These might be monitoring sounds that are generated via the interface in
+response to some in-world condition, but which are not associated with
+any one in-world object.
+<LI>
+Alert sounds</LI>
+
+<BR>Defined as sounds that often also originate as a result of user action
+in the interface or world screen, but which indicate to the user that some
+sort of immediate action is required. For example, a connection error would
+generate an alert sound, or an incoming request to initiate a point-to-point
+voice session. These are all called from Java hooks directly in the code.
+</UL>
+<H3>
+Proposed Sound Types</H3>
+Current sound types don't allow for a good range of user filtering options,
+because all inworld sounds are called via the same gesture syntax. The
+region-level sound syntax is not properly supported and should be abandoned.
+There is a distinction in the current UI spec between 'background' sounds
+and 'foreground' sounds, but it isn't properly implemented as filtering
+options in the client. I propose that in order to provide specific filtering,
+there should be an additional flag set in the Appearance file call for
+the sound. For full flexibility, ALL sounds played inworld via Appearance
+files could require this flag. The effect would be that any given sound
+played would go into one of several possible program-driven "buses", each
+of which can be turned on or off at the user's discretion. These proposed
+categories are as follows:<UL>
+<LI>
+Background</LI>
+
+<BR>Defined as sounds that originate from objects, regions, realms or other
+Habitat components, part of the experience of a specific world. Examples
+would be the SoundEmit objects placed into several of the Beach and City
+regions to provide background sounds (ambience). Typically these would
+either be looping or of little value as user feedback. Many users prefer
+to filter these types of sound out, because by definition the sounds tend
+to be repetitive.
+<LI>
+Event</LI>
+
+<BR>Defined as sounds that originate from objects or regions as the result
+of a specific user action. Examples would be changing state in the Alpha
+release's Changer objects, using gestures that also swapped textures or
+made other visible changes in the object. The sound is either an interesting
+feature in the behavior of the object or perhaps the only thing that actually
+changed when gesture swapping.
+<LI>
+Music</LI>
+
+<BR>Current filtering options don't allow for distinguishing WAV files
+that contain music from WAV files that contain effects. This category would
+allow the distinction to be made by the world author. While the distinction
+isn't necessarily important to the program, it is potentially important
+to the user. Music/no-music choices will tend to be a matter of the user's
+musical taste, whereas sound effects decisions will be less taste-driven.
+This added category should be set up to accommodate either WAV or MIDI
+file input once MIDI support is added.
+<LI>
+Interface</LI>
+
+<BR>Sounds that result directly from user action in the interface. These
+might be monitoring sounds that are generated via the interface in response
+to some in-world condition, but which are not associated with any one in-world
+object. I propose collapsing the old 'alert' category into the interface
+sounds as well, because the distinction isn't nearly as important to the
+user, and divisions between the two categories tend to be pretty arbitrary.
+In most cases, this category would not be used for inworld sounds, but
+should still be available from Appearance-level scripting. An example for
+how this could be used would be as an alert if a user entered an under-construction
+room (alert called by default alert object, calling alert sound via Appearance
+file using the Interface category for the sound).</UL>
+<H2>
+Current functionality</H2><UL>
+<LI>Alert sounds</LI>
+<BR>Sounds play once when alert condition detected client side. Alert conditions
+are purely local conditions and each client is responsible for detecting
+them. Specific parameters of how alert sounds should be played, and the
+filename associated with an alert condition, is part of the code that generates
+the interface layer. The current generic alert sound is a small 'blip'.
+<LI>Interface sounds</LI>
+<BR>Sounds play once when interface action is detected client side. Specific
+parameters of how interface sounds should be played, and the filename associated
+with it, must be hard coded into the Java code that generates the interface
+layer
+<LI>Sounds for objects</LI>
+<BR>At the Appearance file level, any object can have a sound associated
+with it, in a similar way to how graphics and scene description files for
+objects are called from within the Appearance file. The sounds are tied
+specifically to gestures built in to the object. In some cases, sounds
+could be tied to the same gestures as image information. Note that there
+is a pending proposal to split sounds out into their own gesture types,
+and calling the sound gestures from image gestures inside the same object.
+</UL>
+Current limitations in object sounds include:
+<UL>
+<LI>
+Sounds loop independently of the looping gesture that triggered them. This
+becomes a problem if the timing between gesture and sound isn't accurately
+the same - sounds would eventually drift synch.</LI>
+
+<LI>
+There is no gesture that runs itself in accordance to an inworld or machine
+clock, such that sounds can run in some sort of synchronization other than
+always on / always off.</LI>
+</UL><UL>
+<H4>Sounds for Regions</H4>
+At the Realm text level, any region can have a sound associated with
+it. Unlike the unum level specification, there is no control over looping
+or volume level. The sound file is basically given as a parameter of the
+region and will loop constantly while the avatar inhabits the space. This
+isn't as versatile a syntax, and with the exception of the music in The
+City, inworld sounds for regions have been replaced with objects that serve
+specifically as sound emitters.</UL>
+
+<H3>
+Current Functionality examples</H3>
+
+<UL><LI>
+When the object is first loaded locally, and the appropriate gesture is
+engaged, the sound can play once through the following Appearance file
+scripting:</LI><PRE>
+It has 2 Gestures
+  1. Gesture "raspberry" has Image Text "raspberry"
+      It has 1 Positions: 1
+      It has rotations: 0
+      It does 1 loops from frame 1 to frame 1 inclusive
+   It plays 8 frames per second and moves 0.0 virtual metres per frame
+   It plays sound "sounds/no.wav" at 100 percent volume with looping false
+</PRE>
+<LI>
+When an unum is first loaded locally, and the appropriate gesture is engaged,
+the sound plays continuously (loops) while the user's avatar occupies the
+region, through the following Appearance file scripting. Note that the
+sound in this case will continue looping even if the gesture has been exited,
+because it's the SOUND that's looping, not the gesture. Also, the looping
+sound currently does not restart at each reinstantiation of the gesture
+even if the gesture also loops.</LI><PRE>
+It has 2 Gestures
+   1. Gesture "raspberry" has Image Text "raspberry"
+      It has 1 Positions: 1
+      It has rotations: 0
+      It does 1 loops from frame 1 to frame 1 inclusive
+   It plays 8 frames per second and moves 0.0 virtual metres per frame
+   It plays sound "sounds/no.wav" at 100 percent volume with looping true
+</PRE>
+Sound volume is not linear; it's approximately an e-level or dB style curve, such that 93% volume is about half as loud as 100% volume. Some sounds tend to punch through at lower volumes whereas others tend to disappear, so volume level often takes some experimentation. It's best to use one sound in the space as a reference. If region-level sounds are being used, these will have to be your base reference because they don't allow changing the volume.
+<P><LI>
+When a region is entered, sound plays at the Region level. This is not
+as versatile, because the sound always loops and volume is not settable.</LI>
+<PRE>
+Create Region
+    Name "Beach Resort"
+    wavefile "sounds/Ambient2.wav"</BLOCKQUOTE>
+</PRE></UL>
+<H2>
+Proposed Functionality</H2>
+
+<H3>
+Sound Types - Additions</H3>
+For inworld sounds, enable a randomly triggerable sound. See the section
+on Sounds and Gestures.
+<H3>
+Sound types - proposal for alert and interface sound name scheme</H3>
+A good working process would be for alert conditions within an interface
+to each have associated, fixed filenames that resemble Windows-style program
+event names, for instance Alert_OnAudioRequest.wav. A complete list of
+possible sounds could be commented into a predetermined file location,
+and initially each of these sounds could use the same default sound as
+a placeholder (the existing blip is a tiny 2K sound that won't take up
+much space even if duplicated a dozen times). It would also be useful to
+have more than one alert sound, to give the user better feedback on what's
+happening (even a simple division such as critical / noncritical).
+<H3>
+Desired functionality (Level 1)</H3>
+
+<UL>
+<LI>
+Play sounds at random intervals, or not at all based on random seeds</I></LI>
+
+<BR>Random sounds can help break the monotony of a short loop. When combined
+with an existing simple loop, a much more complete aural landscape can
+be constructed using a minimum number of sound sources. Rather than being
+embedded inside the Gesture itself, this functionality should be at the
+level of whether a given gesture will or will not play. See the Sounds
+and Gestures section for details.
+<LI>Play a sound at random from a list of possible sounds</LI>
+<BR>In combination with the above, enables the construction of a complicated
+audio environment that seems 'real' because no loop ticks can be detected
+by the listener. Proposed 'random' gesture does not accomplish this because
+it needs to be triggered by user action, rather than being triggered by
+some sort of timer. Rather than being embedded inside the Gesture itself,
+this functionality should be at the level of whether a given gesture will
+or will not play. See the Sounds and Gestures section for details.
+<LI>If desired, play sounds in synchronization with looping gestures</LI>
+<BR>Unless the length of a soundfile is exactly the length of the gesture,
+the sound and image have the potential to drift when each loops independently.
+However, sometimes the glitch in a loop isn't worth the increased accuracy
+of retriggering the sound on each gesture restart. Should add a flag to
+the sound syntax in Appearance files that specifies whether the sound should
+or should not restart on retrigger of a looping gesture.
+<LI>Allow flaggable finish / don't finish control of sounds in gestures</LI>
+<BR>Some gestures would want the sound attached to them to cut off as soon
+as the gesture itself ends. Other sounds would work better if allowed to
+tail off after the visuals of the gesture have ended, at least to the extent
+of finishing at the file end rather than abruptly breaking off. Having
+a flag for Cut Off / Don't Cut Off sound at end of animation portion of
+gesture would allow both cases.</UL>
+<H4>
+Example (level 1)</H4><PRE>
+It has 3 Gestures
+    1. Gesture "Always On" is a "texture animation gesture"
+       It has 1 track of 2 textures
+         1. It uses texture label "ltning"
+           1. It has art in cel "catGothic/ltning3.bmp"
+           2. It has art in cel "catGothic/ltning.bmp"
+       It does "indefinite" loops from frame 1 to frame 2
+       It plays 4 frames per second
+       It plays sound "sounds/jladdfx22.wav" at 92 percent volume with looping true
+       Retrigger "False", Cutoff "True"
+    2. Gesture "Random Interval On" is a "randomizer gesture"
+       It plays gesture "On" 60% of the time at intervals between 4 and 10 seconds
+    3. Gesture "On" is a "texture animation gesture"
+       It has 1 track of 2 textures
+         1. It uses texture label "ltning"
+           1. It has art in cel "catGothic/ltning3.bmp"
+           2. It has art in cel "catGothic/ltning.bmp"
+       It does 1 loops from frame 1 to frame 2
+       It plays 4 frames per second
+       It plays sound "sounds/jladdfx22.wav" at 92 percent volume with looping false
+       Retrigger "False", Cutoff "False"</PRE>
+<H3>
+Proposed functionality (Level 2)</H3>
+
+<UL>
+<LI>In-world prioritization of sounds</LI>
+
+<BR>In a true user-buildable environment, there is no guarantee that the
+available number of voices on an end user's sound card won't be exceeded
+by the number of objects in a space. For instance, if someone populates
+their turf with 10 radios that play looping sounds (or someone else litters
+your turf with these!), the alert sounds may not always punch through all
+the other playing sounds in the buffer. Although DirectSound handles this
+situation better than most sound architectures, the result will still be
+very choppy sound. If sounds could be prioritized by some scheme such as
+Low/Medium/High at the Appearance file level, there could be more assurance
+that intended background sounds or important interface sounds would never
+be lost and audio clutter could be minimized. Alternatively, sounds could
+be targeted at the 'buses' mentioned earlier in this document.
+<LI>Change relative volume spatialization of sounds based on which camera
+is viewing the scene</LI>
+<BR>Without control over relative volume levels or pan location of sounds
+in a world it is harder to effectively create the feeling of being "in-world"
+with the audio. For instance, if a beach is directly in from of the camera
+view, the user would expect to hear surf playing fairly loudly. But if
+they switch to another camera located far from the water, they expect the
+volume of the surf to diminish and perhaps some other sound to grow louder.
+This requires knowledge of location of cameras relative to objects at a
+program level, but once that data is available in proper format DirectSound
+can handle volume increases and decreases automatically given proper numeric
+values (and does a very elegant job in cases where DirectX is also being
+used for rendering). The data for distance between objects should be available
+by searching for active Dynamos and constructing a 1D distance relationship
+between them from a 2D matrix (in most cases there would be no need to
+include differences in Z height between camera and dynamo; the extra math
+involved in a 3D - 1D transformation would not be worth it.)
+<BR>One potential problem in implementation would be that the sounds to
+be played are all sent into a certain length buffer for mixing (usually
+about 150ms). That buffer would have to be allowed to play out while the
+new volume levels are calculated for the new camera position, resulting
+in an inevitable lag between user action and the audio change. However,
+that lag would probably be smaller than the current code/rendering lag
+that happens on each camera transition.</UL>
+<B>Desired functionality (Level 3)</B>
+<UL>
+<LI>Support for general MIDI</LI>
+<BR>Music is much more efficiently handled by playing it as general MIDI
+rather than WAV files. MIDI support through DirectSound should be relatively
+simple.
+<LI>Support for compressed and/or streaming formats such as RealAudio</LI>
+<BR>Streaming formats are very useful for enterprise applications. Recent
+advances in the various streaming audio SDK's have made it easier to get
+at key functionality and to have streaming and non streaming audio formats
+coexist.
+<BR>Truly compressed audio isn't always a win in virtual world environments
+because the audio still needs to be unpacked before mixing with other sound
+sources. But ADPCM gives some savings and should be supported.
+<LI>Sound "swatching"</LI>
+<BR>In comparison to art, sounds are actually much easier for end users to prepare, and would be a valuable addition to extensibility of the product. If nothing else, users should have one open gesture slot that uses a pre-defined WAV filename. The default WAV could be replaced by the user locally, and pushing the sound would be handled by the same mechanism that pushes imported bitmaps (some reasonable limit on file size would probably need to be established too). Because the sound file will be uncertified, the sound for that gesture would suppress when played in a certified region. </UL>
+<H2>
+Sample Rates and Voices</H2>
+Nearly all modern sound cards can support the following sample rates and
+depths:
+<UL>
+<LI>
+44.1khz; 8 and 16 bit</LI>
+
+<LI>
+22khz; 8 and 16 bit</LI>
+
+<LI>
+8khz; 8 and 16 bit</LI>
+</UL>
+Barring mixing concerns with other audio applications such as Voxware,
+Habitat via DirectSound can handle any of these sample rates and mix them
+together.
+<BR>Voices under DirectSound are determined by configuration settings that
+are set when DirectSound drivers or the entire DirectX package are first
+installed on a user's system. The exact number of voices available typically
+varies between 6 and 10 depending on a user's system.
+<BR>Although this might seem to be an adequate number of voices in most
+situations, if users are allowed to create objects in a space, then there
+will be no way to enforce how many objects there will be in any given region
+that might be producing sound. DirectSound handles voice overloads by a
+"last in first out" strategy.
+<BR>I ran a sample region, which contained 6 Helper objects with attached
+looping sound behaviors, and triggered each one. Even with 12 total voices
+running at once, the "last-in" error or interface sound punched through
+every time. There was an occasional slight delay but no more than about
+400 ms. Also, the other sounds did not pop or glitch when a new sound punched
+through, so the DirectSound implementation here seems pretty robust.
+<BR>However, under current implementation, Habitat sound must co-exist
+with VoxWare sound, and each application will attempt to 'hijack' the user's
+sound card at a lower level than can be handled via DirectSound mixing.
+As a result, interface and alert sounds must be duplicated at the lower-fidelity
+8kHz 16 bit sample rate and depth in order to mix into VoxWare channels
+using VoxWare's mixing API. Whenever VoxWare is active, Habitat knows to
+play the lo-fi versions of interface and alert sounds, and most (or all)
+in-world sounds will be suppressed until VoxWare relinquishes control.
+There will also be a small but unavoidable glitch during the transition
+between VoxWare and DirectSound. This is another situation where appearance-level
+prioritization of sounds would be useful - to specify sounds that should
+not try and play under VoxWare.
+<BR>Some of the current sounds are recorded at 8 bit depth. That bit depth
+may have to do for now given space and performance constraints, but 8 bit
+sounds will need to be removed if proximal volume for audio is ever introduced.
+8 bit sounds don't work well for cases where the volume level is declared
+as a dynamic percentage and will 'pump' badly when volumes are adjusted.
+<H2>
+Sound Metrics</H2>
+A standard metric for professional (CD) quality audio is 10.1 MB per minute
+of 44.1 kHz, 16bit stereo audio. If this figure is converted for the type
+of audio file typically used in games and multimedia (22 kHz, 16bit mono),
+this will convert to about 2.5 MB per minute of audio, or about 252 KB
+for a six-second loop. Six seconds is about the average sound length needed
+to produce a reasonably non-repetitive loop, though this figure can vary
+considerably in different situations. Using 22kHz 8bit mono for now, that
+adds up to about 125K for the six second loop.
+<BR>The current media/images/sounds directory already contains 5.4MB of
+audio files, at about the same level of resolution as described above (the
+current files are a mixture of sample rates and mono/stereo). Most of these
+are music loops, and they will probably stay around and have been integrated
+into the City regions.
+<H2>
+Sounds and Gestures</H2>
+In order to make it easier for objects to do things that we might not have
+thought of yet, as much functionality as possible should be generalized
+for gestures in general rather than just the sound components of a gesture.
+For instance, gesture sequencing and randomizing are both things that would
+work equally well for chaining animations or giving better specificity
+to how an object behaves inworld. 
+
+<P>Gestures should be able to play at random intervals, and also play at varying levels of likelihood. This behavior would be useful for gestures in many areas besides sounds, such as avatar idle animations that seem "natural".
+
+<P>We need gestures that act effectively as playlists or sequencers for other declared gestures inside the same object. By batching the gestures and calling one from another, this would give the ability to chain gestures, provide the ability on an object level to detect that one gesture has stopped and another should begin, and also to have basic switching logic,
+such that gestures could be mutually exclusive. Gestures should have ability to turn other gestures on and off, for instance
+one fixed gesture could simultaneously turn off two other gestures that
+are set to loop indefinitely.
+<P>Gestures need object level detectable start and stop events such that gestures could be set to
+not collide with each other if triggered simultaneously, yet still allow
+gestures to play simultaneously if that is desired.
+<P> There also needs to be a far greater range of triggering options. For instance, some selected gestures in an object should be accessible directly from user-driven menus, in the same way that avatar gestures are acceessible in the buttons. The current "changer" implementation for objects that run behaviors and/or animations is crude and doesn't let the user know what gesture is about to happen. The current implementation only cycles through in order of the list within
+the gamepiece unum, rather than random access. Proximity or 'trip wire' triggers are also very important for interactive spaces. Object behavior models in AlphaWorld for instance allowed one object to act as trigger and then pass the trigger onto another object that actually ran the action. This allowed for some impressive user-created behavior sequences, such as 'rollercoasters' where a user's avatar went through a series of near local portals as if they were riding on the tracks of a rollercoaster, complete with tracks, ups and downs, varying speeds, etc.</LI>
+</UL>
+
+<H2>
+Proposals</H2>
+The following is a proposed syntax for random sounds by Tony. I believe
+that his Gesture #5 is similar in intent to the currently implemented Random
+gesture.
+<PRE>
+It has 5 gestures
+   1. Gesture "Walk" is a "Sprite Gesture"
+     It has 8 Positions: 1 2 3 4 5 6 7 8
+     It has rotations: 0 0 0 0 0 0 0 0
+     It does "indefinite" loops from frame 1 to frame 8 inclusive
+     It plays 8 frames per second and moves 0.27 Virtual Metres per frame
+     It plays sound "null" at 100 percent volume with looping false
+ 2. Gesture "Wacky Wave" is a "Sprite Gesture"
+    It has 4 Positions: 9 10 11 12
+    It has rotations: 0 0 0 0
+    It does "indefinite" loops from frame 1 to frame 4 inclusive
+    It plays 8 frames per second and moves 0.00 Virtual Metres per frame
+    It plays sound "null" at 100 percent volume with looping false
+ 3. Gesture "Formal Wave" is a "Sprite Gesture"
+    It has 4 Positions: 13 14 15 16
+    It has rotations: 0 0 0 0
+    It does "indefinite" loops from frame 1 to frame 4 inclusive
+    It plays 8 frames per second and moves 0.00 Virtual Metres per frame
+    It plays sound "null" at 100 percent volume with looping false
+ 4. Gesture "Random" is a "Random Gesture"
+    Random Interval is 5000 to 8000 milliseconds
+    It uses "All" gestures
+ 5. Gesture "Random Wave" is a "Random Gesture"
+    Random Interval is 5000 to 8000 milliseconds
+    It uses "2" gestures
+      1. "Wacky Wave" has a weight of 5
+      2. "Formal Wave" has a weight of 3
+</PRE>
+<BR>I'd propose a slightly different syntax where probability, range and
+interval are included together on the same line for the same gesture:
+<PRE>
+  1. Gesture "Random" is a "randomizer gesture"
+     It plays gesture "Number One" 60% of the time at intervals between 4 and 10 seconds
+     It plays gesture "Number Two" 40% of the time at intervals between 4 and 10 seconds</PRE>
+Any unused percentage of the 100 percent pie is assumed to trigger no gesture,
+and the no-gesture state should last the length of the (potentially variable)
+interval. The relationship between length of gesture and length of interval
+could be either consecutive or additive, whichever would be easier to code.
+Intervals would be enforced as being identical for all options in a randomizer
+gesture.
+<BR>There is also a proposal for separating sounds out as their own gesture
+type. I'm not sure this would be a good idea as far as allowing timing
+and communication between the visual and audio portions of an apparent
+single action.
+<BR><HR WIDTH="100" SIZE="1">
+<H2>
+Appendix / Proposals addendum - an earlier proposal sent to Randy</H2>
+
+<H3>A feature request - random triggering of gestures for the purpose of
+playing random sound effects cues</H3>
+<B>Overview</B>
+<BR>Random sounds add considerably to the uniqueness of the sound design
+in a virtual world. If sounds can play at a random but configurable interval,
+the random sounds can help "break the loop" of nonrandom looping sounds
+in a space and will make any loop point less immediately obvious to the
+listener. Also, the random sounds are considerably less costly in terms
+of RAM and disk storage than having a longer file that contains many quiet
+sections and a few peak sound points. A good example of this is birds in
+an outdoor space. Having the constant chatter of birds is annoying, but
+having birds pop in at intervals is nice and is what the user might expect
+o hear in that environment. If the birds come in at random intervals, the
+user won't be able to pick up loop points and even as few as four short
+bird cues can generate a realistic sounding forest environment.
+<BR>Since playing sounds is currently part of the gesture information in
+an Appearance2d or Appearance3d file, what seems to make the most sense
+is to trigger the entire sound-containing gesture randomly, with the gesture
+serving no other purpose in many cases besides being a container for sound
+cues.
+<BR>In addition to sound, I imagine that the ability to trigger gestures
+at random but configurable intervals could have other uses as well. For
+instance, reverting to the default gesture for avatars would probably be
+a lot more interesting if they did not always revert at the same time interval,
+or for that matter if the avatar could use different gestures as the 'default'.
+
+<P><B>Existing Functionality</B>
+<BR>Existing gestures can include play sounds in looping or non looping
+state once started. But the gestures themselves are one/zero state - they
+are either going to play when triggered or not play when not triggered.
+Also, I don't think there are any objects where the gestures contained
+in the Appearance2d or Appearance3d file run on a purely random basis.
+The gestures are entered when clicked / cycled through in Helper, or entered
+by specific interface action in the case of avatars or other behavior-enabled
+objects.
+<BR>The following is an example gesture from the Help object in OneUnumEach:
+<PRE>
+  4. Gesture "3" has Image Text "nothing"
+    It has 4 Positions: 2 3 2 1
+    It has rotations: 0 0 0 0
+    It does 1 loops from frame 1 to frame 4 inclusive
+    It plays 3 frames per second and moves 0.10 Virtual Metres per frame
+    It plays sound "sounds/intro3.wav" at 100 percent volume with looping false
+</PRE>
+<P><B>Requirements</B>
+<BR>"Randomness" should be split into randomness of interval and randomness
+of occurrence. Gestures should be able to independently engage or disengage
+based on some configurable probability and/or time interval between plays.
+In addition, which gesture to be played should also be randomizable.
+
+<P>By "independently", I mean that the world always checks sort of clock
+to determine when a check-to-play cycle has gone past. For instance, the
+first step would be for an object to decide whether or not to play a gesture
+at all based on elapsed time, given as a range rather than a hard value.
+If a gesture should be played, then it decides <I>which</I> gesture to
+play based on probability (could also include gestures with 0% probability
+such that gestures meant to be triggered by other means could co-exist
+with the random gestures). The same effect could conceivably be achieved
+by always playing a gesture on a fixed cycle time, but populating the gesture
+list with a few gestures that do nothing but 'kill time'.
+
+<P>This functionality could be limited to one specific unum type, or if
+desired could be made global across all una. However, it would probably
+be better to include the randomization information as part of the gestures
+in the appearance Appearance file rather than at the realm.txt level, regardless
+of whether random gestures are limited to specific una. Otherwise, catalog
+objects probably couldn't carry their random behavior once introduced into
+the world.
+
+<P><B>Example syntax / functionality</B>
+<BR>Peruse or ignore as you see fit. Just some pseudoscripting so that
+you can see what I have in mind.
+<BLOCKQUOTE>My initial suggestion:</BLOCKQUOTE>
+
+<PRE>
+    It has 3 Gestures
+      It cycles gestures randomly at intervals between 3 and 10 seconds
+         1. Gesture "0" has Image Text "nothing"
+            It has 30% probability
+            It plays sound "sounds/birds1.wav" at 100 percent volume with looping false
+        2. Gesture "1" has Image Text "nothing"
+            It has 40% probability 
+            It plays sound "sounds/birds2.wav" at 100 percent volume with looping false
+        3. Gesture "2" has Image Text "nothing"
+            It has 30% probability 
+            It plays sound "sounds/birds3.wav" at 100 percent volume with looping false
+</PRE>
+</BODY>
+</HTML>

@@ -1,0 +1,872 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="Generator" CONTENT="Microsoft Word 97">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.05 [en] (WinNT; I) [Netscape]">
+   <TITLE>ECID &amp; ComCom Product Specifications</TITLE>
+</HEAD>
+<BODY LINK="#0000FF" VLINK="#800080">
+
+<CENTER>
+<H1>
+ECID &amp; ComCom Product Specifications</H1></CENTER>
+
+<CENTER>Copyright &copy;1998, Electric Communities, All Rights Reserved.
+Proprietary and Confidential. Do not distribute.</CENTER>
+
+
+<P>&nbsp;
+<BR><FONT SIZE=-2>[The <A HREF="ECIDComComSPEC.doc">MSWord version</A>
+is available.]</FONT>
+
+<P><I><FONT SIZE=+2>RobL: OLD, OLD, OLD – UPDATING THIS WEEK</FONT></I>
+
+<P><B><I>ECID Specification</I></B>
+
+<P><I>1.0 Introduction</I>
+
+<P><U>ECID</U> (<U>E</U>lectric <U>C</U>ommunities <U>Id</U>entity) is
+an identity system providing persistent, addressable, secure distributed
+identities for Internet processes representing people, places and things.
+ECIDs are globally unique without requiring the use of a central identity
+server. They use a collection of Process Location Servers to resolve connections
+from dynamic IP addresses. Process Location Servers can be public or private
+and can reside anywhere on the Internet. ECID relies on secure, encrypted
+communications between processes. Because it is decentralized, it can be
+added to any existing application.
+
+<P>With secure communications, all other applications can be associative
+optional.
+
+<P>ECID is used by end-users to manage only what you send out, not what
+you are watching.
+
+<P>ECID is used by organizations to manage and communicate with lists of
+users who have visited a WWW site, registered for a WWW-site or application.
+
+<P>ECID hands out capabilities.
+<OL START=2>
+<LI>
+<B>Marketing</B></LI>
+</OL>
+Value: Aggregate population. Establish ground work for Game Companies to
+get into multi-user games by providing them with authentication and back-ends
+that scale to the rest of our technologies. Create a large-scale, relatively
+low-risk test for our secure identities and secure communications claims
+(low risk wrt to commerce, involvement in actual game economies, etc.).
+
+<P>Offer ECID as an authentication scheme to Entertainment Companies. Aggregate
+ECIDs by going after organizations who need identities, rather than individuals
+in the ICQ tradition.
+
+<P>Offer ECID code for people to add to their applications to give them
+secure IDs.
+
+<P><B>3.0 Strategic Relationships and Competition</B>
+
+<P>VeriSign, Ichat, Eshare, InfoSeek, Yahoo, Microsoft, CyberGold, LiveWorld.
+
+<P>Matt says that VeriSign and Microsoft want to become identity wallets.
+He says that promoting a new identity system would be terribly expensive.
+
+<P><B>4.0 Product Outline</B>
+
+<P>ECID sub-systems
+<DIR><I>ECID sturdy reference and process maker</I> – ??
+
+<P><I>Process Location Server</I> – When a user connects to the Internet,
+their ECID is automatically published to all of the Process Location Servers
+where that ECID is listed. The PLS then broadcasts the online status of
+this ECID to all processes that the ECID permits. Process Locations Servers
+can be public or private and may be run behind firewalls. [Pull on name
+to get info back about what PLS to call]
+
+<P><I>ECID interface library</I> – The ECID interface library
+
+<P><I>Granted capabilities interface</I> – The "granted capabilities" interface
+resides in the client code and keeps track of the capabilities that have
+been granted to others by the user. This allows users to keep track of
+who is allowed to track each ECID that they possess.
+
+<P><I>Certificates interface </I>– This interface resides in the client
+code and keeps track of the certificates that the user has collected in
+their travels around the Internet.
+
+<P><I>Authentication interface</I> – This interface resides in the
+
+<P><I>Back-end</I> – EC and other organizations that use ECID as an authentication
+mechanism use the back-end to keep track of user ECIDs and other data they
+may wish to collect. Includes data source for ECIDs and an exchange database
+to tie ECIDs to other identity systems (does this piece go here or in ComCom?)</DIR>
+
+<OL START=5>
+<LI>
+<B>User Interface Summary</B></LI>
+</OL>
+
+<OL>
+<LI>
+Create a unique sturdy reference and process.</LI>
+
+<LI>
+Register with a PLS.</LI>
+
+<LI>
+List with ComCom directory services.</LI>
+
+<LI>
+Handles requests for registration – "will I let you see what I am doing?"</LI>
+
+<LI>
+Holds client-side certificates.</LI>
+</OL>
+
+<OL START=5>
+<LI>
+<B>Functionality and Features</B></LI>
+</OL>
+ECID looks at ratings on WWW sites and warns users to be sure to check
+their ECID to make sure they want to broadcast this location.
+
+<P><B>7.0 Compatibility</B>
+
+<P>Identity model and inter-application protocols are written in Java.
+
+<P><B>8.0 Performance</B>
+<OL START=9>
+<LI>
+<B>Globalization and Localization</B></LI>
+
+
+<P>What are the issues with encryption policies outside of the United States?
+<LI>
+<B>WWW Site, Download and Installation</B></LI>
+
+
+<P>WWW Site for download. Download and Install Shield.
+<LI>
+<B>Resources</B></LI>
+
+<LI>
+<B>Timeline</B></LI>
+
+
+<P>Current state of the identity package is that it was working with E,
+but in pure Java, we have working the creation of a sturdy reference, we
+can conduct operations on the sturdy reference (follow net proxy to remote
+objects". The shell is checked in. We are waiting on the point-to-point
+communications systems.
+<LI>
+<B>Implications for Microcosm Delivery and Feasibility</B></LI>
+</OL>
+<B>&nbsp;</B>
+
+<P><B><FONT SIZE=+2>&nbsp;</FONT></B>
+
+<P><B><FONT SIZE=+2>ComCom Specification</FONT></B>
+
+<P><B>1.0 Introduction</B>
+
+<P>ComCom is a low cost, always up tool to help users coordinate activities
+between multiple people and places on the net in a secure fashion.
+
+<P>ComCom provides a simple, low cost/always up interface for getting basic
+information about what is going on in all the Internet contexts you frequent,
+including all of EC's venues. Offers opportunities for advertising and
+promotion of all virtual community and chat solutions. Provides value-added
+for EC technologies. Spying can have low-cost lobby-like effects: I can
+watch until my favorite partner comes to the Quake server and then I can
+launch the game to play together. We aggregate global user statistics --
+it serves a mega @where function to know what is going on in all sites.
+We can know how many players are playing Quake, etc. The Spy Windows can
+come pre-loaded with links to WWW pages to promote our products or the
+products of our partners. It shows you how to download things you may never
+have considered using.
+
+<P><B><FONT SIZE=-1>Goals and Themes</FONT></B>
+<UL>
+<LI>
+Abstract out the embedded features of the Microcosm Address Book, Teleport
+List, Notifications and The Palace's Little Buddy with a general solution
+that works across many application types.</LI>
+
+<LI>
+Aggregate population quickly by providing high-level, immediate value to
+end-users, WWW sites, application developers and community builders.</LI>
+
+<LI>
+Add features for managing security, people, places and groups.</LI>
+
+<LI>
+Broadly leverage our expertise in virtual communities, chat and communication
+protocols.</LI>
+
+<LI>
+Mine maximum, general value from our identity model.</LI>
+
+<LI>
+Add multiple points of presence to the single point of presence of ICQ.</LI>
+
+<LI>
+Down the road, this approach allows us to co-opt things like "Net Nanny"
+by setting preferences on identities. It allows us to CO-OPT HTTP by adding
+pseudonymity to what is an annonymous protocol now. It allows us to co-opt
+email by replacing domains with capabilities that sort mail. This also
+allows us to add reputation to identity on the 'Net.</LI>
+
+<LI>
+Controls who and what I want to know about. It makes requests and hands
+out permissions.</LI>
+</UL>
+<B>2.0 Marketing</B>
+
+<P>Could give WWW site owners the toolkit for free for ninety days so that
+they could get a taste of managing a chat or BBS. This way we get our button
+on their site for ninety days and they get free chat for ninety days. It
+is important to demonstrate the difference between ordered and disorderly
+sites.
+<OL>
+<LI>
+We tell WWW owners that chat is coming to their site for free. If they
+will put a ComCom button on their WWW site, we will share data with them
+and give them moderator functions. Otherwise, we essentially own their
+chat site. If the user who pushes this button has ComCom, they are instantly
+launched into the text-only ComCom dynachat session (text-only InstantPalace
+that downloads with our product. If the user does not have ComCom, they
+are sent to our page so they can download it. Once they download, they
+connect to the session. If the WWW owner wants more control or richness,
+they can pay us to turn on the graphics, get more wizard functions, get
+user data about their site from ComCom, control what the protocol releases
+to the Spy window, or even control what application is used for chat, etc.</LI>
+
+<LI>
+Or, we give chat away for free to these sites in return for them putting
+up a ComCom button, which gives them control of the chat site. This makes
+for a slower growth curve, as only sites interested would be chatted about.</LI>
+
+<LI>
+If Palace, then: when ComCom is loaded, people get Instant Palace for free.
+This helps out The Palace by making it nicer because people don't have
+to download the applet everytime they join a presentation. Using Palace
+technologies helps with development time and provides a smooth growth curve
+on Palace functions for WWW pages to turn into Internet Communities. We
+sell them up from the text chat to graphics chat to scripting and wizard
+and auditorium functions, always giving them means to address their population
+via the EC ID (e.g., that WWW site gets a group ID that collects the swiss
+IDs of people who have chatted there)</LI>
+
+<LI>
+At all points, we are collecting information about where people are and
+with whom. We become like Neilson and sell these data.</LI>
+
+<LI>
+We aggregate a population of users who are prime customers for our enterprise
+and consumer products, making marketing much easier.</LI>
+
+<LI>
+We aggregate a population of users who have value to others and get nice
+offers like ICQ got from AOL.</LI>
+
+<LI>
+We own the WWW WRT to identity and start to add tools that add value to
+identity, like client-side certificate managers, etc.</LI>
+
+<LI>
+Content can be pushed from the protocol to the ComCom window for advertising.</LI>
+
+<LI>
+EC owns a ComCom window for advertising and promotions.</LI>
+
+<LI>
+Game company WWW site visitors can start interacting about the game before
+they have the software via ComCom.</LI>
+</OL>
+<B>3.0 Strategic Relationships and Competition</B>
+
+<P><B><FONT SIZE=-1>Major differences from other global identity systems:</FONT></B>
+<UL>
+<LI>
+Adds "communication-by-context," "communication-by-group" and "navigation-by-person"
+to existing buddy list features.</LI>
+</UL>
+
+<UL>
+<LI>
+Provides multiple points of presence.</LI>
+
+<LI>
+Offers security</LI>
+
+<LI>
+Distributed system</LI>
+</UL>
+<B><FONT SIZE=-1>Pieces other people are building:</FONT></B>
+<UL>
+<LI>
+Alexa</LI>
+
+<LI>
+Virtual Places</LI>
+
+<LI>
+Crit.org</LI>
+
+<LI>
+ICQ and all buddy list competitors</LI>
+
+<LI>
+Chat programs</LI>
+
+<LI>
+LDAP and RVP</LI>
+
+<LI>
+Digital signatures</LI>
+
+<LI>
+Encrypted communications</LI>
+
+<LI>
+PLS</LI>
+</UL>
+<B>4.0 Product Outline</B>
+
+<P><B><FONT SIZE=-1>Sub-systems</FONT></B>
+<UL>
+<LI>
+Favorites Server</LI>
+
+<LI>
+Favorites Directory</LI>
+</UL>
+
+<UL>
+<LI>
+Favorites Client</LI>
+</UL>
+<B>5.0 User Interface Summary</B>
+<BR>&nbsp;
+<TABLE BORDER CELLPADDING=9 WIDTH="729" >
+<TR>
+<TD VALIGN=TOP WIDTH="24%"><B>Type</B></TD>
+
+<TD VALIGN=TOP WIDTH="25%"><B>Name</B></TD>
+
+<TD VALIGN=TOP WIDTH="25%"><B>Status</B></TD>
+
+<TD VALIGN=TOP WIDTH="25%"><B>Note</B></TD>
+</TR>
+
+<TR>
+<TD VALIGN=TOP WIDTH="24%">WWW place</TD>
+
+<TD VALIGN=TOP WIDTH="25%">Palace XXX</TD>
+
+<TD VALIGN=TOP WIDTH="25%">151/20</TD>
+
+<TD VALIGN=TOP WIDTH="25%">whatever</TD>
+</TR>
+
+<TR>
+<TD VALIGN=TOP WIDTH="24%">Person</TD>
+
+<TD VALIGN=TOP WIDTH="25%">John</TD>
+
+<TD VALIGN=TOP WIDTH="25%">Place icons</TD>
+
+<TD VALIGN=TOP WIDTH="25%">whatever</TD>
+</TR>
+
+<TR>
+<TD VALIGN=TOP WIDTH="24%">Group</TD>
+
+<TD VALIGN=TOP WIDTH="25%">Writers</TD>
+
+<TD VALIGN=TOP WIDTH="25%">15/2</TD>
+
+<TD VALIGN=TOP WIDTH="25%">whatever</TD>
+</TR>
+
+<TR>
+<TD VALIGN=TOP WIDTH="24%">Microcosm place</TD>
+
+<TD VALIGN=TOP WIDTH="25%">City</TD>
+
+<TD VALIGN=TOP WIDTH="25%">151</TD>
+
+<TD VALIGN=TOP WIDTH="25%">whatever</TD>
+</TR>
+
+<TR>
+<TD VALIGN=TOP WIDTH="24%">&nbsp;</TD>
+
+<TD VALIGN=TOP WIDTH="25%">&nbsp;</TD>
+
+<TD VALIGN=TOP WIDTH="25%">&nbsp;</TD>
+
+<TD VALIGN=TOP WIDTH="25%">&nbsp;</TD>
+</TR>
+
+<TR>
+<TD VALIGN=TOP WIDTH="24%"><I>Double click on cells in this column to launch
+application</I></TD>
+
+<TD VALIGN=TOP WIDTH="25%"><I>Double click on cells in this column to get
+more info on the name</I></TD>
+
+<TD VALIGN=TOP WIDTH="25%"><I>Double click on cells in this column to toggle
+status info on and off</I></TD>
+
+<TD VALIGN=TOP WIDTH="25%"><I>Double click on cells in this column to add
+and edit notes</I></TD>
+</TR>
+
+<TR>
+<TD VALIGN=TOP WIDTH="24%">&nbsp;</TD>
+
+<TD VALIGN=TOP WIDTH="25%">&nbsp;</TD>
+
+<TD VALIGN=TOP WIDTH="25%">&nbsp;</TD>
+
+<TD VALIGN=TOP WIDTH="25%">&nbsp;</TD>
+</TR>
+
+<TR>
+<TD VALIGN=TOP WIDTH="24%"><B><I>Remove…</I></B></TD>
+
+<TD VALIGN=TOP WIDTH="25%"><B><I>Add…</I></B></TD>
+
+<TD VALIGN=TOP WIDTH="25%"><B><I><FONT SIZE=-1>Search…</FONT></I></B></TD>
+
+<TD VALIGN=TOP WIDTH="25%">&nbsp;</TD>
+</TR>
+</TABLE>
+<I><FONT SIZE=-1>Place Icons scenario</FONT></I>
+
+<P>How did Place icons get added next to Person’s name? How did ComCom
+know what icons to put next to Person’s name?
+<UL>
+<LI>
+If Person is on the WWW, then browser sends a message to Person’s ComCom
+Client, which sends a message to the ComCom Server, which sends a message
+to anyone who Person allows to monitor him. (Can we detect network program
+launches and put up dialogue boxes asking user to add it to ComCom? Note
+that launch detection is not session data (start, end)).</LI>
+
+<LI>
+If Person is in an application launched with ComCom, then Person’s ComCom
+client sends a message to the ComCom Server, which sends a message to anyone
+whom Person allows to monitor him.</LI>
+</UL>
+
+<UL>
+<LI>
+Else Application server sends message to ComCom server when a user is logged
+in with some magic to resolve the namespace differences between the two
+systems.</LI>
+</UL>
+<I><FONT SIZE=-1>Group UI</FONT></I>
+<UL>
+<LI>
+Group formation UI including functions like Search, Pick From List, Accept
+Protocol, Leader Protocol, List By Group.</LI>
+
+<LI>
+Launch Application: Resolve for group download if they don't have application
+or guest protocols.</LI>
+
+<LI>
+Build Group Registry to figure out how to get friends with a computer and
+ISP into ComCom. "Go to a WWW site, download ComCom and enter group ID."
+"Creation of dynamic group ID -- a capability that is password protected.
+Create a setting that allows the group lists to be visible or invisible.
+Supports intergroup messages to group or individual IDs.</LI>
+</UL>
+<I><FONT SIZE=-1>Events UI</FONT></I>
+<UL>
+<LI>
+Provide Yellow Pages for events. Register and classify events. Assign event
+ID. User selects events or classes to track. Search interfaces for events.
+Charge for highlighting events -- like the yellow pages do.</LI>
+</UL>
+<I><FONT SIZE=-1>Reporting UI</FONT></I>
+<UL>
+<LI>
+Creates a series of reports on activity for operations, marketing, population
+aggregation, user and developer purposes. Generate all sorts of useful
+and valuable reports to sell to folks.</LI>
+</UL>
+<I><FONT SIZE=-1>Other</FONT></I>
+<UL>
+<LI>
+There is a button for setting preferences for the information displayed
+in each Spy Window.</LI>
+
+<LI>
+There is a button for launching the full application and going directly
+to that place from the Spy Window.</LI>
+</UL>
+
+<UL>
+<LI>
+Each window provides: statistics, streaming protocol text, ability to launch
+apps. with name and password resolved from the identity page. Or, it can
+provide you with an option to choose the identity with which you would
+like to launch the application.</LI>
+</UL>
+<I><FONT SIZE=-1>Scenario</FONT></I>
+<UL>
+<LI>
+Download and Install</LI>
+
+<LI>
+Look up and send requests for capabilities.</LI>
+
+<LI>
+If HTML-based, can use DynaChat to start chatting immediately.</LI>
+
+<LI>
+Create a page for your group – or use GeoCities as a partner here.</LI>
+</UL>
+<B>6.0 Functionality and Features</B>
+
+<P><B><FONT SIZE=-1>Features Requirements</FONT></B>
+<UL>
+<LI>
+Back-end designs that support partners must also aggregate ComCom users
+to EC.</LI>
+
+<LI>
+Users cannot be in the same place at the same time with the same ID.</LI>
+
+<LI>
+Adding new protocol types must be easy and publically published. Offer
+a standard scripting language/APIs/preferences that others can use to present
+their stuff through ComCom, including: Worlds Away, MPath, Quake, Yahoo
+Chat, Lotus Notes, NetMeeting, Microcosm, The Palace, Active Worlds, Worlds
+Chat, ICQ, IPage, IChat, People Link, AOL Instant Messager. We build these
+links for the first round of strategic populations with a goal to aggregate
+as quickly as possible.</LI>
+
+<LI>
+ECID process migration issues must be addressed.</LI>
+
+<LI>
+ComCom must be agnostic regarding the identity system used. ECIDs are only
+one type of identity that it can handle. This fosters its usefulness with
+existing legacy systems for enterprise usage. Must work with</LI>
+
+<LI>
+ComCom must deal explicitly and intuitively with privacy issues at all
+levels. Users must not misunderstand what they are doing and revealing.</LI>
+
+<LI>
+How do we make sure that with every back-end implementation choice that
+we are not cutting ourselves out of collecting data that may be valuable
+to sell?</LI>
+
+<LI>
+Have to be able to distribute the domain so that corporations can run their
+own buddy lists. We always planned to have PLS’s that could be run by an
+IS person in a corporation. Has to be able to be shipped and partitioned.</LI>
+
+<LI>
+Directory service needs to be identity neutral.</LI>
+
+<LI>
+Have to deal with the scalability issues.</LI>
+
+<LI>
+Has to run through firewalls – HTTP tunneling – has OnLive created a generic
+tunneling library to wrap the TCP-IP in? They are not doing this in Java.</LI>
+
+<LI>
+No reboot to install.</LI>
+</UL>
+<B><FONT SIZE=-1>&nbsp;</FONT></B>
+
+<P><B><FONT SIZE=-1>Back-end operations issues</FONT></B>
+<UL>
+<LI>
+Database management</LI>
+
+<LI>
+Technical support</LI>
+
+<LI>
+PLS</LI>
+
+<LI>
+Customer support (including reporting and billing)</LI>
+</UL>
+&nbsp;
+
+<P><B><FONT SIZE=-1>Features Problem Space:</FONT></B>
+<UL>
+<LI>
+Monitor plug-ins</LI>
+
+<LI>
+Address book</LI>
+
+<LI>
+Teleport list</LI>
+
+<LI>
+Notifications</LI>
+
+<LI>
+Little Buddy</LI>
+
+<LI>
+DynaChat</LI>
+
+<LI>
+MetaThread</LI>
+
+<LI>
+ICQ</LI>
+
+<LI>
+ECID</LI>
+
+<LI>
+Comm. By context</LI>
+
+<LI>
+Bring group to context</LI>
+
+<LI>
+Monitor activity by context</LI>
+</UL>
+<B>7.0 Compatibility</B>
+<UL>
+<LI>
+Explore using UDP because it doesn't take up resources on operating system
+(but it does hurt with the firewall story).</LI>
+
+<LI>
+Perhaps put session data code into public domain open standard "add this
+and you will be ComCom compatible"</LI>
+</UL>
+
+<UL>
+<LI>
+<FONT SIZE=-1>ComCom includes plug-ins that make connections to something
+with a foreign protocol. The first plugin is a scripting language to open
+a telnet window that sucks down something like an @who for the place. This
+offers multiplicity of presence.</FONT></LI>
+</UL>
+
+<UL>
+<LI>
+Definition of a ComCom "Place" is whatever information the protocol is
+designed to release. Scoping what constitutes "place" is determined by
+the protocol producer.</LI>
+</UL>
+<B>8.0 Performance</B>
+<UL>
+<LI>
+Bandwidth: 28.8 less than 5%</LI>
+
+<LI>
+RAM: 16 MB platform with less than 5 MB footprint</LI>
+
+<LI>
+CPU: 133 mhz platform with less than 5% utilization</LI>
+
+<LI>
+Attention: toolbars and floating windows</LI>
+</UL>
+
+<UL>
+<LI>
+Download size: 2.5 MB</LI>
+</UL>
+
+<OL START=11>
+<LI>
+<B>Globalization and Localization</B></LI>
+
+<LI>
+<B>WWW Site, Download and Installation</B></LI>
+
+<LI>
+<B>Resources</B></LI>
+
+<LI>
+<B>Timeline</B></LI>
+
+<LI>
+<B>Implications for Microcosm Delivery and Feasibility</B></LI>
+</OL>
+<B><FONT SIZE=+2>&nbsp;</FONT></B>
+
+<P><B><FONT SIZE=+2>DynaChat and MetaThread Components</FONT></B>
+<UL>
+<LI>
+Telnet Client (viewer plug in)</LI>
+
+<LI>
+Dynachat client (viewer plug in)</LI>
+
+<LI>
+MetaThread client (viewer plug in)</LI>
+</UL>
+
+<UL>
+<LI>
+Perhaps Dynachat uses The Palace servers, with InstantPalace text-only
+as initial client, and upgrades available to WWW page owners to control,
+expand, moderate these sites.</LI>
+
+<LI>
+Are chat sessions persistent?</LI>
+
+<LI>
+How can we design this in a distributed way for scaling, or shall we blow
+it off like ICQ did?</LI>
+
+<LI>
+What functions can be exposed to WWW without losing integrity?</LI>
+
+<LI>
+How will enterprise consumers use this tool?</LI>
+
+<LI>
+How do we avoid showing our hand without power or protection?</LI>
+
+<LI>
+Have to be able to hand off the chat server portion to the WWW site when
+they buy the toolkit.</LI>
+</UL>
+
+<UL>
+<LI>
+Build turfs – build lobbies – build tools for changing art in interface
+– build tools for importing art into ‘Cosm – build tools for managing communities
+gamer’s aggregate – add scarcity for multi-user games – add scripting language
+for 3<SUP>rd</SUP> party developers.</LI>
+</UL>
+
+<UL>
+<LI>
+Tools for Game Lobby owners to manage and push to population.</LI>
+
+<LI>
+Tools for getting art into UI for Game look and feel.</LI>
+
+<LI>
+Tools for getting art into ‘Cosm.</LI>
+</UL>
+&nbsp;
+
+<P><B>After Cosm launches:</B>
+
+<P>Development = Create increasingly general purpose toolkit for online
+gaming, simulations, and other distributed, graphical applications.
+
+<P>Biz Dev = develop a developers channel for folks wanting to create online
+games, simulations, teaching and learning, etc.
+
+<P>Value = aggregate the populations that these folks are aggregating.
+Get closer to the general play that EC has been looking for.
+
+<P>&nbsp;
+
+<P>How do you signal the multiple communities to which an individual belongs?
+I thought they could have branded doors or posters to their favorite sites
+in their turfs. I thought they could have badges that they could wear on
+their avatars that only came when they bought the game (I know this requires
+scarcity).
+
+<P><B><FONT SIZE=+2>&nbsp;</FONT></B>
+
+<P><B><FONT SIZE=+2>Dependencies between modules</FONT></B>
+
+<P>&nbsp;
+
+<P>
+<HR ALIGN="LEFT" WIDTH="6%" SIZE=1>ComCom Server ComCom Client
+
+<P>ECID
+
+<P>Other ComCom Servers
+
+<P>
+<HR ALIGN="LEFT" WIDTH="4%" SIZE=1>ComCom Directory ECID
+
+<P>Browser
+
+<P>&nbsp;
+
+<P>
+<HR ALIGN="LEFT" WIDTH="7%" SIZE=1>ComCom Client ComCom Server
+
+<P>ComCom Directory through Browser
+
+<P>ECID for establishing secure peer connection and application location
+info.
+
+<P>&nbsp;
+
+<P>
+<HR ALIGN="LEFT" WIDTH="15%" SIZE=1>ECID Applications (Browser, Palace,
+Microcosm, anything with ECID library)
+
+<P>ComCom client
+
+<P>List of Watchers
+
+<P>ECID
+
+<P>PLS (Regular and Asynchronous)
+
+<P><B>Notes</B>
+<OL>
+<LI>
+Who am I now?</LI>
+
+<LI>
+What do others know about me? how do others see me?)</LI>
+
+<LI>
+Where am I now? (Where are all the places where I currently have a presence?
+Am I seen?)</LI>
+
+<LI>
+Who are my friends? Where are they? (Let me talk to them! Let me join them!)
+Set up reciprocity rules about who can see what.</LI>
+
+<LI>
+Who is in this place (a single socket port whose information is determined
+by ComCom protocol designer)? Who is in all the places that I care about?
+What are they doing?</LI>
+</OL>
+<B><FONT SIZE=-1>Or</FONT></B>
+<OL>
+<LI>
+I want to contact my friends who are online no matter where they are. (Launches
+application, uses whatever identity authentication procedure the application
+requires, if it is our application, usres goes directly there, but might
+be asked about which identity they want to use).</LI>
+
+<LI>
+I want to join them immediately if they will let me.</LI>
+
+<LI>
+I want to watch these places and be notified if interesting things occur.
+(Does watching constitute presence in a place? What data is it okay for
+me to see without having a presence there? Does ComCom count a person who
+is monitoring or not, even if the application server does not count that
+person?)</LI>
+
+<LI>
+I want to go to these places when something interesting happens.</LI>
+</OL>
+&nbsp;
+
+<P>This page is maintained by <A HREF="mailto:randy@communities.com">Randy</A>
+and <A HREF="mailto:callen@communties.com">Christina</A>.
+</BODY>
+</HTML>

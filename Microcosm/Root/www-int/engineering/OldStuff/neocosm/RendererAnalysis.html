@@ -1,0 +1,227 @@
+<HTML>
+<HEAD>
+<TITLE>Renderer Analysis</TITLE>
+</HEAD>
+
+<H1>Renderer Analysis</H1>
+
+<B>Last updated: </B>[1 July 1998] <A HREF="mailto:tony@communities.com">Tony</A>]
+
+<P>Author(s): <A HREF="mailto:Tony@communities.com">Tony</A>, collecting input from 
+RussP, Mike, Claire and Crock.
+
+<H2>Related Documents</H2>
+<LI><A HREF="VirtusIntegration.html">Virtus Integration</A></LI>
+<LI><A HREF="RendererSubsystem.html">Renderer Subsystem</A></LI>
+
+<HR>
+
+<H2>Overview</H2>
+This document is not meant to be a detailed analysis of the renderer subsystem. Any
+such analysis should be based on the <A HREF="RendererSubsystem.html">
+renderer documentation</A>. This document is simply geared towards answering the
+question: "Should we stick with the AnyChannel renderer?" It will also list, very
+briefly, the pieces of our architecture that would be affected by switching renderers.	
+
+<H2>Conclusion</H2>
+
+We should stick with the AnyChannel renderer. Moving to another native renderer 
+would present the same issues as the AnyChannel renderer, but would cost us more 
+money, and there's no telling what new problems might occur. Moving to a Java-only
+renderer seems premature, both in terms of stability and performance. Sun's new
+offering, Java3D, is in its first release, and it sits on top of OpenGL, which is
+notoriously slow in software. It doesn't seem wise to commit to a solution that
+will work only on 3D-accelerated machines.
+<P>
+
+<H2>Pieces that would be affected by a renderer swap</H2>
+
+<H3>Scene package</H3>
+Mike is currently cleaning this up to make it more general, but this is the piece that
+would be most dramatically impacted if we changed renderers. Ideally the renderer
+interface wouldn't have to change much, but that would depend entirely on how similar
+the new renderer was to AnyChannel. At the very least, we'd need to write a Java wrapper
+for the new renderer.
+
+<H3>Dynamo3D</H3>
+This code is slated to be re-written. It currently talks directly to the renderer and
+would definitely need to be reworked to integrate with a new renderer.
+
+<H3>EcFonts</H3>
+As I understand it, the bitmaps that ECFonts creates need to be handed to the renderer 
+for rendering in the GUI plane.
+
+<H3>SceneWidget</H3>
+This piece is responsible for creating custom UI elements and asking the renderer 
+to draw them.
+
+<H2>Issues</H2>
+
+<H3>AnyChannel renderer maintenance</H3>
+<I>How hard is it to maintain the AnyChannel renderer? 
+Is it fair to say that that work is mostly done?</I>
+<P>
+<B>RussP:</B>
+<P>
+I'll break this down into three areas.
+<P>
+The first I'll call maintenance caused by higher level code using new
+functionality.  This component was very small.  Whenever Mike or Harry
+(and this was mostly Harry) would do something new and the renderer
+would change to support the new thing, there was a period of
+instability.  However, this very quickly converged to stability.
+<P>
+The second I'll call maintenance caused by new artwork.  This tended to
+have a non-trivial amount of time spent fixing bugs.  There are a lot of
+shortcuts taken in the renderer to optimize for speed.  This means that
+there can be several different code paths that could be taken depending
+on small changes in the data.  Some of these code paths may not be
+exercised until Parker/Stu try something new.  I'd plan on this taking
+some time if new artwork is coming in (maybe half a week per month).
+One point worth bringing up here is Wolfie-boy.  When Wolf would find an
+art problem, he'd often try to work around it himself before asking me
+if I thought it was a bug.  Sometimes this led to very creative
+work-arounds being checked-in without me even knowing that a bug
+existed.  This was pretty inefficient considering that I was on-site,
+and fixing a bug once through programming is much better than fixing it
+N times in the artwork.  With me not there anymore, maybe what Wolf did
+is the right thing to do now.  See below about on-site source code.
+<P>
+The last maintenance issue was AC drops.  This took me normally about
+one day per drop, but could sometimes take as long as 3 days per drop.
+This is because AC doesn't run most of the code that EC runs (for
+example, AC never uses picking and that is one of the areas that tends
+to get broken the most).  Nowadays AC should be 100% responsible for
+their drops working.  This will take a little getting used to for both
+AC and EC.  Don't expect the first couple of drops to work.  When you
+get a drop, test it thoroughly and get back to AC ASAP with the bugs.
+If you end up waiting a week or two, the source will have changed again
+and it'll be hard to make any progress.
+<P>
+
+<H3>New versions of the renderer</H3>
+<I>Should we be diligently getting upgrades from AC?<BR>
+How expensive is the integration?</I>
+<P>
+<B>RussP:</B>
+
+It's really a short-term vs long-term decision.  Staying current is good
+for the long term but it means you've got to spend more time dealing
+with updates.  My belief is that it's worth staying current.  Mike also
+has some opinions of this so you should check with him.
+<P>
+Also, see above, for comments about AC drops.
+<P>
+
+<H3>Source code</H3>
+We should be able to get source code from AnyChannel. Here's an e-mail from
+Russ, summarizing a conversation between Russ, Brian (from AnyChannel), Ellen, 
+and Mike:
+<P>
+<CODE>
+Here's the intent (as best as I remember it) of what EC will need
+to put into a legal document for both EC and AC to sign.
+<P>
+1) AC agrees to let the source code to the AnyWorld renderer be
+on site at EC so long as it is at least as secure as EC's own
+proprietary source code.  The renderer is solely owned by AC
+and is considered AC proprietary and confidential.  Under no
+conditions is EC allowed to let anyone outside of EC have
+access to the renderer source code, unless specifically
+approved by AC.
+<P>
+2) The sole purpose of letting the source code be on site at EC
+is for maintenance.  Both companies recognize that having the
+source code at EC allows EC to more quickly isolate bugs which
+may or may not be in the renderer.  This allows EC to develop
+its own software faster, and frees AC from being needlessly
+interrupted to track down bugs that may not be in the renderer.
+As per the contract already in force between EC and AC, EC
+will be making requests of AC to fix bugs in the renderer.
+EC is also free to fix bugs in the renderer so long as any
+bug fixes it makes are made available to AC.
+<P>
+3) During the term of the current contract through Nov 30, 1998,
+EC and AC will make all reasonable efforts to maintain a
+single source tree.  In the unlikely event that having a
+single source tree is unworkable, EC can elect to solely
+work off of the last known good source tree, effectively
+creating two disparate trees.  EC acknowledges that requesting
+bug fixes from AC after such a fork will be more costly
+than if the two companies were on a single shared source tree.
+This is due in part to the need of any AC engineers to be
+on-site at EC to make fixes, as well as the additional
+ramp up time for an engineer to work off an older source tree.
+<P>
+4) After the term of the current contract expires on Nov 30, 1998,
+the renderer source code for EC will be "frozen".  Any new
+maintenance or feature work will be negotiated at that time.
+</CODE>
+
+<H3>Java3D</H3>
+Sounds good. Brand new, so it's likely to be buggy. Its performance is untested, 
+but probably slow, since it sits on top of openGL, which is notoriously slow in 
+software. This might be a very interesting migration path, though, in a year or 
+so, when 3D boards become more and more prevalent. See the secion below on 3D
+Accelerator support for known problems with migrating to a 3D-accelerated solution.
+
+<H3>3D Accelerator support</H3>
+<I>How bad is it from a marketing standpoint that we don't have 3D accelerator support 
+with our current renderer?</I>
+<P>
+<B>RussP:</B>
+<P>
+The renderer currently has 3D accelerator support in it for 3Dfx, ATI
+and I think PowerVR.  The problem comes with wanting to run in a window.
+Some of these cards flat out don't support running in a window (I think
+it will be 2-3 years before the installed base of 3D cards that support
+windowing outnumber the installed base of 3D cards that don't).  Even
+ignoring that, 3D cards have hard memory constraints.  Running in
+full-screen mode, regions would need to be designed with these
+constraints in mind.  But wait, it gets worse!  If your user is running
+their desktop at 1280x1024x16bit, they're chewing up 2MB of video RAM.
+You'll need to allocate a front-buffer, back-buffer, and z-buffer for
+uCosm, and then whatever scraps of memory are left can be used for
+textures.  It really sucks that the application can know ahead of time
+how much memory will actually be available (in fact, the user can even
+change resolutions while the app is running).  Probably the best thing
+to come along to help this pathetic situation is AGP.  AGP allows system
+RAM to be used for textures (however, this RAM is like a disk buffer,
+it's a fixed size that is allocated at boot time and cannot be used for
+anything other than graphics).  This means that the front/back/z-buffers
+can live on the card, what's left over on the card can be used for
+textures, and then whatever memory has been set aside from the system
+RAM can be used for extra textures.  It still won't be painless, but I
+think it becomes possible.
+
+
+<H3>Renderer interface</H3>
+<I>How well have we laid out the renderer border? <BR>
+How hard/easy would it be to drop in a new renderer?<BR>
+Ideally, we'd want to just change wrapper code in one place.</I>
+<P>
+<B>RussP:</B>
+<P>
+The border is pretty clean except for the dirty rectangles stuff (which
+isn't even present in the API, but it's sort of intrinsic to the way the
+API works as a whole).  If the dirty rectangles can go away, then
+swapping out the renderer becomes a much easier task (one data point
+though: EC gets about a 5-10x speedup using dirty rectangles).
+
+<H3>Snapshotting/Dirty rectangles)</H3>
+<B>RussP:</B>
+<P>
+Here's some dirty rectangle background:  Rendering is accomplished
+through a display list (so you don't have to send down everything you
+want drawn every frame).  This is something that could easily be
+emulated at the Scene level if the new renderer was a purely immediate
+mode API.  However, the display list buys EC a lot because of the dirty
+rectangles code.  This can also be emulated at the Scene level, although
+it will be much more work.  The Scene would need to know all about the
+matrices and device coordinate locations of all the geometry.
+Maintaining this in the renderer is a natural fit.  Maintaining this
+above the renderer means that geometry is getting transformed both above
+and beloew the API (or there have to be queries back and forth) and
+backgrounds need to be restored based on dirty areas.
+
+</HTML>

@@ -1,0 +1,140 @@
+These are Doug Bell's Benchmarks, with some crude hacking to:
+- add E benchmarks.
+- drive the program from the command line, rather than just as an applet.
+
+
+=======
+To make:
+
+% gnumake
+
+(Currently, leaves thousands of class files in this directory.  Also,
+the make is stupid and remakes everything.)
+
+=======
+
+To run:
+
+% ./erun
+
+You will see this prompt:
+
+Pick a benchmark or type 'exit' to exit.
+0: Calibrate                          (~3 secs runtime)
+1: Mixed                             (~57 secs runtime)
+2: Loop                              (~60 secs runtime)
+3: Variable                          (~54 secs runtime)
+4: Method                            (~72 secs runtime)
+5: Operator                         (~300 secs runtime)
+6: Casting                          (~105 secs runtime)
+7: Exception                         (~12 secs runtime)
+8: Thread                            (~24 secs runtime)
+9: EMessage                          (~72 secs runtime)
+10: EMessageAndEWhen                 (~72 secs runtime)
+11: EClosure                         (~72 secs runtime)
+12: EClosureGarbage                  (~72 secs runtime)
+> 
+
+The first 8 benchmarks are the Java benchmarks.  You more or less need
+to look at the code to know what's being benchmarked.  The source for
+benchmark X is in XBenchmark.java.
+
+The last four entries are E benchmarks.  If you run the first, you
+will see something like this:
+
+<the list of benchmarks again - this is because of asynchrony>
+
+   > message relay race
+   Loop iteration overhead is 1991
+   3 samples were taken.
+   Sample 2 had 1000 iterations in 293 milliseconds.
+   Sample 1 had 1000 iterations in 300 milliseconds.
+   Sample 0 had 1000 iterations in 332 milliseconds.
+   message relay race                               291009 ns
+
+The key is the last line, which says that it takes 291009 ns for an E
+message send.  The implementation of this benchmark uses a chain of E
+objects.  When each E object receives a message, it forwards it to the
+next element in the chain, after decrementing a count.  When the count
+hits zero, a distributor is forwarded to cause results to be printed.
+The overhead of that should be in the noise.
+
+You can change the number of samples taken.  (The sample with the
+shortest time is taken to be most correct.)  You can also change the
+number of iterations.  Both of those things are hardcoded, though (in
+calls to setSampleCount() and runSamples(), respectively, in
+EMessageBenchmark.e).  
+
+
+Benchmark 10 doesn't do just E messages.  Instead, it measures this
+construct: 
+
+	  ebounce<- bounce(&bounceDone);
+	  ewhenever bounceDone (boolean dummy)
+
+So it checks the cost of a "synchronized" E message.  This benchmark
+also happens to measure the java equivalent of the E construct:
+
+	      finished += bounce.bounce();
+
+so that you can compare Java to E.
+
+As before, the number of iterations per sample can be changed.  Grep
+for the literal in the code (EMessageAndEWhenBenchmark.e).
+
+
+Benchmark 11 measures the cost of variable accesses within closures.
+It also measures typical java variable accesses.  Here's an example of
+the output (with uninteresting spam removed):
+
+Loop iteration overhead is 1992
+loop overhead for non-closed loop                  -212 ns
+an empty loop within a closure (should be roughly zero) -472 ns
+ordinary local variable increment                   108 ns
+incrementing a closed-over int local to the method 1888 ns
+ordinary data member increment                     3728 ns
+incrementing a closed-over int that's a data member 2268 ns
+Incrementing an ordinary Vector element.          77341 ns
+incrementing a closed-over vector                 78341 ns
+
+The first two are negative because the benchmark suite subtracts the
+time for loop overhead from any benchmark.  The first two entries are
+themselves empty loops, so they would be exactly zero in a
+deterministic universe.  If they're wildly different from zero,
+there's something wrong with the benchmark (see comments in the code
+for more).
+
+The third entry is 
+
+	      incrementMe++;
+
+within an ordinary java method.  The fourth is that same increment 
+within a closure:
+
+	  int incrementMe = 0;
+	  ...
+	  ewhen bounceDone (boolean dummy)
+	    {
+			  incrementMe++;   // cost of this.
+	    }
+
+The fifth and sixth increment instance data members of the class from
+within java methods and from within closures:
+	
+  int dataMemberIncrementMe = 0;
+  emethod ...
+  {
+	      dataMemberIncrementMe++;
+
+The seventh and eighth increment a vector element, just to see what
+difference closures make in more complicated updates:
+
+	      int curval = ((Integer)(incrementMyElement.elementAt(0))).intValue();
+	      incrementMyElement.setElementAt(new Integer(curval + 1), 0);
+
+
+Benchmark 12 tries to measure the garbage collection overhead of a
+closure.  Currently, it causes GC to hang (java 1.1.1).  The idea is to compare two
+computations, that produce the same amount of non-closure garbage.
+One produces closures in addition.  (Both produce garbage due to
+channels, message sends, forwarding of distributors, etc.)

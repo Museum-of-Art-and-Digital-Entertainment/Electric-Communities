@@ -1,0 +1,9 @@
+PublishRootDir=.
+PublishDir=PublishedRefs
+SaveFile=CertAgency.save
+RegisterWithURLs=ftp://ftp.communities.com/pub/pls-location/harpo.communities.com_1669;ftp://ftp.communities.com/pub/pls-location/george.communities.com_1669;ftp://ftp.communities.com/pub/pls-location/gracie.communities.com_1669
+SearchPath=harpo.communities.com:1669;george.communities.com:1669;gracie.communities.com:1669
+Trace_CertAgency=debug
+Trace_VerifierServer=debug
+
+

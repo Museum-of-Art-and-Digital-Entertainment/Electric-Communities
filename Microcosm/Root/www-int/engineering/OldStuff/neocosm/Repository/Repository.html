@@ -1,0 +1,116 @@
+<HTML>
+<HEAD>
+   <TITLE>Repository Design</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Repository Design</H1>
+
+<P><B>Last updated:</B>
+<UL>
+<li> <I>[98/07/08 <A HREF="mailto:karl@communities.com">Karl</A>]</I>
+Cleaned up the <A HREF="#REQS">Requirements</A>
+<li> <I>[98/07/01 <A HREF="mailto:karl@communities.com">Karl</A>]</I>
+Created this document and the meta document on <A HREF="index.html">general</A> Repository design
+</ul>
+</P>
+
+<A name="Introduction"></A>
+<H2>Introduction</H2>
+
+A Repository at the simplest level will be a single source of data
+(RandomAccessFile, SQL database, TCP/IP socket to a remote source,
+whatever), from which the user can access data via a CryptoHash key.
+The writeable version will allow input of data and return the CryptoHash       
+for it.
+
+<H4>Related Documents</H4>
+
+The <A HREF="index.html">general</A> Repository design document</A>.
+<BR>The <A HREF="RepositoryFile.html">Repository File</A> design document</A>.
+<BR>The <A HREF="RepositoryManagement.html">Repository Management</A> design document</A>.
+<BR>The <A HREF="RepositoryProduction.html">Repository Production</A> design document</A>.
+
+<H2><a name="REQS">Requirements</A></H2>
+
+<OL>
+<li>Provide retrieval of certified data (both as byte arrays and streams)
+<li>Provide asynchronous retrieval of data
+<li>Provide "group" retrievals (grab all pieces of an appearance as one
+block of data, for example)
+<li>Identify objects globally and uniquely (currently <A HREF="RepositoryRequirements.html#CryptoHashSupport">CryptoHash</A>)
+<li>Store Certificates 
+	for objects (the process of generating and using the certificates
+	should be separate)
+<li>Track <A HREF="RepositoryRequirements.html#TrackExtraInfo">extra info</A> about objects
+<li>Generate <A HREF="RepositoryRequirements.html#Reporting">reports</A> on tracked info above
+<li>Support repositories as <A HREF="RepositoryRequirements.html#FileSupport">text files</A> (this
+belongs somewhere else--Not in the basic interface)
+</OL>
+
+<H2>Architecture</H2>
+
+<H4><a name="PAO">Proposed Architecture Overview</A></H4>
+
+So far, the basic Repository just consists of interfaces which define what
+a Repository at the simplest level should do:
+
+<ul>
+<a name="Repository"></a>
+<li>interface <b>Repository</b>
+	<ul>
+	<li>getting data (bytes) by CryptoHash
+	<li>reading data streams by CryptoHash
+	<li>getting hints by CryptoHash
+	<li>getting certificates by CryptoHash
+	<li>getting  <A HREF="RepositoryRequirements.html#TrackExtraInfo">extra info</A> by CryptoHash
+	</ul>
+<a name="WriteableRepository"></a>
+<li>interface <b>WriteableRepository</b>
+	<ul>
+	<li>extends <b>Repository</b>
+	<li>storing data (bytes) and returning a CryptoHash
+	<li>writing data streams and returning a Promise for a CryptoHash
+	<li>storing hints by CryptoHash
+	<li>storing certificates by CryptoHash
+	<li>storing <A HREF="RepositoryRequirements.html#TrackExtraInfo">extra info</A> by CryptoHash
+	<li>removing data by CryptoHash
+	<li>removing hints by CryptoHash
+	<li>removing certificates by CryptoHash
+	<li>removing <A HREF="RepositoryRequirements.html#TrackExtraInfo">extra info</A> by CryptoHash
+	</ul>
+</ul>
+
+</P>
+
+<H4>Off the shelf alternatives</H4>
+
+[<I>98/07/01 <A HREF="mailto:karl@communities.com">Karl</A></I>]
+None I can think of at the moment.
+
+<H2>Design Issues</H2>
+
+<H4>Resolved Issues</H4>
+
+<I>History of issues raised and resolved during initial design, or during
+design inspections. Can also include alternative designs, with the reasons
+why they were rejected</I>
+
+<H4>Open Issues</H4>
+
+<UL>
+<LI>[<I>98/07/01 <A HREF="mailto:karl@communities.com">Karl</A></I>]
+	<OL>
+	<LI>What about the "getting multiple related objects at one" part of the
+	interface?
+	<LI>Add the byte for "type of data" (i.e. bitmap, Appearance2D, etc.)
+	to the interface when putting bytes.
+	</OL>
+</UL>
+<BR>
+To main <A HREF="index.html">Repository</A> page<BR>
+To <A HREF="../CosmSurvey.html">Cosm Survey</A> page<BR>
+<BR>
+<BR>
+</BODY>
+</HTML>

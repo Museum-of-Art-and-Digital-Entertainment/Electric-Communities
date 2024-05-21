@@ -1,0 +1,187 @@
+
+########################################################################
+# Basics
+########################################################################
+
+1) A couple of environment variables are necessary for the general
+description of how things work:
+
+    $(TOP)	- The 'top' of the E directory tree, often set to
+		  something like '/home/username/NewEC'
+    $(BUILD)	- The target directory for the building process,
+		  where all generated files are to be created,
+		  for example '/home/username/NewEC/Build'
+
+Note that neither 'NewEC' nor 'NewEC/Build' need to be the exact
+names; NewEC is merely the name of the (current) SourceSafe
+project which contains everything necessary for building
+and distributing E and Build is just a name we have been using
+by convention as the directory to 'build' E into.
+
+2) For Source Safe to work properly (once you have been 'added'
+by the SS Admin), there needs to be a couple of lines in your
+$SSDIR/users/<username>/ss.ini file:
+
+    [$/NewEC]
+    Dir (UNIX) = /home/<username>/NewEC ; This should match $TOP
+
+3) Go to the top level directory and 'get' all the files:
+
+    > cd $TOP
+    > ss get -R \$/NewEC
+
+4) In order to build E, just go to $(TOP) and do a 'gnumake'.
+
+########################################################################
+# The makefiles
+########################################################################
+
+    There is an entire hierarchy of make files which build E, all of
+which are invoked from the top level GNUmakefile.  Indentation indicates
+which files are invoked by others:
+
+    $(TOP)/GNUmakefile
+	$(TOP)/Tools/GNUmakefile
+	    $(TOP)/Tools/Cup/GNUmakefile
+	$(TOP)/Libs/GNUmakefile
+	    $(TOP)/Libs/rsaref/install/makefile
+	    $(TOP)/Libs/libdes/makefile
+	$(TOP)/E/runtime/GNUmakefile.first
+	$(TOP)/E/runtime/util/GNUmakefile
+	$(TOP)/E/runtime/e/stream/GNUmakefile
+	$(TOP)/E/runtime/e/dgc/GNUmakefile
+	$(TOP)/E/runtime/e/db/GNUmakefile
+	$(TOP)/E/runtime/e/lang/GNUmakefile
+	$(TOP)/E/runtime/e/io/GNUmakefile
+	$(TOP)/Libs/ecrypt/GNUmakefile
+	$(TOP)/E/runtime/eload/GNUmakefile
+	$(TOP)/E/runtime/e/run/GNUmakefile
+	$(TOP)/E/runtime/e/comm/GNUmakefile
+	$(TOP)/E/tools/clbless/GNUmakefile
+	$(TOP)/E/examples/GNUmakefile
+
+########################################################################
+# The basic rules and definitions
+########################################################################
+
+    Most of the "meat" of the makefiles is contained in the files
+$(TOP)/E/makefiles/Defs.gmk and $(TOP)/E/makefiles/Rules.gmk (and
+their attendant, platform-specific files in the same directory).
+
+########################################################################
+# The basic GNUmakefile
+########################################################################
+
+MODNAME	= modulename		#  Used to determine object files and
+				# libraries to generate, as well as
+				# stub preambles.
+PACKAGE	= ec.e.modulename	#  Used to figure out the directory
+				# path for the .javat (or .et or
+				# .spjavat) files into, i.e.
+				# $(BUILD/classes/ec/e/modulename
+
+FILES.e = \			#  List of E files to compile
+	AnEFile.e \
+	AnotherEFile.e
+
+FILES.java = \			#  List of Java files to compile
+	FirstJavaFile.java \
+	SecondJavaFile.java \
+	ThirdJavaFile.java
+
+include $(TOP)/E/makefiles/Defs.gmk
+
+all: basics			#  Defined in Rules.gmk
+				# Both depend on MODNAME and PACKAGE
+clean: basic_clean		#  Defined in Rules.gmk
+
+include $(TOP)/E/makefiles/Rules.gmk
+
+########################################################################
+# A complex GNUmakefile (multiple directories and native code from
+# which to build a library)
+########################################################################
+
+MODNAME		= complex
+PACKAGE		= ec		#  The directory paths used in this
+				# makefile will be added to what's
+				# here for the complete directory path,
+				# i.e. ec.first and ec.second.sub.
+FIRSTDIR	= first
+FIRSTPREFIX	= ec.first
+SECONDDIR	= second/sub
+SECONDPREFIX	= ec.second.sub
+BUILDTYPE	= lib
+
+FILES.java =      \
+	$(FIRSTDIR)/OneFile.java  \
+	$(FIRSTDIR)/AnotherFile.java \
+	$(SECONDDIR)/YetAnotherFile.java \
+	$(SECONDDIR)/OneMoreFile.java \
+
+CLASSES.export =  $(FIRSTPREFIX).OneFile \
+                  $(FIRSTPREFIX).AnotherFile \
+                  $(SECONDPREFIX).OneMoreFile 
+	
+FILES.c = ec_first.c
+
+include $(TOP)/E/makefiles/Defs.gmk
+
+# Libraries to include when making this library:
+INCLDIRS = -I$(JAVAINC) -I$(JAVAOSINC) -I$(CHEADERDIR) -I$(RSASRCDIR)
+CFLAGS += $(INCLDIRS)
+OTHER_LIBS = $(RSAOBJDIR)/rsaref.a $(DESOBJDIR)/libdes.a
+
+# The 'basics' won't work with multiple directories, so you must make
+# them yourself and you need to export classes and create the library:
+all: mk_dirs mk_java
+
+mk_java: classes exports $(GENLIBS)
+
+exports: $(FULLSTUBNAME) $(FULLSTUBONAME) $(CHEADERSTATE)
+
+# Make specific directories for this example (modification of the
+# basic_mkdirs target in Rules.gmk):
+mk_dirs:
+	@echo ""
+	mkdir -p $(CLASSDIR)/ec/$(FIRSTDIR)
+	mkdir -p $(CLASSDIR)/ec/$(SECONDDIR)
+	mkdir -p $(LISTPATH)
+	@echo ""
+
+# Clean up specific directories for this example (modification of the
+# basic_clean target in Rules.gmk):
+clean:
+	-$(RM) -rf $(CLASSDIR)/ec/$(FIRSTDIR)
+	-$(RM) -rf $(CLASSDIR)/ec/$(SECONDDIR)
+	-$(RM) -rf $(LISTPATH)
+	-$(RM) -rf $(BUILD)/objs/$(MODNAME)
+	-$(RM) -rf $(GENLIBS)
+	-$(RM) -rf $(FILES.javat)
+
+include $(TOP)/E/makefiles/Rules.gmk
+
+########################################################################
+# More advanced stuff
+########################################################################
+
+    If you have special files that need to be compiled by ecomp as if
+they had already been through the first pass E to Java translation
+(like some of the stuff in myE.java), then these files need to be
+handled differently in the makefile:
+
+    FILES.spjava = \
+	    Special.java \
+	    Funny.java
+
+These files will be then compiled with the special '-e2jdone' flag.
+
+########################################################################
+# Different makefiles
+########################################################################
+There are some very different makefiles for making libraries.  See
+the Libs files:
+
+    $(TOP)/Libs/GNUmakefile
+	$(TOP)/Libs/rsaref/install/makefile
+	$(TOP)/Libs/libdes/makefile

@@ -1,0 +1,86 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>Coding conventions, javadoc, build buddies, review process </TITLE>
+<META NAME="Template" CONTENT="C:\Program Files\Microsoft Office\Office\html.dot">
+</HEAD>
+<BODY LINK="#0000ff" VLINK="#800080">
+
+<I><H1>Check-in Guidelines</H1>
+</I><ADDRESS>This page was originally written by <A HREF="mailto:claire@communities.com">Claire</A>. </ADDRESS>
+<B><P>Last updated:</B><I> [98/06/12 </I><A HREF="mailto:claire@communities.com"><I>Claire</I></A><I>]</I> </P>
+<H2>Introduction</H2>
+<P>The following check-in guidelines are important for the early project phase when the program may not yet be in a state that allows you to run the program and "test" the code. I assume that code that is checked in may be checked in to allow someone to snapshot the current source state or to permit others to work simultaneously with it.</P>
+<H4>Related Documents</H4>
+<ADDRESS><A HREF="../tools/CodingConventions.html">Coding style</A> </ADDRESS>
+<ADDRESS><A HREF="../tools/javadoc.html">Javadoc comments</A> </ADDRESS>
+<ADDRESS><A HREF="../tools/build-environment/BuildofRights.html">Check-in procedures for Microcosm</A></ADDRESS>
+<ADDRESS><A HREF="TreeStructure.html">Source Tree structure</A></ADDRESS>
+<H2>Requirements </H2>
+<P>I define three different states for code that is currently checked in. The first is simply a template that can serve as an API document for others to review. It's important that you capture as many of the known details of a particular class and it's public methods as possible. This will allow others to write to your API even if your code does nothing. The second level is the state that your code will be in for the longest. Code is being worked on and in is in various states of completion. The final state is the compete state. At this point, you should consider your code to be frozen. It is fully tested, optimized and commented. It has undergone review by others and been pronounced complete. This is summarized below:</P>
+<H4>Template code:</H4>
+<OL>
+
+<LI>Must have a file header with full copyright notice</LI>
+<LI>Must have Javadoc comments for each class with a XXX if it is incomplete</LI>
+<LI>Must have Javadoc comments for any methods with an XXX if it is incomplete</LI>
+<LI>May have stubbed or incomplete methods</LI></OL>
+
+<P>For check-in: A single person who will make certain that the code does not break the build and check for the requirements 1-3 above.</P>
+<P>&nbsp;</P>
+<H4>Incomplete code<FONT FACE="Arial">:</H4>
+<OL>
+
+</FONT><LI>Must have a file header with full copyright notice</LI>
+<LI>Must have Javadoc comments for each class with a XXX if it is incomplete</LI>
+<LI>Must have Javadoc comments for any methods with an XXX if it is incomplete</LI>
+<LI>May have stubbed or incomplete methods</LI>
+<LI>May have functioning code which is not optimized</LI>
+<LI>May have functioning code that is substandard and it should be denoted with HACK. It should include the nature of the hack and a rationale for its presence.</LI></OL>
+
+<P>For check-in: At least one person who will make certain that the code does not break the build, will run with avaiilable smoke test, meets requirements 1-3 above and will probe the necessity of any code marked by HACK. In addition, methods that are not marked as XXX should be reviewed for general sense and completeness.</P>
+<P>&nbsp;</P>
+<H4>Complete code:</H4>
+<OL>
+
+<LI>Must meet the specification requirements including performance requirements</LI>
+<LI>Must have a file header with full copyright notice</LI>
+<LI>Must have Javadoc comments for each class, interface and all methods</LI>
+<LI>Must not have any stubbed, XXX or HACK functions</LI></OL>
+
+<P>For check-in: At least one person who will make certain that the code does not break the build will run with avaiilable smoke test and meets all of the above code requirements. For large, complex subsystems, a second reviewer NOT in the subsystem group should go over the comments for general sense and completeness.</P>
+<P>&nbsp;</P>
+<B><I><FONT FACE="Arial"><P>General Comments:</P>
+
+<UL>
+</B></I></FONT><LI>When you announce you’re ready to begin coding a subsystem; you should be prepared to talk about it. You may not have to talk about it but you should have a clear enough understanding about what you’re about to do that you could if asked. This is different from the design review process and will serve to keep people informed about areas in which they are not currently active. Something may come up in the talk that was not anticipated in earlier design reviews but this should be the exception. </LI>
+<LI>Code is not complete if it doesn’t match the spec. If code cannot be made to work according to the spec the reasons for this should be documented and the spec should be changed to reflect this. This implies that all code will be written after a design spec, not the other way around. </LI>
+<LI>Consider adding javadoc comments to your code before it’s written. If a javadoc comment is meant to explain what a method or class does, then adding javadoc comments can serve as an outline or template of what you’re about to write. These comments should be thought of as dynamic working documents which will be "done" when the code is done. The only thing worse than no comments are incorrect ones so keep them up to date. Remember to use @exception for the exceptions you will be generating. </LI>
+<LI>Consider writing small test apps for subsystems that allow them to be tested for basic functionality before integration into the main application. You should design tests that will touch all API functions that can be run as part of a smoke test. </LI>
+<LI>If someone doesn’t understand what your code is doing, add a comment. If a large block of code seems confused, consider rewriting it. Read the coding standards and javadoc documents and follow them. </LI>
+<LI>When adding javadoc comments to your code consider noting the following as you come to understand them: </LI></UL>
+
+<OL>
+
+<OL>
+
+<BLOCKQUOTE><LI>Thread usage: Foo is called from the Bar thread and the Baz thread</LI></BLOCKQUOTE>
+<BLOCKQUOTE><LI>Memory Usage or Performance notes: at runtime a table with 500 items is 10 Kb. </LI></BLOCKQUOTE>
+<BLOCKQUOTE><LI>Performance issues: the bottleneck for this is frequent calls to Foo.</LI></BLOCKQUOTE></OL>
+</OL>
+
+
+<UL>
+<LI>As you modify code or comments, you should mark the changes with your initials and the date. [19980612-ctg] </LI></UL>
+
+<P>&nbsp;</P>
+<B><I><FONT FACE="Arial"><P>Suggested Tool Support:</P>
+
+<UL>
+</B></I></FONT><LI>A make file which generates a warning when a class or method does not have a javadoc preceding it. </LI>
+<LI>A script which will take a file of code and create a javadoc comment stub </LI>
+<LI>A tool that generates the XXX classes and uses the javadoc AUTHOR tag to assign an owner and post them to the web. An XXX class is one that is flagged as XXX or contains any methods that are flagged as XXX. </LI>
+<LI>A tool that generates the HACK classes and uses the javadoc AUTHOR tag to assign an owner and post them to the web. A HACK class is one that is flagged as HACK or contains any methods that are flagged as HACK. A tool that also files a high priority bug would be even better. </LI></UL>
+</BODY>
+</HTML>

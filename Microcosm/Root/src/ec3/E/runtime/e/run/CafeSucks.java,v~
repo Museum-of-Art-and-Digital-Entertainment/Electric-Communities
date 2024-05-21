@@ -1,0 +1,479 @@
+head	1.6;
+access;
+symbols
+	R971126-1:1.3
+	R971125-1:1.3
+	R971124-1:1.3
+	R971121-1:1.3
+	R971120-1:1.3
+	R971119-1:1.3
+	R971118-1:1.3
+	R971117-1:1.3
+	R971116-1:1.3
+	R971115-1:1.3
+	R971114-1:1.3
+	R971113-3:1.3
+	R971113-2:1.3
+	R971113-1:1.3
+	R971112-1:1.3
+	R971111-1:1.3
+	R971110-1:1.2
+	R971109-1:1.2
+	R971108-1:1.2
+	R971107-1:1.1;
+locks; strict;
+comment	@# @;
+expand	@o@;
+
+
+1.6
+date	97.11.27.03.00.26;	author danfuzz;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	97.11.27.02.18.13;	author jay;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	97.11.26.20.08.15;	author danfuzz;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	97.11.10.23.13.50;	author danfuzz;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	97.11.07.23.39.35;	author jay;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.11.06.23.20.08;	author danfuzz;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.6
+log
+@more cafesucks tweakage
+@
+text
+@package ec.e.run;
+
+public class CafeSucks
+{
+
+    static public boolean[] makeArray(boolean v0) {
+        boolean[] a = new boolean[1];
+        a[0] = v0;
+        return a;
+    }
+
+    static public int[] makeArray(int v0) {
+        int[] a = new int[1];
+        a[0] = v0;
+        return a;
+    }
+
+    static public long[] makeArray(long v0) {
+        long[] a = new long[1];
+        a[0] = v0;
+        return a;
+    }
+
+    static public byte[] makeArray(byte v0) {
+        byte[] a = new byte[1];
+        a[0] = v0;
+        return a;
+    }
+
+    static public char[] makeArray(char v0) {
+        char[] a = new char[1];
+        a[0] = v0;
+        return a;
+    }
+
+    static public float[] makeArray(float v0) {
+        float[] a = new float[1];
+        a[0] = v0;
+        return a;
+    }
+
+    static public double[] makeArray(double v0) {
+        double[] a = new double[1];
+        a[0] = v0;
+        return a;
+    }
+
+    static public double[] makeArray(Object v0) {
+        Object[] a = new Object[1];
+        a[0] = v0;
+        return a;
+    }
+
+    static public Object[] makeArray_java_lang_Object() {
+        return new Object[0];
+    }
+
+    static public Object[] makeArray_java_lang_Object(Object o0) {
+        Object[] a = new Object[1];
+        a[0] = o0;
+        return a;
+    }
+
+    static public Object[] makeArray_java_lang_Object(Object o0, Object o1) {
+        Object[] a = new Object[2];
+        a[0] = o0;
+        a[1] = o1;
+        return a;
+    }
+
+    static public Object[] makeArray_java_lang_Object(
+            Object o0, Object o1, Object o2) {
+        Object[] a = new Object[3];
+        a[0] = o0;
+        a[1] = o1;
+        a[2] = o2;
+        return a;
+    }
+
+    static public Object[] makeArray_java_lang_Object(
+            Object o0, Object o1, Object o2, 
+            Object o3) {
+        Object[] a = new Object[4];
+        a[0] = o0;
+        a[1] = o1;
+        a[2] = o2;
+        a[3] = o3;
+        return a;
+    }
+
+    static public Object[] makeArray_java_lang_Object(
+            Object o0, Object o1, Object o2, 
+            Object o3, Object o4) {
+        Object[] a = new Object[5];
+        a[0] = o0;
+        a[1] = o1;
+        a[2] = o2;
+        a[3] = o3;
+        a[4] = o4;
+        return a;
+    }
+
+    static public Object[] makeArray_java_lang_Object(
+            Object o0, Object o1, Object o2, 
+            Object o3, Object o4, Object o5) {
+        Object[] a = new Object[6];
+        a[0] = o0;
+        a[1] = o1;
+        a[2] = o2;
+        a[3] = o3;
+        a[4] = o4;
+        a[5] = o5;
+        return a;
+    }
+
+    static public Object[] makeArray_java_lang_Object(
+            Object o0, Object o1, Object o2, 
+            Object o3, Object o4, Object o5, Object o6) {
+        Object[] a = new Object[7];
+        a[0] = o0;
+        a[1] = o1;
+        a[2] = o2;
+        a[3] = o3;
+        a[4] = o4;
+        a[5] = o5;
+        a[6] = o6;
+        return a;
+    }
+
+    static public Object[] makeArray_java_lang_Object(
+            Object o0, Object o1, Object o2, 
+            Object o3, Object o4, Object o5, Object o6, Object o7) {
+        Object[] a = new Object[8];
+        a[0] = o0;
+        a[1] = o1;
+        a[2] = o2;
+        a[3] = o3;
+        a[4] = o4;
+        a[5] = o5;
+        a[6] = o6;
+        a[7] = o7;
+        return a;
+    }
+
+    static public Object[] makeArray_java_lang_Object(
+            Object o0, Object o1, Object o2, 
+            Object o3, Object o4, Object o5, Object o6, Object o7, 
+            Object o8) {
+        Object[] a = new Object[9];
+        a[0] = o0;
+        a[1] = o1;
+        a[2] = o2;
+        a[3] = o3;
+        a[4] = o4;
+        a[5] = o5;
+        a[6] = o6;
+        a[7] = o7;
+        a[8] = o8;
+        return a;
+    }
+
+    static public Object[] makeArray_java_lang_Object(
+            Object o0, Object o1, Object o2, 
+            Object o3, Object o4, Object o5, Object o6, Object o7, 
+            Object o8, Object o9) {
+        Object[] a = new Object[10];
+        a[0] = o0;
+        a[1] = o1;
+        a[2] = o2;
+        a[3] = o3;
+        a[4] = o4;
+        a[5] = o5;
+        a[6] = o6;
+        a[7] = o7;
+        a[8] = o8;
+        a[9] = o9;
+        return a;
+    }
+
+    static public Object[] makeArray_java_lang_Object(
+            Object o0, Object o1, Object o2, 
+            Object o3, Object o4, Object o5, Object o6, Object o7, 
+            Object o8, Object o9, Object o10) {
+        Object[] a = new Object[11];
+        a[0] = o0;
+        a[1] = o1;
+        a[2] = o2;
+        a[3] = o3;
+        a[4] = o4;
+        a[5] = o5;
+        a[6] = o6;
+        a[7] = o7;
+        a[8] = o8;
+        a[9] = o9;
+        a[10] = o10;
+        return a;
+    }
+
+    static public Object[] makeArray_java_lang_Object(
+            Object o0, Object o1, Object o2, 
+            Object o3, Object o4, Object o5, Object o6, Object o7, 
+            Object o8, Object o9, Object o10, Object o11) {
+        Object[] a = new Object[12];
+        a[0] = o0;
+        a[1] = o1;
+        a[2] = o2;
+        a[3] = o3;
+        a[4] = o4;
+        a[5] = o5;
+        a[6] = o6;
+        a[7] = o7;
+        a[8] = o8;
+        a[9] = o9;
+        a[10] = o10;
+        a[11] = o11;
+        return a;
+    }
+
+    static public Object[] makeArray_java_lang_Object(
+            Object o0, Object o1, Object o2, 
+            Object o3, Object o4, Object o5, Object o6, Object o7, 
+            Object o8, Object o9, Object o10, Object o11, Object o12) {
+        Object[] a = new Object[13];
+        a[0] = o0;
+        a[1] = o1;
+        a[2] = o2;
+        a[3] = o3;
+        a[4] = o4;
+        a[5] = o5;
+        a[6] = o6;
+        a[7] = o7;
+        a[8] = o8;
+        a[9] = o9;
+        a[10] = o10;
+        a[11] = o11;
+        a[12] = o12;
+        return a;
+    }
+}
+@
+
+
+1.5
+log
+@Added some methods, more undoubtedly to come.
+@
+text
+@d6 1
+a6 1
+    static public boolean[] makeArray_boolean(boolean v0) {
+d12 1
+a12 7
+    static public boolean[] makeArray_java_lang_Object(boolean v0) {
+        boolean[] a = new boolean[1];
+        a[0] = v0;
+        return a;
+    }
+ 
+    static public int[] makeArray_int(int v0) {
+d18 1
+a18 1
+    static public long[] makeArray_long(long v0) {
+d24 1
+a24 1
+    static public byte[] makeArray_byte(byte v0) {
+d30 1
+a30 1
+    static public char[] makeArray_char(char v0) {
+d36 1
+a36 1
+    static public float[] makeArray_float(float v0) {
+d42 1
+a42 1
+    static public double[] makeArray_double(double v0) {
+d48 6
+a55 6
+    }
+
+    static public String[] makeArray_java_lang_String(String s0) {
+        String[] a = new String[1];
+        a[0] = s0;
+        return a; 
+@
+
+
+1.4
+log
+@cafesucks enhancement
+@
+text
+@d12 6
+d56 6
+@
+
+
+1.3
+log
+@ultra-paranoid CafeSucks
+@
+text
+@d6 1
+a6 1
+    static public boolean[] makeArray(boolean v0) {
+d12 1
+a12 1
+    static public int[] makeArray(int v0) {
+d18 1
+a18 1
+    static public long[] makeArray(long v0) {
+d24 1
+a24 1
+    static public byte[] makeArray(byte v0) {
+d30 1
+a30 1
+    static public char[] makeArray(char v0) {
+d36 1
+a36 1
+    static public float[] makeArray(float v0) {
+d42 1
+a42 1
+    static public double[] makeArray(double v0) {
+d48 1
+a48 1
+    static public Object[] makeArray() {
+d52 1
+a52 1
+    static public Object[] makeArray(Object o0) {
+d58 1
+a58 1
+    static public Object[] makeArray(Object o0, Object o1) {
+d65 2
+a66 1
+    static public Object[] makeArray(Object o0, Object o1, Object o2) {
+d74 2
+a75 1
+    static public Object[] makeArray(Object o0, Object o1, Object o2, 
+d85 2
+a86 1
+    static public Object[] makeArray(Object o0, Object o1, Object o2, 
+d97 2
+a98 1
+    static public Object[] makeArray(Object o0, Object o1, Object o2, 
+d110 2
+a111 1
+    static public Object[] makeArray(Object o0, Object o1, Object o2, 
+d124 2
+a125 1
+    static public Object[] makeArray(Object o0, Object o1, Object o2, 
+d139 2
+a140 1
+    static public Object[] makeArray(Object o0, Object o1, Object o2, 
+d156 2
+a157 1
+    static public Object[] makeArray(Object o0, Object o1, Object o2, 
+d174 2
+a175 1
+    static public Object[] makeArray(Object o0, Object o1, Object o2, 
+d193 2
+a194 1
+    static public Object[] makeArray(Object o0, Object o1, Object o2, 
+d213 2
+a214 1
+    static public Object[] makeArray(Object o0, Object o1, Object o2, 
+@
+
+
+1.2
+log
+@Added additional array makers to CafeSucks.
+@
+text
+@d6 4
+a9 2
+    static public boolean[] makeArray(boolean val) {
+        return new boolean[]{ val };
+d12 4
+a15 2
+    static public int[] makeArray(int val) {
+        return new int[]{ val };
+d18 4
+a21 2
+    static public long[] makeArray(long val) {
+        return new long[]{ val };
+d24 4
+a27 2
+    static public byte[] makeArray(byte val) {
+        return new byte[]{ val };
+d30 4
+a33 2
+    static public char[] makeArray(char val) {
+        return new char[]{ val };
+d36 4
+a39 2
+    static public float[] makeArray(float val) {
+        return new float[]{ val };
+d42 4
+a45 2
+    static public double[] makeArray(double val) {
+        return new double[]{ val };
+@
+
+
+1.1
+log
+@cafe sucks
+@
+text
+@d5 29
+@
+
+

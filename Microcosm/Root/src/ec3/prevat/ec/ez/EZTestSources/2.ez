@@ -1,0 +1,2 @@
+define furr := 2 + 3
+furr print

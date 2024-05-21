@@ -1,0 +1,224 @@
+<HTML>
+<HEAD>
+    <TITLE>Avatar Identity Implementation</TITLE>
+</HEAD>
+<BODY>
+<H1>Avatar Identity Implementation</H1>
+
+Possible implementation for avatar identity (see
+<A href="avatar_identity.html">avatar identity</a>). This
+implementation just shows the capability drop off code. The real
+avatar identity implementation will have other methods e.g. to
+return the avatar's chosen name.
+
+<p>
+
+<pre>
+
+/**
+ * AvatarIdentity.java
+ *
+ * Copyright 1997 Electric Communities. All rights reserved worldwide.
+ * Trevor Morris
+ * Fri Apr 11 13:57:33 1997
+ *
+ * AvatarIdentity classes. A users EAvatarIdentity object is the
+ * object that is freely handed handed around (usually as a URL), so
+ * that others can give the user capabilities.
+ *
+ * Each AvatarIdentity has a AvatarIdentityOwner. This is a tightly
+ * held object, only known to the owner of the AvatarIdentity.
+ *
+ * When you give a capability to a AvatarIdentity you get an
+ * EAvatarIdentityReceipt object. You can give this to the party who
+ * claims to own the EAvatarIdentity. If they do indeed own the
+ * EAvatarIdentity they can use the EAvatarIdentityOwner to redeem the
+ * receipt and get the capability.
+ */
+package ec.cosm.una.generic;
+
+
+import ec.e.run.RtEException;
+
+
+/**
+ * A AvatarIdentity object is a capability drop off point. It has a
+ * public method which can be used to donate a capability and get a
+ * receipt in return.  It also holds a pointer to its
+ * AvatarIdentityOwner, who actually generates receipts and knows how
+ * to redeem them.
+ */
+eclass EAvatarIdentity {
+
+    /** Handle for AvatarIdentity owner */
+    private EAvatarIdentityOwner myOwner;
+
+
+    /**
+     * Constructor; owner must be specified at create time
+     */
+    public EAvatarIdentity(EAvatarIdentityOwner owner) {
+        myOwner = owner;
+    }
+
+
+    /**
+     * Public method called to give the EAvatarIdentity a capability.
+     * "receiptDistributor" is forwarded to an "ECapabilityReceipt"
+     * object. This can be later be presented to the
+     * "getCapabilityForReceipt" method on the EAvatarIdentityOwner
+     * (assuming you can get to the owner) in order to redeem the
+     * capability.
+     */
+    emethod giveCapability(EObject capability,
+                           EDistributor receiptDistributor) {
+        myOwner <- createReceiptForCapability(capability, receiptDistributor);
+    }
+
+}
+
+
+/**
+ * An EAvatarIdentityOwner is associated with a EAvatarIdentity, but
+ * is tightly held by the owner of the EAvatarIdentity. It allows the
+ * owner to redeem receipts. It is also used by the EAvatarIdentity to
+ * generate the receipts.
+ */
+eclass EAvatarIdentityOwner {
+
+    /**
+     * Unique (within the agency) tag used to mark all receipts created by
+     * this owner
+     */
+    private final Object myTag = new Object();
+
+
+    /** Constructor */
+    public EAvatarIdentityOwner() {
+    }
+
+
+    /**
+     * Create a new receipt for the given capability. Only this owner object
+     * can redeem the receipt.
+     */
+    emethod createReceiptForCapability(EObject capability,
+                                       EDistributor receiptDistributor) {
+        // Create receipt for capability, marked with our tag
+        ECapabilityReceipt receipt = new ECapabilityReceipt(myTag, capability);
+        receiptDistributor <- forward(receipt);
+    }
+
+
+    /**
+     * Redeem a receipt for the actual capability.
+     */
+    emethod getCapabilityForReceipt(ECapabilityReceipt receipt,
+                                    EDistributor capabilityDistributor) {
+
+        // Get real receipt object or proxy ("receipt" argument may be channel)
+        ewhen receipt (ECapabilityReceipt realReceipt) {
+
+            // Check that receipt is a locally hosted object and contains
+            // an object that we own. 
+            try {
+                // The following casts will only work if we have an actual
+                // object of the eclass ECapabilityReceipt. They'll fail
+                // (and cause a ClassCastException) if we have a proxy or
+                // an object of another class.
+                JavaCapabilityReceipt javaReceipt =
+                 (JavaCapabilityReceipt)(ECapabilityReceipt_$_Impl)realReceipt;
+
+                // Note that we are calling a final method here, so noone
+                // can have overriden it to get at 'myTag'
+                EObject capability = javaReceipt.getCapability(myTag);
+                if (capability != null) {
+                    // All is well
+                    capabilityDistributor <- forward(capability);
+                }
+                else {
+                    // Don't own capability
+                    ethrow new ECapabilityReceiptException(); 
+                }
+            }
+            catch (ClassCastException e) {
+                // Not locally hosted (a proxy), or not correct class
+                ethrow new ECapabilityReceiptException(); 
+            }
+        }
+    }
+    
+}
+
+
+/**
+ * EException thrown when you try to redeem an invalid receipt or a receipt
+ * not generated by your EAvatarIdentityOwner.
+ */
+class ECapabilityReceiptException extends RtEException {
+
+    public ECapabilityReceiptException() {
+        super("Non owner attempted to redeem capability receipt");
+    }
+
+}
+
+
+/**
+ * Capability receipts have a single java method which allows you to get
+ * their capability, provided you know the secret "ownerTag".
+ */
+interface JavaCapabilityReceipt {
+    public EObject getCapability(Object ownerTag);
+}
+
+
+/**
+ * Capability receipts are E objects which hold onto a capability for an
+ * owner. The owner is identified by an "ownerTag". The owner can redeem
+ * the receipt to get the capability by giving the "ownerTag" as an argument.
+ * Redeeming the receipt is done via a Java method, so it is only possible
+ * in the agency in which the receipt originated.
+ */
+eclass ECapabilityReceipt implements JavaCapabilityReceipt {
+
+    private Object myOwnerTag;
+    private EObject myCapability;
+
+
+    /**
+     * Create new receipt for the given capability, owned by the given owner
+     */
+    ECapabilityReceipt(Object ownerTag, EObject capability) {
+        myOwnerTag = ownerTag;
+        myCapability = capability;
+    }
+
+
+    /**
+     * If "ownerTag" matches the tag given at creation of this receipt, then
+     * return the capability. Otherwise return null. This method is final
+     * so noone can override it and steal owner tags.
+     */
+    local final EObject getCapability(Object ownerTag) {
+        if (ownerTag == myOwnerTag) {
+            return myCapability;
+        }
+        else {
+            return null;
+        }
+    }
+
+}
+
+
+</pre>
+
+<p>
+
+<A href="index.html">Back to design notes index</a>
+<br>
+<a href="../index.html">Back to Microcosm engineering main page</a>
+
+</BODY>
+</HTML>

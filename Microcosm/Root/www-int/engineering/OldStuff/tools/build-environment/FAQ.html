@@ -1,0 +1,660 @@
+<HTML>
+<HEAD>
+    <TITLE>Build Environment FAQ</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Build Environment FAQ</H1>
+
+This is a bunch of commonly asked questions (and some that aren't so
+commonly asked!) about the build environment. They're not in any
+particular order at the moment. See also the
+<A href="../cvsdoc/cvsfaq.html">CVS FAQ.</a>
+<p>
+This page is maintained by <A HREF="mailto:trev@communities.com">Trev</A>.
+I'm going to be keeping this page as up to date as possible. You can
+help by sending me any new answers or corrections to existing answers.
+If you find a problem with one of the answers please don't just work
+around it; <b>let me know</b>. That way I can update the FAQ and other
+people will benefit from your experience.
+<p>
+<em>
+<b>Warning:</b> these pages change frequently. If you've looked at them
+recently hit "reload" on your browser to make sure you're seeing the
+latest version.
+</em>
+
+<p>
+
+<ul>
+<li><a href="#C:Drive">How do I build on places other than the C: drive?</a>
+<li><a href="#PluribusLoop">What do I do if the Pluribus compiler seems to be in an infinite loop?</a>
+<li><a href="#JavaLoop">What do I do if the Java compiler seems to be in an infinite loop?</a>
+<li><a href="#PluribusBuild">How can I build a Pluribus compiler and runtime?</a>
+<li><a href="#JavaVMBuild">How can I build a Java VM?</a>
+<li><a href="#Hackdepends">What is hackdepends?</a>
+<li><a href="#Talisman">When I try to start 4dos or Bash I get a popup asking me for a password for Talisman. What's going on?</a>
+<li><a href="#BuildRelease">What's the difference between 4dos (Build) and 4dos (Release)?</a>
+<li><a href="#rm">rm -rf is telling me I have a circularity and is refusing to delete something. What's going on?</a>
+<li><a href="#StartPLS">How do I start a PLS?</a>
+<li><a href="#RunPLS">How can I run a test PLS?</a>
+<li><a href="#CVSAll">How can I update all my CVS directories at once</a>
+<li><a href="#MSDEV">Why isn't make finding cl or anything from Microsoft Developer Studio?</a>
+<li><a href="#ScratchBuild">How do I rebuild from scratch?</a>
+<li><a href="#Cafe">How do I build in Cafe?</a>
+<li><a href="#Future">Make is telling me "Build error: make: *** File `<em>somefile</em>' has modification time in the future"; what should I do?</a>
+<li><a href="../cvsdoc/cvsfaq.html">I'm having CVS problems; what do I do?</a>
+</ul>
+
+
+<h2><a name="C:Drive">How do I build on places other than the C: drive?</a></h2>
+Thanks to Sidney for this description
+<p>
+There are five directories that are on C drive by default and may be
+installed elsewhere. You indicate deviations from the default by setting
+environment variables. In Windows 95 you set them in c:\autoexec.bat and in
+NT you use the System Control Panel, in the Environment tab.
+<p>
+You will also need to use the <code>mount</code>
+command. <code>mount</code> is a command that tells bash (and the
+other GNU tools - make etc.) where to find
+directories. e.g. <code>mount e:\ec /EC</code> means that wherever a
+GNU tool sees the pathname <code>/EC/<em>somepath</em></code> it will
+look for <em>somepath</em> under
+<code>e:\ec</code>. <code>mount</code> stores away its mount points in
+a file, so they persist across reboots. You have to use
+<code>umount</code> to get rid of a mount point.
+<p>
+Note that <code>mount</code> is part of the build environment. If you're
+installing from scratch you'll need to first set all the environment
+variables, then check out the build environment and finally do the
+<code>mount</code> commands. The <code>mount</code> commands quoted below
+work in a 4DOS or 4NT shell. To use them in a Bash shell, you'll have to
+add a second backslash in front of any listed backslash, since backslash
+is a unix quote character.
+<p>
+The VC++ compiler version 4 is by default in c:\msdev and version 5 is in
+"c:\Program Files\DevStudio". You'll need to set environment variables to
+indicate where you have it installed
+(see <a href="#MSDEV">here</a> for full details), e.g:
+
+<blockquote>
+       set MSDEVDRIVE=E:
+<br>
+       set MSDEV=Program Files\DevStudio
+<br>
+       set VC_VERSION=5.0 <em>(only if you use 5.0)</em>
+</blockquote>
+
+The other directories are listed below along with their default value and
+the environment variables you need to set and the mount command you need to
+issue once if you place them on a different drive. You don't really get to
+change the directory name, just the drive. In the table below I show what
+you would do if that directory is put on the E drive.
+<p>
+\EC defaults to C drive
+<blockquote>
+    set ECROOTDRIVE=E:
+<br>
+    mount e:\ec /EC
+</blockquote>
+<p>
+\src drive defaults to same as \EC
+<blockquote>
+    set SRC=e:/src
+<br>
+    mount e:\src /src
+</blockquote>
+<p>
+\Media defaults to same as \EC
+<blockquote>
+    set MEDIADIR=e:/media
+<br>
+    mount e:\media /media
+</blockquote>
+<p>
+\Build defaults to same as \EC
+<blockquote>
+    set BUILD_DRIVE=E:
+<br>
+    mount e:\build /build
+</blockquote>
+<p>
+You need to mount /bin so that tools can find the shell in /bin/sh and
+/Program Files so they can find Visual C++:
+<blockquote>
+    mount e:\bin /bin
+<br>
+    mount "e:\Program Files" "/Program Files"
+</blockquote>
+You'll also need a /tmp directory set up; if you want that on your E: drive
+too then you'll need to mount it in the same way.
+<p>
+Note that if everything is built on the E drive, set ECROOTDRIVE=E: and the
+mount commands will take care of all the directories; you don't need to
+set all the individual environment variables.
+<p>
+Also note the unfortunate inconsistencies in whether to specify a full path
+or just a drive letter in the environment variable and the use of forward
+slashes in the environment variables rather than backslashes.
+<p>
+
+
+<h2><a name="PluribusLoop">What do I do if the Pluribus compiler seems to be in an infinite loop?</a></h2>
+
+Thanks to Karl for this description
+<p>
+Any time you spend more than 20 seconds waiting for a pl command
+to finish, you're stuck in a loop.
+<p>
+While there may be a few of these lurking in the "while (ptr)" loops
+deep in the guts of the compiler, it is *much* more likely that
+hackdepends is choking on some stderr output (the compiler is trying
+to spit out a message to stderr, but hackdepends - which forked the
+compiler - is blocking it), so
+<p>
+<ol>
+
+<li> Break out of the make (which may cause duplicate class problems;
+  delete the appropriate .class.list file--See the mail message
+  "PLEASE READ FOR DUPLICATE CLASS PROBLEMS ON PCS").
+<li> Type "set HACK_DEPENDS=false" at the window prompt (this capitalization/
+  lowercase format works on 4DOS.  It may not be necessary, but I know it
+  works; NT is another matter :-).
+<li> Go to the directory where the original make blew up and run make there, or
+  as close as you can get to it--Running make from the top with hackdepends
+  off can take a looong time.
+<li> Fix the Pluribus error(s) which caused the problem in the first place.
+<li> Run make again just to make (ahem) sure.
+<li> Repeat 4 and 5 until there's no error.
+<li> Type "set HACK_DEPENDS=true".
+<li> Return to your regularly scheduled make.
+<li> Call Felix if there's still a problem.
+<li> Call Rob if there's still a problem.
+</ol>
+
+<p>
+
+
+
+<h2><a name="JavaLoop">What do I do if the Java compiler seems to be in an infinite loop?</a></h2>
+
+This is actually the same problem as <a href="#PluribusLoop">What do I
+do if the Pluribus compiler seems to be in an infinite loop?</a>. You
+can even fix it the same way.
+
+
+
+<h2><a name="PluribusBuild">How can I build a Pluribus compiler and runtime?</a></h2>
+Thanks to Karl for this description
+<p>
+On the off chance someone needs to make a Pluribus run time and compiler
+and I'm not around, here are some easy steps:
+<p>
+<ol>
+<li> Make the run time: If it needs it (i.e., something's changed).
+<li> Make the compiler: See above comment.
+<li> Run "~karl/bin/install-new-pluribus <version name of release>:
+This will copy stuff from your $BUILD tree into:
+<blockquote>
+    /home/eng/internal-releases/pluribus/<version name of release>
+</blockquote>
+You must chooses a name that has not been used there yet.
+<li> Make a win32 directory:
+<blockquote>
+    mkdir /home/eng/internal-releases/pluribus/<version name of release>/win32
+</blockquote>
+<li> Remake the run time and compiler on a PC:
+Or copy an old one if nothing changed.  Move the PC bin directory
+   and the PC lib directory (well, only the plrun files really) into the
+   win32 dir from #4.
+<li> Set protections:
+   The install-new-pluribus sets most of them for you, but you'll have
+   to do the win32 files by hand.
+<blockquote>
+    cd /home/eng/internal-releases/pluribus/<version name of release>
+<br>
+    chmod -R 755 win32
+</blockquote>
+<li> Fix dirs on anaxagoras:
+   Log into anaxagoars.  Switch to superuser (or Danfuzz :-).  Go to
+   /home/eng.  Remove the pl-whatever you're getting rid of:
+<blockquote>
+    rm pl-whatever
+</blockquote>
+Do NOT put a trailing '/' on this or it won't work.  Now make a link
+   to the stuff you installed:
+<blockquote>
+      ln -s internal-releases/pluribus/version-name-of-release pl-whatever
+</blockquote>
+<li> Have a beer
+<li> Go home before anyone asks you to make another one.
+</ol>
+
+
+<h2><a name="JavaVMBuild">How can I build a Java VM?</a></h2>
+Thanks to Felix for this description
+<p>
+The magic is quite simple -- the only problem is that one must have
+VC42, MKS toolkit, and MASM installed in order to make the magic
+work. These are available in <code>\\Talisman</code> (in the Ec net
+group) so people can copy this stuff and avoid the installation
+tribulations (i.e. MASM comes on several floppies) that I had to go
+through.
+<p>
+If VC42 is installed in c:\msdev42, MKS toolkit is in c:\MKSDemo, and MASM
+is in c:\MASM, all one needs to do to build the VM is follow these steps:
+<p>
+<ul>
+<li>run src-external/java-1.1.3/ec-setup.bat
+<li>cd to src-external/java-1.1.3/build/win32
+<li>nmake
+<li>nmake debug
+</ul>
+The results of the build will end up in the bin, lib, and classes
+subdirectories
+of src-external/java-1.1.3/build/win32.  The stuff in the bin and lib
+subdirectories can be copied verbatim, but the stuff in the classes
+subdirectory needs to be zipped into a classes.zip file.  This can be done
+with winzip or with /home/eng/unix/bin/zip on solaris.  Do NOT use zip.exe
+for windows, because it doesn't store directory info in the zipfile, and
+then import java.blah.* won't work.
+<p>
+I usually take the solaris route since the distribution is supposed to end
+up in /home/eng/java-ecdbg* anyway.  Here's what I do:
+<p>
+<blockquote>
+C:\>mkdir u:\felix\classes
+<br>
+C:\>xcopy /s c:\src-external\java-1.1.3\build\win32\classes u:\felix\classes
+<br>
+harpo//home/felix/classes=>zip -r0 classes.zip .
+</blockquote>
+
+<h2><a name="Hackdepends">What is hackdepends?</a></h2>
+
+Hackdepends is a Java program written by RobJ. The windows
+GNUmakefiles use it to do a lot of stuff that was being done by
+multiple GNU commands executed via shell scripts. The shell script
+approach was horribly slow on Win95/NT so RobJ wrote hackdepends so
+that all this stuff could be done by a single process. It speeded up
+compilation <b>a lot</b>. So hackdepends is your friend (except very
+occasionally - see
+<a href="#PluribusLoop">What do I do if the Pluribus compiler seems to be in an infinite loop?</a>). If you don't want it to be your friend you can
+disable it by typing <code>set HACK_DEPENDS=false</code> at a 4dos prompt
+and then running make again from that 4dos.
+<p>
+
+
+
+<h2><a name="Talisman">When I try to start 4dos or Bash I get a popup asking me for a password for Talisman. What's going on?</a></h2>
+You're on NT right? If not let me know. This seems to be a weird NT only
+problem that started with the new build environment. Talisman is the machine
+the shortcuts were built on and its name is embedded in the shortcut files
+that are copied into your program menu.
+<p>
+Felix has recently checked in new versions of the shorcuts which don't
+have this problem (so you can get the latest build environment - cvs update
+in \EC - then do UpdateIcons again). Alternatively, the workaround is to edit
+the shortcuts manually (joy!). You can do this as follows (thanks to Bob for
+this description):
+
+<ul>
+<li>Bring up the file browser on your program menu directory
+(<code>C:\winnt\Profiles\All Users\Start Menu\Programs</code>)
+<li>Click on the shortcut you want to change e.g. <code>4dos
+(Build)</code> with the right mouse button and click on Properties in
+the resulting menu
+<li>When the property sheet comes up click on the Shortcut tab and cut
+(CTRL-X) the contents of the "Target" field. (One special case; for
+the Bash icon you should cut all but the last argument).
+<li>Hit the 'Apply' button (this sets the target to nothing, and should
+get rid of the problematic hidden reference to Talisman).
+<li>Paste (CTRL-V) in the contents of the Target field.
+<li>Hit OK
+</ul>
+
+
+
+<h2><a name="BuildRelease">What's the difference between 4dos (Build) and 4dos (Release)?</a></h2>
+
+4dos (Build) sets up the environment so that classes and libraries are
+first looked up in \Build\steward,crew etc and then looked up in the
+standard environment. This means that things built locally come first,
+which is what most developers want. It's the shell most people should
+use for building and testing. 4dos (Release) is used when building a
+release from scratch with as little environment set up as
+possible. Most people will not need it unless they are in the business
+of creating releases or are deep in the E runtime.
+
+
+
+<h2><a name="rm">rm -rf is telling me I have a circularity and is
+refusing to delete something. What's going on?</a></h2> It's
+lying. The GNU version of rm makes up occasional circularities, just
+to annoy you. Try using the native Windows/NT equivalents. They're
+quicker and more reliable. On Win95 <code>deltree /y
+directoryname</code>. On NT <code>rd /sq directoryname</code>. Even
+these don't always work; <code>deltree</code> fails silently if a file
+is in use and <code>rd</code> fails noisily. So double check that the
+directory is really gone. Perhaps best of all is to use the
+explorer/file browser. Select the directory in the explorer GUI and
+then hit SHIFT-DELETE to delete it right away, without putting it in
+the recycle bin. This technique reliably gives you an error message if
+it fails, and you can see right away if it succeeded.
+
+
+<h2><a name="StartPLS">How do I start a PLS?</a></h2>
+Thanks to Eric for this description. This was written on 12/17/97.<p>
+
+<P><B>$ cd cvs/src</B>
+
+<P><B>$ cvs update -d</B>
+<BR>to make sure I've got all the latest stuff.
+
+<P><B>$ rm -rf $BUILD</B>
+<BR>so I get a clean build.&nbsp; You might need to do a blah-none or something
+as well.
+
+<P><B>$ gnumake ecomp eruntime</B>
+<BR>Build the stuff to be used by the new PLS.&nbsp; If e-stable has an
+up to date ecomp, building it is probably supurfluous, but it's nice to
+be safe anyway...
+
+<P>Ok, the build looks good, so it's time to copy it into /home/eng/pls-location
+
+<P><B>$ mkdir /home/eng/pls-location/Release.1997.12.16</B>
+<BR>Make a directory to put the classes in.&nbsp; Make sure you use today's
+date :-)&nbsp; As long as this PLS is running, it will be getting its classes
+from this directory.&nbsp; Once this PLS is retired, the contents of the
+Release... directory can be moved into /home/eng/pls-location/old/...
+
+<P><B>$ cd $BUILD</B>
+
+<P><B>$ cp -r bin/ classes/ compute/ crew/ guest/ lib/ steward/ /home/eng/pls-location/Release.1997.12.16</B>
+<BR>Copy the necessary components of the build into its stable location.
+
+<P><B>$ rm Release</B><B></B>
+
+<P><B>$ ln -s Release.1997.12.16 Release</B>
+<BR>Release is a symlink to the latest release.&nbsp; The init code (see
+below) will use this link to find pls_restart later.
+
+<P>We're going to start this PLS on george.communities.com at port 1668,
+so we open a window on george at this point.
+
+<P><B>george$ cd /home/eng/pls-location</B>
+
+<P><B>george$ ln -s Release.1997.12.16 george.communities.com_1668.Release</B>
+<BR>This tells the PLS where it's particular classes are supposed to come
+from.&nbsp; This way, we can have several different PLS's running with
+the same classes, and several different sets of classes being used by different
+PLS's.&nbsp; pls_initial will complain if you don't do this link.
+
+<P><B>george$ su</B>
+<BR>Since we want this PLS to be restarted whenever it fails, and on any
+reboot, it will need to be run as root.&nbsp; /home/eng/pls-location is
+on alaxandria, so root accesses end up as accesses by user 'nobody'.&nbsp;
+We want to create all the files with appropriate permissions to be accessed
+this way, so we might as well start early.&nbsp; You man need to adjust
+your path to include /home/eng/pls-location/Release/bin so you can find
+pls_initial and friends.
+
+<P><B>george# pls_initial 1668</B>
+<BR>This creates an initial checkpoint file (among other things).&nbsp;
+It also reminds you to do the following ftp steps to make the PLS accessable
+to people that can't get to /home/eng via a shared filesystem.
+
+<P><B>george# ftp www.communities.com</B>
+<BR><B>Name (www.communities.com:eric): &lt;Return></B>
+<BR><B>331 Password required for eric.</B>
+<BR><B>Password: &lt;*******></B>
+<BR><B>ftp> cd /var/ftp/pub/pls-location</B>
+<BR><B>ftp> put george.communities.com_1668</B>
+<BR><B>ftp> &lt;^D></B>
+
+<P><B>george# &lt;insert favorite editor here> /etc/inittab</B><B></B>
+
+<P>Add the following two lines at the end:
+<BR><B>ps:234:respawn:/home/eng/pls-location/Release/bin/pls_restart -fg
+1668 >>/tmp/pls_restart.log 2>&amp;1</B>
+<BR><B>pl:234:respawn:/home/eng/pls-location/Release/bin/pls_killifhung
+1668 >>/tmp/pls_kill.log 2>&amp;1</B>
+<BR>^^ this pair of letters has to be unique in the file, change at will.
+Make sure you get the correct port number in the command.
+
+<P><B>george# kill -1 1</B>
+<BR>This tells init (process 1) to reread /etc/inittab and start any processes
+it needs to as a result.&nbsp; It runs pls_restart which restarts the PLS.&nbsp;
+You can now watch the log by doing:
+
+<P><B>george# tail -f george.communities.com_1668.log</B>
+
+<P>If you are starting PLS's for more than one server, you can just do
+the host specific parts over again for the other hosts (like gracie and
+harpo, for example).
+
+<P>If you want to update a PLS in place which has been placed in inittab,
+first you should disable its entry in inittab by changing both of the :respawn:
+entries to :off:.&nbsp; kill -1 1 to get this to take effect, then you
+can update the pls files.&nbsp; When you're ready to restart it, change
+the :off: entries back to :respawn:, and kill -1 1 again.
+<p>
+
+
+
+<h2><a name="RunPLS">How can I run a test PLS?</a></h2>
+Thanks to Eric for this description. Note that this for Unix only.
+<p>
+<code>src/ec3/E/runtime/e/net/pls/pls_test</code>
+is a script for running a test PLS.  Just run it in a scratch
+directory and give it an unused port as it's argument.  It will spit
+out the RegisterWith and SearchPath arguments you need to use.  The
+log file is tailed, and when you hit ^C the PLS is killed.
+<p>
+You must have an eruntime build in $BUILD.
+<p>
+pls_test is installed in $BUILD/bin, which should be on your $PATH, so
+you can just say:
+<p>
+<blockquote>
+mkdir ferd
+<br>
+cd ferd
+<br>
+pls_test 9876
+</blockquote>
+
+
+
+<h2><a name="CVSAll">How can I update all my CVS directories at once</a></h2>
+Thanks to Sidney for this description.
+<p>
+If you want to update all the cvs trees on your machine in one fell swoop
+you can go to your root directory and type:
+<blockquote>
+  cvs update -d EC media src
+</blockquote>
+Or, what I usually do to eliminate the no-op messages:
+<blockquote>
+  cvs -q update -d EC media src
+</blockquote>
+
+
+
+<h2><a name="MSDEV">Why isn't make finding cl or anything from Microsoft Developer Studio?</a></h2>
+
+First, make sure you have Microsoft Developer Studio installed. You
+should install version 5.0 and use at least the "Typical"
+installation, so you get the MFC classes (we use some of the MFC
+window handle stuff). If you don't use the "Typical" installation
+you'll get complaints about not having all the DLLs you need. You can
+find the Microsoft Developer Studio C++ 5.0 CD in Felix's office, or
+you can install it from the net at <code>\\cassandra\visualc5</code>.
+The CD key is 806-5644646.
+<p>
+If you've installed Studio but still get errors you may need to tweak
+some environment variables which tell the build environment where to
+find it.  By default the (Build) shells look for Studio in
+<code>C:\MSDev</code>, which is the place Studio version 4.0 was
+usually installed. This is probably the wrong default, as we're
+standardizing on Studio 5.0. But we're not changing it until we're
+sure everyone has upgraded from 4.0.
+<p>
+So, if you're using a (Build) shell, you should edit your autoexec.bat
+(Win95) or use the Control Panel\System environment panel (NT), to set
+the following environment variables
+<blockquote>
+  set MSDEVDRIVE=C: <em>(set this to the drive on which you installed Studio)</em>
+<br>
+  set MSDEV=Program Files\DevStudio <em>(assuming you installed in the standard directory)</em>
+<br>
+  set VC_VERSION=5.0 <em>(this will not be necessary once everyone uses 5.0)</em>
+</blockquote>
+</ul>
+Note that there are no quotes and no leading or trailing "\" characters
+in the MSDEV variable. On Win95 you'll need to reboot before the
+variables take effect. On NT you can just restart your 4dos/Bash
+shell.
+<p>
+If you build a full release (see <a href="BuildRelease.html">Building
+a Release</a>) setting the environment variables isn't enough. When
+building a release you run the <code>config.build</code> script, with
+a configuration file as its argument, to set up your environment
+before building. <code>config.build</code> does <em>not</em> look at
+the environment variables you have set, instead it uses the ones in
+the configuration file. So when you run <code>config.build</code> you
+must check that the configuration file matches your Studio
+installation. The default configuration file,
+<code>release.config</code>, assumes Studio Version 5.0, installed in
+the standard place on the C: drive i.e.  <code>MSDEVDRIVE=c:</code>
+and <code>MSDEV="Program Files/DevStudio"</code>. 
+<p>
+So, if you installed Studio some place other than C:\Program
+Files\DevStudio you'll need a custom configuration file:
+<ul>
+<li>Change directory to <code>\src</code>
+<li>Make a copy of <code>release.config</code>, say <code>myconfigfile</code>
+<li>Edit the MSDEV and MSDEVDRIVE lines in <code>myconfigfile</code>
+<li>Run <code>config.build myconfigfile <em>command</em></code>
+</ul>
+
+
+
+<h2><a name="ScratchBuild">How do I rebuild from scratch?</a></h2>
+
+First you must delete everything you've built so far. Unfortunately
+<code>make clean</code> doesn't reliably clean out everything because
+of problems with <a href="#rm">rm</a>. To be safe, it's best to
+manually delete all the class files and object files (i.e. use
+SHIFT-DELETE in the file browser - the most reliable technique - or
+<code>deltree /y \Build</code> on Windows95, <code>rd /qs
+\Build</code> on WinNT). When you've done this make sure that
+<code>\Build</code> is really gone. Both <code>deltree</code>
+and <code>rd</code> fail if files in the directory are in use, and
+<code>deltree</code> has the nasty habit of failing silently.
+<p>
+Once <code>\Build</code> is gone, move <code>\EC\FP</code> or
+<code>\EC\FP\cosm</code> out of the way and recompile. Moving
+<code>\EC\FP</code> is important or you'll miss some build
+ordering errors. If you're using a 4dos or Bash (Build) shell, as most
+people do, the environment puts various subdirectories of
+<code>\EC\FP</code> on your <code>PATH</code> and
+<code>CLASSPATH</code>, which means you your compilation can find
+pre-built classes and libraries in <code>\EC\FP</code>. So, for
+example, suppose you change class A so that it now depends on class B,
+which is built later in the build process. This is a build breaker,
+because class B won't be there when A is compiled. But you may not
+spot it because your (Build) shell can pick up the old class B from
+<code>\EC\FP</code>.
+<p>
+So what does this mean for you? People who just build HabiFoo can
+temporarily move <code>\EC\FP\cosm</code> out of the way before doing
+<code>make cosm</code>. That way you can be sure you're not picking
+up any old cosm classes, but you don't have to build the full
+tree. If you do this, remember to put <code>\EC\FP\cosm</code> back
+before you do a <code>make release</code> or check out
+<code>\EC</code> again! Note that you will have to do a
+<code>make release</code> because you deleted everything in
+<code>\Build</code>.
+<p>
+People who build the whole tree can move all of <code>\EC\FP</code>
+out of the way before doing <code>make everything</code> (again,
+remember to put it back before checking out <code>\EC</code> or doing
+your <code>make release</code>!). There is a (somewhat unreliable)
+script for doing this - see
+<a href="BuildTools.html#cleanbuild">cleanbuild.sh</a>.
+Alternatively, if you have time, you
+can try building a release. See <A href="BuildRelease.html">Building a
+Release</a> for more details.  The release shell doesn't set up nearly
+as much environment so it won't pick up anything from
+<code>\EC\FP</code>.
+<p>
+
+
+<h2><a name="Cafe">How do I build in Cafe?</a></h2>
+
+Thanks to Jay for these instructions
+<p>
+To make things work OK with multi-drive systems I added an environment
+variable that tells my scripts which drive Cafe is installed on.
+CAFEHOME should be set to C: D: or whatever.
+<p>
+Change to the EC\cafe directory and type:
+<blockquote>
+  setupcafe
+</blockquote>
+This will copy the Cafe project over into the release directory.
+<p>
+You can then start Cafe up using the StartMenu 4DOS(Cafe) command --the
+project that is checked in now only uses the file CafeSucks.java.
+<p>
+To run the script that converts our E into Java enter: <code>foo2jall</code>.
+This will convert the E run time and all the Pluribus objects.
+(This is really slow--to do things selectively use the scripts defined below.)
+It will put the objects into several directories - in particular you only have
+to bring in the e runtime if desired, or just some of the pluribus stuff.
+<p>
+<code>foo2j</code> - Works the way it always has. It converts the
+first file, storing the result in the second if given, otherwise it
+stores into the default generated code directory.
+<p>
+<code>f2jall <em>extension</em> <em>target-place</em></code> -
+Converts all files with the given extension in the current directory
+and all child directories and puts the result into the target place.
+e.g. <code>f2jall e c:\build\gencode\cafegen\avatarstuff</code>
+<p>
+<code>f2jdir <em>extension</em> <em>target-place</em></code> - Works
+like above but only converts the files in the current directory. The
+following example uses a wild card: <code>f2jdir *
+c:\build\gencode\cafegen\eruntime</code>
+<p>
+<code>f2jzap.bat</code> -  this command deletes all the files that
+<code>foo2jall.bat</code>  made
+that have been determined to be irrelevant.  I use this command so I can
+add all the files in a directory without having to remember the names of
+the bozo files.
+<p>
+I changed the scripts to no longer use CafeSucks.java (except in one
+place). This means that you will get piles of warnings the first time you
+compile something. They can be ignored.
+
+
+<h2><a name="Future">Make is telling me "Build error: make: *** File `<em>somefile</em>' has modification time in the future"; what should I do?</a></h2>
+
+This error normally happens shortly after a cvs update, and is usually due
+to clock skew between the cvs file server and your local machine. For many
+files the messages are harmless and the build will continue correctly. But
+there are a few places where this message actually kills the build e.g.
+when building the Pluribus compiler.
+<p>
+You can minimize this problem by setting the clock on your local machine
+to be the same as the clock on the cvs server, rashomon (rlogin to
+rashomon and type <code>date</code>).
+
+
+<p>
+<A href="index.html">Back to the index</a>
+
+</BODY>
+</HTML>

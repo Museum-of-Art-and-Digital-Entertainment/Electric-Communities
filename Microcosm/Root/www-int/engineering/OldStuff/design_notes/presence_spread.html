@@ -1,0 +1,338 @@
+<HTML>
+<HEAD>
+    <TITLE>Avatar Identity</TITLE>
+</HEAD>
+<BODY>
+
+<H1>A History of Presence Spread</H1>
+
+<h2>Introduction</h2>
+
+This document describes the problem of presence spread - how presences
+of an una get spread between processes and, especially, how they don't
+always get cleaned up when they're no longer needed.
+
+<p>
+
+This is a problem we've always had in our system. Recently Rob, Arturo
+and Gordie fixed one aspect of the problem, but there is still more to
+do. At the end of the document there are some possible short term
+solutions.
+
+<h2>Background</h2>
+
+Unum programmers can skip this bit, except for the sub section at the
+end (Why Client Presences Aren't Garbage).
+
+<h3>Proxies vs Una</h3>
+
+In most distributed object systems an object is created on a single
+process - the host - and when it gets passed to another process a dumb
+proxy object is created in the other process. All messages sent to the
+dumb proxy are relayed over the network connection between the two
+processes and are handled by the actual "host" object. If the object
+is passed to many processes you can end up with many proxies all
+pointing, over separate network connections, to the single host. But
+the host is the only object that has authority over state and the only
+object that does any real work. The proxies are dumb relayers of
+messages. This, by the way, is how plain old E objects work.
+
+<p>
+
+The unum model uses "smart proxies", called presences. As with the
+simple proxy model, an unum is created on single host. But when an
+unum is passed to another process the other process gets a "client
+presence", not just a dumb proxy. A client presence is different from
+a dumb proxy in several important ways:
+
+<ul>
+
+<li>It has local state.
+
+<li>It doesn't just relay messages to the host (known as the "host
+presence"), though it can do so if it wants. It can also take purely
+local action when given a message, or it can take some local action
+and then notify the host.
+
+<li>It is pointed at by the host. The host knows all its client
+presences and can send messages to them. These messages can update the
+client presence state, or make it communicate with other objects in
+its process.
+
+</ul>
+
+Note that the local state of a client presence can include references
+to other una. In this case, whenever such a presence is created
+(e.g. when its unum is given to a new process) it will also create new
+presences of all the una it references.
+
+<h3>Why Client Presences Aren't Garbage</h3>
+
+The basic structure of an unum is a bunch of distributed cycles. The
+host presence points to all its clients, and each client points at its
+host. This means that even if there are no external references to an
+unum anywhere, it will take full cyclic distributed garbage collection
+to clear it up.
+
+<p>
+
+More importantly a client presence can never be garbage as long as it
+is connected to the host. This means that if your process has a client
+presence of some unum, that presence will not get garbage collected
+when your process is no longer using it. The host (via the comm
+system) is still pointing at it, so it is not garbage.  This means
+that client presences <b>always</b> have to be killed explicitly,
+either by the host disowning them or by the process containing the
+client blowing it away.
+
+
+<h2>The Bad Old Days - Tar Baby Una</h2>
+
+In the old containment story we had a lot of client presences whose
+local state included references to other una. The client presence
+of a container had references to all the una it contained. The
+client presence of a containable pointed at its container.
+
+<p>
+
+This doesn't sound too bad until you realize how fast una spread.  It
+meant that if you ever got a client presence of any object in a
+containment tree it would, because of its unum references, drag over
+presences of all its contents (if any) and also its container (if
+any). Those presences would, in turn, drag over their contents and
+container. If you got a presence of any item in a region you always
+got presences of everything in the region.
+
+<p>
+
+Now even that wasn't always bad. In fact, if you were entering a
+region it was what you wanted (though heaven help you if you got a
+presence of an unum for some other reason - you got the entire region
+anyway). The kicker was that because client presences never got
+cleaned up you continued to get all their updates, including their
+containment updates.
+
+<p>
+
+So suppose you went into region X and met avatar A. You would get
+presences of region X and avatar A in your Microcosm process. When you
+left region X those presences would stay around (client presences
+aren't garbage, remember). Worse, they would continue to drag over new
+presences. Every time some new item appeared in region X you'd get a
+presence, courtesy of the presence of X in your process. And, worst of
+all, as A wandered around, the presence of A in your process would
+drag over a presence of each new region visited by A (and all its
+contents, including other avatars which would then do the same thing).
+
+<p>
+
+Hence the tar baby - once you'd come into contact with an avatar it
+stuck to you and anything that stuck to it stuck to you too, and so on
+and so on.
+
+<h2>The Mediocre New Days - Regions That Just Don't Quit</h2>
+
+The new containment protocol contains a fix that avoids some of the
+tar baby problem, by a slightly strange unum hack. The idea is that
+when an unum enters a region it kills off all its old client presences
+and then creates a new set, as specified by the region.
+
+<p>
+
+So when avatar A enters a new region it gets told to destroy all its
+old client presences. This ensures that people who've met avatar A in
+other regions no longer have a useless presence of avatar A. Avatar A
+then gives the new region a reference to its new, clean, self and the
+region notifies everyone else in the region that A has arrived. This
+notification implicitly creates a whole new set of client presences
+for A.
+
+<p>
+
+This is well and good, but it leaves an important problem unsolved.
+When avatar A leaves the old region (let's call it X), to go to new
+region Y there is still a client presence of X in avatar A's
+process. This client presence will never get garbage collected (client
+presences aren't garbage) so it, plus presences of everything it
+contains, will continue to sit there forever (well until avatar A or
+region X closes down or there is a network error).
+
+<p>
+
+This is bad, for two reasons:
+
+<ul>
+
+<li>It's a big resource problem. Sooner or later (probably sooner)
+avatar A's process will run out of CPU, memory, network connections or
+all three. Note that whenever a new avatar comes into a region that A
+has visited, A will be involved in the setup of a new secure network
+connection just so it can get a totally unecessary presence of the new
+avatar.
+
+<li>It's a security hole. Avatar A's process is still receiving
+updates on everything happening in every region it's ever visited.
+With a little hacking it can spy on all these regions.
+
+</ul>
+
+
+<h2>The Brave New World - Spoiled By Bread Crumbs</h2>
+
+It's clear that the current state of affairs is broken. We need to
+kill off the presences of old regions (and everything in them). We
+know this has to be done explicitly, garbage collection won't help.
+
+<p>
+
+Unfortunately it's not trivial to do. For example, the region knows
+when your avatar has left. But it doesn't know, without extra
+protocol, which of its client presences is the one being "used" by
+your avatar.  Client presences are anonymous, it's hard to find out
+whether a given client presence is in the same process as the host
+presence of a given avatar. The unum abstraction hides all this
+information.
+
+<p>
+
+The avatar's job seems simpler - when it leaves a region it should
+whack the client presence of that region, plus all the presences of
+objects contained by that region. Again this requires extra protocol
+(e.g. some way of asking a region for everything it contains) and
+extra capabilities (the capability to whack a client presence without
+the unum's consent). But the really tricky problem is that you may
+still need the presences if some other object, hosted by you, is still
+in the region.
+
+<p>
+
+Suppose avatar A is going through a series of regions, dropping bread
+crumbs (I don't know why; maybe she likes fairy stories, maybe leaving
+a trail for a friend). Each bread crumb is an unum, created by A. This
+means it is a full fledged containable and, in our current protocol,
+it needs a presence of its containing region, plus all the stuff in
+that region. So when avatar A drops a bread crumb in region X and then
+goes to region Y it can't just whack all the presences relating to X -
+the bread crumb still needs them. The presences don't belong to avatar
+A; <em>they belong to all objects hosted in A's process who are in
+region X.</em>
+
+<p>
+
+So the client presence of a region and its contents are only ripe for
+whacking if there are no locally hosted objects in that region. With a
+little help from the inventory we can probably detect this case and
+whack away. But it means we still have our resource and security
+problems, in a milder form:
+
+<ul>
+
+<li>Resources: if avatar A leaves a lot of objects around, avatar A's
+process will consume a lot of resources "watching" other regions which
+are not shown at all in the UI. This is going to be a surprise to
+users (avatar A leaves something in Bs turf then leaves, B has a party
+without inviting A, A's machine grinds to a halt making connections
+to and receiving traffic from all of B's party guests).
+
+<li>Security: avatar A, if she's a hacker, can leave objects around and
+use them to spy on regions where she's not present.
+
+</ul>
+
+
+<h2>One Possible (But Very Imperfect) Future</h2>
+
+A solution to the security problem, and a minor improvement to the
+performance problem, is to give different types of object different
+capabilities when they enter a region.
+
+<p>
+
+At the moment, as we've seen, all locally hosted objects share the
+same client presence - and they all have equal access. They are
+effectively sharing a single capability (the client presence is a kind
+of capability). The sharing means that a client presence has to
+provide the maximum privilege required by any one of the sharers.  For
+example, because the avatar needs to watch what's going on all the
+objects get that capability too.
+
+<p>
+
+Because a client presence is monolithic there is no way of revoking
+part of it (at least not without some very messy hacking). So even
+when the avatar has no use for the presence the remaining locally
+hosted objects are left with the full capability, with all its costs
+and privileges.
+
+<p>
+
+So one obvious solution is to hand out different capabilities to
+different objects in a region. Avatars and other "watcher" una (e.g. a
+video cam unum) ask for a full presence, and pay the extra cost
+involved. Bread crumbs and other dumb una ask for some lower cost
+capability, which allows them to appear in the region but not to
+watch it. Users would have to be informed which una were "watchers",
+so they'd know if someone was spying on them.
+
+<p>
+
+Though this looks promising on the security side, it has a couple of
+major disadvantages:
+
+<ul>
+
+<li>It would involve major restructuring of our code; una just don't
+work that way. There's no hope of doing it for Beta.
+
+<li>It doesn't solve the resource problem. It helps in some cases -
+bread crumbs don't get full updates from the region. But a bread crumb
+still has to create a new presence every time a new avatar (or other
+watcher) enters its region. Worse, this scheme could cause more
+traffic if several locally hosted watchers were in the same region. If
+each watcher had a separate capability (instead of sharing a single
+presence as una do now) update messages would have to be sent
+separately to each watcher, increasing network traffic.
+
+</ul>
+
+<h2>Possible Beta Solutions</h2>
+
+For Beta we're probably stuck with the "spying bread crumb" problem.
+
+<p>
+
+One approach is to just ban the problem - if you leave a locally
+hosted object in a region it either gets automatically cloned (the
+clone would be co-hosted with the region) or hops back into your
+pocket (this would need more UI).
+
+<p>
+
+Another approach is to allow avatars to leave objects, but add UI
+to explain the costs. This leaves in the security hole, but is a
+little more like our original story.
+
+<p>
+
+In any case there is some new work to be done:
+
+<ul>
+
+<li>We have to decide which policy to implement and lay out the
+associated UI and unum tasks.
+
+<li>We need a (closely held) capability to kill off client presences.
+
+<li>We need a way of tracking which locally hosted objects are in a
+given region (so we can force cloning when necessary, or kill the
+region's client presence when the last locally hosted object
+leaves). This will probably involve the inventory.
+
+</ul>
+
+<A href="index.html">Back to design notes index</a>
+<br>
+<a href="../index.html">Back to Microcosm engineering main page</a>
+
+</BODY>
+</HTML>

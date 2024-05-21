@@ -1,0 +1,4 @@
+define x := 3
+(x + 4) println
+([3, 4] size) println
+(3 < 4 && 5 == 6)

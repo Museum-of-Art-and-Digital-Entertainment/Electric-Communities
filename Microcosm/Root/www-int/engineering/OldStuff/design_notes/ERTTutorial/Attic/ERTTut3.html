@@ -1,0 +1,42 @@
+<!--NewPage-->
+<!-- Created by Masa Maeda on 05.14.97  -->
+<!-- Copyright 1997 Electric Communitites. -->
+<!-- All rights reserved worldwide.  -->
+<!-- Proprietary and confidential. -->
+<HTML>
+<HEAD>
+<pre><a href="ERTTut2.html">Previous</a>  <a
+href="ERTTut4.html">Next</a>  <a
+href="ERTTutI.html">Index</a>  <a
+href="ERTTut1.html">Home</a></pre>
+<TITLE>Exclusive Rights Transfer Tutorial: Page 3</TITLE>
+</HEAD>
+<P><HR WIDTH="100%" SIZE=2></P>
+<BODY>
+<B><P>Now you have it... now you don't!</P></B>
+<P>&nbsp;</P>
+<B><P>Step 1: Code for receiver object</P></B>
+
+<P> In general, the Receiver class contains the methods that define what is actually
+done with the messages received from sender objects. The task of the receiver object
+for this tutorial is to print the message received. The code is shown below. <FONT
+FACE="Courier">canReceive</FONT> is a method of <FONT FACE="Courier">eclass
+Receiver</FONT> that accepts a string message and prints it.</P>
+
+<P><HR WIDTH="80%" SIZE=2></P>
+<PRE>
+	// ----- Receiver Class -----
+
+	eclass Receiver {
+	  emethod canReceive(String message) {
+	    System.out.println(message);
+	  }
+	}
+</PRE>
+<P><HR WIDTH="100%" SIZE=2></P>
+<pre><a href="ERTTut2.html">Previous</a>  <a
+href="ERTTut4.html">Next</a>  <a
+href="ERTTutI.html">Index</a>  <a
+href="ERTTut1.html">Home</a></pre>
+
+</HTML>

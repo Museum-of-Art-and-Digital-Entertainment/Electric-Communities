@@ -1,0 +1,4 @@
+#!/bin/sh
+
+ecomp -d . keep.e
+java ec.tests.keep.Main 2>&1 | sed -e 's/(.*)$//g'

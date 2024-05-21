@@ -1,0 +1,4 @@
+#Inspector=full
+RegisterWithURLs=ftp://www.communities.com/pub/pls-location/harpo.communities.com_1668
+SearchPath=harpo.communities.com:1668
+trace_encodetimer=debug

@@ -1,0 +1,12 @@
+// EZTestSources\factorial.ez
+
+define facDisp := dispatch {
+    to fac(n) {
+	if (n <= 0) {1} else {n * (facDisp fac (n - 1))}
+    }
+}
+define x := 1
+while (x < 100) {
+    println(facDisp fac(x) )
+    x := x + 1
+}

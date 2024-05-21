@@ -1,0 +1,15 @@
+define cat := object {
+	to sub1 x { (x - 1) }
+	to add1 x { (x + 1) }
+	to printsub1 foo {
+		((self sub1 foo) print)
+	}
+}
+
+(cat sub1 2)
+(cat add1 2)
+
+(cat printsub1 (3 + 4))
+
+((cat add1 20) print)
+

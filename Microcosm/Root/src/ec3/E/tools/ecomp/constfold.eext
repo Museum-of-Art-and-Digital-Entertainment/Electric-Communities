@@ -1,0 +1,228 @@
+# 1 "ec/ecomp/constfold.java" 
+/* ************************************************************************
+ * Espresso! Constant folding
+ * Copyright 1995 Martin Odersky. All rights reserved.
+ * 
+ * Author     : Martin Odersky
+ * Last change: 13-Mar-96
+ *************************************************************************/
+
+
+package ec.ecomp;
+# 13 "ec/ecomp/constfold.java" 
+
+
+class ConstantFolder implements /*imports*/ Constants {
+
+/** convert boolean to integer (true = 1, false = 0).
+ */
+    static int b2i(boolean b) {
+        return b ? 1 : 0;
+    }
+
+/** fold binary operation.
+ */
+    static Item fold(int pos, 
+                     ImmediateItem left, ImmediateItem right, 
+                     int opcode) {
+        try {
+            if (opcode >= (1 << preShift)) {
+                Item i = fold(pos, left, right, opcode >> preShift);
+                if (i instanceof ImmediateItem)
+                    return fold(pos, (ImmediateItem)i, opcode & preMask);
+                else
+                    return i;
+            } else if (opcode == if_acmpeq) {
+                return 
+                    new ImmediateItem(
+                        new Integer(left.value == right.value ? 1 : 0));
+            } else if (opcode == if_acmpne) {
+                return 
+                    new ImmediateItem(
+                        new Integer(left.value != right.value ? 1 : 0));
+            } else {
+                Number l = (Number)left.value;
+                Number r = (Number)right.value;
+                Number res;
+                switch (opcode) {
+                case iadd:
+                    res = new Integer(l.intValue() + r.intValue()); break;
+                case isub:
+                    res = new Integer(l.intValue() - r.intValue()); break;
+                case imul:
+                    res = new Integer(l.intValue() * r.intValue()); break;
+                case idiv:
+                    res = new Integer(l.intValue() / r.intValue()); break;
+                case imod:
+                    res = new Integer(l.intValue() % r.intValue()); break;
+                case iand:
+                case bool_and:
+                    res = new Integer(l.intValue() & r.intValue()); break;
+                case ior:
+                case bool_or:
+                    res = new Integer(l.intValue() | r.intValue()); break;
+                case ixor:
+                    res = new Integer(l.intValue() ^ r.intValue()); break;
+                case ishl:
+                    res = new Integer(l.intValue() << r.intValue()); break;
+                case ishr:
+                    res = new Integer(l.intValue() >> r.intValue()); break;
+                case iushr:
+                    res = new Integer(l.intValue() >>> r.intValue()); break;
+                case if_icmpeq:
+                    res = new Integer(b2i(l.intValue() == r.intValue())); break;
+                case if_icmpne:
+                    res = new Integer(b2i(l.intValue() != r.intValue())); break;
+                case if_icmplt:
+                    res = new Integer(b2i(l.intValue() < r.intValue())); break;
+                case if_icmpgt:
+                    res = new Integer(b2i(l.intValue() > r.intValue())); break;
+                case if_icmple:
+                    res = new Integer(b2i(l.intValue() <= r.intValue())); break;
+                case if_icmpge:
+                    res = new Integer(b2i(l.intValue() >= r.intValue())); break;
+
+                case ladd:
+                    res = new Long(l.longValue() + r.longValue()); break;
+                case lsub:
+                    res = new Long(l.longValue() - r.longValue()); break;
+                case lmul:
+                    res = new Long(l.longValue() * r.longValue()); break;
+                case ldiv:
+                    res = new Long(l.longValue() / r.longValue()); break;
+                case lmod:
+                    res = new Long(l.longValue() % r.longValue()); break;
+                case land:
+                    res = new Long(l.longValue() & r.longValue()); break;
+                case lor:
+                    res = new Long(l.longValue() | r.longValue()); break;
+                case lxor:
+                    res = new Long(l.longValue() ^ r.longValue()); break;
+                case lshl:
+                    res = new Long(l.longValue() << r.intValue()); break;
+                case lshr:
+                    res = new Long(l.longValue() >> r.intValue()); break;
+                case lushr:
+                    res = new Long(l.longValue() >>> r.intValue()); break;
+                case lcmp:
+                    if (l.longValue() < r.longValue()) 
+                        res = new Integer(-1);
+                    else if (l.longValue() > r.longValue()) 
+                        res = new Integer(1);
+                    else
+                        res = new Integer(0);
+                    break;
+
+                case fadd:
+                    res = new Float(l.floatValue() + r.floatValue()); break;
+                case fsub:
+                    res = new Float(l.floatValue() - r.floatValue()); break;
+                case fmul:
+                    res = new Float(l.floatValue() * r.floatValue()); break;
+                case fdiv:
+                    res = new Float(l.floatValue() / r.floatValue()); break;
+                case fmod:
+                    res = new Float(l.floatValue() % r.floatValue()); break;
+                case fcmpg: case fcmpl:
+                    if (l.floatValue() < r.floatValue()) 
+                        res = new Integer(-1);
+                    else if (l.floatValue() > r.floatValue()) 
+                        res = new Integer(1);
+                    else if (l.floatValue() == r.floatValue())
+                        res = new Integer(0);
+                    else if (opcode == fcmpg)
+                        res = new Integer(1);
+                    else
+                        res = new Integer(-1);
+                    break;
+
+                case dadd:
+                    res = new Double(l.doubleValue() + r.doubleValue()); break;
+                case dsub:
+                    res = new Double(l.doubleValue() - r.doubleValue()); break;
+                case dmul:
+                    res = new Double(l.doubleValue() * r.doubleValue()); break;
+                case ddiv:
+                    res = new Double(l.doubleValue() / r.doubleValue()); break;
+                case dmod:
+                    res = new Double(l.doubleValue() % r.doubleValue()); break;
+                case dcmpg: case dcmpl:
+                    if (l.doubleValue() < r.doubleValue()) 
+                        res = new Integer(-1);
+                    else if (l.doubleValue() > r.doubleValue()) 
+                        res = new Integer(1);
+                    else if (l.doubleValue() == r.doubleValue())
+                        res = new Integer(0);
+                    else if (opcode == dcmpg)
+                        res = new Integer(1);
+                    else
+                        res = new Integer(-1);
+                    break;
+                default:
+                    throw new CompilerError("fold " + opcode);
+                }
+                return new ImmediateItem(res);
+            }
+        } catch (ArithmeticException e) {
+            Report.error(pos, e.toString());
+            return Item.stackItem;
+        }
+    }
+
+/** fold unary operation.
+ */        
+    static Item fold(int pos, ImmediateItem od, int opcode) {
+        try {
+            Number x = (Number)od.value;
+            Number res;
+            switch (opcode) {
+            case nop:
+                res = x; break;
+            case ineg:
+                res = new Integer(-x.intValue()); break;
+            case ixor:
+                res = new Integer(~x.intValue()); break;
+            case bool_not:
+                res = new Integer(~x.intValue() & 1); break;
+            case ifeq:
+                res = new Integer(b2i(x.intValue() == 0)); break;
+            case ifne:
+                res = new Integer(b2i(x.intValue() != 0)); break;
+            case iflt:
+                res = new Integer(b2i(x.intValue() < 0)); break;
+            case ifgt:
+                res = new Integer(b2i(x.intValue() > 0)); break;
+            case ifle:
+                res = new Integer(b2i(x.intValue() <= 0)); break;
+            case ifge:
+                res = new Integer(b2i(x.intValue() >= 0)); break;
+
+            case lneg:
+                res = new Long(-x.longValue()); break;
+            case lxor:
+                res = new Long(~x.longValue()); break;
+
+            case fneg:
+                res = new Float(-x.floatValue()); break;
+
+            case dneg:
+                res = new Double(-x.doubleValue()); break;
+
+            default:
+                throw new CompilerError("fold " + opcode);
+            }
+            return new ImmediateItem(res);
+        } catch (ArithmeticException e) {
+            Report.error(pos, e.toString());
+            return Item.stackItem;
+        }
+    }
+}
+
+
+
+
+
+
+
+

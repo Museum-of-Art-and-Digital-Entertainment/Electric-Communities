@@ -1,0 +1,15 @@
+ifneq ($(USEJNI), no)
+CFLAGS += -DUSEJNI
+endif
+
+$(BUILD)/lib/lib$(MODNAME).$(LIBSUFFIX): $(OBJDIRS) $(FILES.o)
+	@mkdir -p $(dir $@)
+	$(LD) -G -o $@ $(FILES.o) $(OTHER_LIBS)
+
+$(BUILD)/lib/lib$(MODNAME)_g.$(LIBSUFFIX): $(OBJDIRS) $(FILES.o)
+	@mkdir -p $(dir $@)
+	$(LD) -G -o $@ $(FILES.o) $(OTHER_LIBS)
+
+$(FULLSTUBONAME): $(FULLSTUBNAME)
+	@mkdir -p $(dir $@)
+	$(CC) -g -o $@ $(CFLAGS) -c $?

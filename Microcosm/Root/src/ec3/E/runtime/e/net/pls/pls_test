@@ -1,0 +1,53 @@
+#!/bin/sh
+
+# to run a test process location server, run this command in a
+# scratch directory with the port number as argument.
+# interrupting with ^C will kill the PLS
+
+PLS_LOCATION_DIR=.
+PLS_RELEASE_DIR=$BUILD
+
+export PLS_LOCATION_DIR
+export PLS_RELEASE_DIR
+
+if [ x$1 = x ]; then
+	echo "You must specify the port of the PLS to run."
+	exit 1
+fi
+
+HostName=`uname -n | sed 's/\.communities\.com//'`
+#FQDN="${HostName}.`domainname`" XXX anybody know how to get the domainname portably?
+FQDN="${HostName}.communities.com"
+Port=$1
+
+pls_initial $Port
+
+echo
+echo remember to use the following properties:
+echo
+echo RegisterWith=`pwd`/${FQDN}_$Port
+echo SearchPath=${FQDN}:$Port
+echo
+echo -n Hit return to start PLS:
+
+read line
+
+pls_restart $Port
+
+tail -f ${FQDN}_$Port.log &
+
+tailpid=$!
+plspid=`cat ${FQDN}_$Port.pid`
+
+echo tailpid $tailpid plspid $plspid
+
+killboth() {
+	echo
+	echo killing pls.
+	kill $tailpid
+	kill $plspid
+}
+
+trap "killboth" 2
+
+wait $tailpid

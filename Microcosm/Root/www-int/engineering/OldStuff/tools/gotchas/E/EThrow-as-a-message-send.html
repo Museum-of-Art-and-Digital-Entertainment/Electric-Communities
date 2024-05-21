@@ -1,0 +1,27 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>EThrow as a message send</TITLE>
+<META NAME="Template" CONTENT="C:\Program Files\Microsoft Office\Templates\Web Pages\Web Page Wizard.wiz">
+</HEAD>
+<BODY TEXT="#000000" LINK="#0000ff" VLINK="#800080" BACKGROUND="Image1.gif">
+<DIR>
+
+<FONT FACE="Garamond"><P>Here is an example of the consequences of ethrow being a message send.</P>
+</FONT><CODE><PRE>
+emethod receive(int value, EDistributor done)
+{
+    // sanity checking
+    if (value &lt; 0) ethrow(new RtEException("bad value"));
+    &nbsp;
+    // do main body of routine...
+    System.out.println("value is " + value);
+    done &lt;- forward(etrue);
+}</PRE></DIR>
+
+</CODE><FONT FACE="Garamond"><P>Suppose this message is invoked as:</P>
+</FONT><CODE><P>Obj &lt;- receive(-1, &amp;finished);</P>
+</CODE><FONT FACE="Garamond"><P>The exception will be thrown, but the code will also print "value is -1" and forward the distributor.</P>
+</FONT><CODE><P>&nbsp;</P></CODE></BODY>
+</HTML>

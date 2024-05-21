@@ -1,0 +1,29 @@
+// Sending of an EZ E msg over a net connection:
+// On the publishing end, with Promises:
+define makecat := {
+ define z1 := 0
+ object {
+	to sub1(x) { x - 1 }
+	to add1(x) { x + 1 }
+	to printz() {
+		println(z1)
+		73
+	}
+	to addit(x) { z1 := z1 + x }
+ }
+}
+
+define furr := makecat run
+furr addit(20)
+define kitty := refmaker makeSturdyRef(furr)
+exporter exportRef(kitty,reg)
+define smurgle := kitty <- followRef
+smurgle when (to (arg) {println(arg)})
+smurgle <- printz
+
+// On the lookup end:
+define imp := registrar getSturdyRefFileImporter(environment)
+define catty := imp importRef(lookup)
+define smurgle := catty <- followRef
+smurgle when (to (arg) {println(arg)})
+smurgle <- printz

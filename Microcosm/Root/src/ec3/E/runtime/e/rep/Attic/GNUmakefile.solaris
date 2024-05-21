@@ -1,0 +1,3 @@
+DBLIBNAME	  = libdb.so
+OTHER_LIBS = -L$(BUILD)/lib -ldb
+

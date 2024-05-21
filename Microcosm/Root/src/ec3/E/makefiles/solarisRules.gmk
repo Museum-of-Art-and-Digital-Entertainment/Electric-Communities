@@ -1,0 +1,63 @@
+ifneq ($(USEJNI), no)
+CFLAGS += -DUSEJNI
+endif
+
+$(BUILD)/lib/lib$(MODNAME).$(LIBSUFFIX): $(OBJDIRS) $(FILES.o)
+	@mkdir -p $(dir $@)
+	$(LD) -G -o $@ $(FILES.o) $(OTHER_LIBS)
+
+$(BUILD)/lib/lib$(MODNAME)_g.$(LIBSUFFIX): $(OBJDIRS) $(FILES.o)
+	@mkdir -p $(dir $@)
+	$(LD) -G -o $@ $(FILES.o) $(OTHER_LIBS)
+
+$(FULLSTUBONAME): $(FULLSTUBNAME)
+	@mkdir -p $(dir $@)
+	$(CC) -g -o $@ $(CFLAGS) -c $?
+
+dist:
+	@echo ""
+	@echo ""
+	@echo "    Making distribution from the current build directory."
+	@echo "    This may take a while..."
+	@echo ""
+	@echo ""
+	-$(RM) -rf $(DISTDIR)
+	mkdir -p $(DISTDIR)/solaris/bin
+	mkdir -p $(DISTDIR)/solaris/lib
+	mkdir -p $(DISTDIR)/compute
+	mkdir -p $(DISTDIR)/crew
+	mkdir -p $(DISTDIR)/guest
+	mkdir -p $(DISTDIR)/steward
+	-cp -r $(BUILD)/bin $(DISTDIR)/solaris/
+	-cp -r $(BUILD)/lib $(DISTDIR)/solaris/
+	-cp -r $(BUILD)/classes $(DISTDIR)/classes
+	-cp -r $(BUILD)/compute/classes $(DISTDIR)/compute/
+	-cp -r $(BUILD)/crew/classes $(DISTDIR)/crew/
+	-cp -r $(BUILD)/guest/classes $(DISTDIR)/guest/
+	-cp -r $(BUILD)/steward/classes $(DISTDIR)/steward/
+	-cp -r $(BUILD)/win32 $(DISTDIR)/win32
+	-cd $(DISTDIR)/classes; find . \! -name '*.class' -type f -exec rm {} \;
+	-cd $(DISTDIR)/compute; find . \! -name '*.class' -type f -exec rm {} \;
+	-cd $(DISTDIR)/crew; find . \! -name '*.class' -type f -exec rm {} \;
+	-cd $(DISTDIR)/guest; find . \! -name '*.class' -type f -exec rm {} \;
+	-cd $(DISTDIR)/steward; find . \! -name '*.class' -type f -exec rm {} \;
+	-cd $(DISTDIR)/classes; zip -0 -r -q $(DISTDIR)/classes.zip *
+	-cd $(DISTDIR)/compute/classes; zip -0 -r -q $(DISTDIR)/compute.zip *
+	-cd $(DISTDIR)/crew/classes; zip -0 -r -q $(DISTDIR)/crew.zip *
+	-cd $(DISTDIR)/guest/classes; zip -0 -r -q $(DISTDIR)/guest.zip *
+	-cd $(DISTDIR)/steward/classes; zip -0 -r -q $(DISTDIR)/steward.zip *
+	-cd $(DISTDIR); find . -type d -exec chmod 755 {} \;
+	-cd $(DISTDIR); find . -type f -exec chmod g+r,o+r {} \;
+	-rmdir $(DISTDIR)/classes
+	-rmdir $(DISTDIR)/compute
+	-rmdir $(DISTDIR)/crew
+	-rmdir $(DISTDIR)/guest
+	-rmdir $(DISTDIR)/steward
+	-rmdir $(DISTDIR)/solaris/bin
+	-rmdir $(DISTDIR)/solaris/lib
+	-rmdir $(DISTDIR)/solaris
+	-rmdir $(DISTDIR)/win32/bin
+	-rmdir $(DISTDIR)/win32/lib
+	-rmdir $(DISTDIR)/win32
+	@echo ""
+	@echo "Yowzamatique."

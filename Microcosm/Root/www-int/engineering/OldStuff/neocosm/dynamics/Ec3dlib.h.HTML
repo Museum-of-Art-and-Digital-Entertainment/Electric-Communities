@@ -1,0 +1,357 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<!-- SCC (TM) SOURCE CODE COLORIZER 1.12  Copyright (C) J.M. 1995-1998
+     FILE: C:/download/scc/small/ec3dlib.h.HTML
+     DATE: 06/11/98
+-->
+<HTML>
+<HEAD>
+<TITLE>C:/download/scc/small/ec3dlib.h</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF">
+<PRE>
+<A NAME="L1"><FONT COLOR="#238E23"><I>// ec3dlib.h</I></FONT>
+<A NAME="L2"><FONT COLOR="#238E23"><I>//</I></FONT>
+<A NAME="L3"><FONT COLOR="#238E23"><I>// [10 June 1997 tony] Deleted a lot of &quot;BytesToStruct&quot; &quot;StructToBytes&quot; functions. </I></FONT>
+<A NAME="L4"><FONT COLOR="#238E23"><I>// We'll se if we need them. Also did *tons* of reformatting and spurious trimming</I></FONT>
+<A NAME="L5">
+<A NAME="L6"><FONT COLOR="#FF0000">struct</FONT> ecVector <FONT COLOR="#DB3098">{</FONT>
+<A NAME="L7">  <FONT COLOR="#FF0000">float</FONT> x<FONT COLOR="#9932CD"><B>,</B></FONT> y<FONT COLOR="#9932CD"><B>,</B></FONT> z<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L8"><FONT COLOR="#DB3098">}</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L9">
+<A NAME="L10"><FONT COLOR="#FF0000">struct</FONT> ecVertex <FONT COLOR="#DB3098">{</FONT>
+<A NAME="L11">  <FONT COLOR="#FF0000">float</FONT> x<FONT COLOR="#9932CD"><B>,</B></FONT> y<FONT COLOR="#9932CD"><B>,</B></FONT> z<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L12">  <FONT COLOR="#FF0000">float</FONT> u<FONT COLOR="#9932CD"><B>,</B></FONT> v<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L13"><FONT COLOR="#DB3098">}</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L14">
+<A NAME="L15"><FONT COLOR="#238E23"><I>// As per VRML 2 spec, rotation assumes vector component is normalized</I></FONT>
+<A NAME="L16"><FONT COLOR="#238E23"><I>// and r is in radians</I></FONT>
+<A NAME="L17"><FONT COLOR="#FF0000">struct</FONT> ecRotation <FONT COLOR="#DB3098">{</FONT>
+<A NAME="L18">  <FONT COLOR="#FF0000">float</FONT> x<FONT COLOR="#9932CD"><B>,</B></FONT>y<FONT COLOR="#9932CD"><B>,</B></FONT>z<FONT COLOR="#9932CD"><B>,</B></FONT>r<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L19"><FONT COLOR="#DB3098">}</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L20">
+<A NAME="L21"><FONT COLOR="#FF0000">struct</FONT> ecMatrix <FONT COLOR="#DB3098">{</FONT>
+<A NAME="L22">  <FONT COLOR="#FF0000">float</FONT> fElements<FONT COLOR="#871F78">[</FONT><FONT COLOR="#802000">12</FONT><FONT COLOR="#871F78">]</FONT><FONT COLOR="#9932CD"><B>;</B></FONT> 
+<A NAME="L23"><FONT COLOR="#DB3098">}</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L24">
+<A NAME="L25"><FONT COLOR="#FF0000">struct</FONT> ecMaterial <FONT COLOR="#DB3098">{</FONT>
+<A NAME="L26">  <FONT COLOR="#FF0000">float</FONT>  fAmbient<FONT COLOR="#9932CD"><B>,</B></FONT> fDiffuse<FONT COLOR="#9932CD"><B>,</B></FONT> fSpecular<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L27">  <FONT COLOR="#FF0000">float</FONT>  fTransparency<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L28">  BYTE   r<FONT COLOR="#9932CD"><B>,</B></FONT> g<FONT COLOR="#9932CD"><B>,</B></FONT> b<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L29">  <FONT COLOR="#FF0000">char</FONT>  <FONT COLOR="#3080CA">*</FONT>strTexture<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L30"><FONT COLOR="#DB3098">}</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L31">
+<A NAME="L32"><FONT COLOR="#FF0000">struct</FONT> ecPolygon <FONT COLOR="#DB3098">{</FONT>
+<A NAME="L33">  <FONT COLOR="#FF0000">int</FONT>  MaterialIndex<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L34">  <FONT COLOR="#FF0000">int</FONT>  NumVertices<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L35">  <FONT COLOR="#FF0000">int</FONT>  <FONT COLOR="#3080CA">*</FONT>Vertices<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L36"><FONT COLOR="#DB3098">}</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L37">
+<A NAME="L38"><FONT COLOR="#FF0000">struct</FONT> ecMesh <FONT COLOR="#DB3098">{</FONT>
+<A NAME="L39">  <FONT COLOR="#FF0000">int</FONT>         NumPolygons<FONT COLOR="#9932CD"><B>,</B></FONT> NumVertices<FONT COLOR="#9932CD"><B>,</B></FONT> NumMaterials<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L40">  <FONT COLOR="#FF0000">int</FONT>         PolySize<FONT COLOR="#9932CD"><B>,</B></FONT> VerticesSize<FONT COLOR="#9932CD"><B>,</B></FONT> MaterialsSize<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L41">  BOOL        IsDirty<FONT COLOR="#9932CD"><B>;</B></FONT>     
+<A NAME="L42">  ecV3d       LocalCenter<FONT COLOR="#9932CD"><B>;</B></FONT>           <FONT COLOR="#238E23"><I>// Center of object, used for bounding </I></FONT>
+<A NAME="L43">                                     <FONT COLOR="#238E23"><I>// sphere calculation.</I></FONT>
+<A NAME="L44">  <FONT COLOR="#FF0000">float</FONT>       Radius<FONT COLOR="#9932CD"><B>;</B></FONT>                <FONT COLOR="#238E23"><I>// radius, used for bounding sphere</I></FONT>
+<A NAME="L45">  ecVertex   <FONT COLOR="#3080CA">*</FONT>Vertices<FONT COLOR="#9932CD"><B>;</B></FONT>              <FONT COLOR="#238E23"><I>// array of vertices, used for building polygons</I></FONT>
+<A NAME="L46">  ecPolygon  <FONT COLOR="#3080CA">*</FONT>Polygons<FONT COLOR="#9932CD"><B>;</B></FONT>              <FONT COLOR="#238E23"><I>// array of polygons</I></FONT>
+<A NAME="L47">  ecMaterial <FONT COLOR="#3080CA">*</FONT>Materials<FONT COLOR="#9932CD"><B>;</B></FONT>             <FONT COLOR="#238E23"><I>// array of materials, used for building polygons</I></FONT>
+<A NAME="L48">
+<A NAME="L49">  ecMatrix   <FONT COLOR="#3080CA">*</FONT>StaticMtx<FONT COLOR="#9932CD"><B>;</B></FONT>             <FONT COLOR="#238E23"><I>// matrix that indicates the static (unanimated) geometry</I></FONT>
+<A NAME="L50">  ecMatrix   <FONT COLOR="#3080CA">*</FONT>Matrix<FONT COLOR="#9932CD"><B>;</B></FONT>                <FONT COLOR="#238E23"><I>// matrix that transforms to parent's </I></FONT>
+<A NAME="L51">                                     <FONT COLOR="#238E23"><I>// coordinate system (or to world, if this is root).</I></FONT>
+<A NAME="L52">  <FONT COLOR="#FF0000">char</FONT>       <FONT COLOR="#3080CA">*</FONT>Name<FONT COLOR="#9932CD"><B>;</B></FONT>                  <FONT COLOR="#238E23"><I>// Drawn from DEF name, stripped of suffix</I></FONT>
+<A NAME="L53">  <FONT COLOR="#FF0000">int</FONT>         Tec<FONT COLOR="#9932CD"><B>;</B></FONT>                   <FONT COLOR="#238E23"><I>// [??? tony] tec, currently not assumed to be unique. </I></FONT>
+<A NAME="L54">  ecMesh     <FONT COLOR="#3080CA">*</FONT>Parent<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L55">  ecMesh     <FONT COLOR="#3080CA">*</FONT>NextSibling<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L56">  ecMesh     <FONT COLOR="#3080CA">*</FONT>FirstChild<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L57">
+<A NAME="L58">  <FONT COLOR="#238E23"><I>// AC specific members</I></FONT>
+<A NAME="L59">  <FONT COLOR="#238E23"><I>// XXX - should be able to eliminate this DrawingType</I></FONT>
+<A NAME="L60">  <FONT COLOR="#FF0000">char</FONT>           DrawingType<FONT COLOR="#9932CD"><B>;</B></FONT> 
+<A NAME="L61">  ACPolySetData <FONT COLOR="#3080CA">*</FONT>PolySetData<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L62">  <FONT COLOR="#FF0000">long</FONT>           PolySet<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L63">
+<A NAME="L64">  <FONT COLOR="#238E23"><I>// Needed for cartoons:</I></FONT>
+<A NAME="L65">  <FONT COLOR="#FF0000">long</FONT>           CartoonStyle<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L66">  ACContext      Context<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L67">  CartoonData   <FONT COLOR="#3080CA">*</FONT>CartoonData<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L68"><FONT COLOR="#DB3098">}</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L69">
+<A NAME="L70"><FONT COLOR="#238E23"><I>// [??? tony] These animation structures could use some work</I></FONT>
+<A NAME="L71"><FONT COLOR="#238E23"><I>// I'd suggest investigating parsers, designing our anim feature </I></FONT>
+<A NAME="L72"><FONT COLOR="#238E23"><I>// list before reworking these...</I></FONT>
+<A NAME="L73"><FONT COLOR="#FF0000">struct</FONT> ecAnimation <FONT COLOR="#DB3098">{</FONT>
+<A NAME="L74">  <FONT COLOR="#FF0000">int</FONT>               Index<FONT COLOR="#9932CD"><B>;</B></FONT>           <FONT COLOR="#238E23"><I>// Identifies uniquely the animation within </I></FONT>
+<A NAME="L75">                                     <FONT COLOR="#238E23"><I>// the avatars array of animations.</I></FONT>
+<A NAME="L76">  <FONT COLOR="#FF0000">int</FONT>               NumFrames<FONT COLOR="#9932CD"><B>;</B></FONT>       <FONT COLOR="#238E23"><I>// Total number of frames of this animation</I></FONT>
+<A NAME="L77">  <FONT COLOR="#FF0000">int</FONT>               LoopCount<FONT COLOR="#9932CD"><B>;</B></FONT>       <FONT COLOR="#238E23"><I>// Number of times loop will be repeated</I></FONT>
+<A NAME="L78">  UInt32            Duration<FONT COLOR="#9932CD"><B>;</B></FONT>        <FONT COLOR="#238E23"><I>// Length of animation duration in milliseconds.</I></FONT>
+<A NAME="L79">  ecKeyAnimation   <FONT COLOR="#3080CA">*</FONT>KeyAnimation<FONT COLOR="#9932CD"><B>;</B></FONT>    
+<A NAME="L80">  UInt32           <FONT COLOR="#3080CA">*</FONT>nTimePerFrame<FONT COLOR="#9932CD"><B>;</B></FONT>   <FONT COLOR="#238E23"><I>// Time in milliseconds.  Identical to </I></FONT>
+<A NAME="L81">                                     <FONT COLOR="#238E23"><I>// the keys in VRML, only in units of ms.</I></FONT>
+<A NAME="L82">  <FONT COLOR="#238E23"><I>// transient</I></FONT>
+<A NAME="L83">  Int64             StartTime<FONT COLOR="#9932CD"><B>;</B></FONT>       <FONT COLOR="#238E23"><I>// Start time in milliseconds?</I></FONT>
+<A NAME="L84">  BOOL              ForceLoop<FONT COLOR="#9932CD"><B>;</B></FONT>       <FONT COLOR="#238E23"><I>// Animation is currently looping</I></FONT>
+<A NAME="L85">  BOOL              PlayWithReset<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L86">
+<A NAME="L87">  <FONT COLOR="#FF0000">int</FONT>               CurrentLoop<FONT COLOR="#9932CD"><B>;</B></FONT>     <FONT COLOR="#238E23"><I>// Current loop being executed</I></FONT>
+<A NAME="L88">  UInt32            TotalDuration<FONT COLOR="#9932CD"><B>;</B></FONT>   <FONT COLOR="#238E23"><I>// The total length of time in milliseconds</I></FONT>
+<A NAME="L89">                                     <FONT COLOR="#238E23"><I>// that animation is expected to be looping.</I></FONT>
+<A NAME="L90"><FONT COLOR="#DB3098">}</FONT>                                    <FONT COLOR="#238E23"><I>// (LoopCount*Duration)</I></FONT>
+<A NAME="L91">
+<A NAME="L92"><FONT COLOR="#FF0000">struct</FONT> ecKeyAnimation <FONT COLOR="#DB3098">{</FONT>
+<A NAME="L93">  <FONT COLOR="#FF0000">int</FONT>          NumAnimatedParts<FONT COLOR="#9932CD"><B>;</B></FONT>     <FONT COLOR="#238E23"><I>// The number of body parts to be animated.</I></FONT>
+<A NAME="L94">  BOOL         Interpolate<FONT COLOR="#9932CD"><B>;</B></FONT>          <FONT COLOR="#238E23"><I>// TRUE if animation will interpolate between</I></FONT>
+<A NAME="L95">                                     <FONT COLOR="#238E23"><I>// frames (XXX - this is not supported yet as </I></FONT>
+<A NAME="L96">                                     <FONT COLOR="#238E23"><I>// of 2/10/97).</I></FONT>
+<A NAME="L97">  ecKeyData   <FONT COLOR="#3080CA">*</FONT>KeyData<FONT COLOR="#9932CD"><B>;</B></FONT>              <FONT COLOR="#238E23"><I>// An array of structures, w/ one element</I></FONT>
+<A NAME="L98">                                     <FONT COLOR="#238E23"><I>// for each body part, that contains the info</I></FONT>
+<A NAME="L99">                                     <FONT COLOR="#238E23"><I>// necessary to animate that body part.</I></FONT>
+<A NAME="L100"><FONT COLOR="#DB3098">}</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L101">
+<A NAME="L102"><FONT COLOR="#FF0000">struct</FONT> ecKeyData <FONT COLOR="#DB3098">{</FONT>
+<A NAME="L103">  ecMatrix <FONT COLOR="#3080CA">**</FONT>pTransformations<FONT COLOR="#9932CD"><B>;</B></FONT>       <FONT COLOR="#238E23"><I>// An array of matrices, with one matrix</I></FONT>
+<A NAME="L104">                                     <FONT COLOR="#238E23"><I>// for each frame in the animation</I></FONT>
+<A NAME="L105">  ecMesh    <FONT COLOR="#3080CA">*</FONT>Mesh<FONT COLOR="#9932CD"><B>;</B></FONT>             
+<A NAME="L106"><FONT COLOR="#DB3098">}</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L107">
+<A NAME="L108">
+<A NAME="L109">
+<A NAME="L110">
+<A NAME="L111"><FONT COLOR="#238E23"><I>// Any Channel Specific structures</I></FONT>
+<A NAME="L112">
+<A NAME="L113"><FONT COLOR="#FF0000">struct</FONT> EcSlots <FONT COLOR="#DB3098">{</FONT>
+<A NAME="L114">  <FONT COLOR="#FF0000">int</FONT>          NumRegPoints<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L115">  <FONT COLOR="#FF0000">char</FONT>       <FONT COLOR="#3080CA">**</FONT>sRegPointNames<FONT COLOR="#9932CD"><B>;</B></FONT>       <FONT COLOR="#238E23"><I>// An array of strings containing all the</I></FONT>
+<A NAME="L116">                                     <FONT COLOR="#238E23"><I>// names of the registration points.</I></FONT>
+<A NAME="L117">  ecMesh     <FONT COLOR="#3080CA">**</FONT>pRpBodyParts<FONT COLOR="#9932CD"><B>;</B></FONT>         <FONT COLOR="#238E23"><I>// Array of pointers to Polytree body parts,</I></FONT>
+<A NAME="L118">                                     <FONT COLOR="#238E23"><I>// corresponding to each registration point.</I></FONT>
+<A NAME="L119">                                     <FONT COLOR="#238E23"><I>// These must be placed in the same order</I></FONT>
+<A NAME="L120">                                     <FONT COLOR="#238E23"><I>// as the sRegPointNames.</I></FONT>
+<A NAME="L121">  ecVector    <FONT COLOR="#3080CA">*</FONT>vRpOffsets<FONT COLOR="#9932CD"><B>;</B></FONT>           <FONT COLOR="#238E23"><I>// Offset for each registration pt, </I></FONT>
+<A NAME="L122">                                     <FONT COLOR="#238E23"><I>//        in same order as above.</I></FONT>
+<A NAME="L123">  ecVector    <FONT COLOR="#3080CA">*</FONT>vRpOrientation<FONT COLOR="#9932CD"><B>;</B></FONT>       <FONT COLOR="#238E23"><I>// Vector signifying orientation of slot.</I></FONT>
+<A NAME="L124">  <FONT COLOR="#FF0000">float</FONT>       <FONT COLOR="#3080CA">*</FONT>fLastYaw<FONT COLOR="#9932CD"><B>;</B></FONT>             <FONT COLOR="#238E23"><I>// The last yaw computed from atan2.</I></FONT>
+<A NAME="L125"><FONT COLOR="#DB3098">}</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L126">
+<A NAME="L127"><FONT COLOR="#FF0000">struct</FONT> SPick
+<A NAME="L128"><FONT COLOR="#DB3098">{</FONT>
+<A NAME="L129">  EPickType    eType<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L130">  <FONT COLOR="#FF0000">int</FONT>          nCellX<FONT COLOR="#9932CD"><B>,</B></FONT> nCellY<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L131">  <FONT COLOR="#FF0000">void</FONT>        <FONT COLOR="#3080CA">*</FONT>pObject<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L132">  RwPolygon3d <FONT COLOR="#3080CA">*</FONT>pPolygon<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L133"><FONT COLOR="#DB3098">}</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L134">
+<A NAME="L135">
+<A NAME="L136">
+<A NAME="L137"><FONT COLOR="#238E23"><I>// [??? tony] This has always been ugly.</I></FONT>
+<A NAME="L138"><FONT COLOR="#238E23"><I>// Let's lose it, please </I></FONT>
+<A NAME="L139"><FONT COLOR="#FF0000">struct</FONT> ecAvatar
+<A NAME="L140"><FONT COLOR="#DB3098">{</FONT>
+<A NAME="L141">  <FONT COLOR="#FF0000">int</FONT>           NumAnimations<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L142">  <FONT COLOR="#FF0000">int</FONT>           NumRunning<FONT COLOR="#9932CD"><B>;</B></FONT>          <FONT COLOR="#238E23"><I>// NumRunning is the number of</I></FONT>
+<A NAME="L143">                                     <FONT COLOR="#238E23"><I>// entries in the nCurrentRunning array</I></FONT>
+<A NAME="L144">                                     <FONT COLOR="#238E23"><I>// that are relevant.</I></FONT>
+<A NAME="L145">  <FONT COLOR="#FF0000">int</FONT>           NumAllocated<FONT COLOR="#9932CD"><B>;</B></FONT>        <FONT COLOR="#238E23"><I>// nNumAllocated gives the size for both</I></FONT>
+<A NAME="L146">                                     <FONT COLOR="#238E23"><I>// the Animation array and the</I></FONT>
+<A NAME="L147">                                     <FONT COLOR="#238E23"><I>// the nCurrentRunning.</I></FONT>
+<A NAME="L148">  <FONT COLOR="#FF0000">int</FONT>           NumMacros<FONT COLOR="#9932CD"><B>;</B></FONT>           <FONT COLOR="#238E23"><I>// The macro variables parallel the </I></FONT>
+<A NAME="L149">  <FONT COLOR="#FF0000">int</FONT>           NumRunningMacros<FONT COLOR="#9932CD"><B>;</B></FONT>    <FONT COLOR="#238E23"><I>// animation variables above.</I></FONT>
+<A NAME="L150">  <FONT COLOR="#FF0000">int</FONT>           NumMacrosAllocated<FONT COLOR="#9932CD"><B>;</B></FONT>    
+<A NAME="L151">
+<A NAME="L152">  <FONT COLOR="#FF0000">int</FONT>           NumLods<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L153">  <FONT COLOR="#FF0000">int</FONT>           CurrentLod<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L154">  BOOL          FlippingYZ<FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L155">  ecMesh      <FONT COLOR="#3080CA">**</FONT>pLodArray<FONT COLOR="#9932CD"><B>;</B></FONT>           <FONT COLOR="#238E23"><I>// an array of pointers to polytrees, each</I></FONT>
+<A NAME="L156">                                     <FONT COLOR="#238E23"><I>// one corresponding to one LOD element.</I></FONT>
+<A NAME="L157">  ecAnimation <FONT COLOR="#3080CA">**</FONT>pAnimation<FONT COLOR="#9932CD"><B>;</B></FONT>          <FONT COLOR="#238E23"><I>// an array of pointers to animation</I></FONT>
+<A NAME="L158">                                     <FONT COLOR="#238E23"><I>// structures (objects).</I></FONT>
+<A NAME="L159">  <FONT COLOR="#FF0000">int</FONT>          <FONT COLOR="#3080CA">*</FONT>nCurrentRunning<FONT COLOR="#9932CD"><B>;</B></FONT>     <FONT COLOR="#238E23"><I>// Array of indices to the animations that</I></FONT>
+<A NAME="L160">                                     <FONT COLOR="#238E23"><I>// are currently running.</I></FONT>
+<A NAME="L161">  ecAnimMacro <FONT COLOR="#3080CA">**</FONT>pAnimMacro<FONT COLOR="#9932CD"><B>;</B></FONT>          <FONT COLOR="#238E23"><I>// an array of pointers to animation</I></FONT>
+<A NAME="L162">                                     <FONT COLOR="#238E23"><I>// structures (objects).</I></FONT>
+<A NAME="L163">  <FONT COLOR="#FF0000">int</FONT>          <FONT COLOR="#3080CA">*</FONT>nRunningMacros<FONT COLOR="#9932CD"><B>;</B></FONT>      <FONT COLOR="#238E23"><I>// Array of indices to the animations that</I></FONT>
+<A NAME="L164">                                     <FONT COLOR="#238E23"><I>// are currently running.</I></FONT>
+<A NAME="L165">  <FONT COLOR="#FF0000">void</FONT>         <FONT COLOR="#3080CA">*</FONT>UserData<FONT COLOR="#9932CD"><B>;</B></FONT>            <FONT COLOR="#238E23"><I>// This is holding data for the slots in</I></FONT>
+<A NAME="L166">                                     <FONT COLOR="#238E23"><I>// EC, but is made void *, so as not to</I></FONT>
+<A NAME="L167">                                     <FONT COLOR="#238E23"><I>// be EC specific.</I></FONT>
+<A NAME="L168"><FONT COLOR="#DB3098">}</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L169">
+<A NAME="L170">
+<A NAME="L171"><FONT COLOR="#238E23"><I>// VRML Export Functions</I></FONT>
+<A NAME="L172">
+<A NAME="L173">ecExportVrml20<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> fstream<FONT COLOR="#3080CA">&amp;</FONT> stream<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>      <FONT COLOR="#238E23"><I>// exports everything</I></FONT>
+<A NAME="L174">
+<A NAME="L175">ExportVrml20Geometry<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT>                  <FONT COLOR="#238E23"><I>// exports geometry only</I></FONT>
+<A NAME="L176">                     fstream <FONT COLOR="#3080CA">&amp;</FONT>stream<FONT COLOR="#9932CD"><B>,</B></FONT> 
+<A NAME="L177">                     BOOL bTopLevel<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L178">ecExportVrml20Animation<FONT COLOR="#FF00FF">(</FONT>ecAnimation <FONT COLOR="#3080CA">*</FONT>pAnimation<FONT COLOR="#9932CD"><B>,</B></FONT>	 <FONT COLOR="#238E23"><I>// exports animation only</I></FONT>
+<A NAME="L179">                        ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT>
+<A NAME="L180">                        <FONT COLOR="#FF0000">int</FONT> nStartingFrame<FONT COLOR="#9932CD"><B>,</B></FONT> 
+<A NAME="L181">                        <FONT COLOR="#FF0000">int</FONT> nEndingFrame<FONT COLOR="#9932CD"><B>,</B></FONT>
+<A NAME="L182">                        fstream<FONT COLOR="#3080CA">&amp;</FONT> stream<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L183">
+<A NAME="L184"><FONT COLOR="#238E23"><I>// Mesh functions</I></FONT>
+<A NAME="L185">
+<A NAME="L186">ecMeshToBytes<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> BYTE <FONT COLOR="#3080CA">**</FONT>pabtBytes<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L187">ecBytesToMesh<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">**</FONT>ppMesh<FONT COLOR="#9932CD"><B>,</B></FONT> BYTE <FONT COLOR="#3080CA">*</FONT>abtBytes<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L188">
+<A NAME="L189">ecCreateMesh<FONT COLOR="#FF00FF">(</FONT>ecMesh  <FONT COLOR="#3080CA">**</FONT>ppPolyMesh<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L190">ecDestroyMesh<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L191">ecDestroySingleMesh<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L192">
+<A NAME="L193">ecAddChild<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pParent<FONT COLOR="#9932CD"><B>,</B></FONT> ecMesh <FONT COLOR="#3080CA">*</FONT>pChild<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L194">ecDetachChild<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pParent<FONT COLOR="#9932CD"><B>,</B></FONT> ecMesh <FONT COLOR="#3080CA">*</FONT>pChild<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L195">
+<A NAME="L196">ecAddPolygon<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">int</FONT> nNumVerts<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">int</FONT> aVerts<FONT COLOR="#871F78">[</FONT><FONT COLOR="#871F78">]</FONT><FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">int</FONT> nMaterial<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L197">ecAddVertex<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">int</FONT> <FONT COLOR="#3080CA">*</FONT>pnVertIndex<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">float</FONT> x<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">float</FONT> y<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">float</FONT> z<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L198">ecAddVertexExt<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">int</FONT> <FONT COLOR="#3080CA">*</FONT>pnVertIndex<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">float</FONT> x<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">float</FONT> y<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">float</FONT> z<FONT COLOR="#9932CD"><B>,</B></FONT>
+<A NAME="L199">                                   <FONT COLOR="#FF0000">float</FONT> u<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">float</FONT> v<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L200">ecMesh<FONT COLOR="#3080CA">*</FONT> ecFindMeshByName<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">char</FONT> <FONT COLOR="#3080CA">*</FONT>sName<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L201">ecSetName<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">char</FONT> <FONT COLOR="#3080CA">*</FONT>sName<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L202">ecGetName<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">char</FONT> <FONT COLOR="#3080CA">*</FONT>sName<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L203">
+<A NAME="L204">ecMaterial<FONT COLOR="#3080CA">*</FONT> ecGetMaterial<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">int</FONT> nMatIndex<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L205">
+<A NAME="L206"><FONT COLOR="#238E23"><I>// Matrix Functions</I></FONT>
+<A NAME="L207">
+<A NAME="L208">ecCopyMatrix     <FONT COLOR="#FF00FF">(</FONT>ecMatrix <FONT COLOR="#3080CA">*</FONT>pDest<FONT COLOR="#9932CD"><B>,</B></FONT> ecMatrix <FONT COLOR="#3080CA">*</FONT>pSource<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L209">ecCreateMatrix   <FONT COLOR="#FF00FF">(</FONT>ecMatrix <FONT COLOR="#3080CA">**</FONT>ppMatrix<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L210">ecCreateCoordSys <FONT COLOR="#FF00FF">(</FONT>ecMatrix <FONT COLOR="#3080CA">**</FONT>ppNewCoordSys<FONT COLOR="#9932CD"><B>,</B></FONT> ecVector<FONT COLOR="#3080CA">*</FONT> pvTranslation<FONT COLOR="#9932CD"><B>,</B></FONT> ecVector<FONT COLOR="#3080CA">*</FONT> pvRPY<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L211">ecDecomposeMatrix<FONT COLOR="#FF00FF">(</FONT>ecMatrix<FONT COLOR="#3080CA">*</FONT> pMatrix<FONT COLOR="#9932CD"><B>,</B></FONT> ecRotation <FONT COLOR="#3080CA">*</FONT>pvRotation<FONT COLOR="#9932CD"><B>,</B></FONT> ecVector <FONT COLOR="#3080CA">*</FONT>pvScale<FONT COLOR="#9932CD"><B>,</B></FONT> 
+<A NAME="L212">                  ecVector <FONT COLOR="#3080CA">*</FONT>pvTranslate<FONT COLOR="#9932CD"><B>,</B></FONT> ecRotation <FONT COLOR="#3080CA">*</FONT>prScaleOrient<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L213">
+<A NAME="L214">ecDestroyMatrix  <FONT COLOR="#FF00FF">(</FONT>ecMatrix <FONT COLOR="#3080CA">*</FONT>pMatrix<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L215">ecIdentityMatrix <FONT COLOR="#FF00FF">(</FONT>ecMatrix <FONT COLOR="#3080CA">*</FONT>pMatrix<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L216">ecInterpolateMatrices<FONT COLOR="#FF00FF">(</FONT>ecMatrix <FONT COLOR="#3080CA">*</FONT>pDestination<FONT COLOR="#9932CD"><B>,</B></FONT> ecMatrix <FONT COLOR="#3080CA">*</FONT>pFirst<FONT COLOR="#9932CD"><B>,</B></FONT> 
+<A NAME="L217">                      ecMatrix <FONT COLOR="#3080CA">*</FONT>pSecond<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">float</FONT> fInterpVal<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L218">ecInvertMatrix<FONT COLOR="#FF00FF">(</FONT>ecMatrix <FONT COLOR="#3080CA">*</FONT>pResult<FONT COLOR="#9932CD"><B>,</B></FONT> ecMatrix <FONT COLOR="#3080CA">*</FONT>pMatrix<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L219">
+<A NAME="L220">ecRotateMatrix   <FONT COLOR="#FF00FF">(</FONT>ecMatrix <FONT COLOR="#3080CA">*</FONT>pMatrix<FONT COLOR="#9932CD"><B>,</B></FONT> ecRotation <FONT COLOR="#3080CA">*</FONT>pRot<FONT COLOR="#9932CD"><B>,</B></FONT> ECombinationType eCType<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L221">ecScaleMatrix    <FONT COLOR="#FF00FF">(</FONT>ecMatrix <FONT COLOR="#3080CA">*</FONT>pMatrix<FONT COLOR="#9932CD"><B>,</B></FONT> ecVector <FONT COLOR="#3080CA">*</FONT>pScale<FONT COLOR="#9932CD"><B>,</B></FONT> ECombinationType eCType<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L222">ecTransformMatrix<FONT COLOR="#FF00FF">(</FONT>ecMatrix <FONT COLOR="#3080CA">*</FONT>pDest<FONT COLOR="#9932CD"><B>,</B></FONT> ecMatrix <FONT COLOR="#3080CA">*</FONT>pSource<FONT COLOR="#9932CD"><B>,</B></FONT> ECombinationType eCType<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L223">ecTranslateMatrix<FONT COLOR="#FF00FF">(</FONT>ecMatrix <FONT COLOR="#3080CA">*</FONT>pDest<FONT COLOR="#9932CD"><B>,</B></FONT> ecVector <FONT COLOR="#3080CA">*</FONT>pTrans<FONT COLOR="#9932CD"><B>,</B></FONT> ECombinationType eCType<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L224">
+<A NAME="L225"><FONT COLOR="#238E23"><I>// Roll, pitch, yaw functions</I></FONT>
+<A NAME="L226">
+<A NAME="L227">ecRollToRotationMatrix<FONT COLOR="#FF00FF">(</FONT>ecMatrix <FONT COLOR="#3080CA">*</FONT>pRotMtx<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">float</FONT> fYaw<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L228">ecRpyToRotationMatrix<FONT COLOR="#FF00FF">(</FONT>ecMatrix <FONT COLOR="#3080CA">*</FONT>pRotMtx<FONT COLOR="#9932CD"><B>,</B></FONT> ecVector <FONT COLOR="#3080CA">*</FONT>pRPY<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L229">
+<A NAME="L230"><FONT COLOR="#238E23"><I>// Vector/Point Functions:</I></FONT>
+<A NAME="L231">
+<A NAME="L232">ecTransformPoint <FONT COLOR="#FF00FF">(</FONT>ecMatrix <FONT COLOR="#3080CA">*</FONT>pTransform<FONT COLOR="#9932CD"><B>,</B></FONT> ecVector <FONT COLOR="#3080CA">*</FONT>pPoint<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L233">ecTransformVertex<FONT COLOR="#FF00FF">(</FONT>ecMatrix <FONT COLOR="#3080CA">*</FONT>pTransform<FONT COLOR="#9932CD"><B>,</B></FONT> ecVertex <FONT COLOR="#3080CA">*</FONT>pVertex<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L234">ecTransformVector<FONT COLOR="#FF00FF">(</FONT>ecMatrix <FONT COLOR="#3080CA">*</FONT>pTransform<FONT COLOR="#9932CD"><B>,</B></FONT> ecVector <FONT COLOR="#3080CA">*</FONT>pVector<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L235">ecCopyVertex<FONT COLOR="#FF00FF">(</FONT>ecVertex <FONT COLOR="#3080CA">*</FONT>pvDest<FONT COLOR="#9932CD"><B>,</B></FONT> ecVertex <FONT COLOR="#3080CA">*</FONT>pvSource<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L236">ecCrossProduct<FONT COLOR="#FF00FF">(</FONT>ecVector <FONT COLOR="#3080CA">*</FONT>pvResult<FONT COLOR="#9932CD"><B>,</B></FONT> ecVector <FONT COLOR="#3080CA">*</FONT>pvVector1<FONT COLOR="#9932CD"><B>,</B></FONT> ecVector <FONT COLOR="#3080CA">*</FONT>pvVector2<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L237">ecNormalize<FONT COLOR="#FF00FF">(</FONT>ecVector <FONT COLOR="#3080CA">*</FONT>pv<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L238">ecSubtract<FONT COLOR="#FF00FF">(</FONT>ecVector <FONT COLOR="#3080CA">*</FONT>pvResult<FONT COLOR="#9932CD"><B>,</B></FONT> ecVector <FONT COLOR="#3080CA">*</FONT>pvVector1<FONT COLOR="#9932CD"><B>,</B></FONT> ecVector <FONT COLOR="#3080CA">*</FONT>pvVector2<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L239"><FONT COLOR="#FF0000">float</FONT>  ecCalcDistance<FONT COLOR="#FF00FF">(</FONT>ecVector <FONT COLOR="#3080CA">*</FONT>pvVector1<FONT COLOR="#9932CD"><B>,</B></FONT> ecVector <FONT COLOR="#3080CA">*</FONT>pvVector2<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L240">
+<A NAME="L241">
+<A NAME="L242">
+<A NAME="L243"><FONT COLOR="#238E23"><I>// Misc</I></FONT>
+<A NAME="L244">ecGetGlobalBoundingBox<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> ecVector <FONT COLOR="#3080CA">*</FONT>pvBackLowerLeft<FONT COLOR="#9932CD"><B>,</B></FONT> 
+<A NAME="L245">                       ecVector <FONT COLOR="#3080CA">*</FONT>pvFrontUpperRight<FONT COLOR="#9932CD"><B>,</B></FONT> BOOL <FONT COLOR="#3080CA">*</FONT>pbNoVertices<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L246">ecGetLocalBoundingBox<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> ecVector <FONT COLOR="#3080CA">*</FONT>pvBackLowerLeft<FONT COLOR="#9932CD"><B>,</B></FONT> 
+<A NAME="L247">                      ecVector <FONT COLOR="#3080CA">*</FONT>pvFrontUpperRight<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L248">
+<A NAME="L249">
+<A NAME="L250"><FONT COLOR="#238E23"><I>// Pivot Boxes</I></FONT>
+<A NAME="L251">ecResetFromPivotPoints<FONT COLOR="#FF00FF">(</FONT>ecMesh  <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> ecAnimation <FONT COLOR="#3080CA">*</FONT>pAnimation<FONT COLOR="#9932CD"><B>,</B></FONT> 
+<A NAME="L252">                       BOOL bUseOrientation<FONT COLOR="#9932CD"><B>,</B></FONT> BOOL bIsTop<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L253">
+<A NAME="L254">ResetSingleFromPivotPoint<FONT COLOR="#FF00FF">(</FONT>ecMesh  <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> ecAnimation <FONT COLOR="#3080CA">*</FONT>pAnimation<FONT COLOR="#9932CD"><B>,</B></FONT> 
+<A NAME="L255">                          BOOL bUseOrientation<FONT COLOR="#9932CD"><B>,</B></FONT> BOOL bIsTop<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L256">
+<A NAME="L257">ecFindOrientationAndOrigin<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pPivotMesh<FONT COLOR="#9932CD"><B>,</B></FONT> ecVector <FONT COLOR="#3080CA">*</FONT>pvOrientation<FONT COLOR="#9932CD"><B>,</B></FONT> 
+<A NAME="L258">                           ecVector <FONT COLOR="#3080CA">*</FONT>pvOrigin<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L259">
+<A NAME="L260">ecFindWorldOrientationAndOrigin<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pPivotMesh<FONT COLOR="#9932CD"><B>,</B></FONT> ecVector  <FONT COLOR="#3080CA">*</FONT>pvOrientation<FONT COLOR="#9932CD"><B>,</B></FONT>
+<A NAME="L261">                                ecVector  <FONT COLOR="#3080CA">*</FONT>pvOrigin<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L262">
+<A NAME="L263">FindAxesAndOrigin<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pPivotMesh<FONT COLOR="#9932CD"><B>,</B></FONT> ecMatrix  <FONT COLOR="#3080CA">*</FONT>pParentMatrix<FONT COLOR="#9932CD"><B>,</B></FONT> 
+<A NAME="L264">                  ecPolygon <FONT COLOR="#3080CA">*</FONT>pPolygon<FONT COLOR="#9932CD"><B>,</B></FONT> ecVector <FONT COLOR="#3080CA">*</FONT>pvXAxis<FONT COLOR="#9932CD"><B>,</B></FONT> ecVector <FONT COLOR="#3080CA">*</FONT>pvYAxis<FONT COLOR="#9932CD"><B>,</B></FONT>
+<A NAME="L265">				  ecVector <FONT COLOR="#3080CA">*</FONT>pvZAxis<FONT COLOR="#9932CD"><B>,</B></FONT> ecVector <FONT COLOR="#3080CA">*</FONT>pvOrigin<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L266">
+<A NAME="L267">FindWorldAxesAndOrigin<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pPivotMesh<FONT COLOR="#9932CD"><B>,</B></FONT> ecMatrix  <FONT COLOR="#3080CA">*</FONT>pParentMatrix<FONT COLOR="#9932CD"><B>,</B></FONT> 
+<A NAME="L268">					   ecPolygon <FONT COLOR="#3080CA">*</FONT>pPolygon<FONT COLOR="#9932CD"><B>,</B></FONT>ecVector  <FONT COLOR="#3080CA">*</FONT>pvXAxis<FONT COLOR="#9932CD"><B>,</B></FONT> 
+<A NAME="L269">					   ecVector <FONT COLOR="#3080CA">*</FONT>pvYAxis<FONT COLOR="#9932CD"><B>,</B></FONT> ecVector  <FONT COLOR="#3080CA">*</FONT>pvZAxis<FONT COLOR="#9932CD"><B>,</B></FONT>  
+<A NAME="L270">					   ecVector <FONT COLOR="#3080CA">*</FONT>pvOrigin<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L271">
+<A NAME="L272">
+<A NAME="L273">GetLocalCenterAndRadius<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> ecVector <FONT COLOR="#3080CA">*</FONT>pvLocalCenter<FONT COLOR="#9932CD"><B>,</B></FONT> 
+<A NAME="L274">                        <FONT COLOR="#FF0000">float</FONT> <FONT COLOR="#3080CA">*</FONT>pfRadius<FONT COLOR="#9932CD"><B>,</B></FONT> ecMatrix <FONT COLOR="#3080CA">*</FONT>pLocal2World<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L275">GetSingleGlobalBoundingBox<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pTree<FONT COLOR="#9932CD"><B>,</B></FONT> ecVector <FONT COLOR="#3080CA">*</FONT>pvBll<FONT COLOR="#9932CD"><B>,</B></FONT> 
+<A NAME="L276">                           ecVector <FONT COLOR="#3080CA">*</FONT>pvFur<FONT COLOR="#9932CD"><B>,</B></FONT> BOOL <FONT COLOR="#3080CA">*</FONT>pbNoVertices<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L277">
+<A NAME="L278">ReverseNegScaleWinding<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> BOOL bReverse<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L279">
+<A NAME="L280"><FONT COLOR="#238E23"><I>// Animation Functions</I></FONT>
+<A NAME="L281">ecAddAnimation<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> ecAnimation <FONT COLOR="#3080CA">*</FONT>pAnimation<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L282">ecAnimationIsRunning<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">int</FONT> nAnimIndex<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L283">ecAnimationToBytes<FONT COLOR="#FF00FF">(</FONT>ecAnimation <FONT COLOR="#3080CA">*</FONT>pAnimation<FONT COLOR="#9932CD"><B>,</B></FONT> BYTE <FONT COLOR="#3080CA">**</FONT>pabtBuffer<FONT COLOR="#9932CD"><B>,</B></FONT>
+<A NAME="L284">				   <FONT COLOR="#FF0000">int</FONT> <FONT COLOR="#3080CA">*</FONT>pnBufIndex<FONT COLOR="#9932CD"><B>,</B></FONT> ecMesh <FONT COLOR="#3080CA">**</FONT>aMeshPtrs<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">int</FONT> nNumMeshPtrs<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L285">ecBytesToAnimation<FONT COLOR="#FF00FF">(</FONT>ecAnimation <FONT COLOR="#3080CA">**</FONT>ppAnimation<FONT COLOR="#9932CD"><B>,</B></FONT> BYTE <FONT COLOR="#3080CA">*</FONT>abtBuffer<FONT COLOR="#9932CD"><B>,</B></FONT> 
+<A NAME="L286">                   <FONT COLOR="#FF0000">int</FONT> <FONT COLOR="#3080CA">*</FONT>pnBufIndex<FONT COLOR="#9932CD"><B>,</B></FONT> ecMesh <FONT COLOR="#3080CA">**</FONT>aMeshPtrs<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">int</FONT> nNumMeshPtrs<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L287">ecCreateAnimation<FONT COLOR="#FF00FF">(</FONT>ecAnimation <FONT COLOR="#3080CA">**</FONT>ppAnimation<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L288">ecConvertToNewMesh<FONT COLOR="#FF00FF">(</FONT>ecAnimation <FONT COLOR="#3080CA">*</FONT>pAnim<FONT COLOR="#9932CD"><B>,</B></FONT> ecMesh <FONT COLOR="#3080CA">*</FONT>pNewMesh<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L289">ecDestroyAnimation<FONT COLOR="#FF00FF">(</FONT>ecAnimation<FONT COLOR="#3080CA">*</FONT> pAnimation<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L290">ecExtractVelocity<FONT COLOR="#FF00FF">(</FONT>ecAnimation <FONT COLOR="#3080CA">*</FONT>pAnimation<FONT COLOR="#9932CD"><B>,</B></FONT> ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">int</FONT> nStartingFrame<FONT COLOR="#9932CD"><B>,</B></FONT> 
+<A NAME="L291">                  <FONT COLOR="#FF0000">int</FONT> nEndingFrame<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">float</FONT> <FONT COLOR="#3080CA">*</FONT>pfDeltaX<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">float</FONT> <FONT COLOR="#3080CA">*</FONT>pfDeltaZ<FONT COLOR="#9932CD"><B>,</B></FONT> 
+<A NAME="L292">                  <FONT COLOR="#FF0000">float</FONT> <FONT COLOR="#3080CA">*</FONT>pfCycleInterval<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L293">ecPlayAnimation<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> ecAnimation <FONT COLOR="#3080CA">*</FONT>pAnimation<FONT COLOR="#9932CD"><B>,</B></FONT> Int64 nStartTime<FONT COLOR="#9932CD"><B>,</B></FONT> 
+<A NAME="L294">                BOOL bForceLoop<FONT COLOR="#9932CD"><B>,</B></FONT> BOOL bInterpolate<FONT COLOR="#9932CD"><B>,</B></FONT> BOOL bPlayWithReset<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L295">ecRemoveAnimation<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> ecAnimation <FONT COLOR="#3080CA">*</FONT>pAnimation<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L296">ecRemoveJerk<FONT COLOR="#FF00FF">(</FONT>ecAnimation <FONT COLOR="#3080CA">*</FONT>pAnimation<FONT COLOR="#9932CD"><B>,</B></FONT> ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> 
+<A NAME="L297">             BOOL bIncludeX<FONT COLOR="#9932CD"><B>,</B></FONT> BOOL bIncludeY<FONT COLOR="#9932CD"><B>,</B></FONT> BOOL bIncludeZ<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L298">ecSetAnimationFrame<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> ecAnimation <FONT COLOR="#3080CA">*</FONT>pAnimation<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">int</FONT> nFrame<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L299">ecStopAnimation<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> ecAnimation <FONT COLOR="#3080CA">*</FONT>pAnimation<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L300">ecStopAnimationAndReset<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> ecAnimation <FONT COLOR="#3080CA">*</FONT>pAnimation<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L301">ecUpdateAllAnimations<FONT COLOR="#FF00FF">(</FONT>ecMesh<FONT COLOR="#3080CA">*</FONT> pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> Int64 nNow<FONT COLOR="#9932CD"><B>,</B></FONT> 
+<A NAME="L302">                      ecAnimation <FONT COLOR="#3080CA">**</FONT>apStoppedAnimations<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L303">AdjustToNewParentTransform<FONT COLOR="#FF00FF">(</FONT>ecAnimation <FONT COLOR="#3080CA">*</FONT>pAnimation<FONT COLOR="#9932CD"><B>,</B></FONT> ecMatrix <FONT COLOR="#3080CA">*</FONT>pOldToNew<FONT COLOR="#9932CD"><B>,</B></FONT> 
+<A NAME="L304">                           <FONT COLOR="#FF0000">char</FONT> <FONT COLOR="#3080CA">*</FONT>sBodyPartName<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L305">ConvertToSingleNewMesh<FONT COLOR="#FF00FF">(</FONT>ecAnimation <FONT COLOR="#3080CA">*</FONT>pAnimation<FONT COLOR="#9932CD"><B>,</B></FONT> ecMesh  <FONT COLOR="#3080CA">*</FONT>pNewMesh<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L306">DetachAnimationData<FONT COLOR="#FF00FF">(</FONT>ecAnimation <FONT COLOR="#3080CA">*</FONT>pAnimation<FONT COLOR="#9932CD"><B>,</B></FONT>    ecMesh <FONT COLOR="#3080CA">*</FONT>pPivot<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L307">ecKeyData<FONT COLOR="#3080CA">*</FONT> FindKeyData<FONT COLOR="#FF00FF">(</FONT>ecAnimation <FONT COLOR="#3080CA">*</FONT>pAnimation<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">char</FONT> <FONT COLOR="#3080CA">*</FONT>sName<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L308">TransformAllFrames<FONT COLOR="#FF00FF">(</FONT>ecAnimation <FONT COLOR="#3080CA">*</FONT>pAnimation<FONT COLOR="#9932CD"><B>,</B></FONT> ecMatrix <FONT COLOR="#3080CA">*</FONT>pOldMtx<FONT COLOR="#9932CD"><B>,</B></FONT> 
+<A NAME="L309">                   ecMatrix <FONT COLOR="#3080CA">*</FONT>pNewMtx<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">char</FONT> <FONT COLOR="#3080CA">*</FONT>sBodyPartName<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L310">
+<A NAME="L311"><FONT COLOR="#238E23"><I>// Material, Polygon and Misc. functions:</I></FONT>
+<A NAME="L312">ecPrintMatrix<FONT COLOR="#FF00FF">(</FONT>ecMatrix <FONT COLOR="#3080CA">*</FONT>pMtx<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L313">ecPrintRotation<FONT COLOR="#FF00FF">(</FONT>ecRotation <FONT COLOR="#3080CA">*</FONT>pRot<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L314">ecPrintVector<FONT COLOR="#FF00FF">(</FONT>ecVector <FONT COLOR="#3080CA">*</FONT>pv<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L315">
+<A NAME="L316"><FONT COLOR="#238E23"><I>// Renderer specific functions</I></FONT>
+<A NAME="L317">
+<A NAME="L318">ecHideMesh<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> BOOL bTopLevel <FONT COLOR="#3080CA">=</FONT> TRUE<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L319">ecInitRendererFromMesh<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> ecMatrix <FONT COLOR="#3080CA">*</FONT>pLocal2World<FONT COLOR="#9932CD"><B>,</B></FONT>  
+<A NAME="L320">                       BOOL bUsePerspective<FONT COLOR="#9932CD"><B>,</B></FONT>  <FONT COLOR="#FF0000">long</FONT> <FONT COLOR="#3080CA">*</FONT>polyset_ref_array<FONT COLOR="#9932CD"><B>,</B></FONT> 
+<A NAME="L321">                       <FONT COLOR="#FF0000">long</FONT> <FONT COLOR="#3080CA">*</FONT>polyset_ref_count<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">char</FONT> <FONT COLOR="#3080CA">**</FONT>asNames<FONT COLOR="#9932CD"><B>,</B></FONT> 
+<A NAME="L322">                       ACTexture <FONT COLOR="#3080CA">*</FONT>ahHandles<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">long</FONT> nCartoonStyle<FONT COLOR="#9932CD"><B>,</B></FONT>
+<A NAME="L323">                       <FONT COLOR="#FF0000">int</FONT>  nNumRegPts<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">char</FONT> <FONT COLOR="#3080CA">**</FONT>asRegPointNames<FONT COLOR="#9932CD"><B>,</B></FONT>
+<A NAME="L324">                       <FONT COLOR="#FF0000">char</FONT> <FONT COLOR="#3080CA">**</FONT>asPolysetNames<FONT COLOR="#9932CD"><B>,</B></FONT> ecMesh <FONT COLOR="#3080CA">**</FONT>apRpBodyParts<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L325">
+<A NAME="L326">ecResetBoundingSpheres<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> ecMatrix <FONT COLOR="#3080CA">*</FONT>pParentMtx<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L327">ecSetMeshPickHandle<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">long</FONT> nPickHandle<FONT COLOR="#9932CD"><B>,</B></FONT> BOOL bTopLevel <FONT COLOR="#3080CA">=</FONT> TRUE<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L328">ecShowMesh<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">long</FONT> hContext<FONT COLOR="#9932CD"><B>,</B></FONT> BOOL bTopLevel <FONT COLOR="#3080CA">=</FONT> TRUE<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L329">ecSwapTexture<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">char</FONT> <FONT COLOR="#3080CA">*</FONT>sTextureLabel<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">int</FONT> hTexture<FONT COLOR="#9932CD"><B>,</B></FONT> 
+<A NAME="L330">              BOOL bTopLevel <FONT COLOR="#3080CA">=</FONT> TRUE<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L331">ecTransformACVertex<FONT COLOR="#FF00FF">(</FONT>ecMatrix <FONT COLOR="#3080CA">*</FONT>pTransform<FONT COLOR="#9932CD"><B>,</B></FONT> ACVertex <FONT COLOR="#3080CA">*</FONT>pVertex<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L332">ACTexture GetTextureHandleFromName<FONT COLOR="#FF00FF">(</FONT><FONT COLOR="#FF0000">char</FONT> <FONT COLOR="#3080CA">*</FONT>sTextureName<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">char</FONT> <FONT COLOR="#3080CA">**</FONT>asNames<FONT COLOR="#9932CD"><B>,</B></FONT> 
+<A NAME="L333">                                   ACTexture <FONT COLOR="#3080CA">*</FONT>ahHandles<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L334">SingleInitRendererFromMesh<FONT COLOR="#FF00FF">(</FONT>ecMesh <FONT COLOR="#3080CA">*</FONT>pMesh<FONT COLOR="#9932CD"><B>,</B></FONT> ecMatrix <FONT COLOR="#3080CA">*</FONT>pLocal2World<FONT COLOR="#9932CD"><B>,</B></FONT> 
+<A NAME="L335">                           BOOL  bUsePerspective<FONT COLOR="#9932CD"><B>,</B></FONT> <FONT COLOR="#FF0000">char</FONT> <FONT COLOR="#3080CA">**</FONT>asNames<FONT COLOR="#9932CD"><B>,</B></FONT> 
+<A NAME="L336">                           ACTexture <FONT COLOR="#3080CA">*</FONT>ahHandles<FONT COLOR="#9932CD"><B>,</B></FONT><FONT COLOR="#FF0000">long</FONT>   nCartoonStyle<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L337">
+<A NAME="L338"><FONT COLOR="#238E23"><I>// [tony ???]</I></FONT>
+<A NAME="L339"><FONT COLOR="#238E23"><I>// XXX - The following two functions are temporarily included in the AC parser</I></FONT>
+<A NAME="L340"><FONT COLOR="#238E23"><I>//       version, until a RenderWare independent rotate matrix function is</I></FONT>
+<A NAME="L341"><FONT COLOR="#238E23"><I>//       completed</I></FONT>
+<A NAME="L342">ecCreateecFromRwMatrix<FONT COLOR="#FF00FF">(</FONT>ecMatrix   <FONT COLOR="#3080CA">**</FONT>ppecMatrix<FONT COLOR="#9932CD"><B>,</B></FONT> RwMatrix4d <FONT COLOR="#3080CA">*</FONT>pMatrix<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L343">ecCreateRwFromecMatrix<FONT COLOR="#FF00FF">(</FONT>RwMatrix4d <FONT COLOR="#3080CA">**</FONT>ppRwMatrix<FONT COLOR="#9932CD"><B>,</B></FONT> ecMatrix <FONT COLOR="#3080CA">*</FONT>pMatrix<FONT COLOR="#FF00FF">)</FONT><FONT COLOR="#9932CD"><B>;</B></FONT>
+<A NAME="L344"></PRE>
+</BODY>
+</HTML>

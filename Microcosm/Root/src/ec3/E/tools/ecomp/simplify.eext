@@ -1,0 +1,1096 @@
+# 1 "ec/ecomp/simplify.java" 
+/* *****************************************************************
+ * Espresso! Utility routines for tree simplification
+ * Copyright 1995, 1996, 1997 Martin Odersky. All rights reserved.
+ * 
+ * Author     : Martin Odersky, Michael Philippsen
+ * Last change: 17-December-97
+ ******************************************************************/
+
+//FIX 16-6-96 changed naming scheme for closures (various places)
+
+
+package ec.ecomp;
+
+
+
+
+import java.io.*;
+import java.util.*;
+
+class Simplify implements /*imports*/ Constants {
+
+    final static Name ClosureS = Name.fromString(
+
+        "ec.ecomp.lang.Closure");
+
+
+
+    final static Name MessageNotUnderstoodS = Name.fromString(
+
+        "ec.ecomp.lang.MessageNotUnderstood");
+
+
+
+
+    final static Name ObjectS = Name.fromString("Object");
+
+    final static Name ThrowableS = Name.fromString("Throwable");
+
+    final static Name combineS = Name.fromString("combine");
+    final static Name nullS = Name.fromString("null");
+
+    final static Name applyS = Name.fromString("$apply");
+    final static Name closureS = Name.fromString("$closure");
+    final static Name allargsS = Name.fromString("$allargs");
+    final static Name fvarsS = Name.fromString("$fvars");
+    final static Name receiverS = Name.fromString("$receiver");
+    final static Name tagS = Name.fromString("$tag");
+    final static Name argsS = Name.fromString("$args");
+    final static Name dollarS = Name.fromString("$");
+    final static Name periodS = Name.fromString(".");
+
+
+    final static Name labelsS = Name.fromString("$labels");
+    final static Name labelS = Name.fromString("$label");
+
+
+    private final static Name boxS = 
+
+        Name.fromString("ec.vcache.VCache.toObject");
+
+
+
+
+    private final static Name IntegerS = Name.fromString("Integer");
+    private final static Name LongS = Name.fromString("Long");
+    private final static Name FloatS = Name.fromString("Float");
+    private final static Name DoubleS = Name.fromString("Double");
+    private final static Name BooleanS = Name.fromString("Boolean");
+
+    private final static Name intValueS = Name.fromString("intValue");
+    private final static Name longValueS = Name.fromString("longValue");
+    private final static Name floatValueS = Name.fromString("floatValue");
+    private final static Name doubleValueS = Name.fromString("doubleValue");
+    private final static Name booleanValueS = Name.fromString("booleanValue");
+
+/** return an AST representation of given qualified name.
+ */
+    static AST toAST(int pos, Name name) {
+        int p = name.lastPos((byte)'.');
+        if (p >= 0)
+            return 
+                new Select(pos, 
+                    toAST(pos, name.subName(0, p)),
+                    name.subName(p+1, name.len));
+        else
+            return new Ident(pos, name);
+    }
+
+/** return an AST representation of type t.
+ */
+    static AST toAST(int pos, Typ t) {
+        switch (t.tag) {
+        case ERRTYP: case ANYTYP: case PACKAGETYP:
+            throw new CompilerError("toAST");
+        case ARRAY:
+            return new Subscript(pos, toAST(pos, ((ArrayTyp)t).elemtyp), null);
+        case FUNCTION:
+            return toAST(pos, ClosureS);
+        default:
+            return toAST(pos, t.obj.fullname);
+        }
+    }
+
+/** some simple tree building blocks
+ */
+    static AST objectTyp(int pos) {
+        return toAST(pos, Predef.objectTyp);
+    }
+
+    static AST objectArray(int pos) {
+        return new Subscript(pos, objectTyp(pos), null);
+    }
+
+
+    static AST stringArray(int pos) {
+        return new Subscript(pos, toAST(pos, Predef.stringTyp), null);
+    }
+
+
+    static AST selectThis(int pos, Name name) {
+        return new Select(pos, new Self(pos, THIS), name);
+    }
+
+/** is typ an extended type?
+ *  extended types are function types and types containing function types.
+ */
+    static boolean isExtended(Typ t) {
+        switch (t.tag) {
+        case FUNCTION: return true;
+        case ARRAY: return isExtended(((ArrayTyp)t).elemtyp);
+        default: return false;
+        }
+    }
+
+/** annotate with true type if true type != type expression
+ */
+    static AST annot(AST dcltyp, Typ t) {
+        if (isExtended(t))
+            return new AnnotType(dcltyp.pos, dcltyp, t);
+        else
+            return dcltyp;
+    }
+
+/** strip type annotation from type if there is one.
+ */
+    static AST strip(AST dcltyp) {
+        if (dcltyp.tag == ANNOTTYPE)
+            return ((AnnotType)dcltyp).javatyp;
+        else
+            return dcltyp;
+    }
+
+/** return the annotated type if there is one, nulll otherwise
+ */
+    static Typ alternateType(AST dcltyp) {
+        if (dcltyp.tag == ANNOTTYPE)
+            return ((AnnotType)dcltyp).alttyp;
+        else
+            return null;
+    }
+
+/** return the annotated type if there is one, 
+ *  the attributed type otherwise.
+ */
+    static Typ trueType(AST dcltyp) {
+        Typ t = alternateType(dcltyp);
+        return t == null ? dcltyp.typ : t;
+    }
+
+/** wrap expr such that resulting type is Object
+ */
+    static AST box(AST expr) {
+
+        Typ t = expr.typ;
+        //expr.print(); System.out.println("Typ = "+t);
+        if (t != null && t.subtype(Predef.objectTyp)) {
+          return new Typeop(expr.pos, CAST, expr,
+                          new Ident(expr.pos, ObjectS));
+        } 
+
+        return
+            new Apply(expr.pos, toAST(expr.pos, boxS), new ASTS(expr));
+    }
+
+/** unwrap expr of type Object such that resulting type is typ
+ */
+    static AST unbox(AST expr, Typ typ) {
+        int pos = expr.pos;
+        switch (typ.tag) {
+        case BYTE: case CHAR: case SHORT:
+            return
+                new Typeop(
+                    pos, CAST, unbox(expr, Typ.intTyp), toAST(pos, typ));
+        case INT:
+            return
+                new Apply(pos,
+                    new Select(pos,
+                        new Typeop(pos, CAST, expr, toAST(pos, IntegerS)),
+                        intValueS),
+                    new ASTS());
+        case LONG:
+            return
+                new Apply(pos,
+                    new Select(pos,
+                        new Typeop(pos, CAST, expr, toAST(pos, LongS)),
+                        longValueS),
+                    new ASTS());
+        case FLOAT:
+            return
+                new Apply(pos,
+                    new Select(pos,
+                        new Typeop(pos, CAST, expr, toAST(pos, FloatS)),
+                        floatValueS),
+                    new ASTS());
+        case DOUBLE:
+            return
+                new Apply(pos,
+                    new Select(pos,
+                        new Typeop(pos, CAST, expr, toAST(pos, DoubleS)),
+                        doubleValueS),
+                    new ASTS());
+        case BOOLEAN:
+            return
+                new Apply(pos,
+                    new Select(pos,
+                        new Typeop(pos, CAST, expr, toAST(pos, BooleanS)),
+                        booleanValueS),
+                    new ASTS());
+        case CLASS: case ARRAY: 
+            return
+                new Typeop(pos, CAST, expr, toAST(pos, typ));
+        case FUNCTION:
+            return
+                new Typeop(pos, CAST, expr, toAST(pos, ClosureS));
+        case VOID:
+            return expr;
+        default:
+            throw new CompilerError("unbox");
+        }
+    }
+
+/** enter obj in the "freevars" dictionaries of all containing closures 
+ *  in which obj appears free. 
+ */
+    static void markFree(Env env, Obj obj) {
+        if (obj instanceof VarObj &&
+            obj.owner != null && obj.owner instanceof FunObj &&
+            env.enclFun != null) {
+            Obj currentFun = env.enclFun.obj;
+//          System.out.println("marking " + obj);
+            while (currentFun != obj.owner &&
+                   currentFun.name == null) {
+//              System.out.println(".");
+                Hashtable freevars = ((FunObj)currentFun).freevars;
+                if (freevars != null && freevars.get(obj) == null) 
+                    freevars.put(obj, obj);
+                currentFun = currentFun.owner;
+            }
+        }
+    }
+
+/** swap typ and alttyp fields of all fields & methods in loaded classes
+ */
+    static void swapTypes() {
+        for (Enumeration enum = ClassFile.loaded.elements(); 
+             enum.hasMoreElements();) {
+            Object o = enum.nextElement();
+            if (o instanceof ClassObj) {
+                ClassObj c = (ClassObj)o;
+                if (c.scope != null) {
+                    for (ScopeEntry e = c.scope.elements(); 
+                         e != null; 
+                         e = e.sibling) {
+                        if (e.obj.alttyp != null) {
+                            Typ t = e.obj.typ;
+                            e.obj.typ = e.obj.alttyp;
+                            e.obj.alttyp = t;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+/* ************************************************************************
+ * procedures to simplify classes:
+ *************************************************************************/
+
+/** return a case with pattern 'tag' which calls
+ *  'closure', defined in class 'c'
+ */
+    private static AST makeClosureCall(ClassDef cd, FunDef closure, int tag) {
+        int pos = cd.body.pos;
+        FunTyp ftyp = (FunTyp)closure.typ;
+
+        // ARGS = '(UNBOX($allargs[0]), ..., UNBOX($allargs[n]))'
+        ASTS args = new ASTS();
+        Hashtable freevars = ((FunObj)closure.obj).freevars;
+        Enumeration e = freevars.elements();
+        int esize = freevars.size();
+        for (int j = 0; j < closure.params.length; j++) {
+            Typ vtyp;
+            if (j < esize) {
+                VarObj v = (VarObj)e.nextElement();
+                vtyp = v.typ;
+                if (v.passByRef) vtyp = new ArrayTyp(vtyp);
+            } else {
+                vtyp = ftyp.argtyps[j - esize];
+            }
+            args.append(
+                unbox(
+                    new Subscript(
+                        pos,
+                        new Ident(pos, allargsS),
+                        new Literal(pos, INTLIT, new Integer(j))),
+                    vtyp));
+        }
+
+        // CALL = 'receiver.$closureTag(args)'
+        Name receiver = (closure.mods & STATIC) != 0 ? cd.name : receiverS;
+        AST call = 
+            new Apply(pos,  
+                toAST(
+                    pos, 
+                    receiver.append(periodS).append(closure.name)),
+                args);
+
+        call.typ = ftyp.restyp;
+
+
+        // CASESTATS = IF RESULTTYP = void THEN CALL ; return null 
+        //             ELSE return BOX(CALL)
+        ASTS casestats = 
+            ftyp.restyp.tag == VOID 
+            ? new ASTS(new Exec(pos, call), 
+                       new Return(pos, new Ident(pos, nullS)))
+            : new ASTS(new Return(pos, box(call)));
+
+        // return 'case tag: CASESTATS
+        return
+            new Case(
+                pos,
+                new Literal(pos, INTLIT, new Integer(tag)),
+                casestats);
+    }
+
+/** make an apply function for the closures defined in this class.
+ */
+    private static AST makeClosureApply(ClassDef cd) {
+        int pos = cd.body.pos;
+        ASTS cases = new ASTS();
+        ClassObj c = (ClassObj)cd.obj;
+        for (int i = 0; i < cd.closures.length; i++)
+            cases.append(makeClosureCall(cd,
+                                         (FunDef)cd.closures.elems[i], 
+                                         i));
+        AST[] applyStats = {
+            // Object[] $allargs = Closure.combine($fvars, $args);
+            new VarDef(
+                pos, allargsS, 0, 
+                objectArray(pos),
+                new Apply(
+                    pos,
+                    new Select(
+                        pos,
+                        toAST(pos, ClosureS),
+                        combineS),
+                    new ASTS(
+                        new Ident(pos, fvarsS),
+                        new Ident(pos, argsS)))),
+            // switch ($tag) { ... }
+            new Switch(pos, new Ident(pos, tagS), cases),
+            // throw new MessageNotUnderstood($tag)
+            new Throw(pos, 
+                new New(pos,
+                   new Apply(pos,
+                        toAST(pos, 
+                            MessageNotUnderstoodS),
+                        new ASTS(new Ident(pos, tagS)))))
+        };
+        return
+        // apply(Object[] $args) {...}
+            new FunDef(
+                pos,
+                FUNDEF,
+                applyS,
+                PUBLIC,
+                objectTyp(pos),
+                new ASTS(
+                    new VarDef(
+                        pos, argsS, 0, 
+                        objectArray(pos), null)),
+                new ASTS(), // should eventually be 
+                            // toAST(pos, ThrowableS)),
+                new Block(pos, new ASTS(applyStats)));
+    }
+
+
+    private static AST makeClosureLabels(ClassDef cd) {
+      int pos = cd.body.pos;
+      ASTS stats = new ASTS();
+      for (int i = 0; i < cd.closures.length; i++) {
+        FunDef fd = (FunDef)cd.closures.elems[i];
+        Name sig = null;
+        if (fd.closureLabel == null)
+          sig = Name.fromString("anon$"+i);
+        else
+          sig = fd.closureLabel;
+        sig = sig.append(Name.fromString("("));
+        Hashtable freevars = ((FunObj)fd.obj).freevars;
+        Enumeration e = freevars.elements();
+        int esize = freevars.size();
+        for (int j = 0; j < esize; j++) {
+          VarObj v = (VarObj)e.nextElement();
+          sig = sig.append(ClassFile.typeSig(v.typ, false));
+        }
+        sig = sig.append(Name.fromString(")"));
+        if ((fd.mods & STATIC) != 0)
+          sig = sig.append(Name.fromString("S"));
+        sig = sig.append(ClassFile.typeSig(fd.typ, false));
+        Exec asgn = 
+          new Exec(pos,
+                   new Assignop(pos, ASSIGN,
+                                new Subscript(pos, 
+                                              new Ident(pos, labelsS),
+                                              new Literal(pos, INTLIT,
+                                                          new Integer(i))),
+                                new Literal(pos, STRINGLIT, sig)));
+        stats.append(asgn);
+      }
+      Block bl = new Block(pos, stats);
+      bl.mods = STATIC;
+      return bl;
+    }
+
+
+    private static AST makeClosureConstructor(ClassDef cd) {
+        int pos = cd.body.pos;
+        return
+            new FunDef(
+                pos, 
+                FUNDEF,
+                // <init>
+                Predef.initS,
+                0,
+                null,
+                // (Object[] $fvars, C $receiver, int $tag)
+                new ASTS(
+                    new VarDef(
+                        pos, fvarsS, 0, 
+                        objectArray(pos), null),
+                    new VarDef(
+                        pos, receiverS, 0, 
+                        new Ident(pos, cd.name), null),
+                    new VarDef(
+                        pos, tagS, 0, 
+                        toAST(pos, Typ.intTyp), null)),
+                new ASTS(),
+                // { cd.$fvars = $fvars; 
+                //   cd.$receiver = $receiver; 
+
+                //   cd.$tag = $tag; 
+                //   $label = $labels[$tag];}
+
+
+
+                new Block(
+                    pos,
+                    new ASTS(
+                        new Exec(
+                            pos,
+                            new Assignop(
+                                pos, ASSIGN,
+                                selectThis(pos, fvarsS),
+                                new Ident(pos, fvarsS))),
+                        new Exec(
+                            pos,
+                            new Assignop(
+                                pos, ASSIGN,
+                                selectThis(pos, receiverS),
+                                new Ident(pos, receiverS))),
+
+                        new Exec(
+                            pos,
+                            new Assignop(
+                                pos, ASSIGN,
+                                selectThis(pos, tagS),
+                                new Ident(pos, tagS))),
+                        new Exec(
+                            pos,
+                            new Assignop(
+                                pos, ASSIGN,
+                                new Ident(pos, labelS),
+                                new Subscript(pos,
+                                              new Ident(pos, labelsS),
+                                              new Ident(pos, tagS)))))));
+
+
+
+
+
+
+
+
+    }
+
+    private static AST makeClosureClass(ClassDef cd) {
+        int pos = cd.body.pos;
+        AST[] classdefs = {
+            new VarDef(
+                pos, fvarsS, PRIVATE, 
+                objectArray(pos), null),
+            new VarDef(
+                pos, receiverS, PRIVATE, 
+                new Ident(pos, cd.name), null),
+            new VarDef(
+                pos, tagS, PRIVATE, 
+                toAST(pos, Typ.intTyp), null),
+
+            new VarDef(
+                pos, labelsS, PRIVATE | STATIC,
+                stringArray(pos), 
+                new New(pos, 
+                        new Subscript(pos, toAST(pos, Predef.stringTyp), 
+                                      new Literal(pos, INTLIT,
+                                          new Integer(cd.closures.length))))),
+            makeClosureLabels(cd),
+            new VarDef(
+                pos, labelS, PRIVATE,
+                toAST(pos, Predef.stringTyp), null),
+
+            makeClosureConstructor(cd),
+            makeClosureApply(cd)};
+        return
+            new ClassDef(
+                pos,
+                cd.name.append(closureS),
+                0,
+                toAST(pos, ClosureS),
+                new ASTS(),
+                new Block(pos,new ASTS(classdefs)));
+    }
+
+/* ************************************************************************
+ * procedures to simplify functions:
+ *************************************************************************/
+
+    private static ASTS simplifyParams(FunDef fd) {
+        ASTS newstats = new ASTS();
+        for (int i = 0; i < fd.params.length; i++) {
+//FIX 7/10/96: bad argument handling  -->arrgh.java
+            VarDef param = fd.params[i];
+            VarObj parobj = (VarObj)param.obj;
+            param.dcltyp = annot(simplify(param.dcltyp), parobj.typ);
+            param.obj = null;
+            if (parobj.passByRef) {
+                param.name = param.name.append(dollarS);
+                AST newtyp = 
+                    annot(
+                        new Subscript(param.dcltyp.pos, 
+                            strip(param.dcltyp),  null),
+                        new ArrayTyp(parobj.typ));
+                newstats.append(
+                    new VarDef(param.pos, parobj.name, 0, newtyp,
+                        new Aggregate(param.pos, 
+                            new ASTS(new Ident(param.pos, param.name)))));
+            }
+//ENDFIX
+        }
+        return newstats;
+    }
+
+    private static AST makeClosure(FunDef fd, Typ restyp) {
+        // make all free variables into arguments
+        ASTS newparams = new ASTS();
+        ASTS newargs = new ASTS();
+        int pos = fd.pos;
+        for (Enumeration e = ((FunObj)fd.obj).freevars.elements(); 
+             e.hasMoreElements();) {
+            VarObj v = (VarObj)e.nextElement();
+            Typ vtyp = v.typ;
+            if (v.passByRef) vtyp = new ArrayTyp(vtyp);
+            newparams.append(
+                new VarDef(
+                    pos, v.name, 0,  
+                    annot(toAST(pos, vtyp), vtyp), 
+                    null));
+            newargs.append(box(new Ident(pos, v.name)));
+        }
+
+        // compute your closure number
+        ClassObj c = (ClassObj)fd.localEnv.enclClass.obj;
+        int closnum = fd.localEnv.enclClass.closures.length;
+        
+        // turn yourself into a closure proc and append yourself to closures
+        fd.name = Name.fromString(
+            "closure$" + c.fullname.toString().replace('.', '$') + 
+            "$" + closnum);
+        fd.mods = fd.localEnv.isStatic ? STATIC : 0;
+        fd.tag = FUNDEF;
+        fd.dcltyp = annot(toAST(pos,restyp), restyp);
+        if (newparams.length != 0) {
+            VarDef[] oldparams = fd.params;
+            fd.params = new VarDef[newparams.length + oldparams.length];
+            for (int i = 0; i < newparams.length; i++)
+                fd.params[i] = (VarDef)newparams.elems[i];
+            for (int i = 0; i < oldparams.length; i++)
+                fd.params[newparams.length + i] = oldparams[i];
+        }
+        fd.localEnv.enclClass.closures.append(fd);
+
+        // return 'new C$closure({arg_1,...,arg_n}, receiver, closnum)
+        AST receiver =  fd.localEnv.isStatic 
+            ? (AST)new Ident(pos, nullS)
+            : (AST)new Self(pos, THIS);
+        return 
+            new New(
+                pos,
+                new Apply(
+                    pos,
+                    new Ident(
+                        pos, 
+                        fd.localEnv.enclClass.name.append(closureS)),
+                    new ASTS(
+                        new Aggregate(pos, newargs),
+                        receiver,
+                        new Literal(pos, INTLIT, new Integer(closnum)))));
+    }
+
+
+/* ************************************************************************
+ * main function simplify
+ *************************************************************************/
+
+/** simplify given AST
+ */
+    static AST simplify(Aggregate t) {
+        for (int i = 0; i < t.elems.length; i++)
+            t.elems[i] = simplify(t.elems[i]);
+        return t;
+    }
+
+    static AST simplify(Apply t) {
+        boolean methodCall = 
+            t.fn instanceof Self ||
+            t.fn instanceof IdRef && !(((IdRef)t.fn).obj instanceof VarObj);
+        t.fn = simplify(t.fn);
+        for (int i = 0; i < t.args.length; i++)
+            t.args[i] = simplify(t.args[i]);
+        if (methodCall)
+            return t;
+        else {
+            ASTS newargs = new ASTS();
+            for (int i = 0; i < t.args.length; i++)
+                newargs.append(box(t.args[i]));
+            return
+                unbox(
+                    new Apply(
+                        t.pos,
+                        new Select(t.pos, t.fn, applyS),
+                        new ASTS(new Aggregate(t.pos, newargs))),
+                    t.typ);
+        }
+    }
+
+    static AST simplify(Assignop t) {
+        t.left = simplify(t.left);
+        t.right = simplify(t.right);
+        return t;
+    }
+
+    static AST simplify(Binop t) {
+        t.left = simplify(t.left);
+        t.right = simplify(t.right);
+        return t;
+    }
+
+    static AST simplify(Ident t) {
+        if (t.obj instanceof VarObj && ((VarObj)t.obj).passByRef)
+            return 
+                new Subscript(
+                    t.pos, t, 
+                    new Literal(t.pos, INTLIT, new Integer(0)));
+        else
+            return t;
+    }
+
+    static AST simplify(Literal t) {
+        return t;
+    }
+
+    static AST simplify(New t) {
+        t.constr = simplify(t.constr);
+        return t;
+    }
+
+    static AST simplify(Select t) {
+        t.struc = simplify(t.struc);
+        return t;
+    }
+
+    static AST simplify(Self t) {
+        return t;
+    }
+
+    static AST simplify(Subscript t) {
+        t.struc = simplify(t.struc);
+        if (t.index != null) t.index = simplify(t.index);
+        return t;
+    }
+
+    static AST simplify(Typeop t) {
+        t.expr = simplify(t.expr);
+        t.dcltyp = simplify(t.dcltyp);
+        return t;
+    }
+
+    static AST simplify(Unop t) {
+        t.operand = simplify(t.operand);
+        return t;
+    }
+
+    static AST simplify(FunctionType t) {
+        return toAST(t.pos, ClosureS);
+    }
+
+    static AST simplify(Case t) {
+        if (t.pat != null) t.pat = simplify(t.pat);
+        for (int i = 0; i < t.stats.length; i++)
+            t.stats[i] = simplify(t.stats[i]);
+        return t;
+    }
+
+    static AST simplify(Conditional t) {
+        t.cond = simplify(t.cond);
+        t.thenpart = simplify(t.thenpart);
+        if (t.elsepart != null) t.elsepart = simplify(t.elsepart);
+        return t;
+    }
+
+    static AST simplify(DoLoop t) {
+        t.cond = simplify(t.cond);
+        t.body = simplify(t.body);
+        return t;
+    }
+
+    static AST simplify(Exec t) {
+        t.expr = simplify(t.expr);
+        return t;
+    }
+
+    static AST simplify(ForLoop t) {
+        for (int i = 0; i < t.e1.length; i++)
+            t.e1[i] = simplify(t.e1[i]);
+        if (t.e2 != null)
+            t.e2 = simplify(t.e2);
+        for (int i = 0; i < t.e3.length; i++)
+            t.e3[i] = simplify(t.e3[i]);
+        t.body = simplify(t.body);
+        return t;
+    }
+
+    static AST simplify(Labelled t) {
+        t.stat = simplify(t.stat);
+        return t;
+    }
+
+    static AST simplify(Return t) {
+        if (t.expr != null) t.expr = simplify(t.expr);
+        return t;
+    }
+
+    static AST simplify(Switch t) {
+        t.sel = simplify(t.sel);
+        for (int i = 0; i < t.cases.length; i++)
+            t.cases[i] = (Case)simplify(t.cases[i]);
+        return t;
+    }
+
+    static AST simplify(Synchronized t) {
+        simplify((Try)t);
+        t.lock = simplify(t.lock);
+        return t;
+    }
+
+    static AST simplify(Throw t) {
+        t.expr = simplify(t.expr);
+        return t;
+    }
+
+    static AST simplify(Try t) {
+        t.body = simplify(t.body);
+        for (int i = 0; i < t.catchers.length; i++)
+            t.catchers[i] = (FunDef)simplify(t.catchers[i]);
+        if (t.finalizer != null)
+            t.finalizer = simplify(t.finalizer);
+        return t;
+    }
+
+    static AST simplify(WhileLoop t) {
+        t.cond = simplify(t.cond);
+        t.body = simplify(t.body);
+        return t;
+    }
+
+    static AST simplify(Sequence t) {
+        t.body = (Block)simplify(t.body);
+        return t;
+    }
+
+    static AST simplify(Block t) {
+        for (int i = 0; i < t.stats.length; i++)
+            t.stats[i] = simplify(t.stats[i]);
+        return t;
+    }
+
+    static AST simplify(ClassDef t) {
+        // two passes through the markCaptured dataflow analysis will always
+        // reach a fixpoint
+        CaptureAnalysis.markCaptured(t.body, new Bits());
+        CaptureAnalysis.markCaptured(t.body, new Bits());
+
+        if (t.extending != null) 
+            t.extending = simplify(t.extending);
+        for (int i = 0; i < t.implementing.length; i++)
+            t.implementing[i] = simplify(t.implementing[i]); 
+
+        int pos = t.body.pos;
+        t.closures = new ASTS();
+        t.body = (Block)simplify(t.body);
+        ClassObj c = (ClassObj)t.obj;
+        if (t.closures.length != 0) {
+            // make a new closure class
+            t.localEnv.toplevel.newClasses.append(makeClosureClass(t));
+            // add all dynamic closures as fields
+            ASTS newstats = new ASTS(t.body.stats);
+            for (int i = 0; i < t.closures.length; i++) {
+                // to force a re-enter:
+                ((FunDef)t.closures.elems[i]).obj = null; 
+                newstats.append(t.closures.elems[i]);
+            }
+            t.body = new Block(pos, newstats);
+        }
+        return t;
+    }
+
+  // FIX 19/11/97
+    static AST simplify(FunDef t) {
+        FunTyp ftyp = (FunTyp)((FunObj)t.obj).typ;
+        if (t.dcltyp != null) 
+            t.dcltyp = annot(simplify(t.dcltyp), ftyp.restyp);
+        for (int i = 0; i < t.thrown.length; i++)
+            t.thrown[i] = simplify(t.thrown[i]);
+      if (t.body != null) t.body = (Block)simplify(t.body);
+      ASTS newstats = simplifyParams(t);
+      if (newstats.length != 0) {
+          int i = 0;
+          if (t.body != null && t.body.stats.length > 0 && 
+              FunDef.isSelfCall(t.body.stats[0])) {
+              ASTS newstats1 = new ASTS(t.body.stats[0]);
+              newstats1.append(newstats);
+              newstats = newstats1;
+              i = 1;
+          }
+          while (i < t.body.stats.length) {
+              newstats.append(t.body.stats[i]);
+              i++;
+          }
+            t.body = new Block(0, newstats);
+      }
+        if (t.tag == LAMBDA)
+          return makeClosure(t, ftyp.restyp);
+      else {
+          t.obj = null;  // to force a re-enter
+            return t;
+      }
+    }
+
+/*
+    static AST simplify(FunDef t) {
+        FunTyp ftyp = (FunTyp)((FunObj)t.obj).typ;
+        if (t.dcltyp != null) 
+            t.dcltyp = annot(simplify(t.dcltyp), ftyp.restyp);
+        for (int i = 0; i < t.thrown.length; i++)
+            t.thrown[i] = simplify(t.thrown[i]);
+        if (t.body != null) t.body = (Block)simplify(t.body);
+        ASTS newstats = simplifyParams(t);
+        if (newstats.length != 0) {
+            newstats.append(new ASTS(t.body.stats));
+            t.body = new Block(0, newstats);
+        }
+        if (t.tag == LAMBDA)
+            return makeClosure(t, ftyp.restyp);
+        else {
+            t.obj = null;  // to force a re-enter
+            return t;
+        }
+    }
+*/
+
+    static AST simplify(VarDef t) {
+        int pos = t.pos;
+        if (t.init != null) t.init = simplify(t.init);
+        t.dcltyp = annot(simplify(t.dcltyp), t.obj.typ);
+        if (((VarObj)t.obj).passByRef) {
+            if (t.init != null)
+                t.init = new Aggregate(t.init.pos, new ASTS(t.init));
+            else
+                t.init = 
+                    new New(
+                        pos,
+                        new Subscript(
+                            pos,
+                            t.dcltyp,
+                            new Literal(
+                                pos, INTLIT, 
+                                new Integer(1))));
+            t.dcltyp = annot(
+                new Subscript(t.dcltyp.pos, strip(t.dcltyp), null), 
+                new ArrayTyp(t.obj.typ));
+        }
+        t.obj = null;  // to force a re-enter
+        return t;
+    }
+
+    static AST simplify(TopLevel t) {
+
+
+
+
+
+        t.newClasses = new ASTS();
+        for (int i = 0; i < t.defs.length; i++) {
+            t.defs[i] = simplify(t.defs[i]);
+        }
+        if (t.newClasses.length != 0) {
+            for (int i = 0; i < t.newClasses.length; i++)
+                t.newClasses.elems[i].enter(t.env);
+            ASTS newdefs = new ASTS(t.defs);
+            newdefs.append(t.newClasses);
+            t.defs = newdefs.shrink();
+        }
+
+
+
+
+        return t;
+    }
+
+    static AST simplify(AST t) {
+        switch(t.tag) {
+        case AGGREGATE:
+            return simplify((Aggregate)t);
+        case APPLY:
+            return simplify((Apply)t);
+        case ASSIGN:
+        case ABITOR:
+        case ABITXOR:
+        case ABITAND:
+        case ASL:
+        case ASR:
+        case ALSR:
+        case APLUS:
+        case AMINUS:
+        case ATIMES:
+        case ADIV:
+        case AMOD:
+            return simplify((Assignop)t);
+        case OR:
+        case AND:
+        case EQ:
+        case NE:
+        case LT:
+        case GT:
+        case LE:
+        case GE:
+        case BITOR:
+        case BITXOR:
+        case BITAND:
+        case SL:
+        case SR:
+        case LSR:
+        case PLUS:
+        case MINUS:
+        case TIMES:
+        case DIV:
+        case MOD:
+            return simplify((Binop)t);
+        case IDENT:
+            return simplify((Ident)t);
+        case NEW:
+            return simplify((New)t);
+        case SELECT:
+            return simplify((Select)t);
+        case SUBSCRIPT:
+            return simplify((Subscript)t);
+        case TYPETEST:
+        case CAST:
+            return simplify((Typeop)t);
+        case POS:
+        case NEG:
+        case NOT:
+        case COMPL:
+        case PREINC:
+        case PREDEC:
+        case POSTINC:
+        case POSTDEC:
+            return simplify((Unop)t);
+        case FUNCTIONTYPE:
+            return simplify((FunctionType)t);
+        case CASE:
+            return simplify((Case)t);
+        case CONDEXPR: case CONDSTAT:
+            return simplify((Conditional)t);
+        case DOLOOP:
+            return simplify((DoLoop)t);
+        case EXEC:
+            return simplify((Exec)t);
+        case FORLOOP:
+            return simplify((ForLoop)t);
+        case LABELLED:
+            return simplify((Labelled)t);
+        case RETURN:
+            return simplify((Return)t);
+        case SWITCH:
+            return simplify((Switch)t);
+        case SYNCHRON:
+            return simplify((Synchronized)t);
+        case THROW:
+            return simplify((Throw)t);
+        case TRY:
+            return simplify((Try)t);
+        case WHILELOOP:
+            return simplify((WhileLoop)t);
+        case SEQ:
+            return simplify((Sequence)t);
+        case BLOCK:
+            return simplify((Block)t);
+        case CLASSDEF:
+            return simplify((ClassDef)t);
+        case FUNDEF: case LAMBDA: case CATCH:
+            return simplify((FunDef)t);
+        case VARDEF:
+            return simplify((VarDef)t);
+        case INTLIT:
+        case LONGLIT:
+        case FLOATLIT:
+        case DOUBLELIT:
+        case CHARLIT:
+        case STRINGLIT:
+        case THIS:
+        case SUPER:
+        case BREAK:
+        case CONTINUE:
+        case IMPORT:
+        case PACKAGE:
+            return t;
+        default:
+            throw new CompilerError("simplify " + t.tag);
+        }
+    }
+
+/** simplify an array of toplevel trees
+ */
+    static TopLevel[] simplify(TopLevel[] trees) {
+
+        if (Switches.verbose)
+          System.out.println("[simplifying]");       
+
+        for (int j = 0; j < trees.length; j++)
+            if (trees[j] != null) 
+                trees[j] = (TopLevel)simplify(trees[j]);
+        swapTypes();
+
+        if (Switches.verbose)
+          System.out.println("[re-attributing]");
+
+        for (int j = 0; j < trees.length; j++)
+            if (trees[j] != null) 
+                trees[j].enterFields();
+        for (int j = 0; j < trees.length; j++)
+            if (trees[j] != null) 
+                trees[j].attr();
+
+        if (Switches.printTree) {
+        for (int j = 0; j < trees.length; j++)
+          if (trees[j] != null) trees[j].print();
+        }
+
+        return trees;
+    }
+}
+
+
+

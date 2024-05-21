@@ -1,0 +1,53 @@
+#!/bin/sh
+if [ -z $1 ] ; then
+  echo
+  echo $0: \(another coffee maker\)
+  echo
+  echo turns .e and .unit files into .java files
+  echo
+  echo usage: braunie \<rootdir\> \[files to process...\]
+  echo
+  exit 1
+fi 
+
+targetdir=$1
+shift
+mkdir -p $targetdir
+
+if [ -z $2 ] ; then
+# get file list from HackDepends
+  if [ -f $BUILD/.BraunieFileList ] ; then
+    filelist=`cat $BUILD/.BraunieFileList`
+  else
+    echo $0: no file list from HackDepends.  Exiting.
+    exit
+  fi
+else
+  filelist=$*
+fi 
+
+for i in $filelist ; do
+  packagedir=`sed '
+/^package/!d
+s/package[ \t]*//
+s/;.*//
+s/\./\//g
+q' $i`
+  if [ -z "$packagedir" ]; then
+    echo $i: no package declaration
+  fi
+  dir=$targetdir/$packagedir
+  mkdir -p $targetdir/$packagedir
+  filename=`echo $i | sed 's/\..*//'`
+  javafilename=$targetdir/$packagedir/${filename}.java
+  if [ -f $javafilename ] ; then
+    echo WARNING: OVERWRITING FILE $javafilename - this may cause problems
+  fi
+  echo ...processing $i into $javafilename
+  java -ms4m ec.ecomp.Main -esystem -printtree -nooutput -nowarn $i > $javafilename
+  javafiles="$javafilename $javafiles"
+done
+
+echo $javafiles >> $targetdir/BUILD_ORDER
+
+rm $BUILD/.BraunieFileList

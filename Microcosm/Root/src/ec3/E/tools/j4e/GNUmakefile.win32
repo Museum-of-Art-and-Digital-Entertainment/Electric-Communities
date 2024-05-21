@@ -1,0 +1,20 @@
+LINK = link
+YACCHELPER_DIR = ../../../Tools/yacchelper 
+CLFLAGS +=  -MDd -LDd -I. -I$(YACCHELPER_DIR)  
+FILES.o   = $(FILES.c:%.c=$(BUILD)/objs/$(MODNAME)/%.obj)
+JFEFILES.o = $(JFEFILES.c:%.c=$(BUILD)/objs/$(MODNAME)/%.obj)
+YHFILES.o = $(YHFILES.c:%.c=$(BUILD)/objs/$(MODNAME)/%.obj)
+
+$(APP_PATH): $(INSTALL_DIR) $(OBJDIRS) $(FILES.o)
+	$(LINK) -debug -map -out:$(BUILD_DRIVE)$@.exe $(addprefix $(BUILD_DRIVE),$(FILES.o))
+	$(RM) -f $(BUILD)/objs/$(MODNAME)/jfeversion.o
+	$(RM) -f $(BUILD)/objs/$(MODNAME)/jfemain.o
+
+all: standalone
+
+y.tab.h jfeparse.c: egrammar.y
+	@echo "If the build fails, try doing a make clean"
+	cp win32/jfeparse.c jfeparse.c
+	cp win32/y.tab.h y.tab.h
+	cp win32/values.h values.h
+	chmod +w jfeparse.c y.tab.h values.h

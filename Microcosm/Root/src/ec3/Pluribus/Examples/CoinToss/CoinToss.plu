@@ -1,0 +1,113 @@
+export unit CoinToss {
+    package ec.tutorial.cointoss;
+
+    import java.util.Random;
+  import ec.e.file.EStdio;
+
+    kind ukCoinTosser {
+  uTossCoin (int heads, EResult didIWin);
+    }
+    kind pkCoinTosserHost {
+  pTossCoin(int heads, EResult didIWin);
+    }
+    
+    kind pkCoinTosserClient {
+    }
+    
+    kind ikCoinTosserHost {
+  kind ukCoinTosser; 
+  kind pkCoinTosserHost;
+    }
+    
+    kind ikCoinTosserClient {
+  kind ukCoinTosser; 
+  kind pkCoinTosserClient;
+    }
+    
+    unum structure usCoinTosser {
+  kind ukCoinTosser;
+  presence host kind pkCoinTosserHost makes client;
+  presence client kind pkCoinTosserClient makes client;
+  prime host;
+    }
+    
+    presence structure psCoinTosserHost {
+  kind pkCoinTosserHost;
+  ingredient hostIngredient {
+      kind ikCoinTosserHost;
+      deliver unum ukCoinTosser;
+      deliver presence pkCoinTosserHost;
+  }
+    }
+    
+    presence structure psCoinTosserClient {
+  kind pkCoinTosserClient;
+  ingredient clientIngredient {
+      kind ikCoinTosserClient;
+      deliver unum ukCoinTosser;
+      //      deliver presence pkCoinTosserClient;
+  }
+    }
+    
+    ingredient impl iiCoinTosserHost {
+  kind ikCoinTosserHost;
+  // "heads" is 1 if you pick the coin to come up heads, 0 otherwise
+  method uTossCoin (int heads, EResult didIWin) {
+      EStdio.out().println("Tossing a coin!");
+      Random rand = new Random();
+      // we'll say getting 1 for our random number means it came up heads
+      if (rand.nextInt() % 2 == 0) {
+    if (heads == 1)
+        didIWin <- forward(etrue);
+    else
+        didIWin <- forward(efalse);
+      } else {
+    if (heads == 1)
+        didIWin <- forward(efalse);
+    else
+        didIWin <- forward(etrue);
+      }
+  }
+  
+  method pTossCoin(int heads, EResult didIWin) {
+      
+      uTossCoin(heads, didIWin);
+  }
+    }
+    
+    ingredient impl iiCoinTosserClient {
+  kind ikCoinTosserClient;
+  method uTossCoin (int heads, EResult didIWin) {
+      EStdio.out().println("Asking host to toss coin:");
+      (kind pkCoinTosserHost)environment.hostPresence <-
+          pTossCoin(heads, didIWin);
+  }
+    }
+    
+    presence impl piCoinTosserHost {
+  structure psCoinTosserHost;
+  // Presence instantiation kludge
+  presenceBehavior IsHostPresence, TrackOtherPresences;
+  ingredient hostIngredient  template{
+      impl iiCoinTosserHost;
+  }
+  prime init () {}
+  make client;
+    }
+    
+    presence impl piCoinTosserClient {
+  structure psCoinTosserClient;
+  presenceBehavior IsClientPresence, DieWhenNoOtherPresences;
+  ingredient clientIngredient template {
+      impl iiCoinTosserClient;
+  }
+  make client;
+  init () {}
+    }
+    
+    unum impl uiCoinTosser {
+  structure usCoinTosser;
+  presence host impl piCoinTosserHost;
+  presence client  impl piCoinTosserClient;
+    }
+}  //end unit

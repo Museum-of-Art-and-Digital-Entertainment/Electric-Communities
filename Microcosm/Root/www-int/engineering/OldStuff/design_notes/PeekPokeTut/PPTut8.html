@@ -1,0 +1,117 @@
+<!--NewPage-->
+<!-- Created by Masa Maeda on 05.14.97  -->
+<!-- Copyright 1997 Electric Communitites. -->
+<!-- All rights reserved worldwide.  -->
+<!-- Proprietary and confidential. -->
+<HTML>
+<HEAD>
+<pre>
+<a href="PPTut7.html">Previous</a>  <a
+href="PPTut9.html">Next</a>  <a
+href="PPTutI.html">Index</a>  <a
+href="PPTut1.html">Home</a></pre>
+<TITLE>The PeekPoke Tutorial</TITLE>
+</HEAD>
+<BODY>
+<P><HR WIDTH="100%" SIZE=2></P>
+<P>&nbsp;</P>
+
+<B><P>Step 4.  Create Ingredient Implementations</P>
+</B>
+<P>Now that the structures for the entire unum have been created, it is possible to
+determine how the ingredients, presences, and una are instantiated at run time. It is
+necessary to start with the Ingredient implementations since these provide the code
+for all the messages specified in the presences and unum kinds previously coded.</P>
+
+<P>Ingredients are potentially utilized by both host and client presences, however
+this is not a requirement.  It is acceptable to have ingredients implemented only on
+the host and not the client and vice-versa.</P>
+
+<P>In the code for the ingredient implementation of Peekable, i.e., <FONT
+FACE="Courier">iiPeekable</FONT>, the ingredient implementation kind is specified
+first. A client must have a reference to its host; <FONT FACE="Courier">myHost</FONT>
+serves such purpose. The <FONT FACE="Courier">uPeek</FONT> method deals with messges,
+either displaying them if the current presence is a host, or sending them to the host
+if the presence is a client. The <FONT FACE="Courier">pHostPeek</FONT> and <FONT
+FACE="Courier">pClientPeek</FONT> methods are the actual implementation of their
+presences and consist on a call to their corresponding unum, passing along the string
+parameter provided by the <FONT FACE="Courier">go</FONT>() method (to be analyzed
+later). The order in which these last two methods are called is irrelevant due to optimistic
+computation. The ingredient implementation for Pokeable is similar to that for Peekable
+thus no description is provided.</P>
+
+<P><HR WIDTH="80%" SIZE=2></P>
+<PRE>
+	// --------------- Create ingredient implementations ---------------
+	// iiPeekable
+	export ingredient impl iiPeekable {
+	  kind iskPeekable;
+	  kind pkHostPeekable myServer;
+	  boolean iAmTheHost;
+	  init() {
+	    this.init(true);
+	  }
+	  init (boolean theHost) {
+	    iAmTheHost = theHost;
+	    if (!iAmTheHost)  {
+	      if (environment.hostPresence instanceof kind pkHostPeekable) {
+	        myServer = (kind pkHostPeekable)environment.hostPresence;
+	      }
+	    }
+	  }
+	  method uPeek (String pokeMessage) {
+	    if (iAmTheHost)  {
+	      System.out.println (pokeMessage + " peeking at a client...");
+	    } else { 
+	      myServer  &lt - pHostPeek(pokeMessage);
+	    }
+	  }
+	  method pHostPeek (String pokeMessage) {
+	    uPeek (pokeMessage);
+	  }
+	  method pClientPeek (String pokeMessage) {
+	  System.out.println (whoPeeked + " just peeked at me!  ");
+	  	    uPeek (pokeMessage);
+	  }
+	}
+
+	// iiPokeable
+	export ingredient impl iiPokeable {
+	  kind iskPokeable;
+	  kind pkHostPokeable myServer;
+	  boolean iAmTheHost;
+	  init (boolean theHost) {
+	    iAmTheHost = theHost;
+	    if (!iAmTheHost)  {
+	      if (environment.hostPresence instanceof kind pkHostPokeable) {
+	        myServer = (kind pkHostPokeable)environment.hostPresence;
+	      }
+	    }
+	  }
+	  method uPoke (String whoPoked) {
+	    if (iAmTheHost)  {
+	      System.out.println (whoPoked + " poking at a client... ");
+	    } else {
+	      myServer  &lt - pHostPoke(whoPoked);
+	    }
+	  }
+	  method pHostPoke (String whoPoked) {
+	    uPoke (whoPoked);
+	  }	
+	  method pClientPoke (String whoPoked) {
+	    System.out.println (whoPoked + " just poked at me  ");
+	    uPoke (whoPoked);
+	  }
+	}
+</PRE>
+
+<P><HR WIDTH="100%" SIZE=2></P>
+<pre>
+<a href="PPTut7.html">Previous</a>  <a
+href="PPTut9.html">Next</a>  <a
+href="PPTutI.html">Index</a>  <a
+href="PPTut1.html">Home</a></pre>
+</HTML>
+
+
+

@@ -1,0 +1,362 @@
+package ec.e.ulib;
+
+import java.util.Hashtable;
+import java.util.Vector;
+
+/*
+
+  The classes in this file are element descriptors. Element
+  descriptors are objects which describe Pluribus elements that may be
+  produced by the Pluribus compiler and used by the Unum Fabricator.
+
+  Element descriptors may be characterized along two dimensions. They
+  may be "external" or "internal" and they may be "terminal" or
+  "non-terminal".
+
+External vs. Internal:
+
+  "External" element descriptors correspond to the definable entities
+  which a programmer declares in Pluribus. They are top-level unum
+  elements which may be used in a compositional fashion by the Unum
+  Fabricator.  External element descriptors may be retrieved from the
+  repository by context-independent references, that is, by an external
+  key (e.g., by name). They may also be retrieved en-masse and filtered
+  according to their assigned attributes.
+
+  "Internal" element descriptors are lower-level descriptor objects
+  which exist simply because Java lacks abstractions for describing
+  complex data structures. In essence, all you get with Java are simple
+  arrays and structs. If you want to compose a more complex organization
+  (such as a struct field which is itself an array of some other kind of
+  struct), you need to introduce addtional classes. Internal element
+  descriptors are these additional classes. Each internal element
+  descriptor class is subsidiary to some external element descriptor
+  whose data structure it is a part of. Internal element descriptors may
+  only be retrieved by reference from other element descriptors which
+  make use of them. Conversely, retrieving a external element descriptor
+  object from the repository implicitly also retrieves any internal
+  element descriptor objects which it directly or indirectly refers to.
+
+  External and internal element descriptor classes are distinguishable
+  from each other by their names:
+
+  type          name
+  ----          ----
+  external      plelem$_xxx.
+  internal      pldesc$_xxx.
+
+Terminal vs. Non-Terminal:
+
+  Some varieties of element are composed by reference to other
+  elements (e.g., a presence impl refers to the ingredient impls of the
+  ingredients from which it is made). In such cases it is possible to
+  have element descriptors which do not fully specify the elements they
+  describe because their set of references to constituent elements is
+  incomplete. Such partially specified elements are useful because they
+  permit deferred binding of the constituents.  Other varieties of
+  element are not composed by reference to other elements and so are
+  always fully specified.
+
+  A "terminal" element descriptor describes an element which is never
+  composed of other possibly unspecified elements. All internal element
+  descriptors are terminal by definition.
+
+  A "non-terminal" element descriptor describes an element whose
+  composition may be left undetermined. Any unbound compositional
+  element must first be determined before the element can be used in the
+  actual creation of an unum; locating appropriate elements to do this
+  is the job of the Unum Fabricator.
+
+  In the declarations below, each descriptor class is marked by a
+  comment indicating whether it is terminal or not. In the case of
+  non-terminal descriptor classes, the instance variables that describe
+  the elements that may be left unbound are marked in a comment as
+  "bindable". In all such cases, the collection of bindings is
+  represented as a Vector which may specify the relevant bindings
+  completely, incompletely, or not at all. All such element descriptors
+  also have a boolean 'complete' flag which indicates whether or not the
+  Vector of bindings is complete or not.
+
+*/
+
+/* ========================= Support Descriptors =========================== */
+
+interface plelem$_any {
+    final static int BIND_TYPE = 0;
+    final static int BIND_ATTRIBUTE = 1;
+    final static int BIND_KIND = 2;
+    final static int BIND_INGRDIENT_IMPL = 3;
+    final static int BIND_PRESENCE_STRUCTURE = 4;
+    final static int BIND_UNUM_STRUCTURE = 5;
+    final static int BIND_PRESENCE_IMPL = 6;
+    final static int BIND_UNUM_IMPL = 7;
+    final static int BIND_UNIT = 8;
+    final static int NAMESPACE_COUNT = 9;
+}
+
+/* Attribute type */
+
+class plelem$_attribute implements plelem$_any {        /* terminal */
+    String name;
+    Class type;
+
+    plelem$_attribute(String name,
+                      Class type) {
+        this.name = name;
+        this.type = type;
+    }
+}
+
+/* Kind */
+
+class plelem$_kind implements plelem$_any {             /* terminal */
+    plelem$_kind extendKinds[];
+    Class kindInterface;
+    
+    plelem$_kind(plelem$_kind extendKinds[],
+                 Class kindInterface) {
+        this.extendKinds = extendKinds;
+        this.kindInterface = kindInterface;
+    }
+    boolean checkAttributes() {                         /* override this */
+        return(true);
+    }
+}
+
+/* Unit */
+
+class pldesc$_unitSymbolDef {                           /* terminal */
+    boolean isImported;
+    boolean isExported;
+    plelem$_any binding;
+
+    pldesc$_unitSymbolDef(boolean isImported,
+                          boolean isExported,
+                          plelem$_any binding) {
+        this.isImported = isImported;
+        this.isExported = isExported;
+        this.binding = binding;
+    }
+}
+
+class plelem$_unit implements plelem$_any {             /* terminal */
+    Hashtable defines[]; /* String -> pldesc$_unitSymbolDef */
+    
+    plelem$_unit(Hashtable defines[]) {
+        this.defines = defines;
+    }
+}
+
+/* ============================== Ingredients ============================== */
+
+/* Ingredient Impl */
+
+class pldesc$_ingredientImplNeighbor {                  /* terminal */
+    String nameInIngredient;
+    plelem$_kind neighborKind;
+    boolean isPlural;
+    boolean isPresence;
+    
+    pldesc$_ingredientImplNeighbor(String nameInIngredient,
+                                   plelem$_kind neighborKind,
+                                   boolean isPlural,
+                                   boolean isPresence) {
+        this.nameInIngredient = nameInIngredient;
+        this.neighborKind = neighborKind;
+        this.isPlural = isPlural;
+        this.isPresence = isPresence;
+    }
+}
+
+class plelem$_ingredientImpl implements plelem$_any {   /* terminal */
+    Hashtable attributes; /* plelem$_attribute -> Object */
+    plelem$_kind ingredientKind;
+    pldesc$_ingredientImplNeighbor neighbors[];
+    Class implClass;
+    
+    plelem$_ingredientImpl(Hashtable attributes,
+                           plelem$_kind ingredientKind,
+                           pldesc$_ingredientImplNeighbor neighbors[],
+                           Class implClass) {
+        this.attributes = attributes;
+        this.ingredientKind = ingredientKind;
+        this.neighbors = neighbors;
+        this.implClass = implClass;
+    }
+}
+
+/* =============================== Presences =============================== */
+
+/* Presence Structure */
+
+class pldesc$_presenceStructureDeliver {                /* terminal */
+    boolean presenceScope;
+    EUnsealer message;
+    Method method;
+    
+    pldesc$_presenceStructureDeliver(boolean presenceScope,
+                                     EUnsealer message,
+                                     Method method) {
+        this.presenceScope = presenceScope;
+        this.message = message;
+        this.method = method;
+    };
+}
+
+class pldesc$_presenceStructureIngredient {             /* terminal */
+    String name;
+    plelem$_kind kind;
+    pldesc$_presenceStructureDeliver delivers[];
+    
+    pldesc$_presenceStructureIngredient(String name,
+                                        plelem$_kind kind,
+                                        pldesc$_presenceStructureDeliver delivers[]) {
+        this.name = name;
+        this.kind = kind;
+        this.delivers = delivers;
+    }
+}
+
+class plelem$_presenceStructure implements plelem$_any { /* non-terminal */
+    Hashtable attributes; /* plelem$_attribute -> Object */
+    plelem$_kind presenceKind;
+    Vector/*<pldesc$_presenceStructureIngredient>*/ ingredients; /* bindable */
+    boolean complete;
+    
+    plelem$_presenceStructure(Hashtable attributes,
+                              plelem$_kind presenceKind,
+                              Vector ingredients,
+                              boolean complete) {
+        this.attributes = attributes;
+        this.presenceKind = presenceKind;
+        this.ingredients = ingredients;
+        this.complete = complete;
+    }
+    boolean checkAttributes() {                         /* override this */
+        return(true);
+    }
+}
+
+/* Presence Impl */
+
+class pldesc$_presenceImplMap {                         /* terminal */
+    boolean neighborScope;
+    String ingredientName;
+    String presenceName;
+    
+    pldesc$_presenceImplMap(boolean neighborScope,
+                            String ingredientName,
+                            String presenceName) {
+        this.neighborScope = neighborScope;
+        this.ingredientName = ingredientName;
+        this.presenceName = presenceName;
+    }
+}
+
+class pldesc$_presenceImplIngredient {                  /* terminal */
+    String names[];
+    plelem$_ingredientImpl ingredientImpl;
+    pldesc$_presenceImplMap maps[];
+    
+    pldesc$_presenceImplIngredient(String names[],
+                                   plelem$_ingredientImpl ingredientImpl,
+                                   pldesc$_presenceImplMap maps[]) {
+        this.names = names;
+        this.ingredientImpl = ingredientImpl;
+        this.maps = maps;
+    }
+}
+
+class plelem$_presenceImpl implements plelem$_any {     /* non-terminal */
+    Hashtable attributes; /* plelem$_attribute -> Object */
+    plelem$_presenceStructure structure;
+    Vector/*<pldesc$_presenceImplIngredient>*/ ingredients; /* bindable */
+    Class implClass;
+    boolean complete;
+    
+    plelem$_presenceImpl(Hashtable attributes,
+                         plelem$_presenceStructure structure,
+                         Vector ingredients,
+                         Class implClass,
+                         boolean complete) {
+        this.attributes = attributes;
+        this.structure = structure;
+        this.ingredients = ingredients;
+        this.implClass = implClass;
+        this.complete = complete;
+    }
+}
+
+/* ================================== Una ================================== */
+
+/* Unum Structure */
+
+class pldesc$_unumStructurePresence {                   /* terminal */
+    String name;
+    plelem$_kind presenceKind;
+    boolean isPlural;
+    boolean isPrime;
+    Class makerClass;
+    
+    pldesc$_unumStructurePresence(String name,
+                                  plelem$_kind presenceKind,
+                                  boolean isPlural,
+                                  boolean isPrime,
+                                  Class makerClass) {
+        this.name = name;
+        this.presenceKind = presenceKind;
+        this.isPlural = isPlural;
+        this.isPrime = isPrime;
+        this.makerClass = makerClass;
+    }
+}
+
+class plelem$_unumStructure implements plelem$_any {    /* non-terminal */
+    Hashtable attributes; /* plelem$_attribute -> Object */
+    plelem$_kind unumKind;
+    Vector/*<pldesc$_unumStructurePresence>*/ presences; /* bindable */
+    boolean complete;
+    
+    plelem$_unumStructure(Hashtable attributes,
+                          plelem$_kind unumKind,
+                          Vector presences,
+                          boolean complete) {
+        this.attributes = attributes;
+        this.unumKind = unumKind;
+        this.presences = presences;
+        this.complete = complete;
+    }
+    boolean checkAttributes() {                         /* override this */
+        return(true);
+    }
+}
+
+/* Unum Impl */
+
+class pldesc$_unumImplPresence {                        /* terminal */
+    String names[];
+    plelem$_presenceImpl presenceImpl;
+    
+    pldesc$_unumImplPresence(String names[],
+                             plelem$_presenceImpl presenceImpl) {
+        this.names = names;
+        this.presenceImpl = presenceImpl;
+    }
+}
+
+class plelem$_unumImpl implements plelem$_any {         /* non-terminal */
+    Hashtable attributes; /* plelem$_attribute -> Object */
+    plelem$_unumStructure structure;
+    Vector/*<pldesc$_unumImplPresence>*/ presences;     /* bindable */
+    boolean complete;
+
+    plelem$_unumImpl(Hashtable attributes,
+                     plelem$_unumStructure structure,
+                     Vector presences,
+                     boolean complete) {
+        this.attributes = attributes;
+        this.structure = structure;
+        this.presences = presences;
+        this.complete = complete;
+    }
+}

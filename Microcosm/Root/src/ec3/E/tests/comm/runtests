@@ -1,0 +1,27 @@
+#!/bin/sh
+
+LSERVER=gracie.communities.com:666
+PID1=test1.$$
+PID2=test2.$$
+PID3=test3.$$
+
+ZZZ="RegisterWith=$LSERVER SearchPath=$LSERVER"
+
+case $1 in
+HelloCoding)
+	set -x
+	java ec.e.start.EBoot ec.tests.comm.HelloCoding PublisherId=$PID1 $ZZZ &
+	sleep 5
+	java ec.e.start.EBoot ec.tests.comm.HelloCoding PublisherId=$PID2 $ZZZ url=e://$LSERVER/$PID1/Doohicky
+	;;
+HelloHandoff)
+	set -x
+	java ec.e.start.EBoot ec.tests.comm.HelloHandoff PublisherId=$PID1 $ZZZ &
+	sleep 5
+	java ec.e.start.EBoot ec.tests.comm.HelloHandoff PublisherId=$PID2 $ZZZ hostURL=e://$LSERVER/$PID1/HelloHandoffHost &
+	sleep 5
+	java ec.e.start.EBoot ec.tests.comm.HelloHandoff PublisherId=$PID3 $ZZZ brokerURL=e://$LSERVER/$PID2/HelloHandoffBroker
+	;;
+
+esac
+

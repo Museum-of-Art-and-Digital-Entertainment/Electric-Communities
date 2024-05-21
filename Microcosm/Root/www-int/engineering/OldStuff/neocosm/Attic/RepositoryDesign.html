@@ -1,0 +1,148 @@
+<HTML>
+<HEAD>
+   <TITLE>General Repository Information</TITLE>
+</HEAD>
+<BODY>
+
+<H1>General Repository Information</H1>
+
+<P><B>Last updated: </B>[<A HREF="mailto:karl@communities.com">Karl</A>, 16 June 1998]
+<P>Maintained by: Karl
+<P>Contributors: Randy, Bob, Bill
+<P>
+These are notes I took while in meetings with Randy and Bob&Bill as witnessed
+by <A HREF="mailto:acheung@communities.com">Alison</A>.
+<BR>
+
+<HR>
+<H3><A HREF="mailto:randy@communities.com">Randy</A>'s Original Spec</H3>
+
+<H4>[15 June 1998]</H4>
+
+<H4>Requirements</H4>
+
+<ul>
+<li>Provide for retrieval of certified objects
+	<ul>
+	<li>transmission of certificate info to <u>"server"/region</u>
+	<li>global unique identification of objects (currently cryptohash)
+	</ul>
+<li>Transmit all data and certificates to others (data unpacking is recursive)
+	<ul>
+	<li>local caching system
+	<li>3rd party hand off mechanism (federated "repository servers";
+	hints; publication; URLs; ftp/http/whatever)
+	<li>dynamic certification
+	<li>certificate renewal (through "repository server")
+	</ul>
+<li>Support multiple repositories
+<li>Allow asynchronous retrieval of data
+<li>Allow dynamic policy tweaking (added during 6/15 meeting)
+	<ul>
+	<li>certificate agency should work with "repository server"
+	</ul>
+</ul>
+
+<H4>Desires</H4>
+
+<ul>
+<li>"Tweakable" policies for order of repository searching
+	<ul>
+	<li>follow hints first
+	<li>ask user first
+	<li>check with "region"/server first
+	</ul>
+<li>Handling of "group" requests (grab all pieces of an appearance as one
+block of data, for example)
+<li>Actually implementing all the downloading via hints stuff
+</ul>
+
+<HR>
+<H3><A HREF="mailto:bob@communities.com">Bob</A>'s &
+    <A HREF="mailto:bill@communities.com">Bill</A>'s Ideas</H3>
+
+<H4>[12(?) June 1998]</H4>
+
+<H4>High Level Design</H4>
+
+<ul>
+<li>Repositories are simple databases (cryptohash -> bytes)
+	<ul>
+	<li>deal with one source (file or directory)
+	<li>enter this data with this cryptohash
+	<li>get me the data for this cryptohash
+	<li>open a stream for this cryptohash (for adding large files)
+	<li>get me a stream for this cryptohash (for fetching large files)
+	</ul>
+<li>Repository (or Resource) managers handle higher level functionality
+	<ul>
+	<li>caching stuff that's been looked up before (and possibly "cooked" in some way)
+	<li>allowing explicit fetching of original (uncached and/or "uncooked") data
+	<li>handling multiple directories (repositories)
+	<li>linking two repositories via the stream interface for copying data
+	<li>dealing with following hints?
+	</ul>
+<li>Production interface provides name lookup support
+	<ul>
+	<li>name -> cryptohash -> bytes
+	<li>name -> file system -> bytes
+	</ul>
+</ul>
+
+<H4>Ideas</H4>
+
+<ul>
+<li>Repository is an interface which files and managers
+would implement; managers would also do more.
+<li>RepositoryOfLastResort could be a special implementation that has no actual
+data, but merely follows hints.
+</ul>
+
+<HR>
+<H3><A HREF="mailto:karl@communities.com">Karl</A>'s Ruminations So Far</H3>
+
+<H4>[16 June 1998]</H4>
+
+<H4>High Level Design</H4>
+
+<ul>
+<li>interface <b>Repository</b>
+	<ul>
+	<li>getting and puting data (bits) by key (cryptohash)
+	<li>reading and writing data streams by key
+	<li>getting and puting hints by key
+	<li>getting and puting certificates by key
+	<li>getting and puting <A HREF="RepositoryRequirements.html#StringNameSupport">string names</A> of original files by key?
+	<li>getting and puting <A HREF="RepositoryRequirements.html#ExtraInfo">extra info</A> (author, object type, date submitted, size. etc/) by key?
+	<li>deleting items and compacting the repository for <A HREF="RepositoryRequirements.html#Speedy">speedy</A> updates?
+	</ul>
+<li>class <b>RepositoryFile</b>
+	<ul>
+	<li>implements <b>Repository</b>
+	<li>contains a table of data
+	<li>contains a table of hints
+	<li>contains a table of certificates
+	</ul>
+<li>class <b>RepositoryManager</b>
+	<ul>
+	<li>implements <b>Repository</b>
+	<li>handles multiple <b>Repositor</b>ies
+	<li>provides caching of previously looked up data (or should this be part
+	of the <b>Repository</b> interface?)
+	<li>provides mechanism for streaming from one repository into another
+	<li>provides mechanism for defining lookup protocols (local first, hints first, etc.)
+	</ul>
+<li>interface <b>RepositoryProducer</b> (read "put" as "replace")
+	<ul>
+	<li>getting and puting data (bits) by name
+	<li>reading and writing data streams by name
+	<li>getting and puting hints by name?
+	<li>getting and puting certificates by name?
+	<li>getting and puting text files (which are then "compiled" into data) by name?
+	<li>writing out a RepositoryFile
+	<li>updating (faster than writing a whole new one) a RepositoryFile?
+	</ul>
+</ul>
+
+<BODY>
+</HTML>

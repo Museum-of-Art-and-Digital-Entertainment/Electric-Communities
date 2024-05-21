@@ -1,0 +1,33 @@
+#!/bin/sh
+
+# to restart a process location server, run this command with the
+# name of the checkpoint file as the argument:
+#
+# /home/eng/pls-location/restart /home/eng/pls-location/pls-gracie-1666.evat
+#
+
+JAVA_DIR=/home/eng/java-1.1.3/solaris/java-1.1.3
+#BUILD_DIR=/home/eng/e-stable
+BUILD_DIR=/home/eric/Build.pls
+
+CLASSPATH=$JAVA_DIR/lib/classes.zip:$BUILD_DIR/classes:$BUILD_DIR/compute/classes:$BUILD_DIR/crew/classes:$BUILD_DIR/guest/classes:$BUILD_DIR/steward/classes
+
+LD_LIBRARY_PATH=/usr/lib:/usr/ucblib:$JAVA_DIR/lib/sparc:$BUILD_DIR/lib:$BUILD_DIR/solaris/lib
+
+export JAVA_DIR CLASSPATH LD_LIBRARY_PATH
+
+trace="Trace_ec.e.net.ProcessLocationServerHelper=debug"
+
+case x$1 in
+*.evat)
+	if [ -f $1 ]; then
+		echo java ec.e.quake.Revive $1 $trace
+		$JAVA_DIR/bin/java ec.e.quake.Revive $1 $trace -ECproperties $1.props > $1.log 2>&1 &
+	else
+		echo $1: file not found
+	fi
+	;;
+*)
+	echo usage $0 file.evat
+	;;
+esac

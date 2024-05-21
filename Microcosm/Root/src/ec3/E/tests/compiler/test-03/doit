@@ -1,0 +1,4 @@
+#!/bin/sh
+
+ecomp -d . when.e
+java ec.tests.when.Main

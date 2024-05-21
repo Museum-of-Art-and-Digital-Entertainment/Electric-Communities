@@ -1,0 +1,1412 @@
+# 1 "ec/ecomp/exprs.java" 
+/* ************************************************************************
+ * Espresso! Abstract syntax tree nodes for expressions
+ * Copyright 1995, 1996, 1997 Martin Odersky. All rights reserved.
+ * 
+ * Author     : Martin Odersky, Michael Philippsen.
+ * Last change: 17-December-97
+ *************************************************************************/
+
+//FIX 21/10/96 change all calls to resolve(...)
+
+
+package ec.ecomp;
+
+
+
+
+class Aggregate extends AST {
+    AST[] elems; 
+
+    AST targetType = null; //used for 1.1. style anonymous error declarations   
+
+
+    Aggregate(int pos, ASTS elems) {
+        super(pos, AGGREGATE);
+        this.elems = elems.shrink();
+    }
+
+
+    Aggregate(int pos, ASTS elems, AST targetType) {
+        super(pos, AGGREGATE);
+        this.elems = elems.shrink();
+        this.targetType = targetType;
+    }
+
+
+    boolean isExpr() { return true; }
+
+    Typ attr(Env env, int kind, Typ pt) {
+
+        if (targetType != null)
+          targetType.attr(env, TYP, Typ.anyTyp);
+
+        if (Attr.checkKind(pos, VAL, kind)) {
+            Typ elempt;
+            Typ elemtyp;
+            if (pt.tag == ARRAY)
+                elempt = ((ArrayTyp)pt).elemtyp;
+            else if (pt.tag == ERRTYP)
+                elempt = Typ.errTyp;
+            else 
+                elempt = Typ.anyTyp;
+            elemtyp = elempt;
+
+            if ((targetType != null) && (targetType.typ != Typ.errTyp)) {
+              for (int i = 0; i < elems.length; i++) {
+                elems[i].attr(env, VAL, targetType.typ);
+              }
+              typ = Attr.checkTyp(env, pos, new ArrayTyp(targetType.typ), pt);
+            } else {
+
+              for (int i = 0; i < elems.length; i++)
+
+                elemtyp = Attr.join(env, elems[i].pos,
+
+
+
+                                    elemtyp, 
+                                    elems[i].attr(env, VAL, elempt));
+
+              typ = Attr.checkTyp(env, pos, new ArrayTyp(elemtyp), pt);
+            }
+
+
+
+        } else
+            typ = Typ.errTyp;
+        // hack until we have parametric poly:
+        if (elems.length == 0 && 
+            typ.tag == ARRAY &&
+            ((ArrayTyp)typ).elemtyp.tag == ANYTYP) {
+            typ = new ArrayTyp(Predef.objectTyp);
+        } 
+        return typ;
+    }
+
+    Item gen () {
+        Typ elemtyp = ((ArrayTyp)typ).elemtyp;
+        ImmediateItem.loadIntConst(elems.length);
+        (new NewArrayItem(1)).load(typ);
+        for (int i = 0; i < elems.length; i++) {
+            Gen.emitop(dup);
+            ImmediateItem.loadIntConst(i);
+            elems[i].gen()
+                .coerce(elems[i].typ, elemtyp)
+                .load(elemtyp);
+            Item.indexedItem.store(elemtyp);
+        }
+        return Item.stackItem;
+    }
+
+    void print(int prec) {
+
+      if (Switches.cafeSucks) {
+        String typStr = "";
+        if (typ != null) {
+          typStr = typ.toString();
+          typStr = typStr.substring(0, typStr.length() - 2);
+          typStr = "_" + typStr.replace('.', '_');
+        }
+        System.out.print("CafeSucks.makeArray" + typStr + "(");
+        printSeq(elems);
+        System.out.print(")");
+      } else {
+        System.out.print("new ");
+        if (typ == null)
+          System.out.print("Object[]"); 
+        else
+          System.out.print(""+typ);
+        System.out.print(" {");
+
+
+
+        printSeq(elems);
+        System.out.print("}");
+
+      }
+
+    }
+}
+
+/** A class for annotations of extended types
+ */
+class AnnotType extends AST {
+    AST javatyp;
+    Typ alttyp;
+    
+    AnnotType(int pos, AST javatyp, Typ alttyp) {
+        super(pos, ANNOTTYPE);
+        this.javatyp = javatyp;
+        this.alttyp = alttyp;
+    }
+
+    Typ attr(Env env, int kind, Typ pt) {
+        typ = javatyp.attr(env, kind, pt);
+        return typ;
+    }
+
+    void print(int prec) {
+        javatyp.print(prec);
+        System.out.print("/*" + alttyp + "*/");
+    }
+}
+
+class Apply extends AST {
+    AST fn;
+    AST[] args;
+
+
+    private static Name envelopeS   = Name.fromString("envelope");
+    boolean isEnvelope = false;
+    private static Name invocationS = Name.fromString("invocation");
+    boolean isInvocation = false;
+    private static Name sealerS = Name.fromString("sealer");
+    boolean isSealer = false;
+
+
+/** if this is a constructor call, the constructor object; attributed.
+ */
+    Obj constructor; 
+
+    Apply(int pos, AST fn, ASTS args) {
+        super(pos, APPLY);
+        this.fn = fn;
+        this.args = args.shrink();
+
+        
+        if (   (this.args.length == 1)
+            && (this.args[0].tag == ESEND)) {
+          if (fn instanceof Select) {
+            Report.error(pos, "can only be used unqualified, i.e., without '.'");
+          }
+          if (   (fn instanceof Ident) 
+              && ((Ident)fn).name.equals(envelopeS))
+            isEnvelope = true;
+          if (   (fn instanceof Ident) 
+              && ((Ident)fn).name.equals(invocationS))
+            isInvocation = true;
+          if (   (fn instanceof Ident) 
+              && ((Ident)fn).name.equals(sealerS))
+            isSealer = true;
+        }
+
+    }
+
+
+    Apply(int pos, AST fn, AST[] args) {
+      this(pos, fn, new ASTS());
+      this.args = args;
+    }
+
+
+    boolean isExpr() { return true; }
+
+
+    private void addRtExArgument(Env env, Typ tp) {
+      // The FunTyp found might have an additional RtExceptionEnv parameter
+      // This must be added to the AST as well.
+      // System.out.println("addRtExArgument "+tp.toString());
+      if (   tp instanceof FunTyp 
+          && ((args.length+1) == ((FunTyp)tp).argtyps.length)) {
+        AST[] newargs = new AST[args.length+1];
+        for (int i = 0; i<args.length; i++) {
+          newargs[i] = args[i];
+        }
+        int nestLevel = -1;
+        if (   (env.enclMeth != null) 
+             && (env.enclMeth instanceof eFunDef)   
+             && (((eFunDef)env.enclMeth).isEcontext()))   
+          nestLevel = 0;
+        if (env.enclKeep != null) 
+          nestLevel = env.enclKeep.nestLevel;
+        if (nestLevel < 0) {
+          Report.error(pos, "May only be called in E-context.");
+          typ = Typ.errTyp;
+          return;
+        } else {
+          newargs[args.length] = 
+            new Ident(pos, 
+                      E2j.eKeeperS.append(Name.fromString(""+nestLevel)));
+        }
+        args = newargs;
+      }
+    }
+
+
+    Typ attr(Env env, int kind, Typ pt) {
+        constructor = null; 
+        Typ [] argtyps = new Typ[args.length];
+        Env env1 = env;
+        if (kind == CONSTR) { // we are in a "this" or "super" constructor
+            env1 = new Env(env, this);
+            env1.isSelfCall = true;
+        }
+
+
+        // envelope(...) and invocation(...)
+        if (isEnvelope) {
+          ((eAssignop)args[0]).isEnvelope = true;
+          argtyps[0] = args[0].attr(env1, VAL, Typ.anyTyp);
+          typ = ePredef.RtEnvelopeTyp;
+          return typ;
+        }       
+        if (isInvocation) {
+          ((eAssignop)args[0]).isInvocation = true;
+          argtyps[0] = args[0].attr(env1, VAL, Typ.anyTyp);
+          typ = ePredef.RtInvocationTyp;
+          return typ;
+        }
+        if (isSealer) {
+          ((eAssignop)args[0]).isSealer = true;
+          argtyps[0] = args[0].attr(env1, VAL, Typ.anyTyp);
+          typ = ePredef.RtSealerTyp;
+          return typ;
+        }
+
+
+        for (int i = 0; i < args.length; i++) {
+          argtyps[i] = Attr.checkNonVoid(args[i].pos,
+                                         args[i].attr(env1, VAL, Typ.anyTyp));
+        }
+        if (kind == CONSTR) { 
+            typ = fn.attr(env, CONSTR, 
+                           new FunTyp(argtyps, Typ.anyTyp, Predef.anyTypSet));
+//FIX 15/4/97
+            Attr.checkHandled(pos, typ, env.reported);
+        } else if (kind == TYP) { // we are in a new construct
+            typ = fn.attr(env, TYP, Typ.anyTyp);
+            if (typ.tag == CLASS) {
+                ClassObj c = typ.obj;
+                if ((c.modifiers & (ABSTRACT | INTERFACE)) != 0)
+                    Report.error(pos, c + 
+                                 " is abstract; cannot be instantiated");
+                else {
+                    constructor = Attr.resolveConstructor(
+                        fn.pos, env, c, 
+                        new FunTyp(argtyps, Typ.anyTyp, Predef.anyTypSet));
+                    Attr.checkHandled(pos, constructor.typ, env.reported);
+                }
+            } else if (typ.tag != ERRTYP)
+                Report.error(pos, "class required, but " + typ + " found");
+        } else if (Attr.checkKind(pos, VAL, kind)) {
+          
+            //if (pt.subtype(ePredef.E$methodTyp)) {
+            //  // System.out.println("apply for emethod");
+            //  typ = fn.attr(env, FUN, 
+            //                new FunTyp(argtyps, ePredef.E$methodTyp,
+            //                           Predef.anyTypSet));
+            //} else
+
+            typ = fn.attr(env, FUN, 
+                          new FunTyp(argtyps, Typ.anyTyp, Predef.anyTypSet));
+            Attr.checkHandled(pos, typ, env.reported);
+            if (typ.tag == FUNCTION)
+
+              typ = Attr.checkTyp(env, pos, ((FunTyp)typ).restyp, pt);
+
+
+            
+        } else
+          typ = Typ.errTyp;
+        return typ;
+    }
+
+/** generate code to load function arguments.
+ */
+    private void loadArgs(FunTyp ftyp) {
+        for (int i = 0; i < args.length; i++)
+            args[i].gen()
+                .coerce(args[i].typ, ftyp.argtyps[i])
+                .load(ftyp.argtyps[i]);
+    }
+
+    Item gen() {
+        FunTyp ftyp;
+        BasedItem f;
+        if (constructor != null) {
+            ftyp = (FunTyp)constructor.typ;
+            Gen.emitop2(new_, Gen.mkref(typ));
+            Gen.emitop(dup);
+            f = new BasedItem(pos, Item.stackItem, constructor);
+        } else {
+            ftyp = (FunTyp)fn.typ;
+            f = (BasedItem)fn.gen();
+        }
+         loadArgs(ftyp);
+        f.invoke();
+        return ftyp.restyp.tag == VOID ? Item.voidItem : Item.stackItem;
+    }
+
+    void print(int prec) {
+        fn.print(postfixPrec);
+        System.out.print("(");
+        printSeq(args);
+        System.out.print(")");
+    }
+}
+
+
+class Assignop extends AST {
+    AST left;
+    AST right;
+
+/** the operator object; attributed.
+ */
+    Obj binop;
+
+    Assignop(int pos, int op, AST left, AST right) {
+        super(pos, op);
+        this.left = left;
+        this.right = right;
+    }
+
+    boolean isExpr() { return true; }
+
+    Typ attr(Env env, int kind, Typ pt) {
+        if (Attr.checkKind(pos, VAL, kind)) {
+            Typ ltyp = left.attr(env, VAR, Typ.anyTyp);
+            if (tag == ASSIGN) {
+                right.attr(env, VAL, ltyp);
+            } else {
+                Typ rtyp = right.attr(env, VAL, Typ.anyTyp);
+                Typ[] argtyps = {ltyp, rtyp};
+                binop = Attr.resolveIdent(
+                    pos, env, mnem[tag - ASSIGN], FUN,
+                    new FunTyp(argtyps, Typ.anyTyp, null));
+                if (binop.typ.tag == FUNCTION &&
+                    !Attr.canCast(((FunTyp)binop.typ).restyp, ltyp))
+
+                    Attr.checkTyp(env, right.pos,
+
+
+
+                                  ((FunTyp)binop.typ).restyp,
+                                  ltyp);
+            }
+
+            typ = Attr.checkTyp(env, pos, ltyp, pt);
+
+
+
+        } else
+            typ = Typ.errTyp;
+        return typ;
+    }
+
+    Item gen() {
+        Item lhs = left.gen();
+        if (tag == ASSIGN) {
+            right.gen().coerce(right.typ, left.typ).load(left.typ);
+        } else {
+            if ((tag == APLUS || tag == AMINUS) &&
+                lhs.mode == LOCALmode && left.typ.tag <= INT &&
+                right.tag == INTLIT) {
+                int ival = ((Integer)((Literal)right).val).intValue();
+                if (tag == AMINUS) ival = -ival;
+                if (-128 <= ival && ival <= 127) {
+                    ((LocalItem)lhs).incr(ival);
+                    return lhs;
+                }
+            }
+            lhs.duplicate(left.typ);
+            Binop.completeBinop(pos, tag - ABITOR + BITOR, binop, 
+                                left, right, lhs);
+            Item.stackItem.coerce(((FunTyp)binop.typ).restyp, left.typ);
+        }
+        return new AssignItem(lhs);
+    }
+
+    void print(int prec) {
+        Pretty.open(prec, assignPrec-1);
+        left.print(assignPrec);
+        System.out.print(" " + mnem[tag - ASSIGN]);
+
+        if (tag != ESEND)
+
+          System.out.print("= ");
+        right.print(assignPrec);
+        Pretty.close(prec, assignPrec-1);
+    }
+
+    static Name[] mnem = new Name[LastASSIGNOP + 1 - ASSIGN];
+    static{
+        mnem[ASSIGN - ASSIGN] = Name.fromString("");
+        mnem[ABITOR - ASSIGN] = Name.fromString("|");
+        mnem[ABITXOR - ASSIGN] = Name.fromString("^");
+        mnem[ABITAND - ASSIGN] = Name.fromString("&");
+        mnem[ASL - ASSIGN] = Name.fromString("<<");
+        mnem[ASR - ASSIGN] = Name.fromString(">>");
+        mnem[ALSR - ASSIGN] = Name.fromString(">>>");
+        mnem[APLUS - ASSIGN] = Name.fromString("+");
+        mnem[AMINUS - ASSIGN] = Name.fromString("-");
+        mnem[ATIMES - ASSIGN] = Name.fromString("*");
+        mnem[ADIV - ASSIGN] = Name.fromString("/");
+        mnem[AMOD - ASSIGN] = Name.fromString("%");
+
+        mnem[ESEND - ASSIGN] = Name.fromString("<-");
+
+    }
+}
+
+
+class Binop extends AST {
+    AST left;
+    AST right;
+
+/** the operator object; attributed.
+ */
+    Obj binop;
+
+    Binop(int pos, int op, AST left, AST right) {
+        super(pos, op);
+        this.left = left;
+        this.right = right;
+    }
+
+    boolean isExpr() { return true; }
+
+    boolean isConstant () { 
+        return left.isConstant() && right.isConstant(); 
+    }
+
+    Typ attr(Env env, int kind, Typ pt) {
+        if (Attr.checkKind(pos, VAL, kind)) {
+            Typ ltyp = Attr.checkNonVoid(
+                pos, left.attr(env, VAL, Typ.anyTyp));
+            Typ rtyp = Attr.checkNonVoid(
+                pos, right.attr(env, VAL, Typ.anyTyp));
+            Typ[] argtyps = {ltyp, rtyp};
+            binop = Attr.resolveIdent(
+                pos, env, mnem[tag - OR], FUN,
+                new FunTyp(argtyps, pt, null));
+            if (binop.typ.tag == FUNCTION)
+
+                typ = Attr.checkTyp(env, pos, ((FunTyp)binop.typ).restyp, pt);
+
+
+
+            else
+                typ = Typ.errTyp;
+        } else
+            typ = Typ.errTyp;
+        return typ;
+    }
+
+/** find definition of name(argtyp) in class java.lang.String
+ */
+//FIX 21/10/96
+    private static Obj findInString(Name name, Typ argtyp) {
+        Typ[] argtyps = {argtyp};
+        return Attr.findMethod(null, Predef.stringClass, name, argtyps);
+    }
+
+    static Name valueOfS = Name.fromString("valueOf");
+    static Name concatS  = Name.fromString("concat");
+
+    private static void mkString(Typ argtyp) {
+        // pre: "valueOf" is declared static in String
+        Obj valueof = findInString(valueOfS, argtyp);
+        (new BasedItem(0, null, valueof)).invoke();
+    }
+
+/** complete code generation for a binary operation, given
+ *  - the operator tag,
+ *  - the operator object,
+ *  - the left and right subtrees,
+ *  - the item that addresses the left value.
+ */
+    static Item completeBinop(int pos, int tag, Obj binop, 
+                              AST left, AST right, Item leftItem) {
+        int ltc = Gen.typecode(left.typ);
+        int rtc = Gen.typecode(right.typ);
+        int otc = ltc < rtc ? rtc : ltc;
+        int opcode = ((OperatorObj)binop).opcode;
+        boolean isconst = left.isConstant() && right.isConstant();
+        if (!isconst) {
+            leftItem.load(left.typ);
+            leftItem = Item.stackItem;
+        }
+        boolean stringAdd = tag == PLUS && opcode == string_add;
+        if (stringAdd) 
+            mkString(left.typ);
+        else 
+            leftItem.coerce(left.typ, ltc, otc);
+        Item rightItem = right.gen();
+        if (!isconst) {
+            rightItem.load(right.typ);
+            rightItem = Item.stackItem;
+        }
+        if (stringAdd) {
+            mkString(right.typ);
+            Obj concat = findInString(concatS, Predef.stringTyp); 
+            (new BasedItem(0, leftItem, concat)).invoke();
+            return Item.stackItem;
+        } else {
+            if (!(tag == SL || tag == SR || tag == LSR))
+                rightItem.coerce(right.typ, rtc, otc);
+            if (isconst)
+                return ConstantFolder.fold(pos,
+                                           (ImmediateItem)leftItem, 
+                                           (ImmediateItem)rightItem, 
+                                           opcode);
+            else 
+                switch(tag) {
+                case EQ: case NE: case LT: case LE: case GT: case GE:
+                    switch (otc) {
+                    case LONGcode:
+                        Gen.emitop(lcmp);
+                        break;
+                    case FLOATcode:
+                        if (tag == LT || tag == LE) Gen.emitop(fcmpg);
+                        else Gen.emitop(fcmpl);
+                        break;
+                    case DOUBLEcode:
+                        if (tag == LT || tag == LE) Gen.emitop(dcmpg);
+                        else Gen.emitop(dcmpl);
+                        break;
+                    default:
+                        break;
+                    }
+                    return new CondItem(opcode & 0xFF);
+                default:
+                    Gen.emitop(opcode);
+                    return Item.stackItem;
+                }
+        }
+    }
+
+    Item gen() {
+        Item lhs = left.gen();
+        if (tag == OR && !isConstant()) {
+            CondItem lhs1 = lhs.mkCond();
+            if (lhs1.falseJumps != null || lhs1.opcode != goto_) {
+                Label trueJumps = lhs1.jumpTrue();
+                Gen.resolve(lhs1.falseJumps);
+                CondItem rhs1 = right.gen().mkCond();
+                return new CondItem(rhs1.opcode, 
+                                    Gen.mergeLabels(trueJumps, 
+                                                    rhs1.trueJumps),
+                                    rhs1.falseJumps);
+            } else
+                return lhs1;
+        } else if (tag == AND && !isConstant()) {
+            CondItem lhs1 = lhs.mkCond();
+            if (lhs1.trueJumps != null || lhs1.opcode != Gen.dontgoto) {
+                Label falseJumps = lhs1.jumpFalse();
+                Gen.resolve(lhs1.trueJumps);
+                CondItem rhs1 = right.gen().mkCond();
+                return new CondItem(rhs1.opcode, 
+                                    rhs1.trueJumps,
+                                    Gen.mergeLabels(falseJumps, 
+                                                    rhs1.falseJumps));
+            } else
+                return lhs1;
+        } else {
+            return completeBinop(pos, tag, binop, left, right, lhs);
+        }
+    }
+
+    void print (int prec) {
+        Pretty.open(prec, opprec[tag - OR]);
+        left.print(opprec[tag - OR]);
+        System.out.print(" " + mnem[tag - OR] + " ");
+
+        if (   (right instanceof Binop) 
+            && (opprec[right.tag - OR] == opprec[tag-OR]))
+          System.out.print("(");
+
+        right.print(opprec[tag - OR]);
+
+        if (   (right instanceof Binop) 
+            && (opprec[right.tag - OR] == opprec[tag-OR]))
+          System.out.print(")");
+
+        Pretty.close(prec, opprec[tag - OR]);
+    }
+
+    static int[] opprec = new int[MOD + 1 - OR];
+    static{
+        opprec[OR - OR] = orPrec;
+        opprec[AND - OR] = andPrec;
+        opprec[EQ - OR] = eqPrec;
+        opprec[NE - OR] = eqPrec;
+        opprec[LT - OR] = ordPrec;
+        opprec[GT - OR] = ordPrec;
+        opprec[LE - OR] = ordPrec;
+        opprec[GE - OR] = ordPrec;
+        opprec[BITOR - OR] = bitorPrec;
+        opprec[BITXOR - OR] = bitxorPrec;
+        opprec[BITAND - OR] = bitandPrec;
+        opprec[SL - OR] = shiftPrec;
+        opprec[SR - OR] = shiftPrec;
+        opprec[LSR - OR] = shiftPrec;
+        opprec[PLUS - OR] = addPrec;
+        opprec[MINUS - OR] = addPrec;
+        opprec[TIMES - OR] = mulPrec;
+        opprec[DIV - OR] = mulPrec;
+        opprec[MOD - OR] = mulPrec;
+    }
+    static Name[] mnem = new Name[MOD + 1 - OR];
+    static{
+        mnem[OR - OR] = Name.fromString("||");
+        mnem[AND - OR] = Name.fromString("&&");
+        mnem[EQ - OR] = Name.fromString("==");
+        mnem[NE - OR] = Name.fromString("!=");
+        mnem[LT - OR] = Name.fromString("<");
+        mnem[GT - OR] = Name.fromString(">");
+        mnem[LE - OR] = Name.fromString("<=");
+        mnem[GE - OR] = Name.fromString(">="); 
+        mnem[BITOR - OR] = Name.fromString("|");
+        mnem[BITXOR - OR] = Name.fromString("^");
+        mnem[BITAND - OR] = Name.fromString("&");
+        mnem[SL - OR] = Name.fromString("<<");
+        mnem[SR - OR] = Name.fromString(">>");
+        mnem[LSR - OR] = Name.fromString(">>>");
+        mnem[PLUS - OR] = Name.fromString("+");
+        mnem[MINUS - OR] = Name.fromString("-");
+        mnem[TIMES - OR] = Name.fromString("*");
+        mnem[DIV - OR] = Name.fromString("/");
+        mnem[MOD - OR] = Name.fromString("%");
+    }
+}
+
+class Ident extends IdRef {
+  
+ 
+    private static Name eKeeperS = Name.fromString("ekeeper_$_");
+ 
+ 
+    Ident(int pos, Name name) {
+        super(pos, IDENT, name);
+    }
+
+    boolean isExpr() { return true; }
+    boolean isType() { return true; }
+
+    Typ attr(Env env, int kind, Typ pt) {
+        obj = Attr.resolveIdent(pos, env, name, kind, pt);
+        if (env.isStatic) obj = Attr.checkStatic(pos, obj);
+        else if (env.isSelfCall) obj = Attr.checkStaticOrFinal(pos, obj);
+
+        Simplify.markFree(env, obj);
+
+        typ = Attr.checkTyp(env, pos, obj.typ, pt);
+
+
+
+        return typ;
+    }
+
+    Item gen() {
+        if (obj instanceof ClassObj) 
+            return new ClassItem((ClassObj)obj);
+        else if (obj.isConstant())
+            return new ImmediateItem(((VarObj)obj).constValue());
+        else if (typ.tag == NULLTYP) {
+          Gen.emitop(aconst_null);
+          return Item.stackItem;
+        } else if (obj.owner instanceof FunObj) {
+            VarObj v = (VarObj)obj;
+            Item vble = new LocalItem(pos, v.adr);
+/*            if (v.passByRef) {
+                vble.load(new ArrayTyp(v.typ));
+                ImmediateItem.loadIntConst(0);
+                vble = Item.indexedItem;
+            }
+    */
+            return vble;
+        } else if (obj.owner instanceof ClassObj)
+            return new BasedItem(pos, Item.thisItem, obj);
+        else
+            throw new CompilerError("gen "+name);
+    }
+
+    void print(int prec) { 
+        System.out.print(name); 
+    }
+}
+
+class TypeIdent extends Ident {
+
+    TypeIdent(int pos, Name name) {
+        super(pos, name);
+    }
+
+    boolean isExpr() { return false; }
+}
+
+class Literal extends AST {
+    Object val;
+
+    Literal(int pos, int tag, Object val) {
+        super(pos,tag);
+        this.val = val;
+    }
+
+    boolean isExpr() { return true; }
+
+    boolean isConstant() { return tag != STRINGLIT; }
+
+    Typ attr(Env env, int kind, Typ pt) {
+        if (Attr.checkKind(pos, VAL, kind)) {        
+            switch(tag) {
+            case CHARLIT:
+                int ival = ((Number)val).intValue();
+                if (ival <= MAX_BYTE && pt.tag == BYTE)
+                    typ = Typ.byteTyp;
+                else if (ival <= MAX_SHORT && pt.tag == SHORT)
+                    typ = Typ.shortTyp;
+                else
+                    typ = Typ.charTyp;
+                break;
+            case INTLIT:
+                long lval = ((Number)val).longValue();
+                if (0 <= lval && lval <= MAX_CHAR && pt.tag == CHAR)
+                    typ = Typ.charTyp;
+//                if (0 <= lval && lval <= MAX_BYTE)
+//                    typ = Typ.pbyteTyp;
+                else if (MIN_BYTE <= lval && lval <= MAX_BYTE 
+                         && pt.tag == BYTE)
+                    typ = Typ.byteTyp;
+//                else if (0 <= lval && lval <= MAX_SHORT)
+//                    typ = Typ.pshortTyp;
+                else if (MIN_SHORT <= lval && lval <= MAX_SHORT 
+                         && pt.tag == SHORT)
+                    typ = Typ.shortTyp;
+//                else if (0 <= lval && lval <= MAX_CHAR)
+//                    typ = Typ.charTyp;
+                else
+                    typ = Typ.intTyp;
+                break;
+            case LONGLIT: typ = Typ.longTyp; break;
+            case FLOATLIT: typ = Typ.floatTyp; break;
+            case DOUBLELIT: typ = Typ.doubleTyp; break;
+            case STRINGLIT: typ = Predef.stringTyp; break;
+            }
+
+            typ = Attr.checkTyp(env, pos, typ, pt);
+
+
+
+        } else 
+            typ = Typ.errTyp;
+        return typ;
+    }
+
+    Item gen() {
+        return new ImmediateItem(val);
+    }
+
+    void print(int prec) {
+        if (tag == STRINGLIT)
+            System.out.print("\"" + Convert.escape(val.toString()) + "\"");
+
+        else if (tag == CHARLIT) {
+                char litch = (char) (((Integer) val).intValue());
+            System.out.print("\'" + Convert.escape(litch) + "\'");
+        } else
+
+
+
+
+
+            System.out.print(val);
+
+       if (tag == FLOATLIT) {
+         System.out.print("F");
+       } else if (tag == LONGLIT) {
+         System.out.print("L");
+       }
+
+    }
+}
+
+
+class New extends AST {
+    AST constr;
+
+    New(int pos, AST constr) {
+        super(pos, NEW);
+        this.constr = constr;
+    }
+
+    boolean isExpr() { return true; }
+
+    Typ attr(Env env, int kind, Typ pt) {
+        if (Attr.checkKind(pos, VAL, kind)) {
+
+            typ = Attr.checkTyp(env, pos, constr.attr(env, TYP, Typ.anyTyp), pt);
+
+
+
+        } else
+            typ = Typ.errTyp;
+        return typ;
+    }
+
+    Item gen() {
+        constr.genLoad();
+        return Item.stackItem;
+    }
+
+    void print(int prec) {
+        Pretty.open(prec, prefixPrec);
+        System.out.print("new ");
+        constr.print();
+        Pretty.close(prec, prefixPrec);
+    }
+}
+
+
+class Select extends IdRef {
+
+    AST struc;
+
+    Select(int pos, AST struc, Name name) {
+        super(pos, SELECT, name);
+        this.struc = struc;
+    }
+
+    boolean isExpr() { return struc.isExpr(); }
+    boolean isType() { return struc.isType(); }
+
+    Typ attr(Env env, int kind, Typ pt) {
+//FIX 22/10/96
+        int skind = 0;
+        if ((kind & (TYP | PCK)) != 0) skind = PCK;
+        if ((kind & ~(TYP | PCK)) != 0) skind = skind | (VAL | TYP);
+        Typ styp = struc.attr(env, skind, Typ.anyTyp);
+        switch (styp.tag) {
+        case PACKAGETYP:
+            obj = Attr.resolveClass(
+                        pos, env, ClassObj.formFullName(name, styp.obj), kind);
+            break;
+        case ARRAY:
+        case CLASS: {
+            ClassObj c = styp.obj;
+            Attr.fixupScope(pos, c);
+//FIX 11/11/96:
+            env.selectSuper = 
+                struc instanceof Self ||
+                struc instanceof IdRef &&
+                ((IdRef)struc).obj instanceof ClassObj;
+
+            //if in super.foo() foo is an emethod, then we have to
+            //replace foo with foo$async so that Attr.resolve gets it right
+            Name origname = null;
+            if (!E2j.done && env.selectSuper && (pt instanceof FunTyp)) {
+              Obj obj = Attr.findFun(env, name.append(E2j.asyncS),
+                                     ((FunTyp)pt).argtyps);
+              if (obj.kind < BAD) {
+                // System.out.print("found = ");((FunObj)obj).printDef();
+                origname = name;
+                name = name.append(E2j.asyncS);
+              }
+            }
+/*          
+            else
+//            Attr.emtdrules = (   (pt instanceof FunTyp)
+                                && name.endsWith(E2j.asyncS));
+*/                              
+
+            obj = Attr.resolveSelect(pos, env, name, c, kind, pt);
+//FIX 11/11/96:
+            env.selectSuper = false;
+
+            if (origname != null)
+              name = origname;
+            // System.out.println("pt = "+pt.toString());
+            boolean emtdrules = (   (obj.kind == FUN)
+                                 && ((FunObj)obj).name.endsWith(E2j.asyncS));
+            if (   c.subclass(ePredef.EobjectClass) && !emtdrules 
+                && !(struc instanceof Self)) {  // DEBUG
+              if ((obj.modifiers & STATIC) != 0) {
+                if (struc instanceof IdRef &&
+                    ((IdRef)struc).obj instanceof ClassObj) {
+                  ((IdRef)struc).useImpl = true;
+                }
+              } else {
+                Report.error(pos,"non-static instance vars and methods of "+
+                             "eclass "+c.name+" can only be accessed relative "+
+                             "to this and super");
+                obj = Typ.errObj;
+                break;
+              }
+            }
+            if (!emtdrules) {
+
+              if (struc instanceof IdRef &&
+                ((IdRef)struc).obj instanceof ClassObj)
+                if (!env.isStatic && env.enclClass.obj.typ.subtype(c.typ))
+                    obj = Attr.checkNonAbstract(pos, obj);
+                else
+                    obj = Attr.checkStatic(pos, obj);
+              else if (struc instanceof Self)
+                if (env.isSelfCall)
+                    obj = Attr.checkStaticOrFinal(pos, obj);
+                else
+                    obj = Attr.checkNonAbstract(pos, obj);
+
+            }
+
+            break;
+        }
+        case NULLTYP:
+            Report.error(pos, "null cannot be dereferenced");
+            obj = Typ.errObj;
+            break;
+        default:
+            Attr.checkObjectTyp(pos, styp);
+            obj = Typ.errObj;
+            break;
+        }
+
+        typ = Attr.checkTyp(env, pos, obj.typ, pt);
+
+
+
+        return typ;
+    }
+
+    Item gen() {
+        if (obj instanceof ClassObj) {
+            if (Switches.checks) Basic.assert(obj.typ.tag != PACKAGETYP);
+            return new ClassItem((ClassObj)obj);
+        } else if (obj.isConstant()) {
+            return new ImmediateItem(((VarObj)obj).constValue());
+        } else if (obj == Predef.lengthVar) {
+            struc.genLoad();
+            Gen.emitop(arraylength);
+            return Item.stackItem;
+        } else if ((obj.modifiers & STATIC) != 0) {
+            return new BasedItem(pos, null, obj);
+        } else if (struc instanceof IdRef &&
+                   ((IdRef)struc).obj instanceof ClassObj) {
+            return new BasedItem(pos, Item.nonvirtualItem, obj);
+        } else
+            return new BasedItem(pos, struc.gen(), obj);
+    }
+
+    static Name PeriodS = Name.fromString(".");
+
+/** overrides IdRef
+ */
+    public Name fullName() {
+        return ((IdRef)struc).fullName().append(PeriodS).append(name);
+    }
+
+    void print(int prec) { 
+        struc.print(postfixPrec); 
+        System.out.print("." + name);
+    }
+}
+
+class Self extends AST {
+
+/** when this node is used in a constructor call, the called 
+ *  constructor, null otherwise.
+ */
+    Obj constructor;
+
+    Self(int pos, int tag) {
+        super(pos, tag);
+    } 
+
+    boolean isExpr() {
+        return true;
+    }
+
+    Typ attr(Env env, int kind, Typ pt) {
+        typ = Typ.errTyp;
+        constructor = null;
+//FIX 15/4/97
+        if (env.isSelfCall) {
+          Report.error(pos, "can't reference " + 
+                       (tag == SUPER ? "super" : "this") +
+                       " before superclass constructor has been called");
+        } else if (!env.isStatic) {
+            ClassObj c = (ClassObj)env.enclClass.obj;
+            if (c != null) {
+                if (tag == SUPER) c = c.superclass;
+                if (kind == CONSTR) {
+//FIX 21/10/96
+//FIX 12/12/96:
+                    boolean selectSuper = env.selectSuper;
+                    env.selectSuper = true;             
+                    constructor = Attr.resolveConstructor(pos, env, c, pt);
+                    env.selectSuper = selectSuper;
+                    typ = constructor.typ;
+                } else if (Attr.checkKind(pos, VAL, kind))
+
+                    typ = Attr.checkTyp(env, pos, c.typ, pt);
+
+
+
+            }
+        } else
+            Report.error(pos, "undefined variable: " + 
+                         (tag == SUPER ? "super" : "this"));
+        return typ;
+    }
+
+    Item gen() {
+        if (constructor != null)
+            return new BasedItem(pos, Item.nonvirtualItem, constructor);
+        else if (tag == SUPER)
+            return Item.superItem;
+        else 
+            return Item.thisItem;
+    }
+
+    void print(int prec) {
+        System.out.print(tag == SUPER ? "super" : "this");
+    }
+}
+
+class Subscript extends AST {
+    AST struc;
+    AST index;
+
+/** is this node part of an array allocator? attributed.
+ */
+    boolean alloc;
+
+    Subscript(int pos, AST struc, AST index) {
+        super(pos, SUBSCRIPT);
+        this.struc = struc;
+        this.index = index;
+    }
+
+    boolean isExpr() {
+        return index != null && struc.isExpr() && index.isExpr(); 
+    }
+    boolean isType() { 
+        return index == null || struc.isType() && index.isType(); 
+    }
+
+    Typ attr(Env env, int kind, Typ pt) {
+        if (kind == TYP) {
+            alloc = true;
+            if (index == null)
+                typ = new ArrayTyp(
+                    Attr.checkNonVoid(struc.pos,
+                                      struc.attr(env, TYP, Typ.anyTyp)));
+            else { // we are in a new construct
+                Typ ctyp = 
+                    Attr.checkNonVoid(struc.pos,
+                                      struc.attr(env, TYP, Typ.anyTyp));
+                Typ ityp = index.attr(env, VAL, Typ.intTyp);
+                typ = new ArrayTyp(ctyp);
+            }
+        } else if (Attr.checkKind(pos, VAR, kind)) {
+            alloc = false;
+            Typ atyp = struc.attr(env, VAL, new ArrayTyp(Typ.anyTyp));
+            Typ ityp = index.attr(env, VAL, Typ.intTyp);
+            if (atyp.tag == ARRAY) {
+
+                typ = Attr.checkTyp(env, pos, ((ArrayTyp)atyp).elemtyp, pt);
+
+
+
+            } else if (atyp.tag == NULLTYP) {
+                Report.error(pos, "null cannot be dereferenced");
+                typ = Typ.errTyp;
+            } else {
+                if (Switches.checks) Basic.assert(atyp.tag == ERRTYP);
+                typ = Typ.errTyp;
+            }
+        } else
+            typ = Typ.errTyp;
+        return typ;
+    }
+
+    Item gen() {
+        if (alloc) {
+            Item elt = struc.gen();
+            if (elt.mode == CLASSmode) {
+                index.genLoad();
+                return new NewArrayItem(1);
+            } else if (elt.mode == NEWARRAYmode) {
+                int dim = ((NewArrayItem)elt).dim;
+                if (index != null) {
+                    index.genLoad();
+                    dim++;
+                }
+                return new NewArrayItem(dim);
+            } else
+                throw new CompilerError("gen");
+        } else {
+            struc.genLoad();
+            index.genLoad();
+            return Item.indexedItem;
+        }
+    }
+
+    void print(int prec) {
+        struc.print(postfixPrec);
+        System.out.print("[");
+        if (index != null) index.print();
+        System.out.print("]");
+    }
+}
+
+
+class Typeop extends AST {
+    AST expr;
+    AST dcltyp;
+
+    Typeop(int pos, int op, AST expr, AST dcltyp) {
+        super(pos, op);
+        this.expr = expr;
+        this.dcltyp = dcltyp;
+    }
+
+    boolean isExpr() { return true; }
+
+    boolean isConstant() { 
+        return tag == CAST && expr.isConstant(); 
+    }
+
+    Typ attr(Env env, int kind, Typ pt) {
+        if (Attr.checkKind(pos, VAL, kind)) {
+            Typ etyp = expr.attr(env, VAL, Typ.anyTyp);
+            Typ ttyp = Attr.checkNonVoid(dcltyp.pos, 
+                                         dcltyp.attr(env, TYP, Typ.anyTyp));
+            if (tag == CAST)
+              if (Attr.canCast(etyp, ttyp))
+
+                    typ = Attr.checkTyp(env, pos, ttyp, pt);
+
+
+
+                else {
+                    Report.error(pos, "cannot cast " + etyp + " to " + 
+                                 ttyp);
+                    typ = Typ.errTyp;
+                }
+            else // tag == TYPETEST
+                if (Attr.canCast(etyp, ttyp) &&
+                    (ttyp.tag == ARRAY || ttyp.tag == CLASS))
+
+                    typ = Attr.checkTyp(env, pos, Typ.booleanTyp, pt);
+
+
+
+                else {
+                    Report.error(pos, "cannot compare " + etyp + " with " + 
+                                 ttyp);
+                    typ = Typ.errTyp;
+                }
+        } else
+            typ = Typ.errTyp;
+        return typ;
+    }
+
+    Item gen() {
+        Item e = expr.gen();
+        if (tag == CAST) {
+            return e.coerce(expr.typ, dcltyp.typ);
+        } else { // tag == TYPETEST
+            e.load(expr.typ);
+            Gen.emitop2(instanceof_, Gen.mkref(dcltyp.typ));
+            return Item.stackItem;
+        }
+    }
+
+
+    void print(int prec) {
+        if (tag == CAST) {
+          Pretty.open(prec, prefixPrec);
+          System.out.print("(");
+          dcltyp.print(postfixPrec);
+          System.out.print(")");
+          expr.print(postfixPrec);
+          Pretty.close(prec, prefixPrec);
+        } else {
+          Pretty.open(prec, ordPrec);
+          expr.print(ordPrec);
+          System.out.print(" instanceof ");
+          dcltyp.print();
+          Pretty.close(prec, ordPrec);
+        }
+    }
+# 1278 "ec/ecomp/exprs.java"
+
+}
+
+class Unop extends AST {
+    AST operand;
+
+    Obj unop; // attributed
+
+    Unop(int pos, int op, AST operand) {
+        super(pos, op);
+        this.operand = operand;
+    }
+
+    boolean isExpr() { return true; }
+
+    boolean isConstant() {
+        return tag <= COMPL && operand.isConstant();
+    }
+
+    Typ attr(Env env, int kind, Typ pt) {
+        if (Attr.checkKind(pos, VAL, kind)) {
+            Typ odtyp = 
+                operand.attr(env, tag >= PREINC ? VAR : VAL, Typ.anyTyp);
+            Typ[] argtyps = {odtyp};
+//FIX 21/10/96
+            unop = Attr.resolveIdent(
+                pos, env, mnem[tag - POS], FUN, 
+                new FunTyp(argtyps, pt, null));
+            if (unop.typ.tag == FUNCTION)
+
+                typ = Attr.checkTyp(env, pos, ((FunTyp)unop.typ).restyp, pt);
+
+
+
+            else
+                typ = Typ.errTyp;
+        } else
+            typ = Typ.errTyp;
+        return typ;
+    }
+
+    Item gen() {
+        Item od = operand.gen();
+        int opcode = ((OperatorObj)unop).opcode;
+        if (isConstant()) 
+            return ConstantFolder.fold(pos, (ImmediateItem)od, opcode);
+        else
+            switch (tag) {
+            case POS:
+                od.load(operand.typ);
+                return Item.stackItem;
+            case NEG:
+                od.load(operand.typ);
+                Gen.emitop(opcode);
+                return Item.stackItem;
+            case NOT:
+                return od.mkCond().negate();
+            case COMPL:
+                od.load(operand.typ);
+                Gen.emitMinusOne(Gen.typecode(operand.typ));
+                Gen.emitop(opcode);
+                return Item.stackItem;
+            case PREINC: case PREDEC:
+                if (od.mode == LOCALmode && operand.typ.tag <= INT) {
+                    ((LocalItem)od).incr(tag == PREINC ? 1 : 0xFF);
+                    return od;
+                } else {
+                    od.duplicate(operand.typ);
+                    od.load(operand.typ);
+                    Gen.emitop(Gen.one(Gen.typecode(operand.typ)));
+                    Gen.emitop(opcode);
+                    return new AssignItem(od);
+                }
+            case POSTINC: case POSTDEC:
+                if (od.mode == LOCALmode && operand.typ.tag <= INT) {
+                    od.load(operand.typ);
+                    ((LocalItem)od).incr(tag == POSTINC ? 1 : 0xFF);
+                } else {
+                    od.duplicate(operand.typ);
+                    od.load(operand.typ);
+                    od.stash(operand.typ, Gen.width(operand.typ));
+                    Gen.emitop(Gen.one(Gen.typecode(operand.typ)));
+                    Gen.emitop(opcode);
+                    od.store(operand.typ);
+                }
+                return Item.stackItem;
+            default:
+                throw new CompilerError("gen");
+            }
+    }
+
+    void print(int prec) {
+        int opprec = (tag >= POSTINC) ? postfixPrec : prefixPrec;
+        Pretty.open(prec, opprec);
+        if (tag < POSTINC) System.out.print(mnem[tag - POS] + " ");
+        operand.print(opprec);
+        if (tag >= POSTINC) System.out.print(" " + mnem[tag - POS]);
+        Pretty.close(prec, opprec);
+    }
+    static Name[] mnem = new Name[LastUNOP + 1 - POS];
+    static {
+        mnem[POS - POS] = Name.fromString("+");
+        mnem[NEG - POS] = Name.fromString("-");
+        mnem[NOT - POS] = Name.fromString("!");
+        mnem[COMPL - POS] = Name.fromString("~");
+        mnem[PREINC - POS] = Name.fromString("++");
+        mnem[PREDEC - POS] = Name.fromString("--");
+        mnem[POSTINC - POS] = Name.fromString("++");
+        mnem[POSTDEC - POS] = Name.fromString("--");
+
+        mnem[EDISTRIB - POS] = Name.fromString("&");
+
+    }
+}
+
+class FunctionType extends AST {
+    AST dcltyp;
+    AST[] typargs;
+    AST[] thrown;
+    
+    FunctionType(int pos, AST dcltyp, ASTS typargs, ASTS thrown) {
+        super(pos, FUNCTIONTYPE);
+        this.dcltyp = dcltyp;
+        this.typargs = typargs.shrink();
+        this.thrown = thrown.shrink();
+    }
+
+    boolean isType() { return true; }
+
+    Typ attr(Env env, int kind, Typ pt) {
+        if (Attr.checkKind(pos, TYP, kind)) {
+            Typ restyp = dcltyp.attr(env, TYP, Typ.anyTyp);
+            Typ[] argtyps = new Typ[typargs.length];
+            for (int i = 0; i < typargs.length; i++)
+                argtyps[i] = 
+                    Attr.checkNonVoid(typargs[i].pos,
+                                      typargs[i].attr(env, TYP, Typ.anyTyp));
+            FunTyp ftyp = new FunTyp(argtyps, restyp, null);
+            for (int i = 0; i < thrown.length; i++)
+                ftyp.thrown = 
+                    TypSet.incl(ftyp.thrown, 
+                                thrown[i].attr(env, TYP, 
+                                               Predef.throwableTyp));
+            typ = ftyp;
+        } else
+            typ = Typ.errTyp;
+        return typ;
+    }
+
+    void print(int prec) {
+
+
+
+
+        System.out.print("(");
+        printSeq(typargs);
+
+        System.out.print("->");
+        dcltyp.print();
+        if (thrown.length > 0) {
+          System.out.print(" throws ");
+          printSeq(thrown);
+        }
+        System.out.print(") ");
+
+
+
+
+    }
+}
+
+
+
+
+
+
+
+

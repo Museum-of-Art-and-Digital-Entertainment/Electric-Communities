@@ -1,0 +1,8 @@
+#!/bin/csh -f
+#
+# Simple and minimal test for the minimal E.
+mkdir -p /tmp/classes
+ecomp -d /tmp/classes minimal-test.e
+setenv CLASSPATH /tmp/classes:$CLASSPATH
+java minimal.Test
+rm -rf /tmp/classes

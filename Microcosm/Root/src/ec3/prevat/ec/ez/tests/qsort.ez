@@ -1,0 +1,32 @@
+define qsortMaker := to (lessOrEqTest) {
+
+    define subsort := to (front) {
+        switch (front) {
+            match [] { [] }
+            
+            match [pivot] + rest {
+
+                define partition := to (list) {                    
+                    switch (list) {
+                        match [] { [[], []] }
+                        
+                        match [car] + cdr {
+                            define [left, right] := partition(cdr)
+    
+                            if (lessOrEqTest(car, pivot)) {
+                                [[car] + left, right]
+                            } else {
+                                [left, [car] + right]
+                            }
+                        }
+                    }
+                }
+                define [left, right] := partition(rest)
+    
+                println(subsort(left) + [pivot] + subsort(right))
+            }
+        }
+    }
+}
+
+define qsort := qsortMaker(to(x, y) {x <= y})

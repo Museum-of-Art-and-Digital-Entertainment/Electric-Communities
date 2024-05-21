@@ -1,0 +1,3063 @@
+# 1 "ec/ecomp/e2j.java"
+
+/* *****************************************************************
+ * E Utility routines for e2j transformation
+ * Copyright 1996, 1997 Michael Philippsen. All rights reserved.
+ * 
+ * Author     : Michael Philippsen.
+ * Last change: 20-December-97
+ ******************************************************************/
+ 
+package ec.ecomp;
+
+import java.util.Hashtable;
+import java.util.Vector;
+
+class E2j implements /*imports*/ Constants {
+
+  static boolean done = false;
+  static boolean nonPureE = false;
+
+  // if this flag is true, non eclasses may extend EObject.
+  // The flag will be set to true after e2j to disable semantic
+  // checks in later phases of the compiler
+
+  private static Name SealerS       = Name.fromString("_$_Sealer");
+  private static Name invokeS       = Name.fromString("invoke");
+  private static Name sealerS       = Name.fromString("sealer_$_");
+  private static Name badTargetS    = Name.fromString("badTarget");
+  private static Name badArgsS      = Name.fromString("badArgs");
+  private static Name badSealerS    = Name.fromString("badSealer");
+
+  private static Name myIndexS      = Name.fromString("my_$_Index");
+  private static Name EobjectS      = Name.fromString("EObject");
+  private static Name objectS       = Name.fromString("Object");
+  private static Name ExceptionS    = Name.fromString("Exception");
+
+  private static TypeIdent SealerTyp =
+    new TypeIdent(0, Name.fromString("RtSealer"));
+  private static TypeIdent EDistributorTyp  = 
+    new TypeIdent(0, Name.fromString("EDistributor_$_Intf"));
+  private static TypeIdent EChannelTyp =
+    new TypeIdent(0, Name.fromString("EChannel"));
+  private static TypeIdent RtTetherTyp =
+    new TypeIdent(0, Name.fromString("RtTether"));
+  private static TypeIdent ObjectTyp =
+    new TypeIdent(0, objectS);
+
+  private static Name distributorS  = Name.fromString("distributor");
+  private static Name targetS       = Name.fromString("target_$_");
+  private static Name realTargetS   = Name.fromString("realTarget");
+          static Name asyncS        = Name.fromString("$async");
+          static Name RtRunS        = Name.fromString("RtRun");
+          static Name RtEnqueueS    = Name.fromString("RtEnqueue");
+  private static Name enqueueS      = Name.fromString("enqueue");
+  private static Name enqS          = Name.fromString("enq");
+  private static Name sendToS       = Name.fromString("sendTo");
+          static Name popExcS       = Name.fromString("popExceptionEnv");
+          static Name pushExcS      = Name.fromString("pushExceptionEnv");
+  private static Name E$IntfS       = Name.fromString("E$Interface");
+  private static Name EchannelS     = Name.fromString("EChannel");
+  private static Name RtDeflectorS  = Name.fromString("RtDeflector");
+  private static Name RtSealerS     = Name.fromString("RtSealer");
+  private static Name EenvelS       = Name.fromString("RtEnvelope");
+  private static Name EInvocS       = Name.fromString("RtInvocation");
+          static Name intfS         = Name.fromString("_$_Intf");
+          static Name implS         = Name.fromString("_$_Impl");
+          static Name deflectS      = Name.fromString("_$_Deflector");
+  private static Name distS         = Name.fromString("_$_dist");
+  private static Name tethS         = Name.fromString("_$_teth");
+  
+  private static Name falseS        = Name.fromString("false");
+  private static Name trueS         = Name.fromString("true");
+          static Name nullS         = Name.fromString("null");
+
+  private static Name compErrS      = Name.fromString("CompilerError: ");
+  private static Name rtErrS        = Name.fromString("RuntimeException");
+  private static TypeIdent rtExTyp  = new TypeIdent(0, rtErrS);
+  private static Name classDef1S    = Name.fromString("e2j ClassDef");
+  private static Name bodyCloneS    = Name.fromString("e2j BodyClone");
+
+  private static Name distflagS     = Name.fromString("distflag");
+
+  private static TypeIdent booleanTyp =
+    new TypeIdent(0, Name.fromString("boolean"));
+  private static TypeIdent intTyp =
+    new TypeIdent(0, Name.fromString("int"));
+  private static TypeIdent stringTyp =
+    new TypeIdent(0, Name.fromString("String"));
+
+  private static Name nameS        = Name.fromString("name");
+  private static Name booleanS     = Name.fromString("boolean");
+  private static TypeIdent VoidTyp = new TypeIdent(0, Name.fromString("void"));
+  private static Name keyS         = Name.fromString("key_$_");
+  private static Name RtEExS       = Name.fromString("Throwable"); // BUG-fix name
+  private static Name EWhenClosureS = Name.fromString("EWhenClosure_$_Impl");
+  private static Name argsS        = Name.fromString("args_$_");
+
+  private static Name diditS       = Name.fromString("diditOnce_$_");
+  private static Name einS         = Name.fromString("ein_$_");
+  private static Name curKeeperS   = Name.fromString("curKeeper_$_");
+  private static Name fS           = Name.fromString("f_$_");
+
+  private static Name bitvecS      = Name.fromString("bitvec_$_");
+  private static Name BitVecS      = Name.fromString("BitVec");
+
+  private static TypeIdent bitsTyp =
+    new TypeIdent(0, Name.fromString("BitVec"));
+
+  private static Name clrBitS      = Name.fromString("clrBit");
+  private static Name isemptyS     = Name.fromString("isEmpty");
+
+  private static Name msgS         = Name.fromString("msg_$_"); 
+
+  private static Name excEnvS      = Name.fromString("exceptionEnv");
+  private static Name doEThrowS    = Name.fromString("doEThrow");
+
+  private static Name valueS       = Name.fromString("value");
+  private static Name value$S      = Name.fromString("value_$_");
+
+          static Name eKeeperS     = Name.fromString("ekeeper_$_");
+          static Name eKeeper0S    = Name.fromString("ekeeper_$_0");
+          static TypeIdent RtExEnv =
+    new TypeIdent(0, Name.fromString("RtExceptionEnv"));
+  private static Name ArrayS       = Name.fromString("Array");
+
+  private static Name classS       = Name.fromString("class$");
+  private static Name forNameS     = Name.fromString("forName");
+  private static Name NoClassExS   = Name.fromString("ClassNotFoundException");
+  private static Name NoClassErS   = Name.fromString("NoClassDefFoundError");
+  private static Name getMsgS      = Name.fromString("getMessage");
+
+  // ======================================================================
+  
+  private static AST enqueue(int pos, AST eobj, AST envel) {
+    // result:
+    //   RtRun.enqueue(eobj, envel);
+    
+    AST fn = new Select(pos, new Ident(pos, RtRunS), enqueueS);
+    ASTS args = new ASTS();
+    args.append(eobj);
+    args.append(envel);
+    AST enqueuestmt = new Apply(pos, fn, args);
+    // enqueuestmt.print();
+    return new Exec(pos, enqueuestmt);
+  }
+
+  // ------------------------------------------------------------
+
+  private static AST popException(int pos) {
+    // result:
+    //   RtRun.popExceptionEnv();
+    
+    AST fn = new Select(pos, new Ident(pos, RtRunS), popExcS);
+    ASTS args = new ASTS();
+    AST popstmt = new Apply(pos, fn, args);
+    // popstmt.print();
+    return new Exec(pos, popstmt);
+  }
+
+  // ------------------------------------------------------------
+  
+  private static AST pushException(int pos, Name fname) {
+    // result:
+    //   RtRun.pushExceptionEnv(fname);
+   
+    AST fn = new Select(pos, new Ident(pos, RtRunS), pushExcS);
+    ASTS args = new ASTS();
+    args.append(new Typeop(pos, CAST, new Self(pos, THIS),
+                           new Ident(pos, EobjectS.append(intfS))));
+    args.append(Name.toIdRef(pos, fname));
+    AST pushstmt = new Apply(pos, fn, args);
+    // pushstmt.print();
+    return new Exec(pos, pushstmt);
+  }
+
+  // ------------------------------------------------------------
+ 
+  static AST myKeeper(int pos, int nestLevel) {
+    // result:
+    //   RtRun.exceptionEnv()
+      
+    // nestLevel ignored for PREEKEEP
+
+    AST fn = new Select(pos, new Ident(pos, RtRunS), excEnvS);
+    return new Apply(pos, fn, new ASTS());
+  }  
+
+  // ------------------------------------------------------------
+
+  private static AST ethrowTo(int pos, AST keeper, AST tothrow) {
+    // result:
+    //   <keeper>.doEThrow(<tothrow>);
+    
+    AST fn = new Select(pos, keeper, doEThrowS);
+    return new Apply(pos, fn, new ASTS(tothrow));
+  }
+
+  // ------------------------------------------------------------
+  
+  private static AST doEthrow(int pos, AST tothrow) {
+    // result:
+    //   RtRun.exceptionEnv().doEThrow(tothrow);
+    
+    return ethrowTo(pos, myKeeper(pos, 0), tothrow);
+  }
+
+  // ============================================================
+  
+/* Returns the following block:
+ *      throw new CompilerError(error);
+ */
+  
+  private static Block throwCompilerErrorBlock(int pos, Name error) {
+    ASTS body = new ASTS();
+    body.append(throwCompilerError(pos, error));
+    return new Block(pos, body);
+  }
+  
+  // ------------------------------------------------------------
+  
+  private static AST throwCompilerError(int pos, Name error) {
+    // result:
+    //   throw new CompilerError(error);
+    
+    return (throwRuntimeError(pos, compErrS.append(error)));
+  }
+  
+  // ------------------------------------------------------------
+  
+  private static AST throwRuntimeError(int pos, Name error) {
+    // result:
+    //   throw new RuntimeException(error);
+    
+    AST fn = new Ident(pos, rtErrS);
+    ASTS args = new ASTS();
+    args.append(new Literal(pos, STRINGLIT, error));
+    AST constr = new Apply(pos, fn, args);
+    AST expr = new New(pos, constr);
+    AST t = new Throw(pos, expr);
+    // t.print();
+    return t;
+  }
+
+  // ======================================================================
+
+  static Name manglesealname(FunObj fo) {
+    String sig = fo.toSignature();
+    sig = sig.substring(0, sig.indexOf(')'));
+    char[] result = new char[sig.length()*2];
+    char[] orig = new char[sig.length()];
+    sig.getChars(0, sig.length(), orig, 0);
+    int j = 0;
+    for (int i = 0; i < orig.length; i++) {
+      char c = orig[i];
+      switch (c) {
+        case '[': { result[j++] = '$'; result[j++] = 'A'; break; }
+        case '(': { result[j++] = '$'; result[j++] = 'O'; break; }
+        case '/': { result[j++] = '$'; result[j++] = 'D'; break; }
+        case '$': { result[j++] = '$'; result[j++] = '$'; break; }
+        case ';': { result[j++] = '$'; result[j++] = 'S'; break; }
+/*
+        case '_': {
+          if (   (orig.length >= i + 6)
+              && (orig[i+1] == '$')
+              && (orig[i+2] == '_')
+              && (orig[i+3] == 'I')
+              && (orig[i+4] == 'n')
+              && (orig[i+5] == 't')
+              && (orig[i+6] == 'f')) {
+            i += 6;
+          } else {
+            result[j++] = c;
+          }
+          break;
+        }
+*/
+        default:  { result[j++] = c; }
+      }
+    }
+    return Name.fromString(new String(result, 0, j));
+  }
+
+  // ======================================================================
+
+/** Returns the body of the class X that results from an eclass X
+ */
+
+  private static Block XBlock(eClassDef t, Block body) {
+    ASTS newstmts = new ASTS();
+    if (t.body != null) {
+      AST[] stmts = ((Block)t.body).stats;
+      for (int i = 0; i < stmts.length; i++ ) {
+        if (stmts[i] instanceof FunDef) {
+          FunDef fd = (FunDef)stmts[i];
+          if (fd.name.equals(Predef.initS)) {
+            ASTS bdy = new ASTS();
+            if (isSelfCall(fd.body.stats[0])) {
+              AST selfcall = fd.body.stats[0];
+              AST[] selfargs = ((Apply)((Exec)selfcall).expr).args;
+              ASTS args = new ASTS(clone(selfargs));
+              AST newself =
+                new Exec(selfcall.pos, 
+                         new Apply(((Exec)selfcall).expr.pos,
+                                   clone(((Apply)((Exec)selfcall).expr).fn),
+                                   args));
+              bdy.append(newself);
+            }
+            bdy.append(throwCompilerError(t.pos, classDef1S));
+            FunDef newfd =
+              new FunDef(t.pos, fd.tag, fd.name, fd.mods, fd.dcltyp, 
+                         clone(fd.params), fd.thrown,
+                         new Block(t.pos, bdy));
+            newstmts.append(newfd);
+          } else {
+            // clone all methods
+            eFunDef newfd;
+            Block bdy = throwCompilerErrorBlock(t.pos,classDef1S);
+            AST[] thrown = fd.thrown;
+            if ((fd.mods & EMETHOD) != 0) {
+              thrown = new AST[0];
+            }
+            if ((t.mods & INTERFACE) != 0)
+              bdy = null;
+            newfd = new eFunDef(t.pos, fd.tag, fd.name, fd.mods, 
+                                clone(fd.dcltyp), 
+                                clone(fd.params), thrown, bdy);
+            if ((t.mods & INTERFACE) != 0)
+              newfd.mods = newfd.mods & ~ABSTRACT;
+            if ((newfd.mods & EMETHOD) != 0) {
+              newfd.mods = newfd.mods ^ EMETHOD;
+            }
+            //e2jFunDef(newfd, t.obj, new ASTS());
+            e2j(newfd, t.obj);
+            newstmts.append(newfd);
+          }
+        } else if (stmts[i] instanceof VarDef) {
+          VarDef vd = (VarDef)stmts[i];
+          VarDef newvd;
+          if ((vd.mods & FINAL) == 0) {
+            newvd = new VarDef(t.pos, vd.name, vd.mods,
+                               clone(vd.dcltyp), null);
+          } else if (vd.obj.typ.subtype(Predef.objectTyp)) {
+            // System.out.println("subtype of object");
+            newvd = new VarDef(t.pos, vd.name, vd.mods,
+                               clone(vd.dcltyp), new Ident(t.pos, nullS));
+          } else {
+            // System.out.println("not subtype of object");
+            newvd = new VarDef(t.pos, vd.name, vd.mods,
+                               clone(vd.dcltyp), vd.init);
+          }
+          newstmts.append(newvd);
+        }
+      }
+    }
+    return new Block(t.pos, newstmts);
+  }
+  
+  // ======================================================================
+
+/** Returns the body of the Class X_$_Sealer that results from an eclass X
+ */
+
+  private static Block sealerBlock(int pos, ClassObj tobj, Block b,
+                                   Name sealerclassname) {
+
+    // a) Sealers of top level emethod declarations
+    // foreach (int i = 0; i < emtdcount; i++) {
+    //   public static final sealerclassname SEALERFKTNAMEi =
+    //     new sealerclassname(i, "signaturestring");
+    // }
+    //
+    // c/d) now no longer generated: Sealer-Array and static init
+    // 
+    // e) Constructor
+    //
+    // f) invoke
+    // public void invoke (Object target, Object args[]) throws Exception
+    //   (see below for details of expansion)
+    //
+    // g) now no longer generated: sealer and otherSealer accessors
+    
+    int newEmtdCount = 0;
+
+    AST[] stmts = null;
+    if (b != null)
+      stmts = b.stats;
+    
+    ASTS defs = new ASTS();
+    
+    // a) Sealers of top level emethod declarations
+    // foreach (int i = 0; i < emtdcount; i++) {
+    //   public static final sealerclassname SEALERFKTNAMEi =
+    //     new sealerclassname(i, "signaturestring");
+    // }
+
+    // loop over newly introduced emethods
+    int sno = 0;
+    for (int i = 0; i < stmts.length; i++) {
+      if (stmts[i] instanceof FunDef) {
+        eFunDef efd = (eFunDef)stmts[i];
+        if (((efd.mods & EMETHOD) != 0) && (efd.sealer.owner == tobj)) {
+          ASTS params = new ASTS();
+          params.append(new Literal(pos, INTLIT, new Integer(sno)));
+          FunObj efdfo = (FunObj)(efd.obj);
+          params.append(new Literal(pos, STRINGLIT,
+                                    Name.fromString(efdfo.toSignature())));
+          AST constrcall = new Apply(pos,
+                                     Name.toIdRef(pos, sealerclassname),
+                                     params);
+          AST sealdef = new VarDef(pos,
+                                   sealerS.append(efdfo.uniqueName),
+                                   PUBLIC | STATIC | FINAL,
+                                   new TypeIdent(pos, sealerclassname),
+                                   new New(pos, constrcall));
+          //sealdef.print();
+          defs.append(sealdef);
+          newEmtdCount++;
+          sno++;
+        }
+      }
+    }
+
+    // e) Constructor
+    
+    ASTS constrparams = new ASTS();
+    constrparams.append(new VarDef(pos, myIndexS, 0, intTyp, null));
+    constrparams.append(new VarDef(pos, nameS, 0, stringTyp, null));
+
+    ASTS superargs = new ASTS();
+    superargs.append(new Ident(pos, myIndexS));
+    superargs.append(new Ident(pos, nameS));
+    ASTS supercall = new ASTS(new Exec(pos, new Apply(pos,
+                                      new Self(pos, SUPER), superargs)));
+    Block superblock = new Block(pos, supercall);
+    defs.append(new eFunDef(pos, FUNDEF, Predef.initS, PUBLIC, null, 
+                              constrparams, new ASTS(),superblock));
+    
+    // f) invoke
+    // public void invoke (Object target, Object args[]) throws Exception {
+    // <classname>_$_Impl realTarget = null;
+    // try {
+    //   realTarget = (<classname>_$_Impl) target;
+    // } catch (RuntimeException f_$_) {
+    //   badTarget (target_$_);
+    // }
+    // switch (my_$_Index) {
+    // foreach (int i = 0; i < emtdcount; i++ ) {
+    //       case i:
+    //         declare local variables for args = null/0
+    //         try {
+    //           unbox args into local variables
+    //         } catch (RuntimeException f_$_) {
+    //           barArgs(target_$_, args_$_);
+    //         }
+    //         realTarget.FKTNAME( local args );
+    //         break;
+    // }
+    //       default:
+    //         badSealer();
+    //      }
+    // }    
+
+    ASTS invokeblock = new ASTS();
+    ASTS params = new ASTS();
+    params.append(new VarDef(pos, targetS, 0, ObjectTyp, null));
+    params.append(new VarDef(pos, argsS, 0,
+                             new Subscript(pos,ObjectTyp, null), null));
+    if (newEmtdCount != 0) {
+      
+      // <classname>_$_Impl realTarget = null;
+      
+      String tmp = sealerclassname.toString();
+      Name classname =
+        Name.fromString(tmp.substring(0,tmp.lastIndexOf('$')-1)).append(implS);
+      invokeblock.append(new VarDef(pos, realTargetS, 0,
+                                    new TypeIdent(pos, classname),
+                                    new Ident(pos, nullS)));
+      // try {
+      //   realTarget = (<classname>_$_Impl) target;
+      // } catch (RuntimeException f_$_) {
+      //   badTarget (target_$_);
+      // }
+      
+      ASTS trybody = new ASTS();
+      trybody.append(new Exec(pos,
+                              new eAssignop(pos, ASSIGN,
+                                            new Ident(pos, realTargetS),
+                                            new Typeop(pos, CAST,
+                                                       new Ident(pos,
+                                                                 targetS),
+                                                       new Ident(pos,
+                                                                classname)))));
+      ASTS catchers = new ASTS();
+      AST call = new Exec(pos, new Apply(pos, new Ident(pos, badTargetS),
+                                         new ASTS(new Ident(pos, targetS))));
+      catchers.append(new eFunDef(pos, CATCH, null, 0, null,
+                                  new ASTS(new VarDef(pos, fS, 0, rtExTyp,
+                                                      null)),
+                                  new ASTS(),
+                                  new Block(pos,
+                                            new ASTS(call))));
+      invokeblock.append(new Try(pos, new Block(pos, trybody), catchers, null));
+    
+      ASTS cases = new ASTS();
+      
+      // loop over newly introduced emethods
+      sno = 0;
+      for (int i = 0; i < stmts.length; i++) {
+        if (stmts[i] instanceof FunDef) {
+          eFunDef efd = (eFunDef)stmts[i];
+          if (((efd.mods & EMETHOD) != 0) && (efd.sealer.owner == tobj)) {
+        
+            // case sno:
+            //    realTarget.FKTNAME( unbox_args );
+            //    break;
+        
+            FunObj efdfo = (FunObj)(efd.obj);
+            ASTS casebody = new ASTS();
+            ASTS caseblock = new ASTS();
+            ASTS callargs = new ASTS();
+            Typ[] argtyps = ((FunTyp)(efdfo.typ)).argtyps;
+            trybody = new ASTS();
+            catchers = new ASTS();
+            for (int j = 0; j < argtyps.length; j++) {
+              Name localName = argsS.append(Name.fromString(""+j));
+              callargs.append(new Ident(pos, localName));
+              AST dcltyp = ((VarDef)(efd.params[j])).dcltyp;
+              caseblock.append(new VarDef(pos, localName, 0, dcltyp, null));
+              AST unbox;
+              AST eobj = new Subscript(pos,
+                                       new Ident(pos, argsS),
+                                       new Literal(pos, INTLIT,
+                                                   new Integer(j)));
+              if (   (dcltyp.typ != null)
+                  && (   (dcltyp.typ.subtype(ePredef.EobjectTyp))
+                      || (dcltyp.typ.subtype(ePredef.E$interfaceTyp)))) {
+                unbox =
+                  new Typeop(pos, CAST, eobj,
+                             new TypeIdent(pos,
+                                           ((IdRef)dcltyp).name.append(intfS)));
+              } else {
+                unbox = Simplify.unbox(eobj, 
+                                       ((VarDef)(efd.params[j])).dcltyp.typ);
+              }
+              trybody.append(new Exec(pos, new eAssignop(pos, ASSIGN,
+                                                         new Ident(pos,
+                                                                   localName),
+                                                         unbox)));
+            }
+          
+            call = new Exec(pos, new Apply(pos, new Ident(pos, badArgsS),
+                                           new ASTS(new Ident(pos, targetS),
+                                                    new Ident(pos, argsS))));
+            catchers.append(new eFunDef(pos, CATCH, null, 0, null,
+                                        new ASTS(new VarDef(pos, fS, 0, rtExTyp,
+                                                            null)),
+                                        new ASTS(),
+                                        new Block(pos,
+                                                  new ASTS(call,
+                                                           new Return(pos,
+                                                                      null)))));
+        
+            caseblock.append(new Try(pos, new Block(pos, trybody),
+                                     catchers, null));
+            caseblock.append(new Exec(pos,
+                                      new Apply(pos,
+                                                new Select(pos,
+                                                           new Ident(pos,
+                                                                   realTargetS),
+                                                           efdfo.name.subName(0,
+                                                             efdfo.name.len-6)),
+                                                callargs)));
+            casebody.append(new Block(pos, caseblock));
+            casebody.append(new Break(pos, null));
+            cases.append(new Case(pos, new Literal(pos, INTLIT,
+                                                   new Integer(sno)),
+                                  casebody));
+            sno++; 
+          }
+        }
+      }
+      // default:
+      call = new Exec(pos, new Apply(pos, new Ident(pos, badSealerS),
+                                     new ASTS()));
+      cases.append(new Case(pos, null, new ASTS(call)));
+      invokeblock.append(new Switch(pos, new Ident(pos, myIndexS), cases));
+      
+    } else { // newEmtdCount = 0
+      AST call = new Exec(pos, new Apply(pos, new Ident(pos, badSealerS),
+                                     new ASTS()));
+      invokeblock.append(call);
+    }
+    defs.append(new eFunDef(pos, FUNDEF, invokeS, PUBLIC, VoidTyp,
+                            params, new ASTS(new Ident(pos, ExceptionS)),
+                            new Block(pos, invokeblock)));
+
+    return new Block(pos, defs);
+  }
+
+  // ------------------------------------------------------------
+
+  private static AST simplifyBox(int pos, Typ tp, AST toBeBoxed) {
+    if (tp == null || tp.subtype(Predef.objectTyp)) {
+      return new Typeop(pos, CAST, toBeBoxed,
+                        new Ident(pos, objectS));
+    }
+    return Simplify.box(toBeBoxed);
+  }
+  
+  // ======================================================================
+
+/** Returns the body of the class X_$_Intf that results from an eclass X
+ */
+
+  private static Block intfBlock(eClassDef t) {
+    ASTS emtds = new ASTS();
+    Block b = t.body;
+    if (b != null) {
+      AST[] stmts = b.stats;
+      // loop over emethods that are implemented/declared in current class
+      for (int i = 0; i < stmts.length; i++) {
+        if (stmts[i] instanceof FunDef) {
+          FunDef fd = (FunDef)stmts[i];
+          if ((fd.mods & EMETHOD) != 0) {
+            eFunDef newfd;
+            newfd = new eFunDef(t.pos, fd.tag, fd.name, fd.mods, 
+                                clone(fd.dcltyp), 
+                                clone(fd.params), new AST[0], null);
+            newfd.mods = newfd.mods ^ EMETHOD;
+            e2j(newfd, t.obj);
+            newfd.dcltyp = VoidTyp;
+            newfd.dcltyp.typ = Typ.voidTyp;
+            newfd.mods = newfd.mods & ~ABSTRACT;
+            emtds.append(newfd);
+          }
+        }
+      }
+    }
+    return new Block(t.pos, emtds);
+  }
+  
+  // ======================================================================
+
+/** Returns the body of the Class X_$_Deflector that results from an eclass X
+ *
+ *  public <name>(RtTether target) {
+ *    super(target);
+ *  }
+ *  foreach emethod:
+ *       public void metd$async(...) {
+ *         target.invoke(sealer, args, myKeeper());
+ */
+  
+  private static Block deflectorBlock(int pos, ClassObj tobj, Block b,
+                                      Name name, FunObj[] intfsealvec) {
+
+    AST[] stmts = null;
+    if (b != null)
+      stmts = b.stats;
+    
+    ASTS body = new ASTS();
+    ASTS params = new ASTS();
+    params.append(new VarDef(pos, targetS, 0, RtTetherTyp, null));
+    params.append(new VarDef(pos, keyS, 0, ObjectTyp, null));
+    ASTS supercall = new ASTS();
+    ASTS superargs = new ASTS();
+    superargs.append(new Ident(pos, targetS));
+    superargs.append(new Ident(pos, keyS));
+    supercall.append(new Exec(pos,
+                              new Apply(pos, new Self(pos, SUPER),
+                                        superargs)));
+    Block superblock = new Block(pos, supercall);
+    body.append(new eFunDef(pos, FUNDEF, Predef.initS, PUBLIC, null,
+                           params, new ASTS(), superblock));
+
+    // loop over newly introduced emethods
+    for (int i = 0; i < stmts.length; i++) {
+      if (stmts[i] instanceof FunDef) {
+        eFunDef fd = (eFunDef)stmts[i];
+        if (((fd.mods & EMETHOD) != 0) && (fd.sealer.owner == tobj)) {
+          FunObj fo = (FunObj)fd.obj;
+          // System.out.println("sealer = "+((eFunDef)fd).sealer.toString());
+          eFunDef newfd;
+          ASTS invoke = new ASTS();
+          ASTS args = new ASTS();
+          args.append(new Select(pos,  
+                                 Name.toIdRef(pos, name.append(SealerS)),
+                                 sealerS.append(fo.uniqueName)));
+          ASTS elems = new ASTS();
+          for (int j = 0; j < fd.params.length; j++) {
+            Name id = ((VarDef)(fd.params[j])).name;
+            Typ  tp = ((VarDef)(fd.params[j])).dcltyp.typ;
+            elems.append(simplifyBox(pos, tp, Name.toIdRef(pos, id)));
+          }
+          args.append(new Aggregate(pos, elems));
+          args.append(myKeeper(pos, 0));
+          invoke.append(new Exec(pos,
+                                 new Apply(pos,
+                                           new Select(pos,
+                                                      new Ident(pos,
+                                                                targetS),
+                                                      invokeS),
+                                           args)));
+          VarDef[] newparams = clone(fd.params);
+          ASTS fsealparams = new ASTS();
+          for (int j = 0; j < newparams.length; j++) {
+            e2j(newparams[j], null, fsealparams);
+          }
+          newfd = new eFunDef(pos, fd.tag, fd.name, fd.mods, 
+                              clone(fd.dcltyp), fsealparams,
+                              new ASTS(), new Block(pos, invoke));
+          newfd.mods = newfd.mods & ~EMETHOD;
+          e2j(newfd, fo.owner);
+          newfd.dcltyp = VoidTyp;
+          newfd.dcltyp.typ = Typ.voidTyp;
+          newfd.mods = newfd.mods & ~ABSTRACT;
+          body.append(newfd);
+        }
+      }
+    }
+
+    // For all emethods that are not already present but that are inherited from
+    // einterfaces do the same....
+
+    for (int i = 0; i < intfsealvec.length; i++) {
+      FunObj fdfo = intfsealvec[i];
+      Name sealerowner = ((ClassObj)fdfo.owner).fullname;
+      if (sealerowner.endsWith(intfS)) {
+        // System.out.print(sealerowner);
+        sealerowner = sealerowner.subName(0, sealerowner.len - 7);
+        // System.out.println(" --> "+sealerowner);
+      }
+      eFunDef newfd;
+      ASTS invoke = new ASTS();
+      ASTS args = new ASTS();
+      args.append(new Select(pos,  
+                             Name.toIdRef(pos, sealerowner.append(SealerS)),
+                             sealerS.append(fdfo.uniqueName)));
+      ASTS elems = new ASTS();
+      ASTS asyncParams = new ASTS();
+      Typ[] argtyps = ((FunTyp)(fdfo.typ)).argtyps;
+      for (int j = 0; j < argtyps.length; j++) {
+        Name id = fS.append(Name.fromString(""+j));
+        elems.append(simplifyBox(pos, argtyps[j], new Ident(pos, id)));
+        Typ argtyp = argtyps[j];
+        Name argtypname = argtyp.obj.fullname;
+        int arrs = 0;
+        while (argtypname == ArrayS) {
+          argtypname = ((ArrayTyp)argtyp).elemtyp.obj.fullname;
+          arrs++;
+        }
+        if (   !argtypname.endsWith(intfS)
+            && (   argtyp.subtype(ePredef.EobjectTyp)
+                || argtyp.subtype(ePredef.EobjectIntfTyp)))
+          argtypname = argtypname.append(intfS);
+        AST tmpTyp = Name.toIdRef(pos, argtypname);
+        while (arrs > 0) {
+          tmpTyp = new Subscript(pos, tmpTyp, null);
+          arrs--;
+        }
+        tmpTyp.typ = argtyps[j];
+        asyncParams.append(new VarDef(pos, id, 0, tmpTyp, null));
+      }
+      args.append(new Aggregate(pos, elems));
+      args.append(myKeeper(pos, 0));
+      invoke.append(new Exec(pos,
+                             new Apply(pos,
+                                       new Select(pos,
+                                                  new Ident(pos,
+                                                            targetS),
+                                                  invokeS),
+                                       args)));
+      newfd = new eFunDef(pos, FUNDEF, fdfo.name,
+                          fdfo.modifiers, VoidTyp, asyncParams,
+                          new ASTS(), new Block(pos, invoke));
+      newfd.mods = newfd.mods & ~EMETHOD;
+      //newfd.print();
+      newfd.dcltyp.typ = Typ.voidTyp;
+      e2j(newfd, fdfo.owner);
+      newfd.mods = newfd.mods & ~ABSTRACT;
+      body.append(newfd);
+    }
+    
+    return new Block(pos, body);
+  }
+
+  // ======================================================================
+
+  /** the max number of args to unroll in an async enqueue */
+  static final private int MAX_ENQUEUE_UNROLL = 16;
+
+/** Append async emethods with RtEnqueue.enqueue
+ *  foreach emethod:
+ *       public void metd$async(...) {
+ *         RtEnqueue.enqueue(this, sealer, args, ee);
+ *       }
+ */
+
+  private static void makeAsyncEnqueue(int pos, ClassObj tobj, Block b,
+                                       ASTS defs, FunObj[] intfsealvec) {
+
+    AST[] stmts = null;
+    if (b != null)
+      stmts = b.stats;
+      
+    // loop over newly introduced emethods
+    for (int i = 0; i < stmts.length; i++) {
+      if (stmts[i] instanceof FunDef) {
+        eFunDef fd = (eFunDef)stmts[i];
+        if (((fd.mods & EMETHOD) != 0) && (fd.sealer.owner == tobj)) {
+          eFunDef newfd;
+          ASTS invoke = new ASTS();
+          ASTS args = new ASTS();
+          args.append(new Self(pos, THIS));
+          ASTS elems = new ASTS();
+          for (int j = 0; j < fd.params.length; j++) {
+            Name id = ((VarDef)(fd.params[j])).name;
+            Typ  tp = ((VarDef)(fd.params[j])).dcltyp.typ;
+            elems.append(simplifyBox(pos, tp, Name.toIdRef(pos, id)));
+          }
+          eFunDef efd = (eFunDef)fd;
+          Name sealerowner = ((ClassObj)efd.sealer.owner).fullname;
+          if (sealerowner.endsWith(intfS)) {
+            // System.out.print(sealerowner);
+            sealerowner = sealerowner.subName(0, sealerowner.len - 7);
+            // System.out.println(" --> "+sealerowner);
+          }
+          args.append(new Select(pos, 
+                                 Name.toIdRef(pos, sealerowner.append(SealerS)),
+                                 sealerS.append(efd.sealer.uniqueName)));
+          args.append(myKeeper(pos, 0));
+          if (elems.length <= MAX_ENQUEUE_UNROLL) {
+            args.append(elems);
+          } else {
+            args.append(new Aggregate(pos, elems));
+          }
+          invoke.append(new Exec(pos,
+                                 new Apply(pos,
+                                           new Select(pos,
+                                                      new Ident(pos,
+                                                                RtEnqueueS),
+                                                      enqS),
+                                           args)));
+          newfd = new eFunDef(pos, fd.tag, fd.name, fd.mods, 
+                              clone(fd.dcltyp), clone(fd.params),
+                              new AST[0], new Block(pos, invoke));
+          newfd.mods = newfd.mods ^ EMETHOD;
+          e2j(newfd, fd.obj.owner);
+          newfd.dcltyp = VoidTyp;
+          newfd.dcltyp.typ = Typ.voidTyp;
+          newfd.mods = newfd.mods & ~ABSTRACT;
+          defs.append(newfd);
+        }
+      }
+    }
+
+    // For all emethods that are not already present but that are inherited from
+    // einterfaces do the same....
+    
+    if (intfsealvec == null)
+      return;
+
+    for (int i = 0; i < intfsealvec.length; i++) {
+      FunObj fdfo = intfsealvec[i];
+      //System.out.println(fdfo.toString());
+      //System.out.println(fdfo.owner.toString());
+      //System.out.println(fdfo.owner.name);
+      Name sealerfktname = sealerS.append(fdfo.uniqueName);
+      eFunDef newfd;
+      ASTS invoke = new ASTS();
+      ASTS args = new ASTS();
+      args.append(new Self(pos, THIS));
+      ASTS elems = new ASTS();
+      ASTS params = new ASTS();
+      Typ[] argtyps = ((FunTyp)(fdfo.typ)).argtyps;
+      for (int j = 0; j < argtyps.length; j++) {
+        Name id = fS.append(Name.fromString(""+j));
+        Typ argtyp = argtyps[j];
+        elems.append(simplifyBox(pos, argtyp, Name.toIdRef(pos, id)));
+        Name argtypname = argtyp.obj.fullname;
+        int arrs = 0;
+        while (argtypname == ArrayS) {
+          argtypname = ((ArrayTyp)argtyp).elemtyp.obj.fullname;
+          arrs++;
+        }
+        if (   !argtypname.endsWith(intfS)
+            && (   argtyp.subtype(ePredef.EobjectTyp)
+                || argtyp.subtype(ePredef.EobjectIntfTyp)))
+          argtypname = argtypname.append(intfS);
+        AST tmpTyp = Name.toIdRef(pos, argtypname);
+        while (arrs > 0) {
+          tmpTyp = new Subscript(pos, tmpTyp, null);
+          arrs--;
+        }
+        tmpTyp.typ = argtyps[j];
+        params.append(new VarDef(pos, id, 0, tmpTyp, null));
+      }
+      Name sealerowner = ((ClassObj)fdfo.owner).fullname;
+      if (sealerowner.endsWith(intfS)) {
+        // System.out.print(sealerowner);
+        sealerowner = sealerowner.subName(0, sealerowner.len - 7);
+        // System.out.println(" --> "+sealerowner);
+      }
+      args.append(new Select(pos, 
+                             Name.toIdRef(pos, sealerowner.append(SealerS)),
+                             sealerS.append(fdfo.uniqueName)));
+      args.append(myKeeper(pos, 0));
+      if (elems.length <= MAX_ENQUEUE_UNROLL) {
+        args.append(elems);
+      } else {
+        args.append(new Aggregate(pos, elems));
+      }
+      invoke.append(new Exec(pos,
+                             new Apply(pos,
+                                       new Select(pos,
+                                                  new Ident(pos,
+                                                            RtEnqueueS),
+                                                  enqS),
+                                       args)));
+      newfd = new eFunDef(pos, FUNDEF, fdfo.name,
+                          fdfo.modifiers, VoidTyp, params,
+                          new ASTS(), new Block(pos, invoke));
+      newfd.mods = newfd.mods & ~EMETHOD;
+      newfd.dcltyp.typ = Typ.voidTyp;
+      e2j(newfd, fdfo.owner);
+      newfd.mods = newfd.mods & ~ABSTRACT;
+      defs.append(newfd);
+    }
+  }
+  
+  // ======================================================================
+  
+  private static VarDef[] clone(VarDef[] params) {
+    VarDef[] result = new VarDef[params.length];
+    for (int i = 0; i < params.length; i++)
+      result[i] = (VarDef)(clone(params[i]));
+    return result;
+  }
+  
+  private static AST[] clone(AST[] params) {
+    AST[] result = new AST[params.length];
+    for (int i = 0; i < params.length; i++)
+      result[i] = clone(params[i]);
+    return result;
+  }
+
+  private static AST clone(AST ast) {
+    // see similar routine in eparser
+    AST result;
+    if (ast instanceof VarDef) {
+      VarDef vd = (VarDef)ast;
+      result = new VarDef(vd.pos, vd.name, vd.mods, clone(vd.dcltyp),
+                                 vd.init);
+    } else if (ast instanceof Ident) {
+      Ident id = (Ident)ast;
+      result = new Ident(id.pos, id.name);
+      ((Ident)result).obj = id.obj;
+      ((Ident)result).useImpl = id.useImpl;
+    } else if (ast instanceof Select) {
+      Select sel = (Select)ast;
+      result = new Select(sel.pos, clone(sel.struc), sel.name);
+      ((Select)result).obj = sel.obj;
+      ((Select)result).useImpl = sel.useImpl;
+    } else if (ast instanceof Subscript) {
+      Subscript sub = (Subscript)ast;
+      result = new Subscript(sub.pos, clone(sub.struc), clone(sub.index));
+    } else if (ast instanceof eFunDef) {
+      eFunDef fd = (eFunDef)ast;
+      Block newBlock = null;
+      if (fd.body != null)
+        newBlock = throwCompilerErrorBlock(fd.pos, bodyCloneS);
+      result = new eFunDef(fd.pos, fd.tag, fd.name, fd.mods, clone(fd.dcltyp),
+                           clone(fd.params), clone(fd.thrown),newBlock);
+    } else if (ast instanceof Exec) {
+      Exec exec = (Exec)ast;
+      result = new Exec(exec.pos, clone(exec.expr));
+    } else if (ast instanceof Apply) {
+      Apply apl = (Apply)ast;
+      result = new Apply(apl.pos, clone(apl.fn), clone(apl.args));
+    } else if (ast instanceof New) {
+      New nw = (New) ast;
+      result = new New(nw.pos, clone(nw.constr));
+    } else {
+      // don't clone, simply duplicate reference
+      return ast;
+    }
+    result.typ = ast.typ;
+    return result;
+  }
+
+  // ============================================================
+  
+  private static ASTS etr(eTry t, Obj parent) {
+    // Transformation Pattern:
+    // original:
+    //   etry {
+    //     <try-body>
+    //   } ecatch (FooException e) {
+    //     System.out.println("got FooException");
+    //   } ecatch (BarException e) {
+    //     System.out.println("got BarExcetion");
+    //   }
+    // result:
+    //   RtExceptionEnv curKeeper_$_N = RtRun.exceptionEnv(); // [*]
+    //   (Throwable->void) f_$_N = fun(Throwable ein_$_N) {
+    //       if (e_in instanceof FooException) {
+    //         System.out.println("got FooException");
+    //       } else if (e_in instanceof BarException) {
+    //         System.out.println("got BarException");
+    //       } else {                           // [*]
+    //         curKeeper_$_N.doEThrow(ein_$_N); // [*]
+    //       }
+    //   };
+    //   RtRun.pushExceptionEnv(this,f_$_N);
+    //   try {
+    //     <try-body>
+    //   } finally {
+    //     RtRun.popExceptionEnv();
+    //   }
+    //
+    // [*] only emitted if Throwable isn't explicitly caught
+
+    int varnum = ++((FunObj)parent).e2jVarCount;
+    ASTS newstmts = new ASTS();
+    Name numname = Name.fromString(""+varnum);
+    Name einname = einS.append(numname);
+    Name eckname = curKeeperS.append(numname);
+    
+    ASTS typargs = new ASTS();
+    typargs.append(new TypeIdent(t.pos, RtEExS));
+    FunctionType cltyp =
+      new FunctionType(t.pos, VoidTyp, typargs, new ASTS());
+    ASTS ps = new ASTS();
+    ps.append(new VarDef(t.pos, einname, 0,
+                         new TypeIdent(t.pos, RtEExS), null));
+    ASTS teststmts = new ASTS();
+    AST catchif[] = new AST[t.catchers.length];
+    boolean caughtThrowable = false;
+    for (int i = 0; i < t.catchers.length; i++) {
+      IdRef catchType = (IdRef) t.catchers[i].params[0].dcltyp;
+      String catchString = catchType.fullName().toString();
+      if (   catchString.equals("java.lang.Throwable")
+          || catchString.equals("Throwable")) {
+        caughtThrowable = true;
+      }
+      AST catchcond =
+        new Typeop(t.catchers[i].pos, TYPETEST, 
+                   new Ident(t.catchers[i].pos, einname),
+                   catchType);
+      ASTS catchbody = new ASTS();
+      AST init = new Typeop(t.catchers[i].pos, CAST,
+                            new Ident(t.catchers[i].pos, einname),
+                            catchType);
+      catchbody.append(new VarDef(t.catchers[i].pos,
+                                  t.catchers[i].params[0].name, 0,
+                                  catchType, init));
+      if (t.catchers[i].body instanceof Block) {
+        for (int j = 0; j < t.catchers[i].body.stats.length; j++) {
+          catchbody.append(t.catchers[i].body.stats[j]);
+        }
+      } else {
+        catchbody.append(t.catchers[i].body);
+      }
+      catchif[i] = new Conditional(t.catchers[i].pos, CONDSTAT, catchcond,
+                                   new Block(t.catchers[i].pos, catchbody), 
+                                   null);
+      if (i>0) {
+        ((Conditional)catchif[i-1]).elsepart = catchif[i];
+      }
+    }
+    if (! caughtThrowable) {
+      AST elseblock = ethrowTo(t.pos, new Ident(t.pos, eckname),
+                               new Ident(t.pos, einname));
+      if (t.catchers.length > 0) {
+        teststmts.append(catchif[0]);
+        ((Conditional)catchif[t.catchers.length-1]).elsepart = elseblock;
+      } else {
+        teststmts.append(elseblock);
+      }
+      VarDef eckdef = new VarDef(t.pos, eckname, 0, RtExEnv, myKeeper(t.pos, 0));
+      newstmts.append(eckdef);
+    } else {
+      if (t.catchers.length > 0) {
+        teststmts.append(catchif[0]);
+      }
+    }
+
+    AST original_body = t.body;
+    AST methodBlock = new Block(t.pos, teststmts);
+    eFunDef init = new eFunDef(t.pos, LAMBDA, null, 0, null, ps,
+                          new ASTS(), new Block(t.pos, new ASTS(methodBlock)));
+    init.closureLabel = t.closureLabel;
+    Name fname = fS.append(numname);
+    VarDef fkt = new VarDef(t.pos,fname, 0, cltyp, init);
+    newstmts.append(fkt);
+
+    AST push = pushException(t.pos, fname);
+    newstmts.append(push);
+    AST trfin = new Try(t.pos, original_body, new ASTS(), 
+                        new Block(t.pos, new ASTS(popException(t.pos))));
+    newstmts.append(trfin);
+
+    // Debug
+    // for (int i = 0; i < newstmts.length; i++) {
+    //   newstmts.elems[i].print();
+    //   System.out.println(";");
+    // }
+    
+    return newstmts;
+  }
+
+  // ============================================================
+  
+  private static ASTS ewh(eWhen w, Obj parent) {
+    // Transformation Pattern for ewhen/eorwhen
+    // ----------------------------------------
+    // original 
+    //   ewhen target (int x) {
+    //     System.out.println("ewith-Parameter x="+x);
+    //   } [eorwhen target (int y) {
+    //   ...}]
+    // result
+    //   boolean f_diditonce = false;
+    //   (Object->void) f1 = fun(Object x_in) {
+    //     if (!f_diditonce) {
+    //       f_diditonce = true;
+    //       int x = ((Integer)x_in).intValue();
+    //       System.out.println("ewith-Parameter x="+x);
+    //     }
+    // [ (Object->void) f2 = fun(Object x_in) {
+    //     if (!f_diditonce) {
+    //       f_diditonce = true;
+    //       int x = ((Integer)x_in).intValue();
+    //       ...
+    //     }
+    //   };
+    // ]
+    //    target.when$async(new EWhenClosure_$_Impl(f1));
+    //   [target.when$async(new EWhenClosure_$_Impl(f2));]
+    // Transformation Pattern for ewhenever  (is_ewhenever)
+    // ------------------------------------
+    // original 
+    //   ewhenever target (int x) {
+    //     System.out.println("ewith-Parameter x="+x);
+    // result
+    //   (Object->void) f1 = fun(Object x_in) {
+    //     int x = ((Integer)x_in).intValue();
+    //     System.out.println("ewith-Parameter x="+x);
+    //   }
+    //
+    // Transformation Pattern for eif
+    // ------------------------------
+    // original 
+    //   eif (target) {
+    //     System.out.println("ewith-Parameter x="+x);
+    //   } // no longer:  [eorif (target) {...}]
+    // [ else ...]
+    // result
+    //   if there is an else-clause:
+    //     (->void) f_else = fun() {
+    //       ...
+    //     };
+    //     BitVec bv = new BitVec(withobj.length-1); // Bitvector, all bits set
+    //   always:
+    //     boolean f_diditonce = false;
+    //     (Object->void) f1 = fun(Object x_in) {
+    //       boolean condS = ((Boolean)x_in).booleanValue();
+    //       if (condS) {                      // provided by eparser
+    //         if (!diditonce) {               // nota bene: different from ewhen
+    //           f_diditonce = true;           // wrt nesting level
+    //           System.out.println("ewith-Parameter x="+x);
+    //         }
+    //       }
+    //   if there is an else-clause:
+    //       else {
+    //         bv.clrBit(mybranchnumber);
+    //         if (bv.isEmpty() && !f_diditonce) {
+    //           f_diditonce = true;
+    //           f_else();
+    //         }
+    //       }
+    //
+    //   always:
+    //     }
+    // [ (Object->void) f2 = fun(Object x_in) {
+    //     if (!f_diditonce) {
+    //       ---> see in f1 <---
+    //     }
+    //   };
+    // ]
+    //   target.when$async(new EWhenClosure_$_Impl(f1));
+    //  [target.when$async(new EWhenClosure_$_Impl(f2));]
+
+    ASTS newstmts = new ASTS();
+
+    // Handle the else-stuff first:
+    // ------------------------------
+    Name elsename = null;
+    Name bitsname = null;
+    if ((w.elsepart != null) && (w.withobj.length > 1)) {
+      // f_$_else_xxx
+      int elseno = ++((FunObj)parent).e2jVarCount;
+      elsename = fS.append(Name.fromString("else_"+elseno));
+      AST init = new eFunDef(w.pos, LAMBDA, null, 0, null, new ASTS(),
+                             new ASTS(), new Block(w.pos, 
+                                                    new ASTS(w.elsepart)));
+      FunctionType elsecltyp =
+        new FunctionType(w.pos, VoidTyp, new ASTS(), new ASTS());
+      VarDef elsfkt = new VarDef(w.pos, elsename, 0, elsecltyp, init);
+      // elsfkt.print();
+      newstmts.append(elsfkt);
+
+      // Bit Vector
+      int bitsno = ++((FunObj)parent).e2jVarCount;
+      bitsname = bitvecS.append(Name.fromString(""+bitsno));
+      AST setthem = 
+        new New(w.pos, 
+                new Apply(w.pos, new Ident(w.pos, BitVecS),
+                          new ASTS(new Literal(w.pos, INTLIT,
+                                               new Integer(w.withobj.length)))));
+      VarDef bv = new VarDef(w.pos, bitsname, 0, bitsTyp, setthem);
+      // bv.print();
+      newstmts.append(bv);
+    }
+    
+    // diditonce
+    Name diditname = null;
+    if (!w.is_whenever) {
+      int diditno = ++((FunObj)parent).e2jVarCount;
+      diditname = diditS.append(Name.fromString(""+diditno));
+      VarDef didit = new VarDef(w.pos,
+                                 diditname, 0, new Ident(w.pos, booleanS),
+                                 new Ident(w.pos, falseS));
+      // didit.print();
+      newstmts.append(didit);
+    }
+    
+    // Handle multiple branches now:
+    // ------------------------------
+
+    for (int i = 0; i < w.withobj.length; i++) {
+
+      // for all closures: closure-typ, input parameter
+      // this might be loop invariant and a perfect candidate for extracting
+      // however, I'm not sure about code generation side effects.
+
+      ASTS typargs = new ASTS();
+      typargs.append(new TypeIdent(w.pos, objectS));
+      FunctionType cltyp =
+        new FunctionType(w.pos, VoidTyp, typargs, new ASTS());
+      int einno   = ++((FunObj)parent).e2jVarCount;
+      Name einname = einS.append(Name.fromString(""+einno));
+      ASTS ps = new ASTS();
+      ps.append(new VarDef(w.pos, einname, 0,
+                            new TypeIdent(w.pos, objectS), null));
+
+      // new closure name
+
+      int fno = ++((FunObj)parent).e2jVarCount;
+      Name fname = fS.append(Name.fromString(""+fno));
+
+      // unpack params
+      ASTS stmts = new ASTS();
+
+      AST unbox;
+      if ((((VarDef)w.todo[i].params[0]).dcltyp.typ) != null)
+        unbox = Simplify.unbox(new Ident(w.pos, einname),
+                               ((VarDef)w.todo[i].params[0]).dcltyp.typ);
+      else
+        unbox = 
+          new Typeop(w.pos, CAST, new Ident(w.pos, einname), 
+                     new TypeIdent(w.pos, 
+                            ((IdRef)((VarDef)w.todo[i].params[0]).dcltyp).name));
+      VarDef unpack = new VarDef(w.todo[i].params[0].pos, 
+                                 ((VarDef)w.todo[i].params[0]).name, 0,
+                                 ((VarDef)w.todo[i].params[0]).dcltyp,
+                                 unbox);
+      stmts.append(unpack);
+      AST[] stats = w.todo[i].body.stats;
+      for (int j = 0; j < stats.length; j++) {
+        stmts.append(stats[j]);
+      }
+      Name closureName = w.todo[i].closureLabel;
+      ASTS clbody;
+      if (w.is_whenever) {
+        // for whenever, everything is done. We do not have to deal with
+        // diditonce.
+        clbody = stmts;
+      } else if (w.is_eif) {
+        // stmts[0] is the unpack statement
+        // stmts[1] is the if (condS) generated by the parser. We have to
+        // make sure that the thenpart of that if-stmts is executed only once.
+        clbody = stmts;
+        Conditional cond = (Conditional)(stmts.elems[1]);
+        AST newthenpart = null;
+        if (cond.thenpart instanceof Block) {
+          newthenpart = doitonce(w.pos, diditname,
+                                 new ASTS(((Block)(cond.thenpart)).stats));
+        } else if (cond.thenpart != null) {
+          newthenpart = doitonce(w.pos, diditname, new ASTS(cond.thenpart));
+        }
+        cond.thenpart = newthenpart;
+        // add an else branch ?
+        if (w.elsepart != null) {
+// no longer eorif: if (w.withobj.length == 1) {
+            // inline the else statements, guarded by diditonce
+            AST newelsepart = null;
+            if (w.elsepart instanceof Block) {
+              newelsepart = doitonce(w.pos, diditname, 
+                                     new ASTS(((Block)(w.elsepart)).stats));
+            } else {
+              newelsepart = doitonce(w.pos, diditname, new ASTS(w.elsepart));
+            }
+            cond.elsepart = newelsepart;
+/* no longer eorif
+          } else {
+            // general case: there is more than one branch. Hence we
+            // have to use the bitvector
+            ASTS newelsepart = new ASTS();
+            // bit exclude (branch number i)
+            AST bitexcl = 
+              new Exec(w.pos,
+                        new Apply(w.pos, 
+                                   new Select(w.pos,
+                                               new Ident(w.pos,
+                                                          bitsname), 
+                                               clrBitS),
+                                   new ASTS(new Literal(w.pos, INTLIT,
+                                                         new Integer(i)))));
+            newelsepart.append(bitexcl);
+
+            // if bitvector.is_empty()
+            AST emptycond = new Apply(w.pos,
+                                       new Select(w.pos, 
+                                                   new Ident(w.pos,
+                                                              bitsname),
+                                                   isemptyS),
+                                       new ASTS());
+            AST elseclcall =
+              new Exec(w.pos,
+                        new Apply(w.pos,
+                                   new Ident(w.pos, elsename),
+                                   new ASTS()));
+            AST ifempty = new Conditional(w.pos, CONDSTAT, emptycond, 
+                                           doitonce(w.pos,
+                                                    diditname,
+                                                    new ASTS(elseclcall)), 
+                                           null);
+            newelsepart.append(ifempty);
+            cond.elsepart = new Block(w.pos, newelsepart);
+          }
+no longer eorif */
+        }
+      } else {
+        // for ordinary ewhens simply add the guard and move the statements
+        // into the guarding if.
+        clbody = new ASTS(doitonce(w.pos, diditname, stmts));
+      }
+
+      // make closure:
+      eFunDef init = new eFunDef(w.pos, LAMBDA, null, 0, null, ps,
+                                 new ASTS(), new Block(w.pos, clbody));
+      init.closureLabel = closureName;
+      VarDef fkt = new VarDef(w.pos,fname, 0, cltyp, init);
+
+      // fkt.print();
+      newstmts.append(fkt);
+      // target.when$async(new EWhenClosure_$_Impl(f1));
+      ASTS args = new ASTS();
+      AST wfn = new Ident(w.pos, EWhenClosureS);
+      ASTS wargs = new ASTS();
+      wargs.append(new Ident(w.pos, fname));
+      AST wconstr = new Apply(w.pos, wfn, wargs);
+      args.append(new New(w.pos, wconstr));
+      AST apl = new Apply(w.pos,
+                          new Select(w.pos,
+                                     w.withobj[i],
+                                     Name.fromString("when").append(asyncS)),
+                          args);
+      newstmts.append(new Exec(w.pos, apl));
+    }
+    
+    // Debug
+    // for (int i = 0; i < newstmts.length; i++) {
+    //   newstmts.elems[i].print();
+    //   System.out.println(";");
+    // }
+    
+    return newstmts;
+  }
+
+  // ------------------------------------------------------------
+
+  private static AST doitonce(int pos, Name diditname, ASTS stmts) {
+    // for a given block of statements/a statemant (stmts)
+    // return:
+    // if (!f_diditonce) {
+    //   f_diditonce = true;
+    //   stmts
+    // }
+
+    AST cond = new eUnop(pos, NOT,
+                         new Ident(pos, diditname));
+    ASTS thenstmts = new ASTS();
+    stmts.prepend(new Exec(pos,
+                            new eAssignop(pos, ASSIGN,
+                                          new Ident(pos, diditname),
+                                          new Ident(pos, trueS))));
+    AST thenpart = new Block(pos, stmts);
+    AST ifstmt = new Conditional(pos, CONDSTAT, cond, thenpart, null);
+    return ifstmt;
+  }
+
+  // ------------------------------------------------------------
+
+  private static AST envelCreate(int pos, FunObj fo, AST[] args, int nestLevel) {
+    
+    // System.out.println("fo            = "+fo.toString());
+    // System.out.println("fo.owner      = "+fo.owner.name);
+    
+    ASTS callargs = new ASTS();
+    if (fo.uniqueName == null)
+        fo.uniqueName = manglesealname(fo);
+    
+    // System.out.println("fo.uniqueName = "+fo.uniqueName);
+
+    Name definer = ((ClassObj)fo.owner).fullname;
+    if (definer.endsWith(E2j.intfS))
+      definer = definer.subName(0, definer.len-7);
+    callargs.append(
+                    new Select(pos,
+                               Name.toIdRef(pos, definer.append(SealerS)),
+                               sealerS.append(fo.uniqueName)));
+    ASTS elems = new ASTS();
+    for (int j = 0; j < args.length; j++) {
+      Typ tp = args[j].typ;
+      elems.append(simplifyBox(pos, tp, args[j]));
+    }
+    callargs.append(new Aggregate(pos, elems));
+    callargs.append(myKeeper(pos, nestLevel));
+    AST constrcall = new Apply(pos,
+                               new Ident(pos, EenvelS),
+                               callargs);
+    return new New(pos, constrcall);
+  }
+
+  // ------------------------------------------------------------
+
+  private static AST invoCreate(int pos, AST left, FunObj fo, AST[] args, 
+                                int nestLevel) {
+    
+    // System.out.println("fo            = "+fo.toString());
+    // System.out.println("fo.owner      = "+fo.owner.name);
+    
+    ASTS callargs = new ASTS();
+    callargs.append(left);
+    if (fo.uniqueName == null)
+        fo.uniqueName = manglesealname(fo);
+    
+    // System.out.println("fo.uniqueName = "+fo.uniqueName);
+
+    Name definer = ((ClassObj)fo.owner).fullname;
+    if (definer.endsWith(E2j.intfS))
+      definer = definer.subName(0, definer.len-7);
+    callargs.append(
+                    new Select(pos,
+                               Name.toIdRef(pos, definer.append(SealerS)),
+                               sealerS.append(fo.uniqueName)));
+    ASTS elems = new ASTS();
+    for (int j = 0; j < args.length; j++) {
+      Typ tp = args[j].typ;
+      elems.append(simplifyBox(pos, tp, args[j]));
+    }
+    callargs.append(new Aggregate(pos, elems));
+    callargs.append(myKeeper(pos, nestLevel));
+    AST constrcall = new Apply(pos,
+                               new Ident(pos, EInvocS),
+                               callargs);
+    return new New(pos, constrcall);
+  }
+
+  // ------------------------------------------------------------
+
+  private static void valueFunction(ASTS newast, FunDef fd) {
+    // Transformation pattern
+    // original
+    //   xxx value() { ... }
+    // result
+    //   xxx value_$_() { ... }
+    //   public Object value() { return value_$_(); }
+
+    int pos = fd.pos;
+    fd.name = value$S;
+    // fd will be added to newast by caller!
+    
+    AST returnarg = null;
+    Typ tp = fd.dcltyp.typ;
+    Apply apl = new Apply(pos,
+                          new Ident(pos, value$S),
+                          new ASTS());
+    returnarg = simplifyBox(pos, tp, apl);
+    newast.append(new eFunDef(pos, FUNDEF, valueS, PUBLIC, ObjectTyp,
+                              new ASTS(), new ASTS(), 
+                              new Block(pos, 
+                                         new ASTS(new eReturn(pos,
+                                                              returnarg)))));
+  }
+  
+
+// ======================================================================
+// def AST nodes
+// ======================================================================
+
+// Block
+// ----------------------------------------
+
+  private static AST e2j(Block t, Obj parent) {
+    // System.out.println("e2j Block");
+    ASTS newstmts = new ASTS();
+    for (int i = 0; i < t.stats.length; i++) {
+      // t.stats[i].print();
+      e2j(t.stats[i], parent, newstmts);
+    }
+    t.stats = newstmts.shrink();
+    return t;
+  }
+
+  private static void e2j(Block t, Obj parent, ASTS newast) {
+    newast.append(e2j(t, parent));
+  }
+
+// ----------------------------------------
+  
+  private static void ReuseObjIfLoaded(ClassDef t, ClassObj tobj) {
+    if (tobj != null) {
+      Name fullname = tobj.packagename.append(t.name);
+      ClassObj c = (ClassObj)ClassFile.loaded.get(fullname);
+      if (c != null) {
+        // System.out.println("Class "+t.name+" already known, reusing obj");
+        t.obj = c;
+      }
+    }
+  }
+  
+  private static void appendIntfOnce(ASTS intfs, AST intf) {
+    Name toBeAdded = ((IdRef)intf).fullName();
+    for (int i = 0; i<intfs.length; i++) {
+      if (intfs.elems[i] == intf) {
+        // System.out.println("skipping identical IdRef");
+        return;
+      }
+      IdRef already = (IdRef)(intfs.elems[i]);
+      if (toBeAdded == already.fullName()) {
+        // System.out.println("skipping identical fullNames");
+        return;
+      }
+    }
+    intfs.append(intf);
+  }
+
+  private static void addClass$Stuff(int pos, Block body, boolean needClass,
+                                     Vector needed$classes) {
+    // 1.1 style .class
+    // System.out.println("need method class$(String)");
+    // generated-1:
+    // static java.lang.Class class$(String name) {
+    //   try {
+    //     return java.lang.Class.forName(name);
+    //   } catch (ClassNotFoundException e) {
+    //     throw new NoClassDefFoundError(e.getMessage());
+    //   }
+    // }
+    // generated-2:
+    //   static Class class$...;
+    
+    // generate - part 1
+    if (needClass) {
+      ASTS class$params = new ASTS();
+      class$params.append(new VarDef(pos, nameS, 0,
+                                     Name.toIdRef(pos,
+                                                  Predef.stringClass.fullname),
+                                     null));
+      
+      // return java.lang.Class.forName(name);
+      Return ret = 
+        new Return(pos,
+                   new Apply(pos,
+                             new Select(pos,
+                                        Name.toIdRef(pos,
+                                                     ePredef.ClassClass.fullname),
+                                        forNameS),
+                             new ASTS(new Ident(pos,
+                                                nameS))));
+      
+      // throw new NoClassDefFoundError(e.getMessage());
+      Throw thrw = 
+        new Throw(pos,
+                  new New(pos,
+                          new Apply(pos,
+                                    new Ident(pos,
+                                              NoClassErS),
+                                    new ASTS(new Apply(pos,
+                                                       new Select(pos,
+                                                                  new Ident(pos,
+                                                                            fS),
+                                                                  getMsgS),
+                                                       new ASTS())))));
+      
+      Try class$blk = 
+        new Try(pos, new Block(pos, new ASTS(ret)), 
+                new ASTS(new FunDef(pos, CATCH, null, 0, null,
+                                    new ASTS(new VarDef(pos,
+                                                        fS,
+                                                        0,
+                                                        new Ident(pos,
+                                                                  NoClassExS),
+                                                        null)),         
+                                    new ASTS(), 
+                                    new Block(pos,
+                                              new ASTS(thrw)))),
+                null);
+      
+      FunDef class$method = 
+        new FunDef(pos, FUNDEF, classS, STATIC, 
+                   Name.toIdRef(pos, ePredef.ClassClass.fullname),
+                   class$params, new ASTS(), 
+                   new Block(pos, new ASTS(class$blk)));
+      
+      //class$method.print();
+      body.append(class$method);
+    }
+    
+    // generate - part 2
+    
+    for (int i = 0; i < needed$classes.size(); i++) {
+      // static Class class$dotclass;
+      body.pushStat(new VarDef(pos,
+                               (Name)needed$classes.elementAt(i),
+                               STATIC,
+                               Name.toIdRef(pos,
+                                            ePredef.ClassClass.fullname),
+                               null));
+      
+    }
+  }
+
+// eClasDef
+// ----------------------------------------
+
+  private static void e2j(eClassDef t, Obj parent, ASTS newast) {
+    // System.out.println("e2j ClassDef "+t.name);
+
+    // Transformation Pattern:
+    // original:
+    //   eclass X
+    // result:
+    // 1)  public class X extends superclasses or EObject if none
+    //       (same EMethods and Creators (throw bug))
+    //       (same Variables and Methods (throw bug))
+    // 2)  public class X_Sealers extends RtSealer
+    // no longer 3)  public class X_Unsealers extends RtUnsealer
+    // 4)  public interface X_Intf extends superintefaces or E$Interface if none
+    //       (empty)
+    // 5)  public class X_Deflector extends EObject_$_Deflector
+    // no longer 6)  public class X_Proxy extends EProxy_Impl implements X_Intf
+    //       (empty)
+    // 7) (was channel class--now defunct)
+    // 8)  create unsealerMap and deliver routine for X_Impl
+    // 9)  public X_Impl extends EObject_Impl implements X_Intf
+
+    ClassObj tobj = (ClassObj)t.obj;
+
+    boolean isEclass = ((t.mods & ECLASS) != 0);
+    boolean isInterface = ((t.mods & INTERFACE) != 0);
+                           
+    if (isEclass) {
+      
+      t.mods = t.mods ^ ECLASS;
+      t.mods = t.mods | PUBLIC;
+      
+      AST ext = null;
+      ASTS imp = null;
+      
+      // 1) X ------------------------------------------------------------
+      
+      // System.out.println("e2j ClassDef 1");
+      ClassDef X;
+      Block Xbody = XBlock(t, t.body);
+
+      //extending
+      ext = null;
+      if (t.extending != null)
+        ext = Name.toIdRef(t.pos,
+                           ((ClassObj)(((IdRef)(t.extending)).obj)).fullname);
+      //implementing
+      imp = new ASTS();
+      for (int i = 0; i < t.implementing.length; ++i) {
+        //imp.append(clone(t.implementing[i]));
+        appendIntfOnce(imp, clone(t.implementing[i]));
+      }
+
+      X = new ClassDef(t.pos, t.name, t.mods,
+                       ext, imp.shrink(), Xbody);
+      newast.append(X);
+      //X.print(); System.out.println();
+
+      // 2) X_$_Sealer ------------------------------------------------------
+
+      // System.out.println("e2j ClassDef 2");
+      ClassDef X_Sealer;
+      Name sealerclassname = t.name.append(SealerS);
+      Block sealerblock = sealerBlock(t.pos, tobj, t.body, sealerclassname);
+      X_Sealer = new ClassDef(t.pos, sealerclassname,
+                              t.mods & ~INTERFACE,
+                              Name.toIdRef(t.pos, RtSealerS), //extending
+                              new ASTS(), //implementing
+                              sealerblock);
+      ReuseObjIfLoaded(X_Sealer, tobj);
+      newast.append(X_Sealer);
+      // X_Sealer.print(); System.out.println();
+
+      // 3) X_$_Unsealer ----------------------------------------------------
+      // no more Unsealers
+      
+      // 4) X_$_Intf -------------------------------------------------------
+      
+      // System.out.println("e2j ClassDef 4");
+      ClassDef X_Intf;
+      
+      // prune non-einterfaces from 'implementing'
+      ASTS prunedimp = new ASTS();
+      for (int i = 0; i < t.implementing.length; i++) {
+        // System.out.println(i+") "+tobj.interfaces[i]);
+        if (tobj.interfaces[i].subclass(ePredef.E$interface)) {
+          //prunedimp.append(e2j(clone(t.implementing[i]),parent));
+          appendIntfOnce(prunedimp, e2j(clone(t.implementing[i]), parent));
+        }
+      }
+      if (t.extending != null) {
+        //prunedimp.append(Name.toIdRef(0, ((ClassObj)((IdRef)t.extending).obj).
+        //                              fullname.append(intfS)));
+        appendIntfOnce(prunedimp, 
+                       Name.toIdRef(0, ((ClassObj)((IdRef)t.extending).obj).
+                                    fullname.append(intfS)));
+      }
+      if (prunedimp.length == 0) {
+        //imp.append(Name.toIdRef(t.pos, E$IntfS));
+        appendIntfOnce(prunedimp, Name.toIdRef(t.pos, E$IntfS));
+      }
+
+      Block intfBlock = intfBlock(t);
+      if (t.correspondingIntf == null) {
+        X_Intf = new ClassDef(t.pos, t.name.append(intfS),
+                              t.mods | INTERFACE,
+                              null, //extending
+                              prunedimp, //implementing
+                              intfBlock);
+        newast.append(X_Intf);
+      } else {
+        t.correspondingIntf.name = t.name.append(intfS);
+        t.correspondingIntf.mods = t.mods | INTERFACE;
+        t.correspondingIntf.extending = null;
+        t.correspondingIntf.implementing = prunedimp.shrink();
+        t.correspondingIntf.body = intfBlock;
+        X_Intf = t.correspondingIntf;
+      }
+      ReuseObjIfLoaded(X_Intf, tobj);
+      // X_Intf.print(); System.out.println();
+    }
+
+    // for regular classes/interfaces and eclasses/einterfaces
+    // ----- change names from X to X_... --------------------
+    
+    // t.print();System.out.println();
+    if (!isInterface) {
+      for (int i = 0; i < t.implementing.length; i++)
+        t.implementing[i] = e2j(t.implementing[i], parent);
+    }
+    // t.print();System.out.println();
+ 
+    if (isEclass) {
+
+      AST ext;
+      ASTS imp;
+      
+      // implementing for Deflector
+      imp = new ASTS();
+      //imp.append(Name.toIdRef(t.pos, t.name.append(intfS)));
+      appendIntfOnce(imp, Name.toIdRef(t.pos, t.name.append(intfS)));
+      
+      // 5) X_$_Deflector----------------------------------------------------
+      
+      // System.out.println("e2j ClassDef 5");
+      ClassDef X_Deflect;
+
+      //extending
+      if (t.extending != null) {
+        ext = Name.toIdRef(t.pos, ((ClassObj)((IdRef)t.extending).obj).
+                           fullname.append(deflectS));
+      } else if (t.name.equals(EobjectS)) {
+        ext = Name.toIdRef(t.pos, RtDeflectorS);
+      } else {
+        ext = Name.toIdRef(t.pos, EobjectS.append(deflectS));
+      }
+
+      X_Deflect = new ClassDef(t.pos, t.name.append(deflectS),
+                               t.mods & ~INTERFACE, ext, imp,
+                               deflectorBlock(t.pos, tobj, t.body, t.name,
+                                              t.intfsealarr));
+      ReuseObjIfLoaded(X_Deflect, tobj);
+      newast.append(X_Deflect);
+      // X_Deflect.print(); System.out.println();
+    }
+
+    // for regular classes/interfaces and eclasses/einterfaces
+    
+    ASTS intf_impl_emtds = new ASTS(); // computed before body.e2j, used in (9)
+    if (t.body != null) {
+      if (!isInterface) {
+        ASTS enqueues = new ASTS();
+        makeAsyncEnqueue(t.pos, tobj, t.body, enqueues, t.intfsealarr);
+        ASTS orig = new ASTS(t.body.stats);
+        orig.append(enqueues);
+        t.body.stats = orig.shrink();
+      } else {
+        Block b = t.body;
+        if (b != null) {
+          AST[] stmts = b.stats;
+          // loop over emethods that are implemented/declared in current class
+          for (int i = 0; i < stmts.length; i++) {
+            if (stmts[i] instanceof FunDef) {
+              FunDef fd = (FunDef)stmts[i];
+              if ((fd.mods & EMETHOD) != 0) {
+                eFunDef newfd;
+                newfd = new eFunDef(t.pos, fd.tag, fd.name, fd.mods, 
+                                    clone(fd.dcltyp), 
+                                    clone(fd.params), fd.thrown, null);
+                e2j(newfd, tobj);
+                newfd.dcltyp = VoidTyp;
+                newfd.dcltyp.typ = Typ.voidTyp;
+                newfd.mods = newfd.mods & ~ABSTRACT;
+                intf_impl_emtds.append(newfd);
+              }
+            }
+          }
+        }
+      }
+      t.body = (Block)(e2j(t.body, tobj));
+    }
+    
+    if (isEclass) {
+      // Transformation Pattern:
+      // original:
+      //   eclass X
+      // result:
+      // ...
+      // 8)  create unsealerMap and deliver routine for X_Impl
+      // 9)  public X_Impl extends EObject_Impl implements X_Intf
+      //       ...
+
+      if (!isInterface) {
+        
+        // 8) ------------------------------------------------------------
+        
+        // ((Block)t.body).prepend(mapinit(t.pos, tobj));
+        
+        // 9) ------------------------------------------------------------
+
+        ASTS newInterfaces = new ASTS();
+        // add X_intf and for each einterfaces add an _impl to "implementing"
+        //newInterfaces.append(Name.toIdRef(t.pos, t.name.append(intfS)));
+        appendIntfOnce(newInterfaces, 
+                       Name.toIdRef(t.pos, t.name.append(intfS)));
+        for (int i = 0; i<tobj.interfaces.length; i++) {
+          if (!tobj.interfaces[i].subclass(ePredef.E$interface)) {
+            //newInterfaces.append(t.implementing[i]);
+            appendIntfOnce(newInterfaces, t.implementing[i]);
+          } else {
+            String rawName = ((IdRef)t.implementing[i]).name.toString();
+            rawName = rawName.substring(0, rawName.lastIndexOf('$')-1);
+            Name newName = Name.fromString(rawName).append(implS);
+            //newInterfaces.append (Name.toIdRef(t.pos, newName));
+            appendIntfOnce(newInterfaces, Name.toIdRef(t.pos, newName));
+          }
+        }
+        t.implementing = newInterfaces.shrink();
+      } else {
+        ASTS newInterfaces = new ASTS();
+        for (int i = 0; i < tobj.interfaces.length; i++) {
+          if (   tobj.interfaces[i].subclass(ePredef.E$interface)
+              && (tobj.interfaces[i] != ePredef.EobjectIntfClass)) {
+            Name newName = tobj.interfaces[i].fullname.append(implS);
+            //newInterfaces.append (Name.toIdRef(t.pos, newName));
+            appendIntfOnce(newInterfaces, Name.toIdRef(t.pos, newName));
+          }
+        }
+        t.implementing = newInterfaces.shrink();
+        t.body = new Block(t.pos, intf_impl_emtds);
+      }
+      t.name = t.name.append(implS);
+
+      // remove $async
+      AST[] stmts = ((Block)t.body).stats;
+      for (int i = 0; i < stmts.length; i++ ) {
+        if (stmts[i] instanceof FunDef) {
+          FunDef fd = (FunDef)stmts[i];
+          if ((fd.mods & EMETHOD) != 0) {
+            // System.out.println(fd.name+", len="+fd.name.len);
+            fd.name = fd.name.subName(0,fd.name.len-6);
+          }
+        }
+      }
+    }
+    
+    // for regular classes/interfaces and eclasses/einterfaces
+    // ----- change names from X to X_... --------------------
+    if (t.extending != null) 
+      t.extending = e2j(t.extending, parent);
+    addClass$Stuff(t.pos, t.body, tobj.needClass, tobj.needed$classes);
+    newast.append(t);
+
+    t.intfsealarr = null;
+  }
+
+
+// eFunDef
+// ----------------------------------------
+
+  private static void e2j(eFunDef t, Obj parent, ASTS newast) {
+    // System.out.println("e2j FunDef");
+    eFunDef orig = (eFunDef)clone(t);
+    ASTS newparams = new ASTS();
+    if (t.dcltyp != null)
+      t.dcltyp = e2j(t.dcltyp, parent);
+    for (int i = 0; i < t.params.length; i++)
+      e2j(t.params[i], parent, newparams);
+    AST[] newpar = newparams.shrink();
+    t.params = new VarDef[newpar.length];
+    for (int i = 0; i < newpar.length; i++)
+      t.params[i] = (VarDef)newpar[i];
+    if (t.body != null) {
+      // for nested e-constructs we need to propagate the number of
+      // e2jVariables that habe been created to prevent re-use.
+      if (parent instanceof FunObj) 
+        ((FunObj)t.obj).e2jVarCount = ((FunObj)parent).e2jVarCount;
+      t.body = (Block)(e2j(t.body, t.obj));
+      if (parent instanceof FunObj)
+        ((FunObj)parent).e2jVarCount = ((FunObj)t.obj).e2jVarCount;
+    }
+    // work on the value() function
+    if (t.tag == FUNDEF && (parent instanceof ClassObj) &&
+        parent.typ.subtype(ePredef.EobjectTyp) && 
+        t.name.equals(valueS) && (t.params.length == 0)) {
+      valueFunction(newast, t);
+    }
+    newast.append(t);
+    if (((t.mods & EMETHOD) != 0) &&
+        ((parent.modifiers & INTERFACE) == 0)) {
+      t.dcltyp = VoidTyp;
+    } else {
+      if (changed_signature(t, orig)) {
+        // If this is a constructor, we may have to call a different
+        // constructor in orig before throwing the exception.
+        if (t.isConstructor && t.body != null &&
+            t.isSelfCall(t.body.stats[0])) {
+          // t.body.stats[0].print();
+          AST constrCall = clone(t.body.stats[0]);
+          ASTS newBody = new ASTS();
+          e2j(constrCall,t.obj,newBody);
+          newBody.append(orig.body.stats[0]); //throw ...
+          Block newBlock = new Block(orig.body.pos, newBody);
+          orig.body = newBlock;
+        }
+      }
+    }
+    // System.out.println("fun obj 1 set to null "+t.name);
+    t.obj = null; // to force re-entry;
+  }
+
+  private static AST e2j(eFunDef t, Obj parent) {
+    // this type of e2j does not create a closure, hence it cannot be called
+    // for regular methods. It is just a helper for the transformation of
+    // methods that are created internally during e2j.
+    ASTS newparams = new ASTS();
+    if (t.dcltyp != null)
+      t.dcltyp = e2j(t.dcltyp, parent);
+    for (int i = 0; i < t.params.length; i++)
+      e2j(t.params[i], parent, newparams);
+    AST[] newpar = newparams.shrink();
+    t.params = new VarDef[newpar.length];
+    for (int i = 0; i < newpar.length; i++)
+      t.params[i] = (VarDef)newpar[i];
+    if (t.body != null)
+      t.body = (Block)(e2j(t.body, t.obj));
+    // System.out.println("fun obj 2 set to null "+t.name);
+    t.obj = null; // to force re-entry;
+    return t;
+  }
+
+  private static boolean changed_signature(eFunDef a, eFunDef b) {
+    if ((a == null) || (b == null))
+      return false;
+    if (a.params.length != b.params.length)
+      return true;
+    for (int i = 0; i<a.params.length; i++) {
+      VarDef vda = (VarDef)a.params[i];
+      VarDef vdb = (VarDef)b.params[i];
+      if (   (vda.dcltyp instanceof IdRef)
+          && (vdb.dcltyp instanceof IdRef)) {
+        if (((IdRef)(vda.dcltyp)).name != ((IdRef)(vdb.dcltyp)).name)
+          return true;
+      } else if (   (vda.dcltyp instanceof Subscript)
+                 && (vdb.dcltyp instanceof Subscript)) {
+        AST astruc = ((Subscript)(vda.dcltyp)).struc;
+        AST bstruc = ((Subscript)(vdb.dcltyp)).struc;
+        if ((astruc instanceof IdRef) && (bstruc instanceof IdRef)) {
+          if (((IdRef)astruc).name != ((IdRef)bstruc).name)
+            return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  
+/** is statement stat a call to this or super?
+ *  there is a similar routine in class FunDef. Both should be moved into Attr.
+ */
+
+  private static boolean isSelfCall(AST stat) {
+    return 
+      stat.tag == EXEC &&
+      ((Exec)stat).expr.tag == APPLY &&
+      ((Apply)((Exec)stat).expr).fn instanceof Self;
+  }
+
+  
+// VarDef
+// ----------------------------------------
+
+  private static void e2j(VarDef t, Obj parent, ASTS newast) {
+    // System.out.println("e2j VarDef");
+    if (t.obj != null &&
+        ((VarObj)t.obj).init_state == VarObj.DISTRIBUTOR_TAKEN) {
+      // Transformation pattern
+      // original:
+      //   EFoo a;
+      // result:
+      //   EChannel a_$_teth = new EChannel();
+      //   EDistributor_$_Intf a_$_dist = a_$_teth.distributor();
+      //   EFoo_$_Intf a = new EFoo_$_Deflector(a_$_teth, a_$_teth);
+
+      AST fn;
+      ASTS args;
+      if (t.init != null) {
+        throw new CompilerError("direct EChannel form no longer " +
+                                "supported. Sorry, Croc.");
+        //t.init = e2j(t.init, parent);
+      }
+
+      Name tethName = t.name.append(tethS);
+      AST tethDef = new VarDef(t.pos, tethName, t.mods, EChannelTyp,
+                               new New(t.pos,
+                                       new Apply(t.pos, new Ident(t.pos, 
+                                                                  EchannelS), 
+                                                 new ASTS())));
+      newast.append(tethDef);
+
+      Name distName = t.name.append(distS);
+      AST distDef = new VarDef(t.pos, distName, t.mods, EDistributorTyp,
+                               new Apply(t.pos,
+                                         new Select(t.pos,
+                                                    new Ident(t.pos, tethName),
+                                                    distributorS),
+                                         new ASTS()));
+      newast.append(distDef);
+
+      t.init = 
+        new New(t.pos,
+                new Apply(t.pos,
+                          new Ident(t.pos,
+                                    t.dcltyp.typ.obj.name.append(deflectS)),
+                          new ASTS(new Ident(t.pos, tethName),
+                                   new Ident(t.pos, tethName))));
+      t.dcltyp = e2j(t.dcltyp, parent);
+      ((VarObj)t.obj).distname = distName;
+      newast.append(t);
+    } else {
+      t.dcltyp = e2j(t.dcltyp, parent);
+      if (t.init != null)
+        t.init = e2j(t.init, parent);
+      newast.append(t);
+    }
+    // System.out.println("obj set to null "+t.name);
+    t.obj = null; // to force re-entry;
+  }
+
+// Import
+// ----------------------------------------
+
+  private static void e2j(Import t, Obj parent, ASTS newast) {
+    // System.out.println("vorher = "+t.pid.name);
+    
+    if (t.pid.obj != null) {
+      Obj c = Attr.loadClass(null, ((ClassObj)t.pid.obj).fullname);
+      if (c instanceof ClassObj) //loadClass might return an AccessError
+        t.pid.obj = (ClassObj)c;
+    }
+    
+    /*    
+    if (t.pid.typ == null) 
+      System.out.println("t.pid.typ is null");
+    else
+      if (t.pid.typ.subtype(ePredef.EobjectTyp))
+        System.out.println("ist Subtyp von EObject");
+    if (t.typ == null)
+      System.out.println("t.typ is null");
+    else
+      System.out.println("t.typ.tag = "+t.typ.tag);
+      if (t.typ.subtype(ePredef.EobjectTyp))
+        System.out.println("t.typ ist Subtyp von EObject");
+    if (t.pid.obj == null)
+      System.out.println("t.pid.obj is null");
+    Name n = ((Select)(t.pid)).name;
+    if (t.pid.e2jdone)
+      System.out.println("e2jdone");
+    else
+      System.out.println("not e2jdone");
+    if (t.pid.obj instanceof ClassObj) {
+      System.out.println("instanceof ClassObj "+ t.pid.obj.name);
+      System.out.println("obj.typ.tag = " +((ClassObj)(t.pid.obj)).typ.tag);
+      if (((ClassObj)(t.pid.obj)).superclass == null) 
+        System.out.println("no superclass");
+      if (((ClassObj)(t.pid.obj)).subclass(ePredef.EobjectClass))
+        System.out.println("bed 1");
+      if (((ClassObj)(t.pid.obj)).subclass(ePredef.EobjectIntfClass))
+        System.out.println("bed 2");
+    } else
+      System.out.println("not instanceof ClassObj");
+    */
+    
+    Name oldname = t.pid.name;
+    ClassObj previousClass = (ClassObj)t.pid.obj;
+    t.pid = (IdRef)e2j(t.pid, parent);
+    newast.append(t);
+    if (!oldname.equals(t.pid.name)) {
+      // add oldname
+      IdRef origId;
+      if (t.pid instanceof Ident) {
+        origId = new Ident(t.pos, oldname);
+      } else if (t.pid instanceof Select) {
+        origId = new Select(t.pos, ((Select)(t.pid)).struc, oldname);
+      } else {
+        throw new CompilerError("e2j import orig class");
+      }
+      Import importorig = new Import(t.pos, origId);
+      newast.append(importorig);
+      // add the Sealer
+      Name sealername = oldname.append(SealerS);
+      IdRef sealerId;
+      if (t.pid instanceof Ident) {
+        sealerId = new Ident(t.pos, sealername);
+      } else if (t.pid instanceof Select) {
+        sealerId = new Select(t.pos, ((Select)(t.pid)).struc, sealername);
+      } else {
+        throw new CompilerError("e2j import sealer else");
+      }
+      Import importsealer = new Import(t.pos, sealerId);
+      newast.append(importsealer);
+      // Sealers of Superclasses
+      while (previousClass != null && previousClass.superclass != null) {
+        if (   previousClass.superclass.subclass(ePredef.EobjectClass)
+            && (previousClass.superclass != ePredef.EobjectClass)) {
+          sealername = previousClass.superclass.fullname.append(SealerS);
+          // System.out.println("additionally: "+sealername);
+          importsealer = new Import(t.pos, Name.toIdRef(t.pos, sealername));
+          // importsealer.print();
+          newast.append(importsealer);
+        }
+        previousClass = previousClass.superclass;
+      }
+      // add the Impl
+      Name implname = oldname.append(implS);
+      IdRef implId;
+      if (t.pid instanceof Ident) {
+        implId = new Ident(t.pos, implname);
+      } else if (t.pid instanceof Select) {
+        implId = new Select(t.pos, ((Select)(t.pid)).struc, implname);
+      } else {
+        throw new CompilerError("e2j import impl else");
+      }
+      Import importimpl = new Import(t.pos, implId);
+      newast.append(importimpl);
+      // add the Deflector
+      Name deflectorname = oldname.append(deflectS);
+      IdRef deflectorId;
+      if (t.pid instanceof Ident) {
+        deflectorId = new Ident(t.pos, deflectorname);
+      } else if (t.pid instanceof Select) {
+        deflectorId = new Select(t.pos, ((Select)(t.pid)).struc, deflectorname);
+      } else {
+        throw new CompilerError("e2j import deflector else");
+      }
+      Import importdeflector = new Import(t.pos, deflectorId);
+      newast.append(importdeflector);
+    }
+    //System.out.println("nachher = "+t.pid.name);
+  }
+
+// TopLevel
+// ----------------------------------------
+
+  private static AST e2j(TopLevel t, Obj parent) {
+    // System.out.println("e2j TopLevel");
+    if (Switches.verbose)
+      System.out.println("[e2j " + t.sourcefile + "]");
+    ASTS newdefs = new ASTS();
+    for (int i = 0; i < t.defs.length; i++)
+      e2j(t.defs[i], parent, newdefs);
+    t.defs = newdefs.shrink();
+    return t;
+  }
+
+// ======================================================================
+// stats AST nodes
+// ======================================================================
+
+// Case
+// ----------------------------------------
+
+  private static AST e2j(Case t, Obj parent) {
+    if (t.pat != null)
+      t.pat = e2j(t.pat, parent);
+    ASTS newstmts = new ASTS();
+    for (int i = 0; i < t.stats.length; i++)
+      e2j(t.stats[i], parent, newstmts);
+    t.stats = newstmts.shrink();
+    return t;
+  }
+
+// Conditional
+// ----------------------------------------
+
+  private static void e2j(Conditional t, Obj parent, ASTS newast) {
+    // System.out.println("before: "); t.print();
+    t.cond = e2j(t.cond, parent);
+    if (t.tag == CONDEXPR) {
+      t.thenpart = e2j(t.thenpart, parent);
+      if (t.elsepart != null)
+        t.elsepart = e2j(t.elsepart, parent);
+    } else {
+      ASTS newthen = new ASTS();
+      e2j(t.thenpart, parent, newthen);
+      t.thenpart = newthen.blockOrStmt(t.pos);
+      if (t.elsepart != null) {
+        ASTS newelse = new ASTS();
+        e2j(t.elsepart, parent, newelse);
+        t.elsepart = newelse.blockOrStmt(t.pos);
+      }
+    }
+    // System.out.println("after: "); t.print();
+    newast.append(t);
+  }
+  
+  private static AST e2j(Conditional t, Obj parent) {
+    ASTS stmt = new ASTS();
+    e2j(t, parent, stmt);
+    return ((stmt.shrink())[0]);
+  }
+
+// DoLoop
+// ----------------------------------------
+
+  private static void e2j(DoLoop t, Obj parent, ASTS newast) {
+    t.cond = e2j(t.cond, parent);
+    ASTS newbody = new ASTS();
+    if (t.body != null) {
+      e2j(t.body, parent, newbody);
+      t.body = newbody.blockOrStmt(t.pos);
+    }
+    newast.append(t);
+  }
+
+// Exec
+// ----------------------------------------
+
+  private static void e2j(Exec t, Obj parent, ASTS newast) {
+    if (t.expr instanceof Assignop) {
+      ASTS newstmts = new ASTS();
+      e2j(t.expr, parent, newstmts);
+      if (newstmts.length == 1) {
+        t.expr = newstmts.blockOrStmt(t.pos);
+        newast.append(t);
+      } else
+        newast.append(newstmts);
+    } else {
+      t.expr = e2j(t.expr, parent);
+      newast.append(t);
+    }
+  }
+
+// ForLoop
+// ----------------------------------------
+
+  private static void e2j(ForLoop t, Obj parent, ASTS newast) {
+    ASTS newe1 = new ASTS();
+    for (int i = 0; i < t.e1.length; i++)
+      e2j(t.e1[i], parent, newe1);
+    t.e1 = newe1.shrink();
+    if (t.e2 != null)
+      t.e2 = e2j(t.e2, parent);
+    ASTS newe3 = new ASTS();
+    for (int i = 0; i < t.e3.length; i++)
+      e2j(t.e3[i], parent, newe3);
+    t.e3 = newe3.shrink();
+    ASTS newbody = new ASTS();
+    if (t.body != null) {
+      e2j(t.body, parent, newbody);
+      t.body = newbody.blockOrStmt(t.pos);
+    }
+    newast.append(t);
+  }
+
+// Labelled
+// ----------------------------------------
+
+  private static void e2j(Labelled t, Obj parent, ASTS newast) {
+    ASTS newstmt = new ASTS();
+    e2j(t.stat, parent, newstmt);
+    if (newstmt.length != 1) {
+      Report.error(t.pos, "Labelled Statement too complex for e2j");
+      throw new CompilerError("cannot e2j");
+    }
+    t.stat = (newstmt.shrink())[0];
+    newast.append(t);
+  }
+
+// eReturn
+// ----------------------------------------
+
+  private static void e2j(eReturn t, Obj parent, ASTS newast) {
+    if (t.expr != null) 
+      t.expr = e2j(t.expr, parent);
+    newast.append(t);
+  }
+
+// Switch
+// ----------------------------------------
+
+  private static void e2j(Switch t, Obj parent, ASTS newast) {
+    t.sel = e2j(t.sel, parent);
+    for (int i = 0; i < t.cases.length; i++)
+      t.cases[i] = (Case)e2j(t.cases[i], parent);
+    newast.append(t);
+  }
+
+// Synchronized
+// ----------------------------------------
+
+  private static AST e2j(Synchronized t, Obj parent) {
+    e2j((Try)t, parent);
+    t.lock = e2j(t.lock, parent);
+    return t;
+  }
+
+// Throw
+// ----------------------------------------
+
+  private static void e2j(Throw t, Obj parent, ASTS newast) {
+    t.expr = e2j(t.expr, parent);
+    if (t instanceof eThrow) {
+      newast.append(doEthrow(t.pos, t.expr));
+    } else {
+      newast.append(t);
+    }
+  }
+
+// eTry
+// ----------------------------------------
+
+  private static void e2j(Try t, Obj parent, ASTS newast) {
+    ASTS newbody = new ASTS();
+    if (t.body != null) {
+      e2j(t.body, parent, newbody);
+      t.body = newbody.blockOrStmt(t.pos);
+    }
+    ASTS newcatchers = new ASTS();
+    for (int i = 0; i < t.catchers.length; i++)
+      e2j(t.catchers[i], parent, newcatchers);
+    AST[] newcatch = newcatchers.shrink();
+    t.catchers = new FunDef[newcatch.length];
+    for (int i = 0; i < newcatch.length; i++)
+      t.catchers[i] = (FunDef)newcatch[i];
+    if (t instanceof eTry) {
+      newast.append(etr((eTry)t, parent));
+    } else {
+      ASTS newfin = new ASTS();
+      if (t.finalizer != null) {
+        e2j(t.finalizer, parent, newfin);
+        t.finalizer = newfin.blockOrStmt(t.finalizer.pos);
+      }
+      newast.append(t);
+    }
+  }
+
+// eWhen
+// ----------------------------------------
+
+  private static void e2j(eWhen t, Obj parent, ASTS newast) {
+    for (int i = 0; i < t.withobj.length; i++) {
+      t.withobj[i] = e2j(t.withobj[i], parent);
+      ASTS newdefs = new ASTS();
+      e2j(t.todo[i], parent, newdefs);
+      // t.todo[i] is a function. Hence, e2j could result in two new
+      // functions, the second having the original parameters.
+      // Example: null(EObject x) will return both
+      // null(EObject_$_Intf) and null(EObject).
+      // If zero or more than two are returned, it is a compiler error.
+      // Otherwise, the first one is used for e2j.
+      if ((newdefs.length == 0) || (newdefs.length > 2))
+        throw new CompilerError("cannot e2j, ewhen");
+      t.todo[i] = (FunDef)((newdefs.shrink())[0]);
+    }
+    if (t.elsepart != null)
+      t.elsepart = e2j(t.elsepart, parent);
+    newast.append(ewh(t, parent));
+  }
+
+// WhileLoop
+// ----------------------------------------
+
+  private static void e2j(WhileLoop t, Obj parent, ASTS newast) {
+    t.cond = e2j(t.cond, parent);
+    ASTS newbody = new ASTS();
+    if (t.body != null) {
+      e2j(t.body, parent, newbody);
+      t.body = newbody.blockOrStmt(t.pos);
+    }
+    newast.append(t);
+  }
+
+// Sequence
+// ----------------------------------------
+
+  private static AST e2j(Sequence t, Obj parent) {
+    ASTS newbody = new ASTS();
+    if (t.body != null) 
+      t.body = (Block)e2j(t.body, parent);
+    return t;
+  }
+
+// eKeep
+// ----------------------------------------
+ 
+  private static void e2j(eKeep t, Obj parent, ASTS newast) {
+ 
+    // Block bl;
+    // AST var = new VarDef(t.pos, eKeeperS, 0, RtExEnv, t.keeper);
+    // AST body =  e2j(t.stat, parent);
+    // if (body instanceof Block) {
+    //   bl = (Block)body;
+    //   bl.prepend(new ASTS(var));
+    // } else {
+    //   ASTS stmts = new ASTS(var);
+    //   stmts.append(body);
+    //   bl = new Block(t.pos, stmts);
+    // }
+    
+    t.stat = e2j(t.stat, parent);
+    newast.append(t.stat); // t.stat is a Block
+  } 
+
+// ======================================================================
+// exprs AST nodes
+// ======================================================================
+
+// Aggregate
+// ----------------------------------------
+
+  private static AST e2j(Aggregate t, Obj parent) {
+    for (int i = 0; i < t.elems.length; i++)
+      t.elems[i] = e2j(t.elems[i], parent);
+    return t;
+  }
+
+// Apply
+// ----------------------------------------
+
+  private static AST e2j(Apply t, Obj parent) {
+    if (t.isEnvelope || t.isInvocation || t.isSealer)
+      return e2j(t.args[0], parent);
+    t.fn = e2j(t.fn, parent);
+    for (int i = 0; i < t.args.length; i++)
+      t.args[i] = e2j(t.args[i], parent);
+    return t;
+  }
+
+  private static void e2j(Apply t, Obj parent, ASTS newstmts) {
+    newstmts.append(e2j(t, parent));
+  }
+
+// eAssignop
+// ----------------------------------------
+
+  // Assignments are expressions, e.g. a=b=c is valid. Since <- is 
+  // considered to be an assignment, we might run into a<-b<-c. When
+  // transforming the first <-, the right hand side is supposed to 
+  // result in an expression (in contrast to a couple of statements.
+  // Hence, the rhs may not be a <-
+
+  private static AST e2j(eAssignop t, Obj parent) {
+    t.left = e2j(t.left, parent);
+    t.right = e2j(t.right, parent);
+    if (t.tag != ESEND)
+      return t;
+
+    IdRef  idr = null;
+    FunObj fo = null;
+    if (t.right instanceof Apply) {
+      idr = (IdRef)((Apply)t.right).fn;
+      fo = (FunObj)(idr.obj);
+    }
+    AST nw = null;
+
+    if (t.isEnvelope) {
+      // new syntax:
+      // <className> <- <methodName> (<arg>, ...)
+      // ==>
+      // new RtEnvelope(<appropriate sealer>, {<arg>, ...}, myKeeper());
+        
+      nw = envelCreate(t.pos, t.sealer, ((Apply)t.right).args, t.nestLevel);
+      //nw.print();
+      return nw;
+    }
+
+    if (t.isInvocation) {
+      // new syntax:
+      // <obj> <- <methodName> (<arg>, ...)
+      // ==>
+      // new RtInvocation(<obj>,<appropriate sealer>,{<arg>, ...}, myKeeper());
+
+      nw = invoCreate(t.pos, t.left, t.sealer, ((Apply)t.right).args, 
+                      t.nestLevel);
+      //nw.print();
+      return nw;
+    }
+
+    if (t.isSealer) {
+      // new syntax:
+      // <className> <- <methodName> (<arg>, ...)
+      // ==>
+      // <appropriate sealer>
+
+      FunObj fob = t.sealer;
+      if (fob.uniqueName == null)
+        fob.uniqueName = manglesealname(fob);
+      Name definer = ((ClassObj)fob.owner).fullname;
+      if (definer.endsWith(E2j.intfS))
+        definer = definer.subName(0, definer.len-7);
+      nw = new Select(t.pos,
+                      Name.toIdRef(t.pos, definer.append(SealerS)),
+                      sealerS.append(fob.uniqueName));
+      //nw.print();
+      return nw;
+    }
+
+    Report.error(t.pos, "cannot translate this <-, please extract");
+    return t;
+  }
+
+  private static void e2j(eAssignop t, Obj parent, ASTS newstmts) {
+    t.left = e2j(t.left, parent);
+    t.right = e2j(t.right, parent);
+    if (t.tag != ESEND) {
+      newstmts.append(t);
+    } else {
+
+      // Transformation pattern:
+      // original:
+      //   left <- emtd(para1, para2)   or   left <- right-envelope
+      // result:
+      //   left.emtd$async(para1, para2));
+      //                                or
+      // WAS:  RtRun.enqueue(left, right-envelope);
+      // NOW:  right-envelope.sendTo(left).
+      // if the lhs is a subtype of RtEnvelope then this transformed into the
+      // following assignment:
+      //   left = emtd-unique-name_Sealer.seal_emtd(para1, para2);
+      
+      IdRef  idr = null;
+      FunObj fo = null;
+      if (t.right instanceof Apply) {
+        idr = (IdRef)((Apply)t.right).fn;
+        fo = (FunObj)(idr.obj);
+      }
+
+      if ((t.left.typ != null) && !t.left.typ.subtype(ePredef.RtEnvelopeTyp)) {
+        // If the lhs is an eobj, there are three possible rhs types
+        //   eobj <- emtd(...)  or  eobj <- envel  or echan <- emtd(...)
+        // Result for First type:
+        //   eobj.emtd$async(...);
+        // Result for Second type:
+        // WAS:  RtRun.enqueue(eobj, envel);
+        // NOW:  envel.sendTo(eobj);
+        // Result for Third type:
+        //   RtRun.enqueue(echan, seal_emtd());
+        if (   t.right.typ != null
+            && !t.right.typ.subtype(ePredef.RtEnvelopeTyp)
+            && !t.left.typ.subtype(ePredef.EchannelTyp)) {
+          // first type
+          AST cast = t.left;
+          if (idr instanceof Select)
+            cast = new Typeop(t.pos, CAST, t.left, ((Select)idr).struc);
+          IdRef fkt = new Select(t.pos, cast, idr.name);
+          newstmts.append(new Exec(t.pos,
+                                   new Apply(t.pos, fkt,
+                                             new ASTS(((Apply)t.right).args))));
+        } else {
+          if (   t.left.typ != null
+              && t.right.typ != null
+              && !t.right.typ.subtype(ePredef.RtEnvelopeTyp)
+              && t.left.typ.subtype(ePredef.EchannelTyp)) {
+            Name sealer = ((ClassObj)fo.owner).fullname;
+            if (sealer.endsWith(E2j.intfS))
+              sealer = sealer.subName(0, sealer.len-7);
+            sealer = sealer.append(SealerS);
+            Name seal   = sealerS.append(manglesealname(fo));
+            ASTS elems = new ASTS();
+            AST[] args = ((Apply)t.right).args;
+            for (int j = 0; j < args.length; j++) {
+              elems.append(simplifyBox(t.pos, args[j].typ, args[j]));
+            }
+            t.right = new New(t.pos,
+                              new Apply(t.pos,
+                                        new Ident(t.pos, EenvelS),
+                                        new ASTS(
+                                                 new Select(t.pos,
+                                                            Name.toIdRef(t.pos,
+                                                                        sealer),
+                                                            seal),
+                                                 new Aggregate(t.pos, elems),
+                                                 myKeeper(t.pos, 0))));
+          }
+          // WAS: RtRun.enqueue((EObject)t.left, t.right);
+          //      AST enq = enqueue(t.pos, t.left, t.right);
+          // NOW: t.right.sendTo(t.left);
+          AST enq = new Exec(t.pos,
+                             new Apply(t.pos,
+                                       new Select(t.pos,
+                                                  t.right,
+                                                  sendToS),
+                                       new ASTS(t.left)));
+          newstmts.append(enq);
+        }
+        return;
+      }
+      if (t.left.typ == null)
+        throw new RuntimeException("compiler error e2j(eAssignop");
+      // if we reach this point then <- is of type:
+      //   envel <- emtd(...)
+      // result:
+      //   envel = new RtEnvelope(...) // made by envelCreate
+      if (t.right.typ != null && !t.right.typ.subtype(ePredef.RtEnvelopeTyp)) {
+        t.right = envelCreate(t.pos, t.sealer, ((Apply)t.right).args, 0);
+        t.tag = ASSIGN;
+        newstmts.append(t);
+      }
+    }
+  }
+
+// Binop
+// ----------------------------------------
+
+  private static AST e2j(Binop t, Obj parent) {
+    t.left = e2j(t.left, parent);
+    t.right = e2j(t.right, parent);
+    return t;
+  }
+
+// Ident
+// ----------------------------------------
+
+  private static AST e2j(Ident t, Obj parent) {
+    if (!t.e2jdone && t.obj != null && t.obj instanceof ClassObj &&
+        t.obj.typ.tag != PACKAGETYP &&
+        (((ClassObj)t.obj).subclass(ePredef.EobjectClass) ||      // eclass
+         ((ClassObj)t.obj).subclass(ePredef.EobjectIntfClass))) { // einterface
+      if (!endsWithE2j(t.name)) {
+        // System.out.print("Ident "+t.name);
+        if (t.useImpl)
+          t.name = t.name.append(implS);
+        else
+          t.name = t.name.append(intfS);
+        // System.out.print(" -> "+t.name);
+      }
+      t.typ = null;
+      t.e2jdone = true;
+    }
+    return t;
+  }
+
+  static boolean endsWithE2j(Name name) {
+    // this can only be necessary, if a programmer uses _$_Impl and the
+    // like manually. If the code is pure E, no name will end with one
+    // of the special endings.
+    // System.out.println("endsWithE2j ("+name+" ?");
+    boolean result = (   name.endsWith(intfS)
+                      || name.endsWith(implS)
+                      || name.endsWith(deflectS));
+    // System.out.println(result);
+    return result;
+  }
+
+// TypeIdent
+// ----------------------------------------
+
+  private static AST e2j(TypeIdent t, Obj parent) {
+    if (   t.typ.subtype(ePredef.EobjectTyp)
+        && !endsWithE2j(t.name)) {  // what about eInterfaces?
+      // System.out.print("TypeIdent "+t.name);
+      if (t.useImpl)
+        t.name = t.name.append(implS);
+      else
+        t.name = t.name.append(intfS);
+      // System.out.print(" -> "+t.name);
+    }
+    return t;
+  }
+
+// DotClass
+// ----------------------------------------
+
+  private static AST e2j(DotClass t, Obj parent) {
+    // 1.1 style .class
+    // original:
+    //   dotclass.class
+    // result:
+    //   ((class$dotclass != null) ? class$dotclass 
+    //                             : class$dotclass = class$("dotclass"))
+    Binop t0 = 
+      new Binop(t.pos,
+                NE,
+                new Ident(t.pos, t.name),
+                new Ident(t.pos, nullS));
+    Name cln = Name.fromString(((IdRef)t.struc).typ.toString());
+    Assignop t2 = 
+      new Assignop(t.pos,
+                   ASSIGN,
+                   new Ident(t.pos, t.name),
+                   new Apply(t.pos,
+                             new Ident(t.pos, classS),
+                             new ASTS(new Literal(t.pos, STRINGLIT, cln))));
+    Conditional result =
+      new Conditional(t.pos, 
+                      CONDEXPR,
+                      t0,
+                      new Ident(t.pos, t.name),
+                      t2);
+    //result.print();
+    return result;
+  }
+
+// New
+// ----------------------------------------
+
+  private static AST e2j(New t, Obj parent) {
+    t.constr = e2j(t.constr, parent);
+    return t;
+  }
+
+// Select
+// ----------------------------------------
+
+  private static AST e2j(Select t, Obj parent) {
+    t.struc = e2j(t.struc, parent);
+    if (!t.e2jdone && t.obj != null && t.obj instanceof ClassObj &&
+        t.obj.typ.tag != PACKAGETYP &&
+        (((ClassObj)t.obj).subclass(ePredef.EobjectClass) ||      // eclass
+         ((ClassObj)t.obj).subclass(ePredef.EobjectIntfClass))) { // einterface
+      if (!endsWithE2j(t.name)) {
+        // System.out.print("Select "+t.name);
+        if (t.useImpl)
+          t.name = t.name.append(implS);
+        else
+          t.name = t.name.append(intfS);
+        // System.out.print(" -> "+t.name);
+      }
+      t.typ = null;
+      t.e2jdone = true;
+    }
+    return t;
+  }
+
+// Subscript
+// ----------------------------------------
+
+  private static AST e2j(Subscript t, Obj parent) {
+    t.struc = e2j(t.struc, parent);
+    if (t.index != null)
+      t.index = e2j(t.index, parent);
+    return t;
+  }
+
+// Typeop
+// ----------------------------------------
+
+  private static AST e2j(Typeop t, Obj parent) {
+    t.expr = e2j(t.expr, parent);
+    t.dcltyp = e2j(t.dcltyp, parent);
+    return t;
+  }
+
+// eUnop
+// ----------------------------------------
+
+  private static AST e2j(eUnop t, Obj parent) {
+    if (t.tag == EDISTRIB) {
+      if (t.operand instanceof IdRef) {
+        // transformation of &-expression
+        IdRef id = (IdRef)t.operand;
+        if (id.obj instanceof VarObj) {
+          if (((VarObj)(id.obj)).init_state == VarObj.DISTRIBUTOR_TAKEN) {
+            AST newast = new Ident(t.pos, ((VarObj)(id.obj)).distname);
+            newast.typ = ePredef.EdistributorTyp;
+            return newast;
+          } else throw new CompilerError("e2j eUnop &: wrong state");
+        } else throw new CompilerError("e2j eUnop &: no VarObj");
+      } else {
+        AST cast = new Typeop(t.pos, CAST, t.operand,
+                              new Ident(t.pos,EchannelS.append(implS)));
+        AST fn = new Select(t.pos, cast, distributorS);
+        return new Apply(t.pos, fn, new ASTS());
+        //throw new CompilerError("e2j eUnop &: no IdRef");
+      }
+    }
+    // default
+    t.operand = e2j(t.operand, parent);
+    return t;
+  }
+
+  // some Unops (++, --) can be used as regular statements and can
+  // therefore appear in stmt lists. Thus we need the three parameter
+  // version.
+  private static void e2j(eUnop t, Obj parent, ASTS newast) {
+    newast.append(e2j(t, parent));
+  }
+
+// ======================================================================
+// Typecaseing Routines
+// ======================================================================
+
+/* An AST node t might be replaced by a single new AST node, or remains
+ * (i.e. is returned) unchanged. There are entries in the typecase for 
+ * all sorts of expressions. Note that there are entries for Block and FunDef.
+ */
+
+  private static AST e2j(AST t, Obj parent) {
+    switch(t.tag) {
+    case ASSIGN:
+    case ABITOR:
+    case ABITXOR:
+    case ABITAND:
+    case ASL:
+    case ASR:
+    case ALSR:
+    case APLUS:
+    case AMINUS:
+    case ATIMES:
+    case ADIV:
+    case AMOD:
+    case ESEND: // Esend will result in a compiler restriction error
+      return e2j((eAssignop)t, parent);
+    case AGGREGATE:
+      return e2j((Aggregate)t, parent);
+    case APPLY:
+      return e2j((Apply)t, parent);
+    case OR:
+    case AND:
+    case EQ:
+    case NE:
+    case LT:
+    case GT:
+    case LE:
+    case GE:
+    case BITOR:
+    case BITXOR:
+    case BITAND:
+    case SL:
+    case SR:
+    case LSR:
+    case PLUS:
+    case MINUS:
+    case TIMES:
+    case DIV:
+    case MOD:
+      return e2j((Binop)t, parent);
+    case IDENT:
+      if (t instanceof TypeIdent)
+        return e2j((TypeIdent)t, parent);
+      else if (t instanceof Ident)
+        return e2j((Ident)t, parent);
+      else 
+        return e2j((DotClass)t, parent);
+    case NEW:
+      return e2j((New)t, parent);
+    case SELECT:
+      return e2j((Select)t, parent);
+    case SUBSCRIPT:
+      return e2j((Subscript)t, parent);
+    case TYPETEST:
+    case CAST:
+      return e2j((Typeop)t, parent);
+    case POS:
+    case NEG:
+    case NOT:
+    case COMPL:
+    case PREINC:
+    case PREDEC:
+    case POSTINC:
+    case POSTDEC:
+    case EDISTRIB:
+      return e2j((eUnop)t, parent);
+    case CASE:
+      return e2j((Case)t, parent);
+    case CONDEXPR: case CONDSTAT:
+      return e2j((Conditional)t, parent);
+    case SEQ:
+      return e2j((Sequence)t, parent);
+    case BLOCK:
+      return e2j((Block)t, parent);
+    case FUNDEF: 
+    case LAMBDA: 
+    case CATCH:
+      return e2j((eFunDef)t, parent);
+    case INTLIT:
+    case LONGLIT:
+    case FLOATLIT:
+    case DOUBLELIT:
+    case CHARLIT:
+    case STRINGLIT:
+    case THIS:
+    case SUPER:
+    case FUNCTIONTYPE:
+      return t;
+    default:
+      throw new CompilerError("e2j "+t.tag);
+    }
+  }
+
+/* An AST node t in a list of AST nodes that is being processed might be 
+ * replaced by a several new AST nodes. The replacing nodes are collected
+ * in ASTS newast (3rd parameter). 
+ */
+
+  private static void e2j(AST t, Obj parent, ASTS newast) {
+    switch(t.tag) {
+    case ASSIGN:
+    case ABITOR:
+    case ABITXOR:
+    case ABITAND:
+    case ASL:
+    case ASR:
+    case ALSR:
+    case APLUS:
+    case AMINUS:
+    case ATIMES:
+    case ADIV:
+    case AMOD:
+    case ESEND:
+      e2j((eAssignop)t, parent, newast); return;
+    // case POS:
+    // case NEG:
+    // case NOT:
+    // case COMPL:
+    case PREINC:        // can be used as regular statements
+    case PREDEC:
+    case POSTINC:
+    case POSTDEC:
+    // case EDISTRIB:
+      e2j((eUnop)t, parent, newast); return;
+    case APPLY:
+      e2j((Apply)t, parent, newast); return;
+    case CONDEXPR: 
+    case CONDSTAT:
+      e2j((Conditional)t, parent, newast); return;
+    case DOLOOP:
+      e2j((DoLoop)t, parent, newast); return;
+    case EXEC:
+      e2j((Exec)t, parent, newast); return;
+    case FORLOOP:
+      e2j((ForLoop)t, parent, newast); return;
+    case LABELLED:
+      e2j((Labelled)t, parent, newast); return;
+    case RETURN:
+      e2j((eReturn)t, parent, newast); return;
+    case SWITCH:
+      e2j((Switch)t, parent, newast); return;
+    case THROW:
+      e2j((Throw)t, parent, newast); return;
+    case TRY:
+      e2j((Try)t, parent, newast); return;
+    case EWHEN:
+      e2j((eWhen)t, parent, newast); return;
+    case WHILELOOP:
+      e2j((WhileLoop)t, parent, newast); return;
+    case SEQ:
+      e2j((Sequence)t, parent, newast); return;
+    case CLASSDEF:
+      e2j((eClassDef)t, parent, newast); return;
+    case BLOCK:
+      e2j((Block)t, parent, newast); return;
+    case FUNDEF: 
+    case LAMBDA:
+    case CATCH:
+      e2j((eFunDef)t, parent, newast); return;
+    case VARDEF:
+      e2j((VarDef)t, parent, newast); return;
+    case IMPORT:
+      e2j((Import)t, parent, newast); return;
+    case BREAK:
+    case CONTINUE:
+    case PACKAGE:
+    case SYNCHRON:
+      newast.append(t); return;
+    case EKEEP:
+      e2j((eKeep)t, parent, newast); return;
+    default:
+      throw new CompilerError("e2j "+t.tag);
+    }
+  }
+
+  // ------------------------------------------------------------
+
+/** e2j an array of toplevel trees
+ */
+  static TopLevel[] e2j(TopLevel[] trees) {
+    // System.out.println("E: analysis done");
+    if (Switches.verbose)
+      System.out.println("[transforming e to extended java]");
+    for (int j = 0; j < trees.length; j++)
+      if (trees[j] != null) trees[j] = (TopLevel)e2j(trees[j], null);
+    // System.out.println("E: e2j done");
+    done = true;
+    if (Switches.printE2jTree) {
+      for (int j = 0; j < trees.length; j++)
+        if (trees[j] != null) trees[j].print();
+    }
+    ClassDef.compiled = new Hashtable();
+    if (Switches.verbose)
+      System.out.println("[re-attributing]");
+    for (int j = 0; j < trees.length; j++)
+      if (trees[j] != null) {
+        ((TopLevel)(trees[j])).pass = 1;
+        trees[j].enter();
+      }
+    for (int j = 0; j < trees.length; j++)
+      if (trees[j] != null) trees[j].enterFields();
+    for (int j = 0; j < trees.length; j++)
+      if (trees[j] != null) trees[j].attr();
+    return trees;
+  }
+}
+

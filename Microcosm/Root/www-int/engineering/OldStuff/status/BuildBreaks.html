@@ -1,0 +1,142 @@
+<HTML>
+<HEAD>
+    <TITLE>The Build Break Page</TITLE>
+</HEAD>
+<BODY>
+
+<H1>The Build Break Page</H1>
+
+<h2>The Archived Build Mailing List</h2>
+
+<A
+HREF="/archives/ec_build/">ec_build:</A>
+is an archived list of recent build news. In particular, it contains
+all Felix's daily build news messages.
+
+<h2>Current And Very Recent Build Breaks</h2>
+
+<ul>
+
+<li>12/31/97 Checkpoint and revival is unreliable. Revival sometimes
+hangs. Need more information on this one. We don't even know how to
+reproduce it yet.
+
+<li>12/31/97 If you create something from the catalog, so it appears
+in your hand, and then you change regions you won't be able to put
+down the object (or put it into your pocket). This one's been in for a
+while - Scott spotted it a couple of releases ago.
+
+<li>12/16/97 Release r115 (and all subsequent releases) tend to
+deadlock at startup; developers may see this too, especially if using
+AccountManager (try run.bat if you do hit this problem). We've integrated
+Gordie's deadlock workaround but it doesn't seem to catch all cases.
+
+</ul>
+
+<h2>Recent Build Breaks (All Fixed)</h2>
+
+<ul>
+
+<li>12/29/97 (Fixed by John + Trev 12/29/97 - rolled back a checkin)
+Walking "gesture" broken - avatar won't walk.
+
+<li>12/29/97 (Fixed by Sidney 12/29/97 - rolled out some changes to
+Openers). Crashes when checkpointing or connecting two HabiFoos, if
+using the Beta JIT. These are NT/Windows level crashes (no Java
+backtrace, just the application error popup).
+
+<li>12/18/97 (Fixed by Alex and Claire) Busy cursor doesn't disappear
+after transition is finished.
+
+<li>12/18/97 (Fixed by Tony, 12/22/97) Watermarks were not
+showing up. Turned out to be a mismatch between the realm text
+files and the repository.
+
+<li>12/18/97 (Workaround by Dima, 12/22/97) Repository was loading
+twice. Turned out to be due to class garbage collection. Temporarily
+disabled class garbage collection to avoid the problem.
+
+<li>12/18/97 (Fixed by Felix, 12/19/97) The "make full-release" target
+is broken again. Felix is looking into it.
+
+<li>12/18/97 (Fixed by MarkM, 12/19/97) Simultaneous changes to
+recipes, Appearance3D and the repository caused some chaos. Kari,
+MarkM and Kirk are working on it.
+
+<li>12/18/97 (Fixed by RobJ, 12/19/97) HackDepends was broken by a
+checkin on 12/17, resulting in excessive recompilation. RobJ (who
+didn't break it) fixed the problem.
+
+<li>12/18/97 (Workaround by Dima, 12/22/97) The initial splash screen no
+longer loads properly. May be due to repository changes? (was in
+fact due to class garbage collection)
+
+<li>12/18/97 (Fixed by Felix 12/18/97) realm.Games.txt was deleted
+without updating makefile.
+
+<li>12/18/97 (Fixed by Harry, 12/19/97) 2D Avatars "moon walk" due to
+change in Kirk's code that needs to be allowed for in Harry's
+code. Harry is fixing.
+
+<li>12/17/97 (Fixed by Dima, 12/17) Latest build often fails when
+trying to connect to PLS or another HabiFoo. It's probably a problem
+with regular expressions (they changed last night, and they are used
+to parse EARLs, which are used when you try to connect to another
+HabiFoo).
+
+<li>12/16/97 New spam at startup; lots of error messages about
+widgets being unable to find images.
+
+<li>12/16/97 (Fixed by Mike, 12/16) Todays repository doesn't seem to
+have certificates so TOS will be broken. Attempting to build your own
+repository doesn't help, seems like the repository build process is
+not reaching the certification server. Mike is working to fix this.
+
+<li>12/10/97 The following was fixed by Eric, who got the full-release
+target working again (making some of the description below irrelevant)
+When building a full release (as described in <A
+href="BuildRelease.html">Building a release</a>) two of the later
+targets don't work properly. hub-release fails trying to copy First
+Part (FP) DLLs into the release area. Felix is looking at this. And
+build-zipfiles appears to succeed but produces zipfiles containing the
+wrong pathnames. Mike and Felix are looking at this.
+
+<li>12/15/97 Bill found that ".\regupdate -dev -debug" in
+"\Build\Release\bin" didn't work properly, after starting up a 4dos
+(Build) shell and doing "make nobuild release getrep". Fix was to use
+Felix's new "-savepaths" argument e.g. ".\regupdate -debug
+-savepaths". "-dev" doesn't seem to work properly (and should be
+removed?).
+
+<li>12/15/97 Bill got a weird repository error when he did a "make
+nobuild release getrep" in \src. Since then no-one has been able to
+reproduce it.
+
+<li>12/15/97 run.bat has preloading turned on by default, resulting in
+a class not found error at run time. As of around 11:00am, 12/15, Mike
+has checked in a fix, and as of 12:30 Felix checked his fix into \EC.
+Check out in \EC to get the fixed run.bat.
+
+<li>12/15/97 When building in \media you may get an error of the form:
+"/ec/gnu/bin/find: lib: No such file or directory". You can workaround
+it by creating the \media\lib directory manually. As of 12:30pm on
+12/15 Felix has checked in a fix, which you can get by doing "cvs
+update create.bom" in \media.
+
+<li>12/12/97 A new E runtime fix was checked in with a file missing
+(EChannel.java) causing the build to break. The file was checked in on
+12/13, fixing the problem.
+
+<li>12/12/97 RtCodeableThrowable was moved to a different package, but
+the src\cosm1 tree wasn't updated. Fixed later on 12/12.
+
+<li>12/10/97 All the makefile targets changed, and the docs didn't
+until later in the day. Latest docs now have the new targets.
+
+</ul>
+
+<p>
+<A href="index.html">Back to the index</a>
+</BODY>
+</HTML>
+

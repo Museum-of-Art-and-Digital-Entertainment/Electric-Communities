@@ -1,0 +1,7 @@
+LIBDEPS = 
+
+WINDOWS_DRIVE = C:
+
+CLFLAGS = /DWIN32
+
+WINDOWS_LIBS = $(ECROOTDRIVE)/$(ECROOT)/Dxsdk/sdk/lib/ddraw.lib nafxcw.lib user32.lib gdi32.lib advapi32.lib /NODEFAULTLIB:libcd.lib 

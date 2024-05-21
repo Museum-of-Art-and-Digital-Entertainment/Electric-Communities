@@ -1,0 +1,1150 @@
+# 1 "ec/ecomp/obj.java" 
+/* ************************************************************************
+ * Espresso! Symbol table objects
+ * Copyright 1995, 1996, 1997 Martin Odersky. All rights reserved.
+ * 
+ * Author     : Martin Odersky, Michael Philippsen.
+ * Last change: 15-December-97
+ *************************************************************************/
+
+
+package ec.ecomp;
+
+
+
+
+import java.util.Hashtable;
+import java.util.Vector;
+
+/*************************************************************************
+ *  Types
+ ************************************************************************/
+class Typ implements /*imports*/ Constants {
+
+    int tag;
+    ClassObj obj;  // the defining class
+
+    Typ(int tag, Name name) {
+        this.tag = tag;
+        this.obj = new ClassObj(PUBLIC, name, this);
+    }
+
+    Typ(int tag, ClassObj obj) {
+        this.tag = tag;
+        this.obj = obj;
+    }
+
+/** overrides Object
+ */
+    public String toString() {
+
+      if (obj.fullname != null)
+        return obj.fullname.toString();
+      else
+
+        return obj.name.toString();
+    }
+
+/** this type is assignable to type b:
+ */
+    boolean subtype(Typ b) {
+        if (b.tag == ERRTYP || b.tag == ANYTYP) return true;
+        switch (tag) {
+        case ERRTYP:
+            return true;
+        case BYTE: 
+            return b.tag == BYTE || SHORT <= b.tag && b.tag <= DOUBLE;
+        case CHAR: 
+            return b.tag == CHAR || INT <= b.tag && b.tag <= DOUBLE;
+        /*case PBYTE: case PSHORT:*/ case SHORT: case INT: case LONG: 
+        case FLOAT: case DOUBLE:
+            return tag <= b.tag && b.tag <= DOUBLE;
+        case BOOLEAN:
+            return b.tag == BOOLEAN;
+        case ARRAY:
+        case CLASS:
+            return b.tag == CLASS && obj.subclass(b.obj);
+        case VOID:
+            return b.tag == VOID;
+        case NULLTYP:
+            return b.tag == CLASS || b.tag == ARRAY || b.tag == NULLTYP ||
+                   b.tag == FUNCTION;
+        case ANYTYP:
+            return false;
+        default:
+            throw new CompilerError("subtype " + obj.name + tag);
+        }
+    }
+
+/** each of the types in a[] is assignable to the corresponding type in b[]:
+ */
+    static boolean subtypes(Typ a[], Typ b[]) {
+        if (a.length != b.length) return false;
+        for (int i = 0; i < a.length; i++)
+            if (!a[i].subtype(b[i])) return false;
+        return true;
+    }
+
+/** a and b are the same type:
+ */
+    boolean sametype(Typ b) {
+        return this == b;
+    }
+
+/** each of the types in a[] is the same as the corresponding type in b[]:
+ */
+    static boolean sametypes(Typ a[], Typ b[]) {
+        if (a.length != b.length) return false;
+        for (int i = 0; i < a.length; i++) {
+            if (!a[i].sametype(b[i])) return false;
+        }
+        return true;
+    }
+
+/** the predefined type that belongs to a tag.
+ */
+    static Typ[] typOfTag = new Typ[lastTypTag+1];
+
+/** construct a predefined type.
+ */
+    private static Typ newTyp(int tag, String s) {
+        Typ t = new Typ(tag, Name.fromString(s));
+        typOfTag[tag] = t;
+        return t;
+    }
+
+/** Some standard types:
+ */
+//  static Typ pbyteTyp = newTyp(PBYTE, "non-negative byte");
+    static Typ byteTyp = newTyp(BYTE, "byte");
+//  static Typ pshortTyp = newTyp(PSHORT, "non-negative short"); 
+    static Typ shortTyp = newTyp(SHORT, "short"); 
+    static Typ charTyp = newTyp(CHAR, "char"); 
+    static Typ intTyp = newTyp(INT, "int"); 
+    static Typ longTyp = newTyp(LONG, "long"); 
+    static Typ floatTyp = newTyp(FLOAT, "float"); 
+    static Typ doubleTyp = newTyp(DOUBLE, "double"); 
+    static Typ booleanTyp = newTyp(BOOLEAN, "boolean"); 
+    static Typ voidTyp = newTyp(VOID, "void"); 
+    static Typ arrayTyp = newTyp(ARRAY, "Array");
+    static Typ funTyp = newTyp(FUNCTION, "()");
+    static Typ nullTyp = newTyp(NULLTYP, "null");
+    static Typ errTyp = newTyp(ERRTYP, "<any>");
+    static Typ anyTyp = newTyp(ANYTYP, "<anything>");
+
+/** Standard object:
+ */
+    static Obj errObj = new Obj(ANY, PUBLIC | STATIC, 
+                                Name.fromString("<error>"), errTyp);
+}
+
+class ArrayTyp extends Typ  {
+    Typ elemtyp;
+
+    ArrayTyp(Typ elemtyp) {
+        super(ARRAY, arrayTyp.obj);
+        this.elemtyp = elemtyp;
+    }
+
+/** overrides Typ
+ */
+    public String toString() {
+        return elemtyp.toString() + "[]";
+    }
+
+/** types a, b are such that a[] is assignable to b[]:
+ */ 
+    private boolean subelemtype(Typ a, Typ b) {
+        return
+            a == b ||
+            a.tag == ERRTYP ||
+            b.tag == ERRTYP || 
+            b.tag == ANYTYP ||
+            (a.tag == ARRAY || a.tag == CLASS) && a.subtype(b);
+    }
+
+/** this type is assignable to type b
+ */
+    boolean subtype(Typ b) {
+        return
+            b.tag == ERRTYP || 
+            b.tag == ANYTYP ||
+            b.tag == CLASS && b.obj.isRoot() ||
+            b.tag == ARRAY && subelemtype(elemtyp, ((ArrayTyp)b).elemtyp);
+    }
+
+/** this type is the same as type b
+ */
+    boolean sametype(Typ b) {
+        return this == b ||
+            b.tag == ARRAY &&
+            elemtyp.sametype(((ArrayTyp)b).elemtyp);
+    }
+}
+
+class FunTyp extends Typ {
+    Typ[] argtyps;
+    Typ restyp;
+    TypSet thrown;
+
+    private static Name ParensS = Name.fromString("()");
+
+    FunTyp(Typ argtyps[], Typ restyp, TypSet thrown) {
+        super(FUNCTION, ParensS);
+        this.argtyps = argtyps;
+        this.restyp = restyp;
+        this.thrown = thrown;
+    }
+   
+/** overrides Typ
+ */ 
+    public String toString() {
+        return 
+            "(" + Basic.toString(argtyps) + " -> " + 
+            restyp.toString() + ")" +
+            (thrown == null ? "" 
+             :  " throws " + Basic.toString(TypSet.elems(thrown)));
+    }
+
+/** convert an argument vector to a string
+ */
+    String argsToString() {
+        return "(" + Basic.toString(argtyps) + ")";
+    }
+
+
+/** turn into JVM-style signature
+ */
+   String toSignature() {
+     String sig = "(";
+     for (int i = 0; i < argtyps.length; i++) {
+       sig += ClassFile.typeSig(argtyps[i], false).toString();
+     }
+     sig += ")" + ClassFile.typeSig(restyp, false).toString();
+     return sig;
+   }
+
+
+/** this type is a subtype of type b -- contravariance rule
+ */
+    boolean subtype(Typ b) {
+        return 
+            b.tag == ERRTYP || 
+            b.tag == ANYTYP ||
+            Switches.extended && 
+            b.tag == CLASS && b.obj.isRoot() ||
+            (b.tag == FUNCTION && 
+             subtypes(((FunTyp)b).argtyps, argtyps) &&
+             restyp.subtype(((FunTyp)b).restyp) &&
+             TypSet.subset(thrown, ((FunTyp)b).thrown));
+    }
+
+/** this type is the same as type b
+ */
+    boolean sametype(Typ b) {
+        return this == b ||
+            b.tag == FUNCTION &&
+            sametypes(argtyps, ((FunTyp)b).argtyps) &&
+            restyp.sametype(((FunTyp)b).restyp) &&
+            TypSet.subset(thrown, ((FunTyp)b).thrown) &&
+            TypSet.subset(((FunTyp)b).thrown, thrown);
+    }
+}
+
+ /*******************************************************************
+ *  Objects
+ ******************************************************************/
+
+//FIX 21/10/96 added kind field
+
+class Obj implements /*imports*/ Constants {
+    int modifiers; 
+    Name name;
+    Typ typ;
+    Typ alttyp;
+    Obj owner = null;
+    int kind;
+
+//  invariant: name != null
+
+    Obj(int kind) {
+      this.kind = kind;
+    }
+
+    Obj(int kind, int modifiers, Name name, Typ typ) {
+        this.kind = kind;
+        this.modifiers = modifiers;
+        this.name = name;
+        this.typ = typ;
+        this.alttyp = null;
+    }
+
+/** overrides Object
+ */
+    public String toString() {
+        return name.toString();
+    }
+
+/** object represents a final variable with a constant expression 
+ *  initializer:
+ */
+    boolean isConstant() { return false; }
+
+/** print object definition; used for debugging purposes.
+ */
+    void printDef() {
+    }
+
+/** return first modifier in mods:
+ *  pre: mods != 0
+ */
+    static int firstMod(int mods) {
+        int i = 0;
+        while (i < Nmods && (mods & (1 << i)) == 0) i++;
+        return i;
+    }
+
+/** return name of modifier:
+ */
+    static Name modName (int mod) {
+        switch (mod) {
+        case 0 : return Name.fromString("public");
+        case 1 : return Name.fromString("private");
+        case 2 : return Name.fromString("protected");
+        case 3 : return Name.fromString("static");
+        case 4 : return Name.fromString("final");
+        case 5 : return Name.fromString("synchronized");
+        case 6 : return Name.fromString("volatile");
+        case 7 : return Name.fromString("transient");
+        case 8 : return Name.fromString("native");
+        case 9 : return Name.fromString("interface");
+        case 10: return Name.fromString("abstract");
+        default: throw new CompilerError("modName " + mod);
+        }
+    }
+
+/** return all modifiers in mods as a string, 
+ *  trailed by a " " if nonempty.
+ */
+    static String modNames(int mods) {
+        String s = "";
+        while ((mods & 0xFFFF) != 0) {
+            int m = firstMod(mods);
+            s = s + modName(m) + " ";
+            mods = mods ^ (1 << m);
+        }
+        return s;
+    }
+}
+
+class ClassObj extends Obj {
+    Name packagename;     // the name of the package the class belongs to
+    Name fullname;        // fullname = packagename + name
+    ClassObj superclass;   
+    ClassObj[] interfaces;  
+    Scope scope;          // contains all objects defind in this class
+
+    Pool pool;            // the class's constant pool
+    Name sourcefile;      // the name of the sourcefile where 
+                          // this class is defined
+
+    int nclosures = 0;
+
+
+    boolean useEforErrors;// to print "eclass" instead of "class" in toString()
+
+    //1.1 style .class
+    Vector needed$classes;
+    boolean needClass = false;
+  
+
+/* ClassObj's are used in two roles:
+ *  - they represent defined or loaded classes or interfaces, or
+ *  - they represent "import handles", i.e. associations between
+ *    a short name and a full name.
+ *
+ *  if this is a import handle, typ.tag == PACKAGETYP, and
+ *  only name, fullname and typ need to be defined.
+ *  otherwise:
+ *  typ.tag != PACKAGETYP
+ *  fullname != null
+ *  packagename != null
+ *  interfaces != null
+ *  scope != null
+ *  superclass == null  =>  either this is an interface
+ *                          or this = Predef.objectClass
+ */
+
+/** assorted names:
+ */
+    private static Name objectS = Name.fromString("java.lang.Object");
+    private static Name emptyS = Name.fromString("");
+    private static Scope emptyScope = new Scope(null, null); 
+
+/** simple constructor:
+ */
+    ClassObj() {
+        super(TYP);
+    }
+
+/** creates a regular class:
+ */
+    ClassObj(int modifiers, Name name, Typ typ) {
+        super(TYP, modifiers, name, typ);
+        this.scope = emptyScope;
+        this.interfaces = new ClassObj[0];
+        this.fullname = name;
+        this.packagename = emptyS;
+    }
+
+/** creates an import handle:
+ */
+    ClassObj(Name fullname, Name name) {
+        super(PCK);
+        this.name = name;
+        this.typ = new Typ(PACKAGETYP, this);
+        this.fullname = fullname;
+    }
+
+/** overrides Obj
+ */
+    public String toString() {
+
+      String s = ((modifiers & INTERFACE) != 0 ? "interface " : "class ") + 
+        (fullname != null ? fullname : name);
+      if (useEforErrors)
+        s = "e"+s;
+      return s;
+
+
+
+
+
+    }
+
+/** this class or interface extends or implements class or interface b:
+ */
+    boolean subclass(ClassObj b) {
+      // System.out.println("this = "+this+", super = "+superclass+", b = "+b);
+
+      // einterfaces are subclass of EObject.
+      // see test/206-cast.
+      if (   !E2j.done 
+          && ((modifiers & INTERFACE) != 0)
+          && (b == ePredef.EobjectClass)
+          && (interfaces != null)) {
+        for (int i = 0; i < interfaces.length; i++) {
+          if (interfaces[i] == ePredef.EobjectIntfClass)
+            return true;
+        }
+      }
+
+        // Thread.dumpStack();
+        if (this == b ||
+            superclass != null && superclass.subclass(b))
+            return true;
+        if ((b.modifiers & INTERFACE) != 0 && interfaces != null)
+          // System.out.println("looking at interfaces of "+this+" length ="+interfaces.length);
+            for (int i = 0; i < interfaces.length; i++)
+
+                // can occur if a class def is compiled, and loading
+                // the interfaces causes an error. Then classObj.toString
+                // will try to prepend an "e" during error reporting
+                // However, the "e" is only added if the current class
+                // is a subclass of EObject. This calls for subclass
+                // Here interface has the correct length without the
+                // faulty one set.
+                if (interfaces[i] == null)
+                  return false;
+                else
+
+                if (interfaces[i].subclass(b)) return true;
+        return false;
+    }
+
+/** this class is the java.lang.Object class:
+ */
+    boolean isRoot() {
+        return fullname.index == objectS.index;
+    }
+
+     private static Name PeriodS = Name.fromString(".");
+ 
+     static Name formFullName(Name shortName, ClassObj packge) {
+       if (packge.name.len == 0) return shortName;
+       else return packge.fullname.append(PeriodS).append(shortName);
+     }
+ 
+/** overrides Obj
+ */
+    void printDef() {
+        Pretty.align();
+        System.out.print("class " + name);
+        System.out.println(" extends ");
+        if (superclass != null)
+          System.out.println(superclass.name);
+        if (interfaces.length != 0) {
+            System.out.print(" implements ");
+            System.out.print(interfaces[0].name);
+            for (int i = 1; i < interfaces.length; i++)
+                System.out.print(", " + interfaces[i].name);
+        }
+        System.out.println("{");
+        Pretty.indent();
+        ScopeEntry elems = scope.elements();
+        while (elems != null) {
+            elems.obj.printDef();
+            elems = elems.sibling;
+        }
+        Pretty.undent();
+        System.out.println("}");
+    }
+}
+
+class VarObj extends Obj {
+    AST initializer = null;     // the initializer
+    Object value = null;        // the initializing value, if a constant
+    int adr = -1;               // the variable's address 
+
+
+    // Distributors: E-Programmer may only take distributor or assign
+    // to a variable that is below EObject
+    byte init_state = UNINITIALIZED;
+
+    static final byte UNINITIALIZED = 0;
+    static final byte DISTRIBUTOR_TAKEN = 1;
+    static final byte ASSIGNED_TO = 2;
+
+    Name distname;      // name of the variable that holds the distributor
+
+
+    int vnum = -1;
+    boolean passByRef = false;
+
+/*  adr == -1 || this is a local variable
+ *  initializer != null ==> this is a final variable
+ *  value != null => initializer is a constant expression
+ */
+
+    VarObj() {  
+        super(VAR);
+    }
+
+    VarObj(int modifiers, Name name, Typ typ) {
+        super(VAR, modifiers, name, typ);
+    }
+
+/** evaluate initializer (which needs to be a constant expression)
+ *  and assign to value, unless already cached in value.
+ */
+    Object constValue() {
+        if (value == null) {
+            ImmediateItem val = 
+              (ImmediateItem)
+              initializer.gen().coerce(initializer.typ, typ);
+            value = val.value;
+        }
+        return value;
+    }
+
+/** overrides Obj
+ */
+    void printDef() {
+        Pretty.align();
+        System.out.print(typ + " " + name);
+        if (value != null) {
+            System.out.print(" = " + value);
+        }
+        System.out.println(";");
+    }
+
+/** overrides Obj
+ */
+    public String toString() {
+        return "variable " + name;
+    }
+
+/** overrides Obj
+ */
+    boolean isConstant() { 
+        return 
+          value != null && !(value instanceof Name) &&
+          value != Basic.nullValue ||
+          initializer != null && initializer.isConstant();
+    }
+}
+
+class FunObj extends Obj {
+    Code code = null;          // the code of this function
+    int nlocals = 0;           // the number of variables defined in
+                               // this function and all enclosed functions
+    Hashtable freevars = null; // the set of free (local-)variables 
+                               // only used for LAMBDA's
+  
+
+    Name uniqueName;           // for Emethods this is the unique name used for
+                               // sealers, unsealers, closures
+    int e2jVarCount = 0;       // to make unique variable names in e2j trafo
+
+  
+    private static Name initS = Name.fromString("<init>");
+
+    FunObj() {
+        super(FUN);
+    }
+
+    FunObj(int modifiers, Name name, Typ typ) {
+        super(FUN, modifiers, name, typ);
+        code = null;
+    }
+
+/** overrides Obj
+ */
+    public String toString() {
+        String s;
+        if (name == null)
+            s = "fun";
+        else if (name.equals(initS) && owner != null)
+            s = "constructor " + owner.name;
+        else
+          s = "function " + name;
+        if (typ instanceof FunTyp) {
+            FunTyp ftyp = (FunTyp)typ;
+
+            //if (ftyp.restyp.subtype(ePredef.E$methodTyp))
+            //   s = "emethod "+name;
+
+            s = s + "(" + Basic.toString(ftyp.argtyps) + ")";
+        }
+        return s;
+    }
+
+
+/** turn into JVM signature, including name
+ */
+   public String toSignature() {
+     String sig;
+     if (name == null) {
+       sig = "fun";
+     } else {
+       sig = name.toString();
+     }
+     return sig + ((FunTyp)typ).toSignature();
+   }
+
+
+/** this function overrides object obj:
+ */
+    boolean overrides(Obj obj) {
+        return
+            this != obj &&
+            name.index != initS.index &&
+            obj instanceof FunObj &&
+            ((obj.modifiers & PRIVATE) == 0) &&
+            Typ.sametypes(((FunTyp)typ).argtyps, 
+                          ((FunTyp)obj.typ).argtyps);
+    }
+
+/** overrides Obj
+ */
+    void printDef() {
+        Pretty.align();
+        System.out.print(((FunTyp)typ).restyp + " " + name + 
+                         ((FunTyp)typ).argsToString());
+        System.out.println(";");
+    }
+}
+
+/** class for predefined operators:
+ */
+class OperatorObj extends FunObj {
+    int opcode;
+
+    OperatorObj(Name name, Typ typ, int opcode) { 
+        super(PUBLIC | STATIC, name, typ);
+        this.opcode = opcode;
+    }
+
+}
+
+/*************************************************************************
+ *  Type Sets
+ ************************************************************************/
+
+/** A set of (exception) types
+ */
+class TypSet {
+    Typ typ;
+    TypSet next;
+
+    TypSet(Typ typ, TypSet next) {
+        this.typ = typ;
+        this.next = next;
+    }
+
+    static TypSet incl(TypSet set, Typ typ) {
+        TypSet p = set;
+        while (p != null && !typ.subtype(p.typ)) 
+            p = p.next;
+        if (p != null)
+            return set;
+        else
+            return new TypSet(typ, excl(set, typ));
+    }
+ 
+    static TypSet excl(TypSet set, Typ typ) {
+        if (set == null)
+            return null;
+        else {
+            TypSet restSet = excl(set.next, typ);
+            if (set.typ.subtype(typ))
+                return restSet;
+            else if (restSet == set.next)
+                return set;
+            else
+                return new TypSet(set.typ, restSet);
+        }
+    }
+
+    static boolean elem(TypSet set, Typ typ) {
+        if (set == null)
+            return false;
+        else
+            return typ.subtype(set.typ) || elem(set.next, typ);
+    }
+
+    static boolean subset(TypSet a, TypSet b) {
+        if (a == null)
+            return true;
+        else
+            return elem(b, a.typ) && subset(a.next, b);
+    }
+
+    static int size(TypSet set) {
+        if (set == null)
+            return 0;
+        else
+            return 1 + size(set.next);
+    }
+
+    static Typ[] elems(TypSet set) {
+        Typ[] ts = new Typ[size(set)];
+        for (int i = 0; i < ts.length; i++) {
+            ts[i] = set.typ;
+            set = set.next;
+        }
+        return ts;
+    }
+}
+    
+/*******************************************************************
+ *  Scopes
+ ******************************************************************/
+
+/** a reference to an object in a scope:
+ */
+class ScopeEntry {
+    Obj obj;                 // the referenced object
+    ScopeEntry shadowed; // the next object in the same hash bucket
+    ScopeEntry sibling;  // the next object in the same scope
+    Scope scope;         // the object's scope 
+
+//  scope == null   iff   this == Scope.sentinel
+
+    ScopeEntry(Obj obj, ScopeEntry shadowed, ScopeEntry sibling, Scope scope) {
+        this.obj = obj;
+        this.shadowed = shadowed;
+        this.sibling = sibling;
+        this.scope = scope;
+    }
+
+/** return next object with the same name as this object
+ */
+    ScopeEntry next() {
+        ScopeEntry e = shadowed;
+        while (e.scope != null && e.obj.name.index != obj.name.index)
+            e = e.shadowed;
+        return e;
+    }
+
+/** turn elems() into a flat array in reversed direction--the last
+ * list element becomes the first array element. Note: it's a static
+ * to deal with the possibility of a null list.
+ */
+
+  static ScopeEntry[] toArray(ScopeEntry me) {
+    int count = 0;
+    ScopeEntry cursor = me;
+    while (cursor != null) {
+      count++;
+      cursor = cursor.sibling;
+    }
+    ScopeEntry[] result = new ScopeEntry[count];
+    cursor = me;
+    while (count > 0) {
+      count--;
+      result[count] = cursor;
+      cursor = cursor.sibling;
+    }
+    return result;
+  }
+}
+
+/** scopes represent nested visibility areas; they are implemented here
+ *  by hashing.
+ */
+class Scope implements /*imports*/ Constants {
+
+    Scope next;              // the next-outer scope
+    Obj owner;                     
+    ScopeEntry[] hashtable;  
+    ScopeEntry elems;        
+
+/** size and mask of hash tables
+ */
+    static final int HASH_SIZE = 0x80;
+    static final int HASH_MASK = 0x7F;
+
+/** every hash bucket is a list of ScopeEntry's which ends in sentinel.
+ */
+    private static ScopeEntry sentinel = 
+        new ScopeEntry(null, null, null, null);
+
+/** construct a new scope, within scope next, with given owner, using
+ *  given hashtable.
+ */
+    Scope(Scope next, Obj owner, ScopeEntry hashtable[]) {
+        this.next = next;
+        this.owner = owner;
+        this.hashtable = hashtable;
+        this.elems = null;
+    }
+
+/** construct a new scope, within scope next, with given owner, using a fresh
+ *  hashtable.
+ */
+    Scope(Scope next, Obj owner) {
+        this(next, owner, new ScopeEntry[HASH_SIZE]);
+        if (next == null)
+            for (int i = 0; i < HASH_SIZE; i++)
+                hashtable[i] = sentinel;
+        else
+            for (int i = 0; i < HASH_SIZE; i++)
+                hashtable[i] = next.hashtable[i];
+    }
+
+/** construct a fresh scope within this scope, with same owner,
+ *  sharing hashtable with this scope. Used in connection with
+ *  leave if scope access is stack-like in order to avoid allocation
+ *  of fresh hashtables.
+ */
+    Scope duplicate() {
+        return new Scope(this, this.owner, this.hashtable);
+    }
+
+/** remove all entries of this scope from hashtable.
+ */
+    void leave() {
+        for (ScopeEntry e = elems; e != null; e = e.sibling) {
+            int i = e.obj.name.index & HASH_MASK;
+            hashtable[i] = hashtable[i].shadowed;
+        }
+    }
+
+/** restore all entries of this scope into hashtable.
+ */
+    void restore() {
+      for (ScopeEntry e = elems; e != null; e = e.sibling) {
+          int i = e.obj.name.index & HASH_MASK;
+          e.shadowed = hashtable[i];
+          hashtable[i] = e;
+      }
+    }
+
+
+/** enter object obj in this scope.
+ */
+    void enter(Obj obj) {
+        int i = obj.name.index & HASH_MASK;
+        ScopeEntry e = new ScopeEntry(obj, 
+                                      hashtable[i],
+                                      elems,
+                                      this);
+        hashtable[i] = e;
+        elems = e;
+        if (obj.owner == null) obj.owner = this.owner;
+    }
+
+
+/** enter all elements of interface scope s in this scope, including
+ *  any extended interfaces, but excluding elements in class Object.
+ */
+    void include(Scope s) {
+        if (Switches.checks)
+            Basic.assert((s.owner.modifiers & INTERFACE) != 0);
+        if (s != null) {
+                if (s.next != null && s.next.owner == s.owner)
+                    include(s.next);
+            for (ScopeEntry e = s.elements(); e != null; e = e.sibling)
+                enter(e.obj);
+        }
+    }
+
+/** place this scope directly within scope s.
+ */
+    void baseOn(Scope s) {
+        if (s != null)
+            for (int i = 0; i < HASH_SIZE; i++) {
+                ScopeEntry e = hashtable[i];
+                if (e.scope == null)
+                    hashtable[i] = s.hashtable[i];
+                else {
+                    while (e.shadowed.scope != null) e = e.shadowed;
+                    e.shadowed = s.hashtable[i];
+                }
+            }
+        next = s;
+    }
+
+/** lookup given name, starting in this scope and proceeding outwards
+ *  and return first matching object.
+ */
+    ScopeEntry lookup(Name name) {
+        ScopeEntry e = 
+            hashtable[name.index & HASH_MASK];
+        while (e.scope != null && e.obj.name.index != name.index)
+            e = e.shadowed;
+        return e;
+    }
+
+/** return elements of this scope.
+ */
+    ScopeEntry elements() {
+        return elems;
+    }
+}
+
+/*************************************************************************
+ *  Backend Stuff
+ ************************************************************************/
+
+/** Everything that goes into a code attribute in a classfile.
+ */
+class Code implements Constants {
+
+/** internal fields
+ */
+    Obj owner;
+    boolean isStatic;
+    Bits uninits;
+    int max_fields;
+    boolean fatCode;
+//FIX 15/4/97
+    VarObj[] locals = new VarObj[4];
+
+/** classfile fields:
+ */
+    int max_stack = 0;
+    int max_locals = 0;
+    byte[] code = new byte[64];
+    int cp = 0; 
+
+    char[] exc_start_pc = new char[4];
+    char[] exc_end_pc = new char[4];
+    char[] exc_handler_pc = new char[4];
+    char[] exc_catch_type = new char[4];
+    int ncatches = 0;
+
+    char[] line_start_pc = new char[32];
+    char[] line_number = new char[32];
+    int nlines = 0;
+
+    char[] lvar_start_pc = new char[4];
+    char[] lvar_end_pc = new char[4];
+    VarObj[] lvar = new VarObj[4];
+    int nvars = 0;
+
+/** constructor:
+ */
+    Code(Obj owner, boolean isStatic, boolean fatCode) {
+        this.owner = owner;
+        this.isStatic = isStatic;
+        this.uninits = new Bits();
+        this.max_fields = 0;
+        this.fatCode = fatCode;
+    }
+
+/** add a byte to code.
+ */
+    void addCode(byte od) {
+        if (cp == code.length) {
+            byte[] newcode = new byte[cp * 2];
+            System.arraycopy(code, 0, newcode, 0, cp);
+            code = newcode;
+        }
+        code[cp++] = (byte)od;
+    }
+
+/** add a catch clause.
+ */
+    void addCatch(int start_pc, int end_pc, 
+             int handler_pc, int catch_type) {
+        if (ncatches == exc_start_pc.length) {
+            char[] new_exc_start_pc = new char[ncatches * 2];
+            char[] new_exc_end_pc = new char[ncatches * 2];
+            char[] new_exc_handler_pc = new char[ncatches * 2];
+            char[] new_exc_catch_type = new char[ncatches * 2];
+            for (int i = 0; i < ncatches; i++) {
+                new_exc_start_pc[i] = exc_start_pc[i];
+                new_exc_end_pc[i] = exc_end_pc[i];
+                new_exc_handler_pc[i] = exc_handler_pc[i];
+                new_exc_catch_type[i] = exc_catch_type[i];
+            }
+            exc_start_pc = new_exc_start_pc;
+            exc_end_pc = new_exc_end_pc;
+            exc_handler_pc = new_exc_handler_pc;
+            exc_catch_type = new_exc_catch_type;
+        }
+        exc_start_pc[ncatches] = (char)start_pc;
+        exc_end_pc[ncatches] = (char)end_pc;
+        exc_handler_pc[ncatches] = (char)handler_pc;
+        exc_catch_type[ncatches] = (char)catch_type;
+        ncatches++;
+    }
+
+/** add a line number entry.
+ */
+    void addLineNumber(int start_pc, int lnum) {
+        if (nlines > 0 && line_start_pc[nlines - 1] == start_pc)
+            nlines--;
+        if (nlines == line_start_pc.length) {
+            char[] new_line_start_pc = new char[nlines * 2];
+            char[] new_line_number = new char[nlines * 2];
+            for (int i = 0; i < nlines; i++) {
+                new_line_start_pc[i] = line_start_pc[i];
+                new_line_number[i] = line_number[i];
+            }
+            line_start_pc = new_line_start_pc;
+            line_number = new_line_number;
+        }
+        line_start_pc[nlines] = (char)start_pc;
+        line_number[nlines] = (char)lnum;
+        nlines++;
+    }
+
+/** add a local variable entry.
+ */
+    void addLocalVar(int start_pc, VarObj v) {
+        if (Switches.debugInfo) {
+            if (nvars == lvar_start_pc.length) {
+                char[] new_lvar_start_pc = new char[nvars * 2];
+                char[] new_lvar_end_pc = new char[nvars * 2];
+                VarObj[] new_lvar = new VarObj[nvars * 2];
+                for (int i = 0; i < nvars; i++) {
+                    new_lvar_start_pc[i] = lvar_start_pc[i];
+                    new_lvar_end_pc[i] = lvar_end_pc[i];
+                    new_lvar[i] = lvar[i];
+                }
+                lvar_start_pc = new_lvar_start_pc;
+                lvar_end_pc = new_lvar_end_pc;
+                lvar = new_lvar;
+            }
+            lvar_start_pc[nvars] = (char)start_pc;
+            lvar_end_pc[nvars] = MAX_CHAR;
+            lvar[nvars] = v;
+            nvars++;
+        }
+    }
+
+/** adjust end_pc of all local variables with numbers >= first
+ */
+    void setEndPc(int first, int end_pc) {
+        for (int i = first; i < nvars; i++)
+            if (lvar_end_pc[i] == MAX_CHAR)
+                lvar_end_pc[i] = (char)end_pc;
+    }
+}
+
+/** A (hashtable-) entry in the constant pool:
+ */ 
+class ConstEntry {
+    ConstEntry next;  // next entry with same hash code
+    Object obj;       // the object referred to be the entry
+    int index;        // the entry's index in the hashtable
+
+    ConstEntry(ConstEntry next, Object obj, int index) {
+        this.next = next;
+        this.obj = obj;
+        this.index = index;
+    }
+}
+
+/** A constant pool:
+ */
+class Pool {
+
+    static final int HASH_SIZE = 0x800;
+    static final int HASH_MASK = 0x7FF;
+
+/** index of next constant to be entered:
+ */
+    int pp = 1;
+
+/** the initial pool buffer:
+ */
+    Object[] pool = new Object[64];
+
+/** a hashtable containing all constants in the pool
+ */
+    ConstEntry[] constants = new ConstEntry[HASH_SIZE];
+
+/** remove everything from the pool.
+ */
+    void reset() {
+        pp = 1;
+        for (int i = 0; i < HASH_SIZE; i++) constants[i] = null;
+    }
+
+/** double pool buffer in size
+ */
+    private void doublePool() {
+        Object[] newpool = new Object[pool.length * 2];
+        System.arraycopy(pool, 0, newpool, 0, pool.length);
+        pool = newpool;
+    }
+
+/** place an object in the pool, unless it is already there. Return
+ *  the object's index in the pool.
+ */
+    int put(Object o) {
+        int hashcode = o.hashCode() & HASH_MASK;
+        ConstEntry e = constants[hashcode];
+        while (e != null && !e.obj.equals(o)) e = e.next;
+        if (e == null) {
+            e = new ConstEntry(constants[hashcode], o, pp);
+            constants[hashcode] = e;
+            if (pp == pool.length) doublePool();
+            pool[pp++] = o;
+            if (o instanceof Long || o instanceof Double) {
+              if (pp == pool.length) doublePool();
+              pool[pp++] = null;
+            }
+        }
+        return e.index;
+    }
+
+/** Return the given object's index in the pool.
+ */
+    int get(Object o) {
+        ConstEntry e = constants[o.hashCode() & HASH_MASK];
+        while (e != null && !e.obj.equals(o)) e = e.next;
+        return e.index;
+    }
+}
+
+
+
+
+
+
+

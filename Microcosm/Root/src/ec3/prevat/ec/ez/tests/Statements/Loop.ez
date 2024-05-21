@@ -1,0 +1,389 @@
+// File     Statements\Loop.ez
+// Summary  Testing the loop statement
+// 
+//  001  Title    Infinite loop
+//       Result   Pass
+//       Note     For infinite loop <Alt+.> to stop program execution.
+//       Test
+                  define index := 0
+                  loop {
+                      println( index := index + 1 )
+                  }
+//
+//       Expect   1
+//                2
+//                ...
+//
+//       Actual   1
+//                2
+//                ...
+//
+//  002  Title    Loop with param and empty body
+//       Result   Pass
+//       Test
+                  loop abort {
+                  }
+                  println( "loop aborted" )
+//
+//       Expect   loop aborted
+//       Actual   loop aborted
+//
+//  003  Title    Loop with param and non-empty body
+//       Result   Pass
+//       Test
+                  loop abort {
+                      println( "Ship it!" )
+                      abort run
+                  }
+                  println( "loop aborted" )
+//
+//       Expect   Ship it!
+//                loop aborted
+//
+//       Actual   Ship it!
+//                loop aborted
+//
+//  004  Title    Loop with param and several lines in body
+//       Result   Pass
+//       Test
+                  define index := 0
+                  loop beach {
+                      println( (index := index + 1) )
+                      if (index == 3) {
+                          beach run
+                      }
+                  }
+//
+//       Expect   1
+//                2
+//                3
+//
+//       Actual   1
+//                2
+//                3
+//
+//  005  Title    Loop with no param enclosed in escape with param
+//       Result   Pass
+//       Test
+                  escape outer_loop {
+                      loop {
+                          outer_loop run
+                          println( "dead code 1" )
+                      }
+                      println( "dead code 2" )
+                  }
+                  println( "no dead code here" )
+//
+//       Expect   value: no dead code here
+//       Actual   value: no dead code here
+//
+//  006  Title    loop with param embedded 12 times and exiting from inner most loop
+//       Result   Pass
+//       Test
+                  loop level_01 {
+                    loop level_02 {
+                      loop level_03 {
+                        loop level_04 {
+                          loop level_05 {
+                            loop level_06 {
+                              loop level_07 {
+                                loop level_08 {
+                                  loop level_09 {
+                                    loop level_10 {
+                                      loop level_11 {
+                                        loop level_12 {
+                                          println( "exiting inner most loop. bye bye." )
+                                          level_01 run
+                                          println( "remains of level_12" )
+                                        }
+                                        println( "remains of level_11" )
+                                      }
+                                      println( "remains of level_10" )
+                                    }
+                                    println( "remains of level_09" )
+                                  }
+                                  println( "remains of level_08" )
+                                }
+                                println( "remains of level_07" )
+                              }
+                              println( "remains of level_06" )
+                            }
+                            println( "remains of level_05" )
+                          }
+                          println( "remains of level_04" )
+                        }
+                        println( "remains of level_03" )
+                      }
+                      println( "remains of level_02" )
+                    }
+                    println( "remains of level_01" )
+                  }
+//
+//       Expect   exiting inner most loop. bye bye.
+//                value: null
+//
+//       Actual   exiting inner most loop. bye bye.
+//                value: null
+//
+//  007  Title    Loop with param embedded 13 times and exiting individually
+//       Result   Pass
+//       Test
+                  loop level_01 {
+                    loop level_02 {
+                      loop level_03{
+                        loop level_04{
+                          loop level_05{
+                            loop level_06{
+                              loop level_07{
+                                loop level_08{
+                                  loop level_09{
+                                    loop level_10{
+                                      loop level_11{
+                                        loop level_12{
+                                          loop level_13{
+                                            println( "level_13" )
+                                            level_13 run
+                                            println( "dead code level 13" )
+                                          }
+                                          println( "level_12" )
+                                          level_12 run
+                                          println( "dead code level 12" )
+                                        }
+                                        println( "level_11" )
+                                        level_11 run
+                                        println( "dead code level 11" )
+                                      }
+                                      println( "level_10" )
+                                      level_10 run
+                                      println( "dead code level 10" )
+                                    }
+                                    println( "level_09" )
+                                    level_09 run
+                                    println( "dead code level 09" )
+                                  }
+                                  println( "level_08" )
+                                  level_08 run
+                                  println( "dead code level 08" )
+                                }
+                                println( "level_07" )
+                                level_07 run
+                                println( "dead code level 07" )
+                              }
+                              println( "level_06" )
+                              level_06 run
+                              println( "dead code level 06" )
+                            }
+                            println( "level_05" )
+                            level_05 run
+                            println( "dead code level 05" )
+                          }
+                          println( "level_04" )
+                          level_04 run
+                          println( "dead code level 04" )
+                        }
+                        println( "level_03" )
+                        level_03 run
+                        println( "dead code level 03" )
+                      }
+                      println( "level_02" )
+                      level_02 run
+                      println( "dead code level 02" )
+                    }
+                    println( "level_01" )
+                    level_01 run
+                    println( "dead code level 01" )
+                  }
+                  println( "no dead code here" )
+//
+//       Expect   level_13
+//                level_12
+//                level_11
+//                level_10
+//                level_09
+//                level_08
+//                level_07
+//                level_06
+//                level_05
+//                level_04
+//                level_03
+//                level_02
+//                level_01
+//                no dead code here
+//
+//       Actual   level_13
+//                level_12
+//                level_11
+//                level_10
+//                level_09
+//                level_08
+//                level_07
+//                level_06
+//                level_05
+//                level_04
+//                level_03
+//                level_02
+//                level_01
+//                no dead code here
+//
+//  008  Title    Loop example from EZ documentation
+//       Result   Fail
+//       Test
+                  define s := 0
+                  while (s < 2 ) {
+                      println( s := (s + 1) )
+                  }
+
+                  define s := 0
+                  escape break {
+                      loop {
+                          if (s < 2) {
+                              escape continue { 
+                                  s := (s + 1) 
+                                  println( s )
+                              }
+                          } else {
+                              break run
+                          }   
+                      }
+                  }
+//
+//       Expect   1
+//                2
+//                1
+//                2
+//
+//       Actual   displays blank lines
+//
+//  009  Title    Loop with param exiting level_01
+//       Result   Fail
+//       Test
+                  define x := 0
+                  escape level_01 {
+                      loop level_02{
+                          if (x < 2) {
+                              escape continue { println( x := x + 1 ) }
+                         } else {
+                             println( "before else abort" )
+                             level_01 run
+                             println( "after else abort" )
+                         }
+                         println( "last line of level_02" )
+                     }
+                     println( "last line of level_01" )
+                  }
+//
+//       Expect   1
+//                last line of level_02
+//                2
+//                last line of level_02
+//                before else abort
+//                
+//       Actual   displays blank lines
+//
+//  010  Title    Loop with param exiting level_02
+//       Result   Fail
+//       Test
+                  define x := 0
+                  escape level_01 {
+                      loop level_02{
+                          if (x < 2) {
+                              escape continue { println( x := x + 1 ) }
+                         } else {
+                             println( "before else abort" )
+                             level_02 run
+                             println( "after else abort" )
+                         }
+                         println( "last line of level_02" )
+                     }
+                     println( "last line of level_01" )
+                  }
+//
+//       Expect   1
+//                last line of level_02
+//                2
+//                last line of level_02
+//                before else abort
+//                last line of level_01
+//                
+//       Actual   displays blank lines
+//
+//  011  Title    Loop with no param and throw with no catch
+//       Result   Fail
+//       Test
+                  loop {
+                      println( "before the throw" )
+                      throw: abort
+                      println( "after the throw" )
+                  }
+                  println( "after the loop" )
+//
+//       Expect   before the throw
+//                after the loop
+//
+//       Actual   after the loop
+//
+//  012  Title    Loop with no param and throw with catch
+//       Result   Fail
+//       Test
+                  try {
+                      println( "before the loop" )
+                      loop {
+                          println( "before the throw" )
+                          throw: abort
+                          println( "after the throw" )
+                       }
+                       println( "after the loop" )
+                  } catch exe {
+                      println( "into the catch" )
+                  }
+//
+//       Expect   before the loop
+//                before the throw
+//                into the catch
+//
+//       Actual   displays blank lines
+//
+//  013  Title    Loop with param and throw with catch
+//       Result   Fail
+//       Test
+                  try {
+                      println( "before the loop" )
+                      loop me{
+                          println( "before the throw" )
+                          throw: abort
+                          println( "after the throw" )
+                       }
+                       println( "after the loop" )
+                  } catch me {
+                      println( "into to the catch" )
+                  }
+//
+//       Expect   before the loop
+//                before the throw
+//                into to the catch
+//
+//       Actual   displays blank lines
+//
+//  014  Title    Loop param, throw param, and catch param are all different
+//       Result   Fail
+//       Note     Should it matter that they are all different?
+//       Test
+                  try {
+                      println( "before the loop" )
+                      loop MeGood{
+                          println( "before the throw" )
+                          throw: MeHigh
+                          println( "after the throw" )
+                       }
+                       println( "after the loop" )
+                  } catch MeBetter {
+                      println( "into to the catch" )
+                  }
+//
+//       Expect   before the loop
+//                before the throw
+//                into to the catch
+//
+//       Actual   displays blank lines
+//
+

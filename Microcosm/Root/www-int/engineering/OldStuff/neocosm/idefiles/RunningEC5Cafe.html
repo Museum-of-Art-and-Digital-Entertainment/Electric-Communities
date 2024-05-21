@@ -1,0 +1,79 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.05 [en] (WinNT; I) [Netscape]">
+   <TITLE>Running EC5 in Visual Cafe</TITLE>
+</HEAD>
+<BODY>
+
+<H2>
+Running EC5 in Visual Cafe</H2>
+Last updated 1998/06/30..
+
+<P>This is just a start at real documentation. I (wsf) cribbed most of
+this from <A HREF="RunningEMainInCafe.html">Running EMain in Visual Cafe</A>.
+
+<P><B>NOTE:</B> There were some differences between 2.0 and 2.5, but only
+in the format of windows and subwindows. I have included instructions for
+both versions.
+<OL>
+<LI>
+Get the CD or use Scott's download and install it.</LI>
+
+<LI>
+Edit the sc.ini file to add our .dlls to the PATH. See <A HREF="JohnAndTonyCafeNotes.html">Tony
+and John's</A> notes for details.</LI>
+
+<LI>
+Do a <B>"cvs up -dP"</B> in <B>/ec5/src/javasrc</B>.</LI>
+
+<LI>
+Do a <B>"cvs up -dP"</B> in <B>/ec5/projects</B>.</LI>
+
+<LI>
+Start up the Symantec Cafe IDE and use 'Open Project' on the 'File' menu
+to open&nbsp; '<TT>/ec5/projects/ec/neocosm.vep</TT>'</LI>
+
+<LI>
+Select the 'Project - neocosm.VEP' window and select 'Build Application'</LI>
+
+<LI>
+Select the 'Execute' menu item from the Project menu</LI>
+</OL>
+<B>NOTE:</B> I could not get EMain to run in the debugger. It appears
+as if it does not open the little black Java window fast enough before
+it also gets to java.io.FileInputStream#read(byte, int, int) which then
+calls the native method readBytes(byte, int, int) and hangs.
+
+<P><B><FONT SIZE=+1>Various evils in the environment and work arounds (if
+any)</FONT></B>
+<UL>
+<LI>
+It appears that if your main thread finishes before the threads you are
+testing, it hoses the debugger big time. The work around seems to be to
+set up a "wait forever" at the end of your test driver. i.e. synchronize
+on an object and then call it's wait method. You will have to catch the
+InterruptedException as well.</LI>
+
+<LI>
+If the compiler complains it can't open one of your .java files, open it
+manually and make a trivial change (e.g. insert and delete a blank.) It
+will then compile. You may have to do this procedure for every make.</LI>
+
+<LI>
+If you get a "can not write" for a .class file, check to see if NT has
+a lock on it. I (wsf) got mine after some hard debugger crashes. The fix
+is to reboot NT.</LI>
+
+<LI>
+Stepping over a method invocation which throws an exception does not stop.
+Have fun watching your exception handling code run at full speed.</LI>
+
+<BR>&nbsp;
+
+<P><B><A HREF="cafe.html">Back to Cafe main page</A></B>
+<BR><B><A HREF="../index.html">Back to Neocosm survey page</A></B>
+<BR><B><A HREF="../../index.html">Back to Microcosm engineering main page</A></B></UL>
+
+</BODY>
+</HTML>

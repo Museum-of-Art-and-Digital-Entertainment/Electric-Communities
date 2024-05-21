@@ -1,0 +1,576 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="Template"
+content="C:\Program Files\Microsoft Office\Templates\EC Docs\SubsystemDocTemplate.dot">
+<meta name="GENERATOR" content="Microsoft FrontPage Express 2.0">
+<title>Palace ECID Plug-in</title>
+</head>
+
+<body link="#0000FF" vlink="#800080">
+
+<h1><i>Palace ECID Plug-in</i></h1>
+
+<p><i>This document was written and is maintained by</i> <a
+href="mailto:claire@communities.com"><i>Claire Griffin</i></a> </p>
+
+<p><b>Last updated:</b><i> [1 September, 1998 </i><a
+href="mailto:claire@communities.com">Claire</a><i>]</i> </p>
+
+<h2>Introduction</h2>
+
+<p>This document describes the ECID Palace Plug-in and the
+interactions between it, the COM object wrapper and ECID. This
+document only covers the first release of the plug-in and does
+not include changes that a functioning ComCom would mandate. Some
+portions of the UI and start-up serve as placeholders for the
+full ComCom Implementation. </p>
+
+<h4>Related Documents</h4>
+
+<p>The Inter-Application COM Object document </p>
+
+<p>The ECID document </p>
+
+<h2>Requirements</h2>
+
+<p>The ECID plug-in must meet the following requirements: </p>
+
+<ul>
+    <li>The plug-in should require no changes to the palace
+        client code.</li>
+    <li>The plug-in should allow for command line input for
+        testing.</li>
+    <li>The plug-in must provide all of the UI needed to perform:</li>
+    <li><ul>
+            <li>ECID Startup</li>
+            <li>ECID Shutdown</li>
+            <li>ECID Creation</li>
+            <li>Capability transfer</li>
+            <li>Capability revocation</li>
+            <li>Capability use</li>
+        </ul>
+    </li>
+    <li>The plug-in must support the usage of two capabilities:</li>
+    <li><ul>
+            <li>can telepathy me remotely</li>
+            <li>can find my location remotely</li>
+        </ul>
+    </li>
+    <li>The plug-in must be easily extendable to include
+        additional capabilities, in the future.</li>
+    <li>The UI must be adaptable to support changes from ComCom.</li>
+</ul>
+
+<h2>Architecture</h2>
+
+<p><i>Diagrams.</i> </p>
+
+<h4>Architecture Overview</h4>
+
+<p><font face="Arial"><b><i>Startup</i></b></font> </p>
+
+<ul>
+    <li>Palace starts as usual.</li>
+    <li>ECIDPlug-in is loaded by Palace from plugin\startup
+        folder</li>
+    <li>ECIDPlugin initializes.</li>
+    <li><ul>
+            <li>load COM object</li>
+            <li>init COM object</li>
+            <li>ECID Plugin checks for AdressBook file.</li>
+            <li>No file: Send COM object Create ECID ID and
+                creates a new AddressBook file</li>
+            <li>Find file: COM object Validate ECID ID</li>
+            <li>ECID Plug-in loads Address Book</li>
+            <li>ECID Plug-in sends Capability Handler Request to
+                the COM object.</li>
+            <li>ECID Plug-in adds to the popup menu the commands
+                to Add a User to AddressBook</li>
+            <li>ECID Plug-in adds an onscreen icon to represent
+                the address book.</li>
+        </ul>
+    </li>
+</ul>
+
+<p><font face="Arial"><b><i>User Generated Command Events:</i></b></font>
+</p>
+
+<p><b>OpenAddressBook</b>: click on onscreen icon or typed into
+command line </p>
+
+<ul>
+    <li>Open AddressBook dialog</li>
+    <li>Display the current users for whom you have capabilities
+        by nickname</li>
+</ul>
+
+<p><b>AddUser [local name]:</b> adds the user with the local
+server name to address book </p>
+
+<ul>
+    <li>Open AddressBook dialog</li>
+    <li>Send ECID Plugin message requesting the ECID ID to the
+        user using the Palace server plug-in call chain.</li>
+    <li>If a return message is not received after n secs. Notify
+        user &quot;NO ECID AVAILABLE&quot; and end add user.</li>
+    <li>If a return message received use the ECID ID to send a
+        Request through COM for the all capabilities</li>
+    <li>Remote User displays a UserRequest's Access dialog.</li>
+    <li>User replys with cababilities willing to grant.</li>
+    <li>If none &#133; Notify user &quot;Doesn't want to be your
+        buddy&quot;.</li>
+    <li>If no reply&#133;Notify user &quot; NO RESPONSE&quot;</li>
+    <li>Send Capabilities to requester and a request for granted
+        capabilities:</li>
+    <li><ul>
+            <li>&nbsp; </li>
+            <li>Display a dialog showing granted capabilities and
+                allow user to accept or reject.</li>
+            <li>If reject...remove stored capabilities</li>
+            <li>If accept... Request user to provide a nickname
+                for the Addressbook (default is current login
+                name)</li>
+            <li>Add user to AddressBook by storing the ECID and
+                nickname.</li>
+            <li>Send user the requested capabilites</li>
+        </ul>
+    </li>
+</ul>
+
+<p><b>RemoveUser[nickname]:</b> removes a user from the
+AddressBook and revokes all capabilities </p>
+
+<ul>
+    <li>Send a COM message to revoke capabilities of ECID ID.</li>
+    <li>Remove the User from AddressBook data file.</li>
+</ul>
+
+<p><b>LocateUser[nickname]:</b> find a user and return a palace
+launchable string and palace name or Not Online. </p>
+
+<ul>
+    <li>Send a COM message to access the RemoteLocate Capability</li>
+    <li>If no Response&#133;Notify User &quot;Not Available&quot;</li>
+    <li>If revoked Privilege&#133;Notify User &quot;ACCESS
+        DENIED&quot;&#133;GOTO RemoveUser</li>
+    <li>If User found.</li>
+    <li><ul>
+            <li>Remote COM request Where info from ECID plug-in.</li>
+            <li>Remote ECID report current location to COM object</li>
+            <li>Add location to the &quot;where&quot; field of
+                Address Book dialog.</li>
+        </ul>
+    </li>
+</ul>
+
+<p><b>page [nickname]&quot;message&quot;:</b> send a message to a
+user. </p>
+
+<ul>
+    <li>Send a COM message to access the RemoteWhisper Capability</li>
+    <li>If no Response&#133;Notify User &quot;Not Available&quot;</li>
+    <li>If revoked Privilege&#133;Notify User &quot;ACCESS
+        DENIED&quot;&#133;GOTO RemoveUser</li>
+    <li>If User found&#133;Send message to user.</li>
+    <li>Remote COM object Send ECID plugin the whispered message</li>
+    <li>Remote ECID plugin display the whispered message</li>
+</ul>
+
+<p><font face="Arial"><b><i>Shutdown</i></b></font> </p>
+
+<ul>
+    <li>Close Address Book.</li>
+    <li>Send COM object a shutdown message</li>
+    <li>Unload COM object</li>
+</ul>
+
+<h4>Off the shelf alternatives</h4>
+
+<p>None. </p>
+
+<h4>Other Design Objectives, Constraints and Assumptions</h4>
+
+<p>Current design must not preclude the use of muliple ECID on a
+single machine. </p>
+
+<h2>Current implementation</h2>
+
+<h4>Which packages on our tree does this subsystem cover?</h4>
+
+<p>Palace\plugins\ECIDPlugin </p>
+
+<h4>Implementation overview</h4>
+
+<p>The current implementation uses a single interface to maintain
+communications between the Plug-in and the Com Wrapper. </p>
+
+<ul>
+    <li>In the COM wrapper: void handleECIDEvent(ECIDEventData
+        *eventData);</li>
+    <li>In the Plug-in: void handleECIDEvent(ECIDEventData *
+        eventData);</li>
+</ul>
+
+<p>All returns occur through the handleECIDEvent calling routine.
+Errors are posted as return events and the data pointer contains
+details relevant to the error. In addition the plug-in uses a
+timer on certain events and simply reports a &quot;Not
+Available&quot; to indicate lack of response. The ECIDEventData
+is a struct: </p>
+
+<p><font size="2"><tt>typedef struct {</tt></font> </p>
+
+<dl>
+    <dd><font size="2"><tt>int edKind; // the event kind</tt></font></dd>
+    <dd><font size="2"><tt>int edECIDLength; // the outgoing ecid
+        id length</tt></font></dd>
+    <dd><font size="2"><tt>unsigned char * edECID; // the
+        outgoing ecid id</tt></font></dd>
+    <dd><font size="2"><tt>int edECIDSenderLength; // the length
+        of the key used to put/get data</tt></font></dd>
+    <dd><font size="2"><tt>unsigned char * edECIDSender; // the
+        key used to put/get data</tt></font></dd>
+    <dd><font size="2"><tt>int edKeyLength; // the length of the
+        key used to put/get data</tt></font></dd>
+    <dd><font size="2"><tt>unsigned char * edKey; // the key used
+        to put/get data</tt></font></dd>
+    <dd><font size="2"><tt>int edDataLength; // the length of the
+        event data</tt></font></dd>
+    <dd><font size="2"><tt>unsigned char * edData; // the event
+        data buffer</tt></font></dd>
+    <dd><font size="2"><tt>int edCapabilityKind; // capability id
+        for capability events</tt></font></dd>
+    <dd><font size="2"><tt>int edMessageID; // the ui message id</tt></font></dd>
+    <dd><font size="2"><tt>int edCapabilityReciept; // the
+        capability reply reciept</tt></font></dd>
+    <dd><font size="2"><tt>int edRequestTimeout; // the time in
+        which a request should timeout in millisecs</tt></font></dd>
+</dl>
+
+<p><font size="2"><tt>} ECIDEventData;</tt></font> </p>
+
+<p>&nbsp; </p>
+
+<h4>The following ECID_CAPABILITY are defined although only the
+first two are supported:</h4>
+
+<ul>
+    <li>ECID_LOCATE_ CAPABILITY</li>
+    <li>ECID_TELEPATHY_CAPABILITY</li>
+    <li>ECID_FILETRANSFER_CAPABILITY</li>
+    <li>ECID_ALL_CAPABILITIES</li>
+</ul>
+
+<p>&nbsp; </p>
+
+<h4>The following messages are sent by the Plug-in to the COM
+wrapper:</h4>
+
+<p><b><u>ECID_INIT</u></b>: initialize the COM wrapper and ECID
+(not currently used) </p>
+
+<blockquote>
+    <h6>edKind = ECID_INIT</h6>
+</blockquote>
+
+<p><b><u>ECID_CREATE_ECID</u></b>: create a new ecid (not
+currently used) </p>
+
+<blockquote>
+    <h6>edKind = ECID_CREATE_ECID</h6>
+</blockquote>
+
+<p><b><u>ECID_GET_ECID</u></b>: get the current ecid(s) for this
+machines </p>
+
+<blockquote>
+    <h6>edKind = ECID_GET_ECID</h6>
+    <h6>edECIDLength = length of Application ECID(*)</h6>
+    <h6>edECID = Application ECID(*)</h6>
+</blockquote>
+
+<p><b><u>ECID_REQUEST_HANDLER</u></b>: register the handlers to
+be requested for use by the plug-in (nut used) </p>
+
+<blockquote>
+    <h6>edKind = ECID_REQUEST_HANDLER</h6>
+    <h6>edCapabilityKind= one of the Capabilities which we
+    currently support</h6>
+</blockquote>
+
+<p><b><u>ECID_REQUEST_CAPABILITY</u></b>: request a capability
+from the ECID manager on an ECID identity </p>
+
+<blockquote>
+    <h6>edKind=ECID_REQUEST_CAPABILITY</h6>
+    <h6>edECIDLength= length of ecid of recipient of request</h6>
+    <h6>edECID= the ecid of the recipient of the request</h6>
+    <h6>edDataLength= the return ecid length ie the ecid of the
+    requester</h6>
+    <h6><b>edData= the ecid of the requestor</b></h6>
+    <h6><b>edRequestTimeout=the time which we're willing to wait
+    for a reply</b></h6>
+    <h6>edCapabilityKind = the capability to request</h6>
+</blockquote>
+
+<p><b><u>ECID_INVOKE_CAPABILITY</u></b>: invoke a capability in
+the ECID manager for an ECID identity </p>
+
+<blockquote>
+    <h6>edKind = ECID_INVOKE_CAPABILITY</h6>
+    <h6>edECIDLength = length of the ecid of the capability owner</h6>
+    <h6>edECID= ecid of the capability owner</h6>
+    <h6>edSenderECIDLength= the return ecid length ie the ecid of
+    the requester</h6>
+    <h6>edSenderECID= the ecid of the requester</h6>
+    <h6>edDataLength= [page] the message length</h6>
+    <h6>edData= [page] the message</h6>
+    <h6>edCapabilityKind = the capability to invoke</h6>
+</blockquote>
+
+<p><b><u>ECID_CAPABILITY_REPLY</u></b>: reply to the ECID manager
+about a capability request/invoke </p>
+
+<blockquote>
+    <h6>edKind = ECID_CAPABILITY_REPLY</h6>
+    <h6>edECIDLength = length of the ecid of the capability owner</h6>
+    <h6>edECID= ecid of the capability owner</h6>
+    <h6>edSenderECIDLength= the return ecid length ie the ecid of
+    the requester</h6>
+    <h6>edSenderECID= the ecid of the requester</h6>
+    <h6>edCapabilityKind = the capability to invoke or 0 (pass
+    through check msg code)</h6>
+    <h6><font size="2"><tt>edMessageID = the status code from the
+    client application</tt></font></h6>
+    <h6><font size="2"><tt>edCapabilityReceipt = the receipt
+    copied from the original capability request</tt></font></h6>
+</blockquote>
+
+<p><b><u>ECID_RECEIVER_REVOKE_CAPABILITY</u></b>: request a
+capability previously received by revoked </p>
+
+<blockquote>
+    <h6>edKind = <b><u>ECID_RECEIVER_REVOKE_CAPABILITY</u></b></h6>
+    <h6>edECIDLength = length of the ecid of the capability owner</h6>
+    <h6>edECID= ecid of the capability owner</h6>
+    <h6>edSenderECIDLength= the return ecid length ie the ecid of
+    the requester</h6>
+    <h6>edSenderECID= the ecid of the requester</h6>
+    <h6>edCapabilityKind = the capability to revoke</h6>
+</blockquote>
+
+<p><b><u>ECID_OWNER_REVOKE_CAPABILITY</u></b>: request a
+capability previously granted be revoked </p>
+
+<blockquote>
+    <h6>edKind = <b><u>ECID_OWNER_REVOKE_CAPABILITY</u></b></h6>
+    <h6>edECIDLength = length of the ecid of the capability
+    receiver</h6>
+    <h6>edECID= ecid of the capability receiver</h6>
+    <h6>edSenderECIDLength= the ecid of the requester</h6>
+    <h6>edSenderECID= the ecid of the requester</h6>
+    <h6>edCapabilityKind = the capability to revoke</h6>
+</blockquote>
+
+<p><b><u>ECID_SHUTDOWN</u></b>: shutdown the ECID manager </p>
+
+<blockquote>
+    <h6>edKind = ECID_SHUTDOWN</h6>
+</blockquote>
+
+<p><b><u>ECID_PUTDATA</u></b>: request some data be store in the
+persistent store </p>
+
+<blockquote>
+    <h6>edKind = ECID_PUTDATA</h6>
+    <h6>edECIDLength = length of Application ECID (*)</h6>
+    <h6>edECID = Application ECID(*)</h6>
+    <h6>edKeyLength = length of the key to store the data
+    under.&nbsp; (Currently ignored.&nbsp; Reserved for future
+    use with multiple key-&gt;data pairs).</h6>
+    <h6>edKey= key to store the data under (Currently
+    ignored.&nbsp; Reserved for future use with multiple
+    key-&gt;data pairs)</h6>
+    <h6>edDataLength= the length of the data to store</h6>
+    <h6>edData= the data to store</h6>
+</blockquote>
+
+<p><b><u>ECID_GETDATA</u></b>: get some data from the persistent
+store </p>
+
+<blockquote>
+    <h6>edKind = ECID_GETDATA</h6>
+    <h6>edECIDLength = length of Application ECID(*)</h6>
+    <h6>edECID = Application ECID(*)</h6>
+    <h6>edKeyLength = length of the key to store the data under</h6>
+    <h6>edKey= key to store the data under</h6>
+</blockquote>
+
+<p><b><u>ECID_PUSH_LOCATION</u></b>: push the current location to
+the ECID manager </p>
+
+<blockquote>
+    <h6>edKind = ECID_PUTDATA</h6>
+    <h6>edECIDLength = the ecid length of the user being pushed</h6>
+    <h6>edECID= ecid of the user being pushed</h6>
+    <h6>edDataLength= the length of the location data to store</h6>
+    <h6>edData= the location data to store.&nbsp; NOTE:&nbsp; The
+    ecidmanager is assuming that this data can be represented
+    internally to the ecidmanager as a java String.</h6>
+    <p>&nbsp;</p>
+</blockquote>
+
+<h4>The following messages are sent by the COM wrapper to the
+Plug-in:</h4>
+
+<p><b><u>APP_REQUEST_CAPABILITY</u></b>: request a capability at
+the application level </p>
+
+<blockquote>
+    <h6>edKind = APP_REQUEST_CAPABILITY</h6>
+    <h6>edECIDLength = length of the ecid of the capability owner</h6>
+    <h6>edECID= ecid of the capability owner</h6>
+    <h6>edSenderECIDLength= the return ecid length ie the ecid of
+    the requester</h6>
+    <h6>edSenderECID= the ecid of the requester</h6>
+    <h6>edCapabilityKind = the capability to request or 0 (pass
+    through check msg code)</h6>
+    <h6><font size="2"><tt>edMessageID = the message code from
+    the client application</tt></font></h6>
+</blockquote>
+
+<p><b><u>APP_INVOKE_CAPABILITY</u></b>: invoke a capability at
+the application level </p>
+
+<blockquote>
+    <h6>edKind = APP_INVOKE_CAPABILITY</h6>
+    <h6>edECIDLength = length of the ecid of the capability
+    owner(my ecid)</h6>
+    <h6>edECID= ecid of the capability owner(my ecid)</h6>
+    <h6>edSenderECIDLength=ecid length of invoker</h6>
+    <h6>edSenderECID=ecid of invoker</h6>
+    <h6>edDataLength= the length of the data (in page: the
+    messsage) (in locate: null)</h6>
+    <h6>edData= the invoking data (in page: the message) (in
+    locate:null)</h6>
+    <h6>edCapabilityKind = the capability to invoke</h6>
+    <h6><font size="2"><tt>edMessageID = the message code from
+    the client application</tt></font></h6>
+</blockquote>
+
+<p><b><u>APP_CAPABILITY_REPLY</u></b>: reply to an ecid
+capability request/invoke </p>
+
+<blockquote>
+    <h6>edKind = APP_CAPABILITY_REPLY</h6>
+    <h6>edECIDLength = length of the ecid of the capability
+    owner(my ecid)</h6>
+    <h6>edECID= ecid of the capability owner(my ecid)</h6>
+    <h6>edSenderECIDLength=ecid length of reply sender</h6>
+    <h6>edSenderECID=ecid of reply sender</h6>
+    <h6>edDataLength= the length of the data (in locate reply:
+    current location)</h6>
+    <h6>edData= the invoking data (in locate: current location)</h6>
+    <h6>edCapabilityKind = the capability granted or invoked (0
+    means check message id)</h6>
+    <h6><font size="2"><tt>edMessageID = the message code from
+    the client application</tt></font></h6>
+</blockquote>
+
+<p><b><u>APP_GETDATA_REPLY</u></b>: reply to an ecid get data </p>
+
+<blockquote>
+    <h6>edKind = APP_GETDATA_REPLY</h6>
+    <h6>edECIDLength = length of Application ECID(*)</h6>
+    <h6>edECID = Application ECID(*)</h6>
+    <h6>edKeyLength = the length of the key under which we stored
+    the data.&nbsp; (Currently not used and is always 0.&nbsp;
+    Reserved for future use with multiple key-&gt;data pairs).</h6>
+    <h6>edKey = the key in which the data was stored (Currently
+    not used and is always null.&nbsp; Reserved for future use
+    with multipel key-&gt;data pairs).</h6>
+    <h6>edDataLength= the stored data length</h6>
+    <h6>edData= stored data</h6>
+</blockquote>
+
+<p><b><u>APP_GETECID_REPLY</u></b>: reply to an get ecid request </p>
+
+<blockquote>
+    <h6>edKind = APP_GETECID_REPLY</h6>
+    <h6>edECIDLength = length of Application ECID</h6>
+    <h6>edECID = Application ECID</h6>
+    <h6>edDataLength= the stored data length&nbsp; (Currently not
+    used and is always 0.&nbsp; Present for future use with
+    multiple ecids.)</h6>
+    <h6>edData= stored data: int numECIDS, block of [
+    ecidlength,ecid_data] pairs&nbsp; (Currently not used and is
+    always null.&nbsp; Present for future use with multiple
+    ecids).</h6>
+</blockquote>
+
+<p><b><u>APP_SHUTDOWN</u></b>: request the application to
+shutdown </p>
+
+<blockquote>
+    <h6>edKind = APP_SHUTDOWN</h6>
+    <h6>edMessageID: the reason why s/b a resource string id</h6>
+</blockquote>
+
+<h4>Exception handling</h4>
+
+<p>The following exceptions must be handled as messages to the
+user: </p>
+
+<p>Plug-in unavailable. This should be generated when a user
+attempts to get the ECID from a user who does not currently have
+an ECIDPlugin and some seconds have elapsed. </p>
+
+<p>Local COM failure. This should be generated should the COM
+object fail to start/respond. </p>
+
+<p>Local ECID failure. This should be generated should the ECID
+object fail to start/respond and the COM wrapper sends a
+&quot;shutdown&quot; event. </p>
+
+<p>These failures are considered catastrophic and will result in
+the shutdown and removal of the ECID Plug-in. </p>
+
+<p>Examples </p>
+
+<h4>Performance</h4>
+
+<p>The plug-in is C code that conforms to the standard plug-in
+interface for the Palace. There are minimal blow-through events
+and very little processing. Size and speed should not be a
+problem. If a person were to add very many users to the address
+book it could grow large but that is not likely in the first
+release. </p>
+
+<p>Push of location information is not used because it would
+force each client to act as a server and continuously push the
+location information to the various users in the address book and
+receive such information from the address book. This is a ComCom
+function that is better supported by having a server. </p>
+
+<h4>Testing Strategy and Debugging</h4>
+
+<p>The plug-in should be testable using the current test harness.
+There is &quot;watcher&quot; code that can track all
+functionality at the Visual C++ debugger level. </p>
+
+<h4>Interactions and dependencies with other subsystems</h4>
+
+<p>Requires the COM inter-application communication module </p>
+
+<p>Requires ECID. </p>
+
+<h2>Design Issues</h2>
+
+<h4>Resolved Issues</h4>
+
+<h4>Open Issues</h4>
+</body>
+</html>

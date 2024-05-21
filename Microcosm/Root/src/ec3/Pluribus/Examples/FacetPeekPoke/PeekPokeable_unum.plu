@@ -1,0 +1,90 @@
+/*--------------------------------80 columns----------------------------------*/
+
+/* 
+  PeekPokeable_unum.plu
+
+  Peek & Poke in Pluribus  v 0.1  
+  The peeker and poker that play with peekable and pokeable.
+
+  04.22.1997  Masa Maeda & Arturo Bejar
+  Copyright 1997 Electric Communities. All rights reserved worldwide.
+*/
+
+export unit PeekPokeable_unum {
+
+  package ec.pl.examples.PeekPoke;
+
+  import ec.e.cap.EEnvironment;
+  import ec.e.lang.*;
+  import ec.e.net.*;
+  import java.util.*;
+  import java.lang.*; //@@@
+
+  // import units
+  unit PeekPokeShip_state;
+  unit PeekPokeShip_kind;
+  unit Pokeship_facet;
+  unit Peekship_ingr;
+  unit Pokeship_ingr;
+
+  export unum structure usPeekPokeable {
+    kind uskPeekPokeable;
+    presence upnPeekPokeable kind kEmpty makes upnPeekPokeable;
+    prime upnPeekPokeable;
+  }
+
+  export presence structure psPeekPokeable {
+    kind kEmpty;
+
+    ingredient pinPeekable {
+      kind iskPeekable;
+      deliver unum ukPeekable;
+    }
+
+    ingredient pinPokeable {
+      kind iskPokeable;
+      deliver unum ukPokeable;
+    }
+  }
+
+  export presence impl piPeekPokeable {
+    structure psPeekPokeable;
+    
+    implements jiPokeableInit;
+
+    ingredient pinPeekable template {
+      impl iiPeekable;
+    }
+
+    ingredient pinPokeable template {
+      impl iiPokeable;
+    }
+
+    prime init (EResult toPokeableFacet) {
+      (ingredient pinPeekable).init();
+      (ingredient pinPokeable).init(toPokeableFacet);
+    }
+    
+    // initialization
+    init () {
+      (ingredient pinPeekable).init();
+    }
+    
+    facet init(kind pkHostPokeable hostPokeable,
+        EResult distToPokeableClient,
+        istPokeable pokeableState) {
+      
+      ((jiPokeableInit)pinPokeable).facetInit(hostPokeable,
+                                 distToPokeableClient,
+                                 pokeableState);
+    }
+    make upnPeekPokeable;
+  }   
+
+  export unum impl uiPeekPokeable {
+    structure usPeekPokeable;
+    presence upnPeekPokeable impl piPeekPokeable;
+  }
+} // End unit
+
+   

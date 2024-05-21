@@ -1,0 +1,625 @@
+head	1.15;
+access;
+symbols
+	R971205-2:1.14.0.2
+	R971205-1:1.14
+	R971204-1:1.14
+	R971203-1:1.13
+	R971202-1:1.9
+	R971201-1:1.9
+	R971130-1:1.9
+	R971129-1:1.9
+	R971128-1:1.9
+	R971127-1:1.9
+	R971126-1:1.9
+	R971125-1:1.6
+	R971124-1:1.5
+	R971121-1:1.5
+	R971120-1:1.4
+	R971119-1:1.4
+	R971118-1:1.4
+	R971117-1:1.4
+	R971116-1:1.4
+	R971115-1:1.4
+	R971114-1:1.3
+	R971113-3:1.3
+	R971113-2:1.3
+	R971113-1:1.3
+	R971112-1:1.3
+	R971111-1:1.3
+	R971110-1:1.2
+	R971109-1:1.2
+	R971108-1:1.2
+	R971107-1:1.2
+	R971106-1:1.2
+	R971105-1:1.2;
+locks; strict;
+comment	@# @;
+expand	@o@;
+
+
+1.15
+date	97.12.06.01.28.12;	author robj;	state Exp;
+branches;
+next	1.14;
+
+1.14
+date	97.12.04.00.25.39;	author gordie;	state Exp;
+branches;
+next	1.13;
+
+1.13
+date	97.12.03.01.35.02;	author danfuzz;	state Exp;
+branches;
+next	1.12;
+
+1.12
+date	97.12.02.23.44.44;	author danfuzz;	state Exp;
+branches;
+next	1.11;
+
+1.11
+date	97.12.02.23.32.08;	author danfuzz;	state Exp;
+branches;
+next	1.10;
+
+1.10
+date	97.12.02.23.12.50;	author danfuzz;	state Exp;
+branches;
+next	1.9;
+
+1.9
+date	97.11.26.00.36.03;	author karl;	state Exp;
+branches;
+next	1.8;
+
+1.8
+date	97.11.25.19.30.03;	author danfuzz;	state Exp;
+branches;
+next	1.7;
+
+1.7
+date	97.11.25.18.00.04;	author danfuzz;	state Exp;
+branches;
+next	1.6;
+
+1.6
+date	97.11.25.05.14.52;	author danfuzz;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	97.11.21.04.33.58;	author danfuzz;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	97.11.14.18.36.48;	author danfuzz;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	97.11.11.01.12.07;	author danfuzz;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	97.11.04.22.19.34;	author danfuzz;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	97.11.04.20.14.01;	author danfuzz;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.15
+log
+@Presence spread rearchitecture checkin.  Blame RobJ and ping him hard.
+@
+text
+@package ec.e.run;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import ec.util.EThreadGroup;
+
+// ------------------------------------------------------------
+// XXX JAY - removed final from encode/decode! Security problem????
+// and removed private from IVs.
+//
+final public class RtEnvelope extends Object implements RtCodeable
+{
+    RtSealer mySealer;  // JAY - allow subclasses to get at these...
+    Object[] myArgs;
+    RtExceptionEnv myEE; // may be null
+
+    public RtEnvelope (RtEnvelope source)
+    {
+        mySealer = source.mySealer;
+        myArgs = source.myArgs;
+        myEE = source.myEE;
+    }
+
+    public RtEnvelope (RtSealer sealer, Object[] args, RtExceptionEnv ee) {
+        mySealer = sealer;
+        myArgs = args;
+        myEE = ee;
+    }
+
+    public String classNameToEncode (RtEncoder encoder) {
+        return null;
+    }
+
+    private void debugExceptionInDelivery(Object target, Throwable e,
+            String type) {
+        // XXX change to debugReportException when we're tired of seeing these
+        RtRun.tr.errorReportException(e, "Translating Java throw of " + type + " into ethrow;\n" +
+            "Happened during " + target + " <- " + this + "\n");
+        if (RtCausality.isCausalityTracing()) {
+            String causalityTrace = RtCausality.getCausalityTraceString();
+            RtRun.tr.$("\nCausality trace:\n" + causalityTrace);
+        }
+    }
+
+    private void causalityEnhancementForException(Throwable t) {
+        ByteArrayOutputStream bs = new ByteArrayOutputStream(1000);
+        EThreadGroup.printStackTrace(t, new PrintStream(bs));
+        RtCausality.prependCausalityBacktrace(bs.toString());
+    }
+
+    public void deliverTo (Object target)
+    {
+        try {
+            mySealer.invoke (target, myArgs);
+        } catch (Exception e) {
+            if (RtCausality.isCausalityTracing()) {
+                causalityEnhancementForException(e);
+            }
+            // BUG--guard this with "if (RtRun.tr.tracing)" when universal
+            // spam has served its purpose; ditto for the other cases
+            // below.
+            debugExceptionInDelivery(target, e, "Exception");
+            // XXX--in 1.1 we may want to make this throw a new exception
+            // with more info in the message string
+            sendException(e);
+        } catch (Error e) {
+            if (RtCausality.isCausalityTracing()) {
+                causalityEnhancementForException(e);
+            }
+            debugExceptionInDelivery(target, e, "Error");
+            sendException(e);
+            // XXX--theoretically, this should "kill" the target
+        } catch (Throwable e) {
+            if (RtCausality.isCausalityTracing()) {
+                causalityEnhancementForException(e);
+            }
+            debugExceptionInDelivery(target, e, "Throwable");
+            sendException(e);
+        }
+    }
+
+// XXX JAY - removed final from encode/decode! Security problem????
+
+    public  void encode (RtEncoder coder)
+    {
+        try
+        {
+            if (RtRun.tr.tracing)
+                RtRun.tr.$ ("Envelope encoding self: " + this);
+            coder.encodeObject(myArgs);
+            coder.encodeObject(myEE);
+            coder.encodeObject(mySealer);
+        }
+        catch (Exception e)
+        {
+            RtRun.tr.errorReportException(e, "Couldn't encode envelope!");
+        }
+    }
+
+// XXX JAY - removed final from encode/decode! Security problem????
+
+    public  Object decode(RtDecoder coder) {
+        try {
+            // NOTE: ugly coding order stuff to avoid flag day
+            Object firstObj = coder.decodeObject();
+            Object secondObj = coder.decodeObject();
+            if (firstObj instanceof RtSealer) {
+                mySealer = (RtSealer) firstObj;
+                myArgs = (Object[]) secondObj;
+                myEE = null;
+            } else {
+                myArgs = (Object[]) firstObj;
+                myEE = (RtExceptionEnv) secondObj;
+                mySealer = (RtSealer) coder.decodeObject();
+            }
+        } catch (Exception e) {
+            RtRun.tr.errorReportException(e, "Couldn't decode envelope!");
+            return null;
+        }
+        if (RtRun.tr.tracing)
+            RtRun.tr.$("Envelope decoded self: " + this);
+        return this;
+    }
+
+    public RtSealer getSealer() {
+        return mySealer;
+    }
+
+    public Object[] cloneArgs() {
+        if (myArgs != null) {
+            Object[] result = new Object[myArgs.length];
+            System.arraycopy(myArgs, 0, result, 0, myArgs.length);
+            return result;
+        } else {
+            return null;
+        }
+    }
+
+    public Object getArg(int n) {
+        if (myArgs != null) {
+            return myArgs[n];
+        } else {
+            throw new ArrayIndexOutOfBoundsException();
+        }
+    }
+
+    public int getArgCount() {
+        if (myArgs != null) {
+            return myArgs.length;
+        } else {
+            return 0;
+        }
+    }
+
+    /** we don't trust anyone outside the package to *not* mess
+     * with the contents of the args array.
+     */
+    /*package*/ Object[] getArgs() {
+        return myArgs;
+    }
+
+    public RtExceptionEnv getKeeper() {
+        return myEE;
+    }
+
+    public void sendTo(EObject target) {
+        if (target instanceof EObject_$_Impl) {
+            RtRun.enqueue(target, this);
+        } else {
+            ((RtTether)target).invoke(mySealer, myArgs, myEE);
+        }
+    }
+
+    public void sendException(Throwable t) {
+        if (myEE != null) {
+            myEE.doEThrow(t);
+            // BECAUSE WE ARE BEING WACKY IN CAFE, TRY THIS
+//            throw t;
+        } else {
+            RtRun.NULL_EXCEPTION_ENV.doEThrow(t);
+        }
+    }
+
+    public String toString()
+    {
+        String result =
+            "#<" + getClass().getName() + " " + mySealer.toString() + " (";
+        if (myArgs != null)
+        {
+            for (int i = 0; i < myArgs.length; i++)
+            {
+                if (i != 0)
+                {
+                    result += ", ";
+                }
+                try {
+                    result += myArgs[i];
+                } catch (RuntimeException e) {
+                    result += "<unprintable " + myArgs[i].getClass() + ">";
+                }
+            }
+        }
+        result += ")>";
+
+        return (result);
+    }
+}
+
+
+
+@
+
+
+1.14
+log
+@Comm Coexistence additions, RtSealer smarter with CRAPI, commented out version of encode/decode for Sealer that uses Dan's magic
+@
+text
+@d177 2
+@
+
+
+1.13
+log
+@causality moved to its own class
+@
+text
+@d170 1
+a170 1
+            ((RtTether) target).invoke(mySealer, myArgs, myEE);
+@
+
+
+1.12
+log
+@back to being final
+@
+text
+@d39 2
+a40 2
+        if (RtRun.theOne().myCausalityTracing) {
+            String causalityTrace = RtRun.getCausalityTraceString();
+d48 1
+a48 1
+        RtRun.prependCausalityBacktrace(bs.toString());
+d56 1
+a56 1
+            if (RtRun.theOne().myCausalityTracing) {
+d67 1
+a67 1
+            if (RtRun.theOne().myCausalityTracing) {
+d74 1
+a74 1
+            if (RtRun.theOne().myCausalityTracing) {
+@
+
+
+1.11
+log
+@a little too soon to make it final
+@
+text
+@d11 1
+a11 1
+public class RtEnvelope extends Object implements RtCodeable
+@
+
+
+1.10
+log
+@switched causality tracing to use EObject.messageWithCause()
+@
+text
+@d11 1
+a11 1
+final public class RtEnvelope extends Object implements RtCodeable
+@
+
+
+1.9
+log
+@Undid decode simplification to avoid PLS problems
+@
+text
+@a9 5
+// XXX - This needs to be subclasses for EObjectEnvelope to implement
+// "final" EObject methods (and may be subclasses for other classes such
+// as EChannel), but we don't want to let anything outside of this Package
+// subclass this, as that could violate security by creating an Envelope
+// class that peeks inside of the args, or dispatches unexpected messages.
+d11 1
+a11 1
+public class RtEnvelope extends Object implements RtCodeable
+@
+
+
+1.8
+log
+@moved around error checking and enabled queueing to deflectors
+@
+text
+@d109 12
+a120 3
+            myArgs = (Object[]) coder.decodeObject();
+            myEE = (RtExceptionEnv) coder.decodeObject();
+            mySealer = (RtSealer) coder.decodeObject();
+@
+
+
+1.7
+log
+@further demise of separate exception envs
+@
+text
+@d107 2
+a108 4
+    public  Object decode (RtDecoder coder)
+    {
+        try
+        {
+d112 1
+a112 3
+        }
+        catch (Exception e)
+        {
+d114 1
+a114 1
+            return (null);
+d117 2
+a118 16
+            RtRun.tr.$ ("Envelope decoded self: " + this);
+        return (this);
+    }
+
+    public final void badAddress (Object addressee)
+    {
+        String message;
+        if (addressee == null)
+        {
+            message = "E message sent to null";
+        }
+        else
+        {
+            message = "E message sent to non-E-object";
+        }
+        throw new RtEErrorException (message);
+@
+
+
+1.6
+log
+@disable bad envelope constructor
+@
+text
+@a20 1
+    boolean myHasEE;
+a26 1
+        myHasEE = source.myHasEE;
+a28 10
+    /*
+    public RtEnvelope (RtSealer sealer, Object[] args)
+    {
+        mySealer = sealer;
+        myArgs = args;
+        myEE = null;
+        myHasEE = false;
+    }
+    */
+
+a32 1
+        myHasEE = true;
+d95 3
+a97 9
+            // NOTE: ugly coding order stuff to avoid flag day
+            if (myHasEE) {
+                coder.encodeObject(myArgs);
+                coder.encodeObject(myEE);
+                coder.encodeObject(mySealer);
+            } else {
+                coder.encodeObject(mySealer);
+                coder.encodeObject(myArgs);
+            }
+d111 3
+a113 14
+            // NOTE: ugly coding order stuff to avoid flag day
+            Object firstObj = coder.decodeObject();
+            Object secondObj = coder.decodeObject();
+            if (firstObj instanceof RtSealer) {
+                mySealer = (RtSealer) firstObj;
+                myArgs = (Object[]) secondObj;
+                myEE = null;
+                myHasEE = false;
+            } else {
+                myArgs = (Object[]) firstObj;
+                myEE = (RtExceptionEnv) secondObj;
+                mySealer = (RtSealer) coder.decodeObject();
+                myHasEE = true;
+            }
+a180 1
+        RtExceptionEnv ee = myHasEE ? myEE : myKeeper();
+d182 1
+a182 1
+            RtRun.enqueue(target, this, ee);
+d184 1
+a184 1
+            ((RtTether) target).invoke(mySealer, myArgs, ee);
+d189 2
+a190 3
+        RtExceptionEnv ee = myHasEE ? myEE : myKeeper();
+        if (ee != null) {
+            ee.doEThrow(t);
+@
+
+
+1.5
+log
+@sendException on envelope
+@
+text
+@d31 1
+d39 1
+@
+
+
+1.4
+log
+@omnibus: new EDelegator, stone tweak, envelope/deflector bugfix
+@
+text
+@d81 1
+a81 2
+            // ethrow e;
+            RtRun.exceptionEnv().doEThrow(e);
+d87 1
+a87 2
+            // ethrow e;
+            RtRun.exceptionEnv().doEThrow(e);
+d94 1
+a94 2
+            // ethrow e;
+            RtRun.exceptionEnv().doEThrow(e);
+d214 9
+@
+
+
+1.3
+log
+@deflector/envelope enhancements
+@
+text
+@d212 3
+a214 2
+        if (myHasEE) {
+            RtRun.enqueue(target, this, myEE);
+d216 1
+a216 1
+            RtRun.enqueue(target, this, myKeeper());
+@
+
+
+1.2
+log
+@fixed new ecomp weirdness
+@
+text
+@d20 2
+d27 2
+d35 9
+d109 9
+a117 2
+            coder.encodeObject (mySealer);
+            coder.encodeObject (myArgs);
+d131 14
+a144 2
+            mySealer = (RtSealer) coder.decodeObject ();
+            myArgs = (Object[]) coder.decodeObject ();
+d197 19
+@
+
+
+1.1
+log
+@further myE.java shrinkage
+@
+text
+@d68 2
+a69 2
+            ethrow e;
+            // RtRun.exceptionEnv().doEThrow(e);
+d75 2
+a76 2
+            ethrow e;
+            // RtRun.exceptionEnv().doEThrow(e);
+d83 2
+a84 2
+            ethrow e;
+            // RtRun.exceptionEnv().doEThrow(e);
+@
+
+

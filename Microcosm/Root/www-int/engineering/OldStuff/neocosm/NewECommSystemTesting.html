@@ -1,0 +1,120 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>DataComm</TITLE>
+<META NAME="Template" CONTENT="C:\PROGRAM FILES\MICROSOFT OFFICE\OFFICE\html.dot">
+</HEAD>
+<BODY LINK="#0000ff" VLINK="#800080">
+
+<I><H1>DataComm Testing</H1>
+</I><B><P>Last updated:</B><I> [98/06/18 Marick]</I> </P>
+<P><A HREF="mailto:marick@communities.com">Brian Marick</A> wrote this document.  <A HREF="mailto:frantz@communities.com">Bill Frantz</A> is responsible for the code.</P>
+<H4>Related Documents</H4>
+<P><A HREF="http://www-int/engineering/OldStuff/neocosm/CommSystemOverview.html">http://www-int/engineering/OldStuff/neocosm/CommSystemOverview.html</A></P>
+<H2>Level of Effort </H2>
+<TABLE CELLSPACING=0 BORDER=0 CELLPADDING=7 WIDTH=823>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<B><P ALIGN="CENTER">Aspect</B></TD>
+<TD WIDTH="26%" VALIGN="TOP">
+<B><P ALIGN="CENTER">Assessment</B></TD>
+<TD WIDTH="48%" VALIGN="TOP">
+<B><P ALIGN="CENTER">Justification</B></TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>Suspected bugginess</TD>
+<TD WIDTH="26%" VALIGN="TOP">
+<P>Low</TD>
+<TD WIDTH="48%" VALIGN="TOP">
+<P>Not a major rewrite - design roughly the same, with some fixes.  Most bugs likely due to cleanup.</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>Likely visibility of bugs</TD>
+<TD WIDTH="26%" VALIGN="TOP">
+<P>Moderate</TD>
+<TD WIDTH="48%" VALIGN="TOP">
+<P>Based on past experience, many comm system bugs go unnoticed by users.  But this is fundamental code.</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>Likely severity of bugs</TD>
+<TD WIDTH="26%" VALIGN="TOP">
+<P>Moderate</TD>
+<TD WIDTH="48%" VALIGN="TOP">
+<P>As above - the product seems to survive many comm system bugs.</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>Difficulty of exercising through normal use or whole-product testing</TD>
+<TD WIDTH="26%" VALIGN="TOP">
+<P>Easy for normal use cases, high for error cases.</TD>
+<TD WIDTH="48%" VALIGN="TOP">&nbsp;</TD>
+</TR>
+<TR><TD WIDTH="26%" VALIGN="TOP">
+<P>Difficulty of debugging problems when they're found in normal use or whole-product testing</TD>
+<TD WIDTH="26%" VALIGN="TOP">
+<P>Moderate</TD>
+<TD WIDTH="48%" VALIGN="TOP">
+<P>Low level code, but Bill will make heavy use of tracing.</TD>
+</TR>
+</TABLE>
+
+<P>Overall, this is probably one of the safest subsystems to leave lightly tested.  Note:  not all of the datacomm layer is designed.  (See Issues.) How the new pieces will be tested is TBD.</P>
+<H2>Who Does What?</H2>
+<P>Brian Marick will suggest tests to Bill Frantz, who will implement them.  Bill will also think of new tests on his own.</P>
+<H2>Total Effort</H2>
+<P>1-2 full days of Brian's time.  Bill's time is already included in his schedule for the task.</P>
+<H2>Repeatability and Automation </H2>
+<P>I suggest that only two tests (performance and load) be automated.   They will cover normal operation and be easy to automate.  Future changes may result in manual rerunning of other tests that aren't worth automating.</P>
+<H2>What Is To Be Tested (Overview)</H2>
+<P>I will flesh out some of these categories later.  Some of them may not need fleshing out.  Some of them may have already been adequately done.</P>
+<P>Highest priority categories are in red.</P>
+<H3>Startup</H3>
+<H4>Startup races</H4>
+<P>A straightforward exhaustive search of the possible interleavings of simultaneous startup should be done.  This can be implemented manually in the debugger.  These tests will not be saved.</P>
+<P>For variety, try some of the cases when the connections are new, some when the connections were suspended.</P>
+<P>This is not high priority only because it's already been tested to some extent.</P>
+<H4>Registrar handling</H4>
+<P>The registrar-handling code allows the comm system to query several locations when making a connection, and allows those locations to redirect the search to other locations.   Should be tested if the code has changed.  Can be deferred until there's a functioning PLS.  Defer if it saves trouble.  These tests do not need to be preserved.</P>
+<FONT COLOR="#ff0000"><H3>Error handling </H3>
+</FONT><P>Try both clean and dirty TCP shutdowns (kill process vs. kill machine).  </P>
+<P>Try with messages queued in incoming queue (shutdown notice queued after those messages).  (Trace behavior in debugger.)</P>
+<P>Try sending a new message after shutdown (should get exception).</P>
+<P>Related to API state testing (described below), in that errors should be caused to arrive when the datacomm subsystem is in various states.</P>
+<H3>Shutdown</H3>
+<P>Shutdown with messages queued going out (via both variants of sendMsg).</P>
+<P>Explore simultaneous shutdown races as with startup.</P>
+<FONT COLOR="#ff0000"><H3>Load testing</H3>
+</FONT><P>A single test with N partners.  Each partner will open connections, send and receive messages, and shut them down.   Messages should be checked for non-corruption.  In at least some of the cases, connections should be suspended.  There is enough randomness to exercise thread safety.   The test should be cyclic and by default run for a large number of cycles (it can be run for a shorter number of cycles as a smoke test).</P>
+<P>This test should be fully automated.</P>
+<H3>Suspension of connections</H3>
+<P>Covered adequately by load testing and API state testing.</P>
+<H3>Threading</H3>
+<P>Covered by load testing.</P>
+<H3>API</H3>
+<P>For each method, I'll derive test cases, looking especially for odd or easily overlooked cases.  Bill can inspect the list and try those he deems important.</P>
+<P>I will especially concentrate on deriving a model of the internal state of the datacomm system (e.g., "connection suspended") and explore what happens when certain methods are called in certain states.</P>
+<H3>Encryption</H3>
+<P>Check by inspection.  This is old code, except for code that solves the "man in the middle" problem.  The common case (no spoofing) is tested in normal use.  The code to detect spoofing should be easy to check by inspection, probably not worth writing the test support.</P>
+<H2>Performance</H2>
+<P>Here are some performance test ideas:</P>
+<OL>
+
+<LI>Compare raw sendMsg performance over a dialup to sendMsg performance during a simulated art download.  (To determine soon if it's likely we'll need a low priority queue for art download.)  This does not need to be repeatable.</LI>
+<LI>Simple end-to-end link throughput, simulating the amount of traffic for a typical transition.  (How realistic to make this?)  Determine how much is due to the datacomm layer and how much due to TCP/IP.  These numbers will be used to see where any comm bottlenecks are.   Should be a repeatable test.</LI></OL>
+
+<P>During test 2, OptimizeIt should be used to size this subsystem.  (Walendo is the guide, here.)  We'll track those sizes, as well as performance.</P>
+<H2>Test Support Needed </H2>
+<P>TBD.  Should be only some minor driver code surrounding the subsystem, sufficient to drive these tests.</P>
+<H2>Issues</H2>
+<H4>Resolved Issues</H4>
+<H4>Open Issues</H4>
+<P>Some things are not yet designed:</P>
+
+<UL>
+<LI>Firewall support</LI>
+<LI>Pinging </LI>
+<LI>PLS cooperation (for moving identities between network addresses)</LI></UL>
+
+<P>There's no test plan for them yet.  </P>
+<P>There are still some open issues called out in <A HREF="http://www-int/engineering/OldStuff/neocosm/NewECommSystem.html">http://www-int/engineering/OldStuff/neocosm/NewECommSystem.html</A>.  As they're resolved, they'll need to be checked.</P>
+<P>&nbsp;</P></BODY>
+</HTML>

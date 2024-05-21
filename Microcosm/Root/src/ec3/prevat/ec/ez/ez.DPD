@@ -1,0 +1,267 @@
+# Symantec IDDE generated .dpd file. V: 7200
+C:\Cafe\classes\ec\ez\runtime\AlreadyDefinedException.class: \
+	..\..\ec3\prevat\ec\ez\runtime\alreadydefinedexception.java \
+	..\..\ec3\prevat\ec\ez\collect\ArityMismatchException.java 
+C:\Cafe\classes\ec\ez\collect\ArityMismatchException.class: \
+	..\..\ec3\prevat\ec\ez\collect\aritymismatchexception.java \
+	..\..\ec3\prevat\ec\ez\collect\ArrayIterator.java 
+C:\Cafe\classes\ec\ez\collect\ArrayIterator.class: \
+	..\..\ec3\prevat\ec\ez\collect\arrayiterator.java \
+	..\..\ec3\prevat\ec\ez\ezvm\AssignExpr.java 
+C:\Cafe\classes\ec\ez\ezvm\AssignExpr.class: \
+	..\..\ec3\prevat\ec\ez\ezvm\assignexpr.java \
+	..\..\ec3\prevat\ec\ez\syntax\Assoc.java 
+C:\Cafe\classes\ec\ez\syntax\Assoc.class: \
+	..\..\ec3\prevat\ec\ez\syntax\assoc.java \
+	..\..\ec3\prevat\ec\ez\collect\AssociationEnumeration.java 
+C:\Cafe\classes\ec\ez\collect\AssociationEnumeration.class: \
+	..\..\ec3\prevat\ec\ez\collect\associationenumeration.java \
+	..\..\ec3\prevat\ec\ez\ezvm\CallExpr.java 
+C:\Cafe\classes\ec\ez\ezvm\CallExpr.class: \
+	..\..\ec3\prevat\ec\ez\ezvm\callexpr.java \
+	..\..\ec3\prevat\ec\ez\prim\ConstructorNode.java 
+C:\Cafe\classes\ec\ez\prim\ConstructorNode.class: \
+	..\..\ec3\prevat\ec\ez\prim\constructornode.java \
+	..\..\ec3\prevat\ec\ez\ezvm\DefineExpr.java 
+C:\Cafe\classes\ec\ez\ezvm\DefineExpr.class: \
+	..\..\ec3\prevat\ec\ez\ezvm\defineexpr.java \
+	..\..\ec3\prevat\ec\ez\ezvm\DispatchExpr.java 
+C:\Cafe\classes\ec\ez\ezvm\DispatchExpr.class: \
+	..\..\ec3\prevat\ec\ez\ezvm\dispatchexpr.java \
+	..\..\ec3\prevat\ec\ez\collect\DoubleInterval.java 
+C:\Cafe\classes\ec\ez\collect\DoubleInterval.class: \
+	..\..\ec3\prevat\ec\ez\collect\doubleinterval.java \
+	..\..\ec3\prevat\ec\ez\collect\DoubleIterator.java 
+C:\Cafe\classes\ec\ez\collect\DoubleIterator.class: \
+	..\..\ec3\prevat\ec\ez\collect\doubleiterator.java \
+	..\..\ec3\prevat\ec\ez\runtime\Ejection.java 
+C:\Cafe\classes\ec\ez\runtime\Ejection.class: \
+	..\..\ec3\prevat\ec\ez\runtime\ejection.java \
+	..\..\ec3\prevat\ec\ez\ezvm\Ejector.java 
+C:\Cafe\classes\ec\ez\ezvm\Ejector.class: \
+	..\..\ec3\prevat\ec\ez\ezvm\ejector.java \
+	..\..\ec3\prevat\ec\ez\ezvm\EnterPovExpr.java 
+C:\Cafe\classes\ec\ez\ezvm\EnterPovExpr.class: \
+	..\..\ec3\prevat\ec\ez\ezvm\enterpovexpr.java \
+	..\..\ec3\prevat\ec\ez\ezvm\EqualsExpr.java 
+C:\Cafe\classes\ec\ez\ezvm\EqualsExpr.class: \
+	..\..\ec3\prevat\ec\ez\ezvm\equalsexpr.java \
+	..\..\ec3\prevat\ec\ez\ezvm\EscapeExpr.java 
+C:\Cafe\classes\ec\ez\ezvm\EscapeExpr.class: \
+	..\..\ec3\prevat\ec\ez\ezvm\escapeexpr.java \
+	..\..\ec3\prevat\ec\ez\ezvm\Expr.java 
+C:\Cafe\classes\ec\ez\ezvm\Expr.class: \
+	..\..\ec3\prevat\ec\ez\ezvm\expr.java \
+	..\..\ec3\prevat\ec\ez\prim\EZBoolean.java 
+C:\Cafe\classes\ec\ez\prim\EZBoolean.class: \
+	..\..\ec3\prevat\ec\ez\prim\ezboolean.java \
+	..\..\ec3\prevat\ec\ez\prim\EZDouble.java 
+C:\Cafe\classes\ec\ez\prim\EZDouble.class: \
+	..\..\ec3\prevat\ec\ez\prim\ezdouble.java \
+	..\..\ec3\prevat\ec\ez\prim\EZEnumeration.java 
+C:\Cafe\classes\ec\ez\prim\EZEnumeration.class: \
+	..\..\ec3\prevat\ec\ez\prim\ezenumeration.java \
+	..\..\ec3\prevat\ec\ez\prim\EZEnvelope.java 
+C:\Cafe\classes\ec\e\run\EZEnvelope.class: \
+	..\..\ec3\prevat\ec\ez\prim\ezenvelope.java \
+	..\..\ec3\prevat\ec\ez\prim\EZEObjectWrapper.java 
+C:\Cafe\classes\ec\ez\prim\EZEObjectWrapper.class: \
+	..\..\ec3\prevat\ec\ez\prim\ezeobjectwrapper.java \
+	..\..\ec3\prevat\ec\ez\syntax\EZIdentifier.java 
+C:\Cafe\classes\ec\ez\syntax\EZIdentifier.class: \
+	..\..\ec3\prevat\ec\ez\syntax\ezidentifier.java \
+	..\..\ec3\prevat\ec\ez\ezvm\EZImpl_$_Impl.java 
+C:\Cafe\classes\ec\ez\ezvm\EZImpl_$_Impl.class: \
+	..\..\ec3\prevat\ec\ez\ezvm\ezimpl_$_impl.java \
+	..\..\ec3\prevat\ec\ez\ezvm\EZImpl_$_Proxy.java 
+C:\Cafe\classes\ec\ez\ezvm\EZImpl_$_Proxy.class: \
+	..\..\ec3\prevat\ec\ez\ezvm\ezimpl_$_proxy.java \
+	..\..\ec3\prevat\ec\ez\prim\EZInteger.java 
+C:\Cafe\classes\ec\ez\prim\EZInteger.class: \
+	..\..\ec3\prevat\ec\ez\prim\ezinteger.java \
+	..\..\ec3\prevat\ec\ez\syntax\EZLexer.java 
+C:\Cafe\classes\ec\ez\syntax\EZLexer.class: \
+	..\..\ec3\prevat\ec\ez\syntax\ezlexer.java \
+	..\..\ec3\prevat\ec\ez\syntax\EZLiteral.java 
+C:\Cafe\classes\ec\ez\syntax\EZLiteral.class: \
+	..\..\ec3\prevat\ec\ez\syntax\ezliteral.java \
+	..\..\ec3\prevat\ec\ez\ezvm\EZMethodNode.java 
+C:\Cafe\classes\ec\ez\ezvm\EZMethodNode.class: \
+	..\..\ec3\prevat\ec\ez\ezvm\ezmethodnode.java \
+	..\..\ec3\prevat\ec\ez\runtime\EZObject.java 
+C:\Cafe\classes\ec\ez\runtime\EZObject.class: \
+	..\..\ec3\prevat\ec\ez\runtime\ezobject.java \
+	..\..\ec3\prevat\ec\ez\syntax\EZParser.java 
+C:\Cafe\classes\ec\ez\syntax\EZParser.class: \
+	..\..\ec3\prevat\ec\ez\syntax\ezparser.java \
+	..\..\ec3\prevat\ec\ez\prim\EZPromiseBreaker.java 
+C:\Cafe\classes\ec\ez\prim\EZPromiseBreaker.class: \
+	..\..\ec3\prevat\ec\ez\prim\ezpromisebreaker.java \
+	..\..\ec3\prevat\ec\ez\prim\EZServiceEnvelope.java 
+C:\Cafe\classes\ec\e\run\EZServiceEnvelope.class: \
+	..\..\ec3\prevat\ec\ez\prim\ezserviceenvelope.java \
+	..\..\ec3\prevat\ec\ez\prim\EZStaticWrapper.java 
+C:\Cafe\classes\ec\ez\prim\EZStaticWrapper.class: \
+	..\..\ec3\prevat\ec\ez\prim\ezstaticwrapper.java \
+	..\..\ec3\prevat\ec\ez\prim\EZString.java 
+C:\Cafe\classes\ec\ez\prim\EZString.class: \
+	..\..\ec3\prevat\ec\ez\prim\ezstring.java \
+	..\..\ec3\prevat\ec\ez\syntax\EZToken.java 
+C:\Cafe\classes\ec\ez\syntax\EZToken.class: \
+	..\..\ec3\prevat\ec\ez\syntax\eztoken.java \
+	..\..\ec3\prevat\ec\ez\prim\EZUniversal.java 
+C:\Cafe\classes\ec\ez\prim\EZUniversal.class: \
+	..\..\ec3\prevat\ec\ez\prim\ezuniversal.java \
+	..\..\ec3\prevat\ec\ez\prim\InstanceMethodNode.java 
+C:\Cafe\classes\ec\ez\prim\InstanceMethodNode.class: \
+	..\..\ec3\prevat\ec\ez\prim\instancemethodnode.java \
+	..\..\ec3\prevat\ec\ez\collect\IntegerIterator.java 
+C:\Cafe\classes\ec\ez\collect\IntegerIterator.class: \
+	..\..\ec3\prevat\ec\ez\collect\integeriterator.java \
+	..\..\ec3\prevat\ec\ez\collect\Interval.java 
+C:\Cafe\classes\ec\ez\collect\Interval.class: \
+	..\..\ec3\prevat\ec\ez\collect\interval.java \
+	..\..\ec3\prevat\ec\ez\prim\JavaMemberNode.java 
+C:\Cafe\classes\ec\ez\prim\JavaMemberNode.class: \
+	..\..\ec3\prevat\ec\ez\prim\javamembernode.java \
+	..\..\ec3\prevat\ec\ez\ezvm\LiteralExpr.java 
+C:\Cafe\classes\ec\ez\ezvm\LiteralExpr.class: \
+	..\..\ec3\prevat\ec\ez\ezvm\literalexpr.java \
+	..\..\ec3\prevat\ec\ez\ezvm\LoopExpr.java 
+C:\Cafe\classes\ec\ez\ezvm\LoopExpr.class: \
+	..\..\ec3\prevat\ec\ez\ezvm\loopexpr.java \
+	..\..\ec3\prevat\ec\ez\collect\Mapping.java 
+C:\Cafe\classes\ec\ez\collect\Mapping.class: \
+	..\..\ec3\prevat\ec\ez\collect\mapping.java \
+	..\..\ec3\prevat\ec\ez\collect\MappingImpl.java 
+C:\Cafe\classes\ec\ez\collect\MappingImpl.class: \
+	..\..\ec3\prevat\ec\ez\collect\mappingimpl.java \
+	..\..\ec3\prevat\ec\ez\ezvm\MatchNode.java 
+C:\Cafe\classes\ec\ez\ezvm\MatchNode.class: \
+	..\..\ec3\prevat\ec\ez\ezvm\matchnode.java \
+	..\..\ec3\prevat\ec\ez\runtime\MethodNode.java 
+C:\Cafe\classes\ec\ez\runtime\MethodNode.class: \
+	..\..\ec3\prevat\ec\ez\runtime\methodnode.java \
+	..\..\ec3\prevat\ec\ez\syntax\MsgPatt.java 
+C:\Cafe\classes\ec\ez\syntax\MsgPatt.class: \
+	..\..\ec3\prevat\ec\ez\syntax\msgpatt.java \
+	..\..\ec3\prevat\ec\ez\collect\NameTable.java 
+C:\Cafe\classes\ec\ez\collect\NameTable.class: \
+	..\..\ec3\prevat\ec\ez\collect\nametable.java \
+	..\..\ec3\prevat\ec\ez\collect\NameTableEditor.java 
+C:\Cafe\classes\ec\ez\collect\NameTableEditor.class: \
+	..\..\ec3\prevat\ec\ez\collect\nametableeditor.java \
+	..\..\ec3\prevat\ec\ez\collect\NameTableEditorImpl.java 
+C:\Cafe\classes\ec\ez\collect\NameTableEditorImpl.class: \
+	..\..\ec3\prevat\ec\ez\collect\nametableeditorimpl.java \
+	..\..\ec3\prevat\ec\ez\collect\NotFoundException.java 
+C:\Cafe\classes\ec\ez\collect\NotFoundException.class: \
+	..\..\ec3\prevat\ec\ez\collect\notfoundexception.java \
+	..\..\ec3\prevat\ec\ez\ezvm\NounExpr.java 
+C:\Cafe\classes\ec\ez\ezvm\NounExpr.class: \
+	..\..\ec3\prevat\ec\ez\ezvm\nounexpr.java \
+	..\..\ec3\prevat\ec\ez\collect\NullMarker.java 
+C:\Cafe\classes\ec\ez\collect\NullMarker.class: \
+	..\..\ec3\prevat\ec\ez\collect\nullmarker.java \
+	..\..\ec3\prevat\ec\ez\prim\Oops.java 
+C:\Cafe\classes\ec\ez\prim\Oops.class: \
+	..\..\ec3\prevat\ec\ez\prim\oops.java \
+	..\..\ec3\prevat\ec\ez\prim\PackagePath.java 
+C:\Cafe\classes\ec\ez\prim\PackagePath.class: \
+	..\..\ec3\prevat\ec\ez\prim\packagepath.java \
+	..\..\ec3\prevat\ec\ez\runtime\ParseNode.java 
+C:\Cafe\classes\ec\ez\runtime\ParseNode.class: \
+	..\..\ec3\prevat\ec\ez\runtime\parsenode.java \
+	..\..\ec3\prevat\ec\ez\ezvm\PathExpr.java 
+C:\Cafe\classes\ec\ez\ezvm\PathExpr.class: \
+	..\..\ec3\prevat\ec\ez\ezvm\pathexpr.java \
+	..\..\ec3\prevat\ec\ez\ezvm\PovExpr.java 
+C:\Cafe\classes\ec\ez\ezvm\PovExpr.class: \
+	..\..\ec3\prevat\ec\ez\ezvm\povexpr.java \
+	..\..\ec3\prevat\ec\ez\prim\PrintFunc.java 
+C:\Cafe\classes\ec\ez\prim\PrintFunc.class: \
+	..\..\ec3\prevat\ec\ez\prim\printfunc.java \
+	..\..\ec3\prevat\ec\ez\prim\PrintlnFunc.java 
+C:\Cafe\classes\ec\ez\prim\PrintlnFunc.class: \
+	..\..\ec3\prevat\ec\ez\prim\printlnfunc.java \
+	..\..\ec3\prevat\ec\ez\prim\Promise_$_Impl.java 
+C:\Cafe\classes\ec\ez\prim\Promise_$_Impl.class: \
+	..\..\ec3\prevat\ec\ez\prim\promise_$_impl.java \
+	..\..\ec3\prevat\ec\ez\prim\Promise_$_Proxy.java 
+C:\Cafe\classes\ec\ez\prim\Promise_$_Proxy.class: \
+	..\..\ec3\prevat\ec\ez\prim\promise_$_proxy.java \
+	..\..\ec3\prevat\ec\ez\prim\PromiseDistributor_$_Impl.java 
+C:\Cafe\classes\ec\ez\prim\PromiseDistributor_$_Impl.class: \
+	..\..\ec3\prevat\ec\ez\prim\promisedistributor_$_impl.java \
+	..\..\ec3\prevat\ec\ez\prim\PromiseDistributor_$_Intf.java 
+C:\Cafe\classes\ec\ez\prim\PromiseDistributor_$_Intf.class: \
+	..\..\ec3\prevat\ec\ez\prim\promisedistributor_$_intf.java \
+	..\..\ec3\prevat\ec\ez\prim\PromiseDistributor_$_Proxy.java 
+C:\Cafe\classes\ec\ez\prim\PromiseDistributor_$_Proxy.class: \
+	..\..\ec3\prevat\ec\ez\prim\promisedistributor_$_proxy.java \
+	..\..\ec3\prevat\ec\ez\prim\PromiseInterior.java 
+C:\Cafe\classes\ec\ez\prim\PromiseInterior.class: \
+	..\..\ec3\prevat\ec\ez\prim\promiseinterior.java \
+	..\..\ec3\prevat\ec\ez\prim\RenamedInstanceMethodNode.java 
+C:\Cafe\classes\ec\ez\prim\RenamedInstanceMethodNode.class: \
+	..\..\ec3\prevat\ec\ez\prim\renamedinstancemethodnode.java \
+	..\..\ec3\prevat\ec\ez\ezvm\RequestNode.java 
+C:\Cafe\classes\ec\ez\ezvm\RequestNode.class: \
+	..\..\ec3\prevat\ec\ez\ezvm\requestnode.java \
+	..\..\ec3\prevat\ec\ez\prim\RespondActivator.java 
+C:\Cafe\classes\ec\ez\prim\RespondActivator.class: \
+	..\..\ec3\prevat\ec\ez\prim\respondactivator.java \
+	..\..\ec3\prevat\ec\ez\runtime\Script.java 
+C:\Cafe\classes\ec\ez\runtime\Script.class: \
+	..\..\ec3\prevat\ec\ez\runtime\script.java \
+	..\..\ec3\prevat\ec\ez\prim\ScriptMaker.java 
+C:\Cafe\classes\ec\ez\prim\ScriptMaker.class: \
+	..\..\ec3\prevat\ec\ez\prim\scriptmaker.java \
+	..\..\ec3\prevat\ec\ez\ezvm\SendExpr.java 
+C:\Cafe\classes\ec\ez\ezvm\SendExpr.class: \
+	..\..\ec3\prevat\ec\ez\ezvm\sendexpr.java \
+	..\..\ec3\prevat\ec\ez\ezvm\SequenceExpr.java 
+C:\Cafe\classes\ec\ez\ezvm\SequenceExpr.class: \
+	..\..\ec3\prevat\ec\ez\ezvm\sequenceexpr.java \
+	..\..\ec3\prevat\ec\ez\prim\SimpleScript.java 
+C:\Cafe\classes\ec\ez\prim\SimpleScript.class: \
+	..\..\ec3\prevat\ec\ez\prim\simplescript.java \
+	..\..\ec3\prevat\ec\ez\runtime\SourceSpan.java 
+C:\Cafe\classes\ec\ez\runtime\SourceSpan.class: \
+	..\..\ec3\prevat\ec\ez\runtime\sourcespan.java \
+	..\..\ec3\prevat\ec\ez\prim\StaticMethodNode.java 
+C:\Cafe\classes\ec\ez\prim\StaticMethodNode.class: \
+	..\..\ec3\prevat\ec\ez\prim\staticmethodnode.java \
+	..\..\ec3\prevat\ec\ez\prim\SugarMethodNode.java 
+C:\Cafe\classes\ec\ez\prim\SugarMethodNode.class: \
+	..\..\ec3\prevat\ec\ez\prim\sugarmethodnode.java \
+	..\..\ec3\prevat\ec\ez\syntax\SyntaxException.java 
+C:\Cafe\classes\ec\ez\syntax\SyntaxException.class: \
+	..\..\ec3\prevat\ec\ez\syntax\syntaxexception.java \
+	..\..\ec3\prevat\ec\ez\ezvm\ThrowExpr.java 
+C:\Cafe\classes\ec\ez\ezvm\ThrowExpr.class: \
+	..\..\ec3\prevat\ec\ez\ezvm\throwexpr.java \
+	..\..\ec3\prevat\ec\ez\ezvm\TryExpr.java 
+C:\Cafe\classes\ec\ez\ezvm\TryExpr.class: \
+	..\..\ec3\prevat\ec\ez\ezvm\tryexpr.java \
+	..\..\ec3\prevat\ec\ez\collect\Tuple.java 
+C:\Cafe\classes\ec\ez\collect\Tuple.class: \
+	..\..\ec3\prevat\ec\ez\collect\tuple.java \
+	..\..\ec3\prevat\ec\ez\collect\TupleImpl.java 
+C:\Cafe\classes\ec\ez\collect\TupleImpl.class: \
+	..\..\ec3\prevat\ec\ez\collect\tupleimpl.java \
+	..\..\ec3\prevat\ec\ez\ui\EZMain.java 
+C:\Cafe\classes\ec\ez\ui\EZMain.class: \
+	..\..\ec3\prevat\ec\ez\ui\ezmain.java \
+	..\..\ec3\prevat\ec\ez\ui\EZStart.java 
+C:\Cafe\classes\ec\e\start\EZStart.class: \
+	..\..\ec3\prevat\ec\ez\ui\ezstart.java \
+	..\..\ec3\prevat\ec\ez\ui\Listener.java 
+C:\Cafe\classes\ec\ez\ui\Listener.class: \
+	..\..\ec3\prevat\ec\ez\ui\listener.java \
+	..\..\ec3\prevat\ec\ez\ui\ListenerFrame.java 
+C:\Cafe\classes\ec\ez\ui\ListenerFrame.class: \
+	..\..\ec3\prevat\ec\ez\ui\listenerframe.java \
+	..\..\ec3\E\runtime\e\run\RtRun.java 
+C:\Cafe\classes\ec\e\run\RtRun.class: \
+	..\..\ec3\e\runtime\e\run\rtrun.java 

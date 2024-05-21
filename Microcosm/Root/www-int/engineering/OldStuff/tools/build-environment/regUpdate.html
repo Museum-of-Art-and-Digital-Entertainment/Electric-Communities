@@ -1,0 +1,101 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="Author" CONTENT="Alan Walendowski">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.03 [en] (WinNT; U) [Netscape]">
+   <TITLE>About regUpdate</TITLE>
+</HEAD>
+<BODY>
+
+<H1>
+regUpdate</H1>
+<I>2/10/98 Note: this page maintained by <A HREF="mailto:walendo@communities.com">walendo</A>.
+Please send updates to him.</I><I></I>
+
+<P>regUpdate's job is to make the appropriate entries in the Windows registry
+such that:
+<UL>
+<LI>
+Windows knows that .mcm and .mcmav files 'belong' to Habi*, and that when
+a user clicks on one of them, it should start Habi* up. It also needs to
+know where to find Habi* in order to run it.</LI>
+
+<LI>
+Once Windows starts Habi*, Habi* can find out various critical things like
+where it was installed, where it should look for classes, and hints on
+whether another Habi* is already running.</LI>
+</UL>
+regUpdate has a few options. The following usage message can be seen if
+you pass it the '-h' argument:
+<PRE>&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; # cd \build\release\bin
+&nbsp;&nbsp;&nbsp; #.\regUpdate -h
+&nbsp;&nbsp;&nbsp; Usage: regupdate [-debug] [-savepaths] [-dev]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -debug, be verbose and run Habi* with -debug
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -savepaths, use this window's current environment.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -dev, CLASSPATH is set to your BUILD directories
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; followed by ./classes/ucosm.zip and
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ./java/lib/classes.zip - if you don't have
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ucosm.zip and you didn't build FP, this won't
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; work for you. PATH is set up similarly with your
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; build/lib directory prepended.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; With no args, set up Habi* to use a release environment.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Any questions or problems, ask walendo.</PRE>
+If you've got a window with an environment set up so that you can run our
+product via run.bat, then <TT>regUpdate -savepaths</TT> is your best bet.
+This just stores the current environment in the registry, and if it works
+for you it should work for HabiSplat.exe!
+
+<P>With no arguments, regUpdate will set the registry up so that HabiSplat
+expects the standard release hierarchy you get when you <TT>'make everything
+build-zipclasses release'</TT> or equivalent (or install an official release).
+<BR>&nbsp;
+<H3>
+<U>The Actual Registry Entries</U></H3>
+Here is a brief explanation of the entries that regUpdate places in the
+registry:
+
+<P>In order to tell Windows that .mcm/.mcmav files are something that it
+should know about, we need to make some entries for them. In these entries,
+we associate them to a name (in this case HabiSplat). We also create an
+entry for that name (HabiSplat) and associate an executable with it. This
+way, Windows knows what to run when one of those .mcm or .mcmav files is
+clicked on. Note that HabiSplat.exe is NOT the Java product we all know
+and love - it is a native 'front-end' that eventually either spawns Java
+(and the product we all know and love) or realizes that the product we
+all know and love is already running and just sends it a message.
+<PRE>&nbsp;&nbsp;&nbsp; HKEY_LOCAL_MACHINE\SOFTWARE\Classes\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .mcm
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [default] = HabiSplat
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .mcmav
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [default] = HabiSplat
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; HabiSplat
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [default] = "HabiSplat File"
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; HabiSplat\shell\open\command
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [default] = {build environment path to bin}\HabiSplat.exe "%1"</PRE>
+Once Windows has started HabiSplat.exe, HabiSplat.exe needs to figure out
+what to do. The details are covered in the HabiSplat page, here. Eventually,
+though, HabiSplat may need to start Java and our product. In order to do
+this, it needs to know where the product and supporting files were installed.
+All this is stored in the registry so HabiSplat.exe can find it.
+<PRE>&nbsp;&nbsp; HKEY_LOCAL_MACHINE\SOFTWARE\Electric Communities\HabiSplat\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [default]&nbsp; = HabiSplat File
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CLASSPATH&nbsp; = the classpath
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; INSTALLDIR = the location at which your release lives
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; JAVA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = where to find java
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; LOGFILE&nbsp;&nbsp;&nbsp; = where to put the logs
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; NORMALARGS = what args to hand to java to start Our Product
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PATH&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = the path to set before starting
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PUBLISHDIR = where to look put PublishedRefs
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WINDIR&nbsp;&nbsp;&nbsp;&nbsp; = where windows is installed</PRE>
+Sometimes, HabiSplat needs to know whether or not our product is already
+running. It does this by looking at the next two registry entries. These
+are updated by our product when it starts up, so HabiSplat can do some
+thinking and figure out if we're still running or not.
+<PRE>&nbsp;&nbsp; HKEY_CURRENT_USER\Software\Electric Communities\HabiSplat
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; LastPID&nbsp;&nbsp;&nbsp;&nbsp; = -1
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CommandPort = -1</PRE>
+<A HREF="index.html">Back to the Index!</A>
+</BODY>
+</HTML>

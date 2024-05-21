@@ -1,0 +1,142 @@
+<HTML>
+<HEAD>
+    <TITLE>The 1997 PCForum Demo Vending Machine Unum</TITLE>
+</HEAD>
+<BODY>
+<H1>The 1997 PCForum Demo Vending Machine Unum</H1>
+
+<h1>Introduction</h1>
+
+This design note explains the Demo Vending Machine Unum and key related
+ingredients used in Microcosm for the March 1997 PCForum.
+
+<h1>Overview</h1>
+
+The Demo Vending Machine Unum is a very simple unum tailored for 
+the Demo to support renting of a contained item by an avatar
+with a token of sufficient value. The vending machine also permits
+the return of the vended item (by a simple mechanism provided by the
+rented item). Such return is the only means of restocking the
+vending machine.
+<p>
+<h1>Vending Machine Unum Details</h1>
+
+The Vending Machine is a Public Container derivative. 
+It adds no unum methods beyond what it inherits from Prop.
+<p>
+Public Container behavior was augmented entirely via the UI Ingredient,
+by adding support for a "rent" command.
+
+<h1>Ingredient Details</h1>
+
+<h2>UIVendingMachine</h2>
+
+The UIVendingMachine ingredient is a derivative of the UIProp ingredient.
+The only differences are the added "rent" command support and the
+elimination of "shoot" support.
+
+The intended pre-conditions for a successful "rent" command were:
+<ul>
+<li> that the vending machine is not empty. 
+<p>
+<li> that only the host avatar would rent.
+<p>
+<li> that the renting(i.e. host) avatar have a token in its
+hand. Only one hand of the avatar was ever available for
+consideration.
+<p>
+<li> that the value of the token is not less than the price of
+the item to rent.
+<p>
+</ul>
+<p>
+If the pre-conditions were meant, expected behavior from the "rent"
+handler would be:
+<ul>
+<li> the token in the renting avatar's hand would be 
+decremented by the price of the rented item. In this
+demo, this was a gun of assumed price $100.
+<p>
+<li> that token would be transferred to its pocket.
+<p> 
+<li> then the rented item would be transferred to the
+avatar's hand. 
+</ul>
+<h1>Problems</h1>
+
+<ul>
+<li> The major problem was not getting to the host TOSContainer
+ingredients hash table, i.e. to transfer the contained item
+to the avatar's hand. This worked okay for a server-only case.
+However, the client side hash table  was not updated (i.e.
+it was always empty). This is why the vending machine failed
+for the demo; part oversight (the TOSContainer getHashtable
+method was documented as "evil"), part lack of time (the client
+side went untested due to a client avatar immediate exit problem).  
+<p>
+A VendingMachine ingredient (client simply forwarding) would
+have been useful to manage such interactions with the hosted container.
+<p>
+<li> Could only dispense one item, of the vending machine's choice.
+No mechanism was provided to permit selection of contents. 
+<p>
+<li> Didn't give a copy of the selected contain item, but
+rather the item itself. That might be okay for some cases,
+but for the demo, that meant that multiple vending machines
+were needed so that an avatar and friends could have guns
+at the same time.
+<p>
+<li> Note that the VendingMachineCreator, like other current creators,
+doesn't separate construction of unum from input collection.
+Inputs are also expected to come from an unum hash table such
+as the realm parser prepares. If input collection isn't separated
+from construction, runtime generation of an unum would depend
+on building up an unum hashtable, which would be superflous 
+if a construction-only Creator static method (of undoubtedly many 
+arguments) were available. 
+<p>
+<li>
+No mechanism is provided for stocking multiple items, stocking
+items of different prices, restocking if purchase rather than
+rent were allowed (which is why rental and not purchase was
+the option in the demo), storing information about contents
+such as kind, restocking policy, copy policy and price.
+<p>
+<li> There was no control over stocking by the vending machine.
+Stocking was simply a function of realm text specification.
+<p>
+<li>
+Display of contents was graphical only. No alternative mechanism
+to show contents, e.g. menu or list box, was provided.
+<p>
+<li>
+The price ($100) of a contained item was assumed by the vending
+machine. No mechanism was provided by which price per item could be seen.
+<p>
+<li> There was no visual indication that the display was empty. 
+<p>
+<li> If an avatar tried to buy when the vending machine was empty,
+the token was debited and put in the avatar's pocket, but the
+avatar received no gun.
+<p>
+<li>
+"Try" was not implemented. "Return" was not under the vending
+machines control, so in fact anything could be stocked via that
+command (including the vending machine itself, since the gun
+had a reference to the vending machine).
+<p>
+<li>
+No sound was implemented.
+<p>
+<li> The implementation allowed any containable item to be rented,
+but the source code names the contained item a "rifle". As the
+deadline approached, the source became incredibly messy.
+
+</ul>
+ 
+<a href="index.html">Back to design notes index</a>
+<br>
+<a href="../index.html">Back to Microcosm engineering main page</a>
+
+</BODY>
+</HTML>

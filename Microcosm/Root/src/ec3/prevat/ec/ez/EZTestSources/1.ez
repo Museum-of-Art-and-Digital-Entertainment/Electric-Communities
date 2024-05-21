@@ -1,0 +1,6 @@
+define statement1 := aardvark
+. verb(expres)
+. verb((e1 ; e2))
+define x := foo
+. shoot(bill, dist blah)
+pov

@@ -1,0 +1,272 @@
+<HTML>
+<HEAD>
+   <TITLE>General Repository Design</TITLE>
+</HEAD>
+<BODY>
+
+<H1>General Repository Design</H1>
+
+<B>Last updated:</B>
+<UL>
+<li> <I>[98/07/08 <A HREF="mailto:karl@communities.com">Karl</A>]</I> Rearranged
+some paragraphs and rewrote intro
+<li> <I>[98/07/01 <A HREF="mailto:karl@communities.com">Karl</A>]</I> Split
+off Repository interfaces into their own <A HREF="Repository.html">document</A> and
+started this meta document
+</UL>
+
+<A name="Introduction"></A>
+<H2>Introduction</H2>
+
+[98/07/08 <A HREF="mailto:karl@communities.com">Karl</A>] The Repository was conceived of as an object which would hold data of
+various kinds and allow retrieval of said data through the use of a key.
+Over time the set of data types has grown to include such diverse
+elements as: bit maps, appearance files, sound files, possibly
+code and/or class files, and an almost fanatical devotion to the Pope.
+The key became standardized as a CryptoHash of the data.
+
+<P>Repositories needed to be read-only in some cases.  Some needed to be
+writeable.  There needed to be different Repositories for data from different
+sources or with different purviews (cached data, local data, published data,
+distribution data).  The art production line needed to deal with file names
+and strings rather than CryptoHashes.  The raw data in a Repository needed
+to be certifiable with EC Certificates.  If a Repository was asked for data
+with a CryptoHash it didn't contain, it needed to know how to look elsewhere
+for the data; this led to the evolution of hints, or strings which gave a clue
+as to where to look, usually in the form or URLs or partial URLs (whatever
+that means).  It became incumbent on Repositories to be able download data
+from "The Net".
+
+<P>[98/06/22 <A HREF="mailto:cobblers@communities.com">Bob</A>] The current data repository has many problems, both in implementation
+and interface. The purpose of this document is to capture a simpler, layered
+architecture for managing the resources in the data repository that meets
+the needs of its clients (runtime and production).
+
+<H4>Related Documents</H4>
+
+The <A HREF="Repository.html">Repository</A> design document</A>.
+<BR>The <A HREF="RepositoryFile.html">Repository File</A> design document</A>.
+<BR>The <A HREF="RepositoryManagement.html">Repository Management</A> design document</A>.
+<BR>The <A HREF="RepositoryProduction.html">Repository Production</A> design document</A>.
+<a name=RepositoryRequirements></a>
+<BR><A HREF="RepositoryRequirements.html">Client requirements</A> from a production
+perspective by <A HREF="mailto:tony@communities.com">Tony</A>.
+<BR><a name=R167Repository></a>
+<A HREF="mailto:frantz@communities.com">Bill</A> has encapsulated a description
+of the <A HREF="R167Repository.html">r167 data repository</A>.
+
+<H2><a name="Reqs">Requirements</A></H2>
+
+<H3>Original Requirements a la <A HREF="mailto:randy@communities.com">Randy</A> (98/06/25)</H3>
+
+<OL>
+<li>Provide for retrieval of certified objects
+	<ul>
+	<li>transmission of certificate info to <u>"server"/region</u>
+	<li>global unique identification of objects (currently CryptoHash)
+	</ul>
+<li>Transmit all data and certificates to others (data unpacking is recursive)
+	<ul>
+	<li>local caching system
+	<li>3rd party hand off mechanism (federated "repository servers";
+	hints; publication; URLs; ftp/http/whatever)
+	<li>dynamic certification
+	<li>certificate renewal (through "repository server")
+	</ul>
+<li>Support multiple repositories
+<li>Allow asynchronous retrieval of data
+<li>Allow dynamic policy tweaking (added during 6/15 meeting)
+	<ul>
+	<li>certificate agency should work with "repository server"
+	</ul>
+</OL>
+
+<H4>Wish list from <A HREF="mailto:randy@communities.com">Randy</A> (98/06/25)</H4>
+
+<OL>
+<li>"Tweakable" policies for order of repository searching
+	<ul>
+	<li>follow hints first
+	<li>ask user first
+	<li>check with "region"/server first
+	</ul>
+<li>Handling of "group" requests (grab all pieces of an appearance as one
+block of data, for example)
+<li>Actually implementing all the downloading via hints stuff
+</OL>
+
+<H3>Latest Requirements a la <A HREF="mailto:cobblers@communities.com">Bob</A>&<A HREF="mailto:frantz@communities.com">Bill</A> Show (98/06/22)</H3>
+
+<OL>
+<li>Efficient retrieval of blobs of data both as byte arrays and streams.
+<li>Simple API for adding and retrieving data blobs, and some way of removing
+&quot;stale&quot; data.
+<li>Caching strategies so that single instances of data blobs are loaded
+and managed without intervention by the clients.
+<li>Mapping of name spaces onto data blobs (most likely name to CryptoHash
+mapping).
+</OL>
+
+<H3><A HREF="RepositoryRequirements.html">Client Requirements</A> gathered by <A HREF="mailto:tony@communities.com">Tony</A> (98/05/27)</H3>
+
+<OL>
+<li><A HREF="RepositoryRequirements.html#CryptoHashSupport">CryptoHash support</A> - this is how we get stuff out of a Repository
+<li><A HREF="RepositoryRequirements.html#StringNameSupport">String name support</A>
+	<ul>
+	<li>unzipping - turn a working resource file back into a hierarchy of
+		files and folders
+	<li>versioning - being able to replace an old bitmap with a new one;
+		the name would be the same, but the CryptoHash wouldn't, so we need
+		to be able to "put" the new one over the older one using the name
+	<li>displaying -- display the contents of a repository in a human-readable
+		format-- most likely an emulation of a simple file system.
+	</ul>
+<li><A HREF="RepositoryRequirements.html#CertificateSupport">Certificate support</A> - The repository should be able to hold certificates
+	for its objects. The process of generating and using the certificates
+	should be separate.
+
+<li><A HREF="RepositoryRequirements.html#RuntimeSupport">Runtime support</A> & caching [Claire] -- a resource manager
+which takes over the caching functions of textures found in the dynamics
+engine and generalizes this for other data types
+
+<li><A HREF="RepositoryRequirements.html#SeparateResourceManager">Separate Resource Manager</A> from Repository [Claire]
+
+<li><A HREF="RepositoryRequirements.html#TrackExtraInfo">Track extra info</A> about objects
+ 
+<li><A HREF="RepositoryRequirements.html#Reporting">Reporting</A> - query Repository about tracked info above
+
+<li><A HREF="RepositoryRequirements.html#Speedy">Speedy</A> - Don't make production people wait to make simple changes
+
+<li><A HREF="RepositoryRequirements.html#FileSupport">File support</A> - repositories as text files
+</OL>
+
+<H3>Repository Manager Requirements from <A HREF="mailto:jeff@communities.com">Jeff</A> (98/06/24)</H3>
+
+<OL>
+<li>Serves up art/sound/geometry/code.
+<li>Not necessarily realm specific -- eg a "turf" user could publish her art in
+a repository server and other's would fetch it from the repository server
+instead of the user's machine.
+<li>Policies determine if who can Add/Remove resource to the repository service.
+For example, if you are a "member" of a community, then you can add, say,
+10meg
+to the community repository server.
+<li>Potentially, a repository service is integrated with the certification
+service.
+If CAs are certifying art/sound/geometry/code, then the certs need to also
+be in the repository.  _and_ the CA needs to be able to revoke certs.  Since
+certifying and serving up resources are somewhat coupled, it may make
+sense for the CA to also host the repository service.
+</OL>
+
+<H2>Architecture</H2>
+
+<P><A HREF="RepositoryLayers.gif"><IMG SRC="RepositoryLayers.gif" ALT="Data Repository Layers" HEIGHT=355 WIDTH=524></A>
+
+<H4><a name="PAO">Proposed Architecture Overview</A></H4>
+
+<P>[<A HREF="mailto:cobblers@communities.com">Bob</A>] The services provided by the new repository are a superset of the previous
+version, but they are layered into smaller, more manageable and general
+components.
+</P>
+<P>[<A HREF="mailto:karl@communities.com">Karl</A>:98/06/25] Our
+original version of the data repository conflated everything into the
+Repository itself--Multiple directories of repository files, caching
+schemes, etc. I am proposing (as advised by several people) to split the
+problem space up into separate components: Repository, RepositoryFile,
+RepositoryManager and RepositoryProducer.
+</P>
+<ul>
+<li>interface <A HREF="Repository.html#Repository">Repository</A>
+<li>interface <A HREF="Repository.html#WriteableRepository">WriteableRepository</A>
+<li>interface <A HREF="RepositoryFile.html#RepositoryFiling">RepositoryFiling</A>
+<li>interface <A HREF="RepositoryFile.html#WriteableRepositoryFiling">WriteableRepositoryFiling</A>
+<li>class <A HREF="RepositoryFile.html#RepositoryFile">RepositoryFile</A>
+<li>class <A HREF="RepositoryFile.html#WriteableRepositoryFile">WriteableRepositoryFile</A>
+<li>interface <A HREF="RepositoryManagement.html#RepositoryManagement">RepositoryManagement</A>
+<li>class <A HREF="RepositoryManagement.html#RepositoryManager">RepositoryManager</A>
+<li>interface <A HREF="RepositoryProduction.html#RepositoryProduction">RepositoryProduction</A>
+<li>class <A HREF="RepositoryProduction.html#RepositoryProducer">RepositoryProducer</A>
+</ul>
+
+A Repository at the interface level will be a single source of data
+(RandomAccessFile, SQL database, TCP/IP socket to a remote source,
+whatever), from which the user can access data via a CryptoHash key.
+The writeable version will allow input of data and return the CryptoHash       
+for it.
+</P>
+<P>A RepositoryFile is an implementation of the Repository which sits
+(at this point) on top of a RandomAccessFile of data, reading it into
+Hashtables at construction time.  The writeable version will store new
+information into separate Hashtables and write out only the new stuff
+on command rather than writing out everything; if you don't add anything
+to such a repository, no re-writing of the file needs to be done; if you
+add only a few things, updating the file is a quick operation.
+</P>
+<P>The RepositoryManager picks up all of the meta-tasks such as organizing
+multiple Repositories (files, caches, network sources) and dealing with
+cacheing recently looked up data with options to reread the original source
+instead of using a cached version.  It will also handle streaming from one
+Repository to another for large sets of data, and it will allow manipulation
+of the protocol governing how things are looked up--Either from local caches
+or files first, or from the network first, or whatever other schemes we may
+come up with.
+</P>
+<P>A RepositoryProducer is to be used for building repositories offline,
+and will deal in String names for the data and correlate said names to
+CryptoHashes internally so that the user never has to know about such things.
+This is the tool of choice for a production group dealing with
+putting together a Repository for a new catalog of art and animation--Basically
+a tool for build Repositories from scratch offline rather than tweaking a
+Repository while running an application such as HabiSplat.
+</P>
+
+<H4>Off the shelf alternatives</H4>
+
+<P>Some of the new functions in the <A HREF="http://java.sun.com/products/jdk/1.2/docs/api/java.lang.ClassLoader.html">1.2
+Classloader</A> may be applicable to a generalized resource manager. </P>
+
+<H2>Design Issues</H2>
+
+<H4>Resolved Issues</H4>
+
+<UL>
+<LI>[<I>98/06/25 <A HREF="mailto:karl@communities.com">Karl</A></I>]
+<I><a name="DI980625">The</A> current design
+doesn't deal with some of Tony's wishes about adding extra information and
+generating reports.  This could be added later, but would result in changes
+going all the way up to the Repository interface, not just twiddling with
+the RepositoryFile's RandomAccessFile format. </I>-- resolved <B>[98/06/30]</B> by
+moving it into the <A HREF="RepositoryFile.html#FileFormat">"extra info"</A>
+portion of the Repository File format
+</UL>
+
+<H4>Open Issues</H4>
+
+<UL>
+<LI>[<I>98/05/29 <A HREF="mailto:cobblers@communities.com" original-href="mailto:cobblers@communities.com">Bob</A></I>]
+I am presuming that the primary resource type will be data stored in the
+repository and that the CryptoHash method of lookup is sufficient. In the
+current system, the only place that the name-to-CryptoHash translation
+is done is during realm-text parsing. For the production case, where we
+want filename lookup to succeed, initially I am ignoring caching completely,
+since it is a debug mode feature. If we end up with a generalized caching
+mechanism that will support caching the filename case easily, then we should
+use it, but I am unwilling to state it as a requirement given the scope
+of work we still have to do.
+<LI>[<I>98/06/18 <A HREF="mailto:frantz@communities.com">Bill</A></I>] I get the impression that alpha testers are hacking
+their realm text files. If this is an important part of the user experience,
+then we will probably need to deliver the name to CryptoHash binding in
+the customer system. We could also deliver it as an extra cost item depending
+on product development's requirements.
+<LI>[<I>98/07/01 <A HREF="mailto:karl@communities.com">Karl</A></I>]
+Merge Tony's and Bill's separate documents into the requirements section of
+this one; then split out the requirements into the specific subdocuments.
+</UL>
+<BR>
+To <A HREF="../CosmSurvey.html#Tools">Cosm Survey</A> page<BR>
+To <A HREF="../neoarch/GUIArchitectureOverview.html#Repository">GUI Architecture Overview</A> page<BR>
+<BR>
+<BR>
+</BODY>
+</HTML>

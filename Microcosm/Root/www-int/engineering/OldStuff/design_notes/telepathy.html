@@ -1,0 +1,246 @@
+<HTML>
+<HEAD>
+    <TITLE>Telepathy Manager Ingredient</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Telepathy Manager Ingredient</H1>
+
+<em>This page is maintained by <A HREF="mailto:trev@communities.com">Trev</A>.</em>
+
+
+<h2>Introduction</h2>
+
+In the Microcosm UI telepathy balloons are the ones specifically
+addressed to another avatar. Though telepathy and normal
+<A href="conversation.html">conversation</a> look very similar
+in the UI, they are implemented by different mechanisms.
+<p>
+Telepathy is handled by the telepathy manager ingredient in the
+avatar unum. Telepathy communication is peer to peer, it does not go
+through the region. The telepathy manager in one avatar communicates
+via a facet with the telepathy manager ingredient in another avatar.
+The facet is set up via the <A href="identity.html">identity</a>
+capability exchange mechanism.
+<p>
+Because telepathy goes directly between the two avatars (well
+it goes via a facet, but the facet is co-hosted with one of the
+avatars) it is more secure than normal conversation, which
+goes via the region. The comm system and identity mechanism
+ensure that if you can reliably know who telepathy is from, and
+be sure that its contents has not been tampered with.
+
+<h4>Related Documents</h4>
+
+<ul>
+<li><A href="identity.html">Identity</a>
+<li><A href="identity_name.html">Identity Naming</a>
+<li><A href="conversation.html">Conversation</a>
+</ul>
+
+<h2>Architecture</h2>
+
+<h4>Architecture Overview</h4>
+
+The telepathy manager ingredient registers itself as a capability
+request handler with the avatars identity object. This means that if a
+request for a telepathy capability comes in to the identity, it will
+call on the telepathy manager ingredient to create the capability.
+<p>
+So suppose avatar A wants to send telepathy to avatar B. Avatar A
+makes an identity capability request, with the
+<code>requestName</code> parameter set to the appropriate value for
+telepathy. The identity code calls into B's telepathy manager, asking
+if it will grant a telepathy capability to A. B's telepathy manager
+checks with the address book to see if A is allowed to send
+telepathy. If so B creates a new "identi facet", stamped with A's
+identity, and gives this facet back to A, via the identity
+mechanism. If A is not allowed telepathy, B ethrows an error.
+<p>
+If the request succeeded, A now has a telepathy capability for talking
+to B. This capability is an "identi facet"; A can call on it to send
+telepathy to B, but when the facet relays the telepathy to B it will
+add in A's identity as an argument, so B knows can be sure sent it.
+The facet is hosted on B's machine; A just gets a proxy to it. This
+means that the internals of the facet object, which store A's
+identity, can't be changed by A.
+<p>
+B does not keep a reference to the telepathy capability. It is kept in
+existence by A's (proxy) reference to it. This is nice because B
+doesn't have to worry about cleaning up the capability; when A no
+longer needs it, it will be garbage collected. In the current code A
+uses the capability once and throws it away. This is bad, and slows
+down repeated telepathy. The telepathy manager should cache recently
+used telepathy capabilities.
+
+<h4>Name Resolution</h4>
+
+Another job of the telepathy manager ingredient is to provide the UI
+with a list of known avatar names, so the UI can autocomplete names
+for the user. The telepathy manager uses the address book to do all
+the hard work. It calls into the address book, asking for a list of
+all known avatar names. The address book maintains an
+IdentityNameTable (see <A href="identity_name.html">Identity
+Naming</a>) and it calls in to that table to get a sorted list of all
+avatar names that are in use or on the recent list.
+<p>
+When a name has been typed in to the UI, the UI calls back into
+the telepathy manager to resolve the name to an identity. Again the
+telepathy manager calls into the address book, which uses its
+IdentityNameTable to resolve the name.
+
+<h4>Telepathy Flow</h4>
+
+When A sends telepathy to B the full sequence is as follows
+(this assumes A hasn't cached a telepathy capability to B,
+which is always the case - unfortunately - with the current code):
+
+<ol>
+<li>A's telepathy manager receives the telepathy and a target identity
+from the UI
+<li>A's telepathy manager, via A's identity object, sends a request
+for a telepathy capability to B's identity object.
+<li>B's identity object relays the request to B's telepathy manager,
+which has registered to handle telepathy requests.
+<li>B's telepathy manager checks in the address book to see if A
+is allowed telepathy (we'll assume this check succeeds)
+<li>B's telepathy manager creates a new telepathy capability -
+an "identi facet", stamped with A's identity.
+<li>B gives the facet to A, via the identity and capability
+receipt mechanism
+<li>A sends telepathy to the facet. The facet is a proxy so the
+telepathy will go across the wire (unless A is sending telepathy
+to itself!).
+<li>The telepathy arrives at the facet, which then calls into B's
+telepathy manager ingredient, giving as arguments A's identity and
+the telepathy.
+<li>B's telepathy manager checks if A is allowed to send telepathy
+to B (this could have changed since the facet was issued). If so
+it hands the identity and telepathy text to the UI, for display.
+<li>A's telepathy manager does an <code>ewhen</code> on the telepathy
+facet; when the body of the <code>ewhen</code> fires A assumes the
+telepathy has arrived successfully and it displays the telepathy
+locally so the user knows it arrived (maybe an explicit callback
+would be better here?)
+</ol>
+
+
+<h4>Design Objectives, Constraints and Assumptions</h4>
+
+<ul>
+<li>Telepathy is intended to be secure and should work even if both
+avatars are in their turfs (i.e. are not connected to any common
+hub). As a consequence telepathy may create a new, secure, comm
+connection between the machines hosting the avatars.
+<li>The telepathy ingredient all runs in the E thread, with the
+exception of some methods which are called by the UI. The UI
+holds the vat lock while calling these methods, so the telepathy
+ingredient can assume that it is only accessed by one thread at
+a time.
+</ul>
+
+
+<h2>Detailed Design</h2>
+
+The telepathy manager ingredient is Pluribus code, so it's not
+JavaDoc'd. The interfaces are pretty simple though. Here's
+the code for the telepathy capability (identi facet):
+
+<pre>
+  /**
+   * Telepathy capability; this is an "identifacet" which marks all telepathy
+   * requests with the identity of the sender.
+   */
+  eclass eTelepathyCapability {
+
+    /** Senders identity */
+    private SturdyIdentity mySender;
+
+    /** Target telepathy receiver */
+    eiTelepathyReceiver myReceiver;
+
+    /** Constructor */
+    eTelepathyCapability(SturdyIdentity sender, eiTelepathyReceiver receiver) {
+      mySender = sender;
+      myReceiver = receiver;
+    }
+
+    /** Method used by sender to send telepathy to receiver */
+    emethod sendTelepathy(Speech speech) throws IdentityException {
+      myReceiver <- receiveTelepathy(mySender, speech);
+    }
+
+    /** Value method returns this, for ewhen convenience */
+    local Object value() {
+      return this;
+    }
+
+  }
+</pre>
+
+The telepathy manager ingredient implements the eiTelepathyReceiver
+interface, so the facet's <code>myReceiver</code> variable will point
+at the telepathy manager ingredient.
+<p>
+The <code>sendTelepathy</code> method is really the only new
+inter-machine protocol introduced by telepathy; everything else is
+handled by the identity protocol.
+
+<h4>Error Handling</h4>
+
+The telepathy code has to check for network and permission denied
+errors at many points (note that the <code>sendTelepathy</code> method
+may throw <code>IdentityException</code>). It also times out if it
+gets no response from the other avatar. The timeout code needs
+work. The system is often slow enough that the timeout happens,
+causing an error message, and then the telepathy gets through
+anyway. This is confusing for users.
+
+
+<h4>Testing and Debugging</h4>
+
+<ul>
+<li>Turn on the "telepathy" trace category to get telepathy tracing.
+</ul>
+
+
+<h2>Design Issues</h2>
+
+<ul>
+<li>Telepathy was originally implemented via a telepathy conversation
+unum, which reused the Conversation ingredient. This implementation
+was more complex, less secure and left lots of garbage around. The
+current facet approach is much simpler, but doesn't reuse any
+conversation code.
+</ul>
+
+<h4>Open Issues</h4>
+
+<ul>
+<li>The telepathy manager should keep a cache of recently used
+telepathy capabilities. The cache shouldn't be too large (because each
+capability would keep a connection open). And you'd have to watch out
+for stale cache entries (if you get a network error using an old
+capability it doesn't mean that the avatar isn't reachable - it may
+have restarted its session).
+<li>The telepathy manager could hand out persistent telepathy
+capabilities - SturdyRefs not just proxies. This would introduce more
+garbage collection problems though - when would you clean them up?
+What if someone decided to use one right when you decided to clean it
+up?
+<li>Telepathy should give better feedback to the user as a request
+progresses. And it should not seem to fail (due to a timeout) and
+then subsequently succeed!
+<li>The notification that telepathy has been displayed successfully
+at the recipients end should be done via an explicit "done"
+notification, rather than an <code>ewhen</code>.
+</ul>
+
+
+<p>
+<a href="index.html">Back to design notes index</a>
+<br>
+<a href="../index.html">Back to Microcosm engineering main page</a>
+
+</BODY>
+</HTML>

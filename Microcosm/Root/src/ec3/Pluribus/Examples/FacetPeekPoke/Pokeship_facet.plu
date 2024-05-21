@@ -1,0 +1,148 @@
+/*
+  Pokeship_facet.plu
+  Arturo Bejar
+  Copyright 1997 Electric Communities, All rights reserved.
+
+*/
+
+export unit Pokeship_facet {
+  package ec.pl.examples.PeekPoke;
+  
+  unit PeekPokeShip_kind;
+  unit PeekPokeShip_state;
+    
+  eclass erfPokeable
+    extends eUnumRuntimeFacet
+    implements kind ukPokeable {
+  
+    kind rfkPokeable myUnumRouter;
+    kind rfkPokeable myUnumQueue;
+  
+    erfPokeable(kind rfkPokeable unumRouter,
+      kind iskPokeable theIngredient,
+      boolean willHost,
+      boolean willHaveClients) {
+
+      // The following variables are passed into the 
+      // constructor can can be null depending on the behaviour.
+
+      kind pkHostPokeable hostFacet = null;
+      Vector clientVector = null;
+
+      if (willHost) {
+        // For testing we will use a channel, a stonecast or
+        // wrapper should go here
+        kind pkHostPokeable channel;
+        hostFacet = channel;
+        &channel <- forward(theIngredient);
+      }
+
+      if (willHaveClients) {
+        clientVector = new Vector();
+        ((jiSetClientVector)theIngredient).setClientVector(clientVector);
+      }
+  
+      jRuntimeFacetBundle rfbPokeable = new jrfbPokeable(unumRouter, 
+                                                        theIngredient,
+                                                        hostFacet,
+                                                        clientVector);
+
+      eBundleDispenser myBundleDispenser = new eBundleDispenser(rfbPokeable);     
+      myUnumRouter = unumRouter;
+
+      register(myBundleDispenser);
+      System.out.println("[erfPokeable]:Finished init:"+myIdentityRef);
+    }
+    
+    // Method overriden s.t. myUnumRouter is of the right kind
+    void setUnumRouter(jRuntimeFacetBundle bundle) {
+      myUnumRouter = (kind rfkPokeable)bundle.getUnumRouter();
+    }
+
+    EResult setUnumQueue() {
+      kind rfkPokeable toUnumQueue; // Channel instantiation
+      myUnumQueue = toUnumQueue;
+      EResult toReturn = &toUnumQueue;
+      return toReturn;
+    }
+  
+    // Sample unumKind method
+    emethod uPoke(String whoPoked) {
+      System.out.println("[erfPokeable]"+":uPoke:"+myUnumRouter+":"+myUnumQueue);
+      if (myUnumRouter == null) {
+        myUnumQueue <- (kind ukPokeable).uPoke(whoPoked);
+      } else {
+        
+        System.out.println("Sending to router:"+myIdentityRef);
+        myUnumRouter <- uPoke(whoPoked);
+      }
+    }
+  }
+  
+  // Java runtime facet bundle
+  class jrfbPokeable
+      extends jRuntimeFacetBundle {
+  
+    kind iskPokeable myIngredient;
+    kind pkHostPokeable myHostFacet;
+    Vector myClientVector;
+      
+    jrfbPokeable(
+      kind rfkPokeable unumRouter, // Unum router
+      kind iskPokeable theIngredient, // Ingredient that wraps
+      kind pkHostPokeable theHostFacet,
+      Vector clientVector) {
+  
+      myUnumRouter = (EObject)unumRouter;
+      myIngredient = theIngredient;
+      myHostFacet = theHostFacet;   
+      myClientVector = clientVector;  
+    }
+    
+    // These methods can be rolled into a generated encode
+  
+    public Object getUnumRouter() {
+      System.out.println("[jrfbPokeable]:getUnumRouter:"+myUnumRouter);
+      return (Object)myUnumRouter;
+    }
+    Object getHostFacet() {
+      System.out.println("[jrfbPokeable]:getHostFacet:"+myHostFacet);
+      return (Object)myHostFacet;
+    }
+    Object getDistToClient() {
+      if (myClientVector != null) {
+        kind pkClientPokeable newClient;
+        System.out.println("[jrfbPokeable]:getDistToClient:channel:"+newClient);
+        myClientVector.addElement(newClient);
+        EResult toReturn = &newClient;
+        System.out.println("[jrfbPokeable]:getDistToClient:"+toReturn);
+        return (Object)toReturn;
+      } else {
+        return null;        
+      }
+    }
+    Object getState() {
+      return (((istPokeableGetter)myIngredient).istPokeableClient());
+    }
+    
+    // After decode has finished this gets called
+    
+    void initTarget(Object unumRouter,
+                    Object hostFacet,
+                    Object distToClient,
+                    Object aState) {
+      System.out.println("[jrfbPokeable]:initTarget:"+
+        "\n  unumRouter:"+ unumRouter + 
+        "\n  hostFacet:"+ hostFacet +
+        "\n  distToClient:"+ distToClient +
+        "\n  aState:"+ aState);
+
+      ((jiPokeableInit)unumRouter).facetInit((kind pkHostPokeable)hostFacet,
+                                  (EResult)distToClient,
+                                  (istPokeable)aState);
+    }
+    public void revoke() {
+    }
+  }
+}
+

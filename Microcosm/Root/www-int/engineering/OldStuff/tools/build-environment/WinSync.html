@@ -1,0 +1,66 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>MAINTENANCE</TITLE>
+</HEAD>
+<BODY>
+
+<FONT SIZE=2><P>&nbsp;</P>
+<P>MAINTENANCE</P>
+<P>&nbsp;</P>
+<P>You now have the problem of keeping your Windows and Unix source trees</P>
+<P>in synch, so cvs will work properly.</P>
+<P>&nbsp;</P>
+<P>The first part is making sure any changes to your Windows sources get</P>
+<P>reflected in your Unix tree. I do this via some Emacs hackery.  I use</P>
+<P>Emacs locally on the PC. Whenever I save a file into the cosm1 tree</P>
+<P>I've arranged for Emacs to save the file both locally and remotely, to</P>
+<P>the corresponding Unix file. This keeps the trees in synch and also</P>
+<P>avoids losses if my PC flakes out. It does mean there is some risk of</P>
+<P>hanging whenever you save a file (if the network is bad). But if</P>
+<P>enough people used this scheme the ONLY network traffic would be</P>
+<P>occasional file saves and actual Microcosm inter agency traffic, so</P>
+<P>network problems would be rare.</P>
+<P>&nbsp;</P>
+<P>If you're an Emacs user, you can use my hacks. You can find them in</P>
+<P>/home/trev/.emacs, near the end. (Emacs for the PC can be found at:</P>
+<P>http://www.cs.washington.edu/homes/voelker/ntemacs.html).</P>
+<P>&nbsp;</P>
+<P>If you use CodeWright you can try to hack macros to make it do</P>
+<P>something similar, or you can keep your files up to date explicitly</P>
+<P>using the tool Rob found for keeping trees in synch</P>
+<P>(\\Unreal\public\fsync.exe). If you use Rob's tool you dont have</P>
+<P>to use the "winSync" script, described in the following paragraphs,</P>
+<P>you can just use fsync in both directions if you want.</P>
+<P>&nbsp;</P>
+<P>The second part, keeping the Windows tree up to date, is a little more</P>
+<P>tricky. The problem arises whenever I do a cvs update - this may bring</P>
+<P>over changes which need to be copied to the PC. I use a Perl script in</P>
+<P>/home/eng/unix/bin/winSync to do updates.  This script does a normal</P>
+<P>cvs update but also writes out an "update.bat" file which you can use</P>
+<P>to update the windows machine. So updating becomes a two stage</P>
+<P>process:</P>
+<P>&nbsp;</P>
+<P>1) Run winSync on Unix (say we do this in cosm)</P>
+<P>2) On windows run u:/cosm/update.bat to copy the changed files onto</P>
+<P>the local disk. Do this from 4DOS (which comes with Felix's build</P>
+<P>environment). The normal DOS shell can't cope with the newlines that</P>
+<P>occur because update.bat is generated on Unix.</P>
+<P>  </P>
+<P>Note that winSync also tries to be smart about conflicts. If it spots any</P>
+<P>conflicts it moves your file into a "merge" subdirectory so you can do</P>
+<P>a graphical merge (using Emacs or CodeWright). For example if you have</P>
+<P>a conflict on /cosm/GNUmakefile, after running winSync you'll have</P>
+<P>/cosm/GNUmakefile and /cosm/merge/GNUmakefile, which you can then</P>
+<P>merge (the update.bat file will take care of copying both files to</P>
+<P>Windows i.e. to c:\src\cosm1\GNUmakefile and</P>
+<P>c:\src\cosm1\merge\GNUmakefile).</P>
+<P>&nbsp;</P>
+<P>winSync also spits out a "merge.log" file; if you use Emacs this can be</P>
+<P>used to invoke Emacs' built in graphical file merger (I had to hack</P>
+<P>this mode a little to get it to work on Windows; you can get the</P>
+<P>hacked copy from /home/trev/emacs/emerge.el and install it your</P>
+<P>local emacs lisp directory).</P>
+<P>&nbsp;</P></FONT></BODY>
+</HTML>

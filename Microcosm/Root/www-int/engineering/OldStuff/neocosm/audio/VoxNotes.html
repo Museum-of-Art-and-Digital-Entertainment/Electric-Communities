@@ -1,0 +1,75 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.03 [en] (Win95; U) [Netscape]">
+</HEAD>
+<BODY>
+
+<H2>
+Neocosm Voice-Chat Notes</H2>
+A writeup of a meeting discussing VoxChat versus the OnLive-style audio
+technology for use in Microcosm.
+<BR>Randy, Christina, RobJ, JohnS, RobL, and Charlie Bedard were in attendance.
+<BR>The meeting happened on May 21st (I think) and this writeup was done
+May 29th by <A HREF="mailto:robj@communities.com">RobJ</A>.
+<BR>These notes are disorganized!
+<BR>
+<HR WIDTH="100%">
+<BR>RobL described a threading bug he had trouble with for quite some time,
+where the codec failed to disconnect gracefully.&nbsp; Turned out this
+was because the VoxWare library was multithreaded and ran at low priority.&nbsp;
+When he sent it a shutdown signal from the app thread, the app was still
+running much faster, so the app could clean up the VoxWare memory before
+the VoxWare thread had gotten around to shutting down properly.&nbsp; Adding
+a 1/2 second sleep to the app thread fixed this.
+
+<P>DirectSound does not like VoxWare.&nbsp; They both want sole ownership
+of the sound card.
+<BR>DirectSound compatibility in general is a problem.&nbsp; OnLive had
+2-voice codec problems with ACM and DirectSound (according to Charlie).
+<BR>Theoretically DirectSound 5 helps with this, but OnLive doesn't know
+since IS departments won't go for DX5.
+<BR>Java 1.2 sound support <I>may</I> be DX5-based but we don't know.
+
+<P>It turns out that the NetMeeting SDK has pretty much everything you
+would need to do point-to-point call setup and audio handling.&nbsp; In
+other words, it almost certainly makes sense to evaluate replacing the
+VoxWare code (all of it) with the stock NetMeeting SDK.&nbsp; We don't
+know what the redistribution issues are, but as far as Charlie knows, it
+should be possible to make the NetMeeting SDK support direct point-to-point
+audio streaming over IP.&nbsp; Technically the details aren't known either
+though; RobL couldn't remember exactly what IP setup information the VoxWare
+stuff needs to initiate connection, and H.323 is heinously complex in terms
+of what data it defines for call setup.&nbsp; It would be ideal if there
+were a NetMeeting wrapper that let you go "here's an IP address, here's
+a port, go chat".&nbsp; But such a thing doesn't exist at the moment.
+
+<P>VoxWare is dead; there is no support for it and it is obsolete code.
+
+<P>VoxWare has some nice features like auto-silence detection and echo
+suppression, but they're not worth the lack-of-support risk.
+
+<P>We should probably market p2p audio as a "whisper" feature.&nbsp; Shared
+audio is probably best done as a place--enter this room and find yourself
+joining the conversation.&nbsp; Charlie said that the OnLive mixing stuff
+(should we want to have EC rooms that use OnLive conferencing tech for
+the shared audio) could do 30-40 conferences, each with 5-6 people, on
+a loaded Pentium II 300.&nbsp; It scales from about 15 users on a P90 to
+about 200 users on a P300.
+
+<P>Neither OnLive nor any other H.323-ish approach yet has a story for
+broadcast audio.
+
+<P>1/2 duplex vs. full duplex depends on sound card &amp; drivers.&nbsp;
+Icky issue.&nbsp; A "push to talk" button is the best fallback, and it's
+lousy.
+
+<P>If you're going to sell this to consumers, you need a <I>good</I> wizard
+to help them get their mikes working.&nbsp; The NetMeeting wizard is awful
+(as is all of NetMeeting, interfacewise).&nbsp; The VoxWare wizard we could
+never get source for, so we didn't put it in the alpha.
+
+<P>Those were the high bits that I rememer.
+<BR>&nbsp;
+</BODY>
+</HTML>

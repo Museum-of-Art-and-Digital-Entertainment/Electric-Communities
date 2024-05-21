@@ -1,0 +1,226 @@
+/**
+ *  Copyright 1997 Electric Communities. All rights reserved worldwide.
+ *
+ *  Rob Kinninmont, April 97
+ *
+ *  This file defines a grammar used for Formal comments. It needs extending 
+ *  to cope with the assorted @commands which can be added to the comments.
+ */
+
+options {
+  NODE_DEFAULT_VOID=true;
+  MULTI=true;
+}
+
+PARSER_BEGIN(CommentParser)
+
+package ec.edoc;
+
+class CommentParser {
+
+  /** This takes a string argument (the comment to process) which it runs 
+   *  through the comment parser, and returns the root of that parse tree. */
+  public ASTComment process(String s) throws ParseError {
+    this.ReInit(new java.io.StringBufferInputStream(s));
+    ASTComment n = this.Comment();
+    return n;
+  }  
+
+}
+
+PARSER_END(CommentParser)
+
+SKIP : /* spaces / tabs delimit tokens. */
+{
+  " "
+| "\t"
+}
+
+TOKEN : /* We want to control line breaking */
+{
+  "\n"
+| "\r"
+| "\r\n"
+| "\n\r"
+}
+
+TOKEN : /* Make note of start and end of comments */
+{
+  < OPEN_COMMENT: "/**" >
+| < CLOSE_COMMENT: "*/" >
+}
+  
+TOKEN :
+{
+  <STARS: ("*")+>
+}
+
+TOKEN :  /* Reserved words */
+{
+  <PARAM : "@param">
+| <RETURN : "@return">
+| <EXCEPTION : "@exception">
+| <SEE : "@see">
+| <VERSION : "@version">
+| <AUTHOR : "@author">
+| <DEPRECATED : "@deprecated">
+| <SINCE : "@since">
+| <TRUSTED : "trusted">
+| <UNTRUSTED : "untrusted" | "suspect">
+| <NULL_OK : "nullOK">
+| <NULL_FATAL : "nullFatal">
+}  
+
+  TOKEN : /* LITERALS */
+{
+  < INTEGER_LITERAL:
+        <DECIMAL_LITERAL> (["l","L"])?
+      | <HEX_LITERAL> (["l","L"])?
+      | <OCTAL_LITERAL> (["l","L"])?
+  >
+|
+  < #DECIMAL_LITERAL: ["1"-"9"] (["0"-"9"])* >
+|
+  < #HEX_LITERAL: "0" ["x","X"] (["0"-"9","a"-"f","A"-"F"])+ >
+|
+  < #OCTAL_LITERAL: "0" (["0"-"7"])* >
+}
+
+//TOKEN : /* IDENTIFIERS */
+//{
+//  < IDENTIFIER: <LETTER> (<LETTER>|<DIGIT>)* >
+//|
+//  < #LETTER: ["_","a"-"z","A"-"Z"] >
+//|
+//  < #DIGIT: ["0"-"9"] >
+//}
+
+TOKEN : /* Normal textual words */
+{
+  < WORD: (<CHAR>)+ >
+|
+  < #CHAR: ~[" ","\r","\n"] >
+}
+  
+
+ASTComment Comment() #Comment : 
+{}
+{
+  //< OPEN_COMMENT >
+  ( 
+    LOOKAHEAD ( CommentLine() ) 
+    CommentLine() 
+  )*
+  BluntCommentLine()
+  { return jjtThis; }
+}
+
+void CommentLine() :
+{}
+{ 
+  [<STARS>] [Information()] Text() ("\n" | "\r" | "\n\r" | "\r\n")
+}
+
+void BluntCommentLine() :
+{}
+{ 
+  [<STARS>] [Information()] Text() //<CLOSE_COMMENT>
+}
+
+void Text() :
+{}
+{
+  (Word())*
+}
+
+void Word() #Word :
+{
+  Token t;
+}
+{
+  t=<WORD>
+  {
+    jjtThis.setName(t.image);
+  }
+}
+
+void Information() #Information :
+{}
+{
+  Command() [LOOKAHEAD(2) Word()] (Annotation())*
+}
+
+void Command() #Command :
+{ 
+  Token t;
+}
+{
+(
+  t = <PARAM>
+|
+  t = <RETURN>
+|
+  t = <EXCEPTION>
+|
+  t = <SEE>
+|
+  t = <VERSION>
+|
+  t = <AUTHOR>
+| 
+  t = <SINCE>
+|
+  t = <DEPRECATED>
+)
+  { ((SimpleNode)(jjtree.currentNode())).setInfo(t); }
+}
+
+void Annotation() #Annotation :
+{
+  Token t;
+}
+{ 
+(
+  t = <TRUSTED>
+| 
+  t = <UNTRUSTED>
+| 
+  t = <NULL_OK>
+| 
+  t = <NULL_FATAL>
+)
+  { ((ASTAnnotation)(jjtree.currentNode())).setInfo(t); }
+}
+
+/*
+void Expression() : {}
+{
+  AdditiveExpression()
+}
+
+void AdditiveExpression() : {}
+{
+  MultiplicativeExpression() ( ( "+" | "-" ) MultiplicativeExpression() )*
+}
+
+void MultiplicativeExpression() : {}
+{
+  UnaryExpression() ( ( "*" | "/" | "%" ) UnaryExpression() )*
+}
+
+void UnaryExpression() : {}
+{
+  "(" Expression() ")" | Identifier() | Integer()
+}
+
+void Identifier() : {}
+{
+  <IDENTIFIER>
+}
+
+void Integer() : {}
+{
+  <INTEGER_LITERAL>
+}
+
+*/

@@ -1,0 +1,441 @@
+<HTML>
+<HEAD>
+   <TITLE>Old Repository Design</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Olde Repository Design</H1>
+
+<B>Last updated:</B>
+<UL>
+<li> <I>[98/07/10 <A HREF="mailto:karl@communities.com">Karl</A>]</I> Created the damn thing.
+</UL>
+
+<A name="Introduction"></A>
+<H2>Introduction</H2>
+
+[98/07/08 <A HREF="mailto:karl@communities.com">Karl</A>]
+The Old Repository was apparently accessed only through
+<A HREF="OldDataHolders.html#DataHolder">DataHolder(Steward)s</A>.
+These, in turn, were only accessed from
+<A HREF="#SuperRepository">SuperRepositories</A> and
+<A HREF="#PublishRepository">PublishRepositories</A>.
+
+<P>Given this design, I hope I don't have to change the
+<A HREF="OldDataHolders.html">current DataHolders</A> as part of the
+Repository rewrite.
+
+<H4>Related Documents</H4>
+
+The (old) DataHolders <A HREF="OldDataHolders.html">design document</A>.
+
+<H2>Architecture</H2>
+
+<I>[98/07/13 <A HREF="mailto:karl@communities.com">Karl</A>] Almost 100% cribbed from Kari's Javadocs.</I>
+
+<A name="SimpleRepository"></A>
+<H4>SimpleRepository (Interface)</H4>
+
+The basic interface for Repositories which deals with retrieving simple
+objects from a local (i.e. not on the net) Repository.
+
+<P>A SimpleRepository knows how to retrieve simple objects locally.
+An object is simple if it does not need any support at decode time
+such as a perimeter object table or decoding properties table.
+
+<A name="RepositoryFile"></A>
+<H4>RepositoryFile (Class)</H4>
+
+A RepositoryFile contains (Java) objects, encoded using
+Openers.  First in the RepositoryFile, in fixed file-positions,
+are some specially treated data in what is called the FileInfo
+block, such as the RepositoryFile Version number, and
+information that allows us to retrieve the keys for the file.<p>
+
+<P>Each record in the file contains both the key and the data,
+encoded using Openers. This allows us to recover the keys in a
+file by reading the whole file sequentially. However, each file
+normally contains a Dictionary of keys, that is stored at the end
+of the file. This Vector is saved under the reserved key
+"%LocalKeyVector%", just to keep all data in the file conform
+to a key-data pairing scheme. At startup, the Vector is read
+in and the values are distributed into a Dictionary (we use a
+Hashtable or a SimTable).  Note that when we want to add more
+data to the file, which is done by appending, then we will
+overwrite this Vector and will re-write it only when we close
+the file. The special information (in the beginning of the
+file) is updated to reflect this in such a way that it is never
+inconsistent.
+
+<A name="Repository"></A>
+<H4>Repository (Class)</H4>
+
+Implements <A HREF="#SimpleRepository">SimpleRepository</A>.
+
+<P>A Repository is a subsystem that manages access to a small
+number of data files known as <A HREF="#RepositoryFile">RepositoryFiles</A>.
+Each Repository can thus have several files, and each running system may use
+several Repositories implementing different policies.
+
+<P>The most common policy is to use Repositories as a permanent
+storage and distribution medium. As an example, a virtual world
+could be distributed on a CD-ROM, and parts of the data in the
+world could be kept in a Repository file on the CD-ROM. (The
+other main part in a CD-ROM distribution would be a persistent
+checkpoint image file).
+
+<P>A variant of this is to use <A HREF="#RepositoryFile">RepositoryFiles</A>
+as download units
+for medium-size packages of data such as realms created by
+third parties. A user could download a
+<A HREF="#RepositoryFile">RepositoryFile</A> over the
+web and by simply placing it into the appropriate directory the
+data in it would become available to a Repository that manages
+import of such modules to the running system. These files could
+be used to distribute patches, to speed up access to entire
+turfs, and (later) to add new functionality to the system.
+
+<P>Yet another variation is to use a Repository to implement a
+network cache, storing downloaded objects in case they are
+needed again. These caches are pruned on an Least-Recently-Used
+basis by discarding old repositoryfiles, after all recently
+referenced objects have been copied to later-generation
+repositoryfiles. This is (or will be) implemented in
+<A HREF="#RepositoryFile">CacheRepository</A>.
+
+<P>A running system could thus have several different
+repositories, each implementing one of these roles. It is
+necessary to keep these as separate Repositories since the
+policies don't mix.
+
+<P>Each Repository has one or more <A HREF="#RepositoryFile">RepositoryFiles</A>
+associated with it.  These <A HREF="#RepositoryFile">RepositoryFiles</A>
+form a searchpath.  Only the first
+<A HREF="#RepositoryFile">RepositoryFile</A> can be (but need not be) opened
+for write
+acccess.
+
+<P>A record in a repository will override the records in
+Repositories behind it. As a special case, a record with a
+valid key but a zero-length value will pretend to be
+"nonexistent", possibly overriding real values in
+<A HREF="#RepositoryFile">RepositoryFiles</A> behind it. This is necessary
+since there would
+otherwise be no way to delete values found in files late in the
+<A HREF="#RepositoryFile">RepositoryFile</A> chain.
+
+<P>Two common patterns receive extra support: Opening all files in
+a directory as a single repository, sorting them by filename -
+This is used to collect add-on feature, patch, and speedup
+files; and opening all files in a directory by filename, adding
+one writable file with a name "beyond" the last-sorting such
+filename. This is used to support cache directories - look for
+this in <A HREF="#RepositoryFile">CacheRepository</A>.
+
+<P>All rights to a repository are defined to be equal to the
+rights you have to the repository directory itself and the
+files therein and (if applicable) to the explicitly specified
+firstFile.
+
+<A name="StandardRepository"></A>
+<H4>StandardRepository (Class)</H4>
+
+Implements <A HREF="#SimpleRepository">SimpleRepository</A>.
+
+<P>The StandardRepository is the most commonly used in-vat capability
+to the <A HREF="#SuperRepository">SuperRepository</A>, the main Repository
+access Policy Object, a
+STEWARD. The StandardRepository differs from the
+<A HREF="#SuperRepository">SuperRepository</A> in
+several important ways:
+
+<ul>
+<li>StandardRepository is self-repairing after a quake.
+<li>StandardRepository is Read-Only.
+<li>StandardRepository does not allow the use of parimeter tables
+</ul>
+
+The StandardRepository is supposed to only contain immutable
+objects that convey no capabilities. To write to a
+<A HREF="#SuperRepository">SuperRepository's</A> (potentially) writable
+parts, the
+<A HREF="#PublishRepository">PublishRepository</A> and the Internet cache in
+<A HREF="#CacheRepository">CacheRepository</A> (not
+yet implemented), you will need a different capability.
+
+<P>You can give the StandardRepository as a capability to all in-vat
+objects without security implications.
+
+<P>If you need a Repository to contain capability-giving objects or if
+you want a Repository you can write to at runtime, then you should
+open a regular but distinct Repository for your own purposes - Do
+not attempt to use the StandardRepository.
+
+<P>Once you have a StandardRepository capability it's good forever. It
+will work just as fine after a quake, since it's self-repairing.
+
+<A name="StandardRepositoryMaker"></A>
+<H4>StandardRepositoryMaker (Class)</H4>
+
+The StandardRepositoryMaker is a MagicPowerMaker for creating
+<A HREF="#StandardRepository">StandardRepositories</A>.
+
+<A name="PublishRepository"></A>
+<H4>PublishRepository (Class)</H4>
+
+The PublishRepository is an in-vat capability to the
+<A HREF="#SuperRepository">SuperRepository</A>, the main Repository access
+Policy Object, a
+STEWARD. The PublishRepository has the following features:
+
+<ul>
+<li>PublishRepository is self-repairing after a quake.
+<li>PublishRepository is writeable - it implements putHash()
+<li>PublishRepository can generate instantly published DataHolders.
+</ul>
+
+<P>Once you have a PublishRepository capability it's good forever. It
+will work just as fine after a quake, since it's self-repairing.
+
+<P>The PublishRepository may not point to the same
+<A HREF="#RepositoryFile">RepositoryFile</A>
+between successive invocations of putHash() or put(). You should
+not care.
+
+<P>Items added to the PublishRepository are immediately accesible from
+the regular <A HREF="#StandardRepository">StandardRepository</A> and/or
+<A HREF="#ParimetereizedRepository">ParimetereizedRepository</A>. The
+added object is also published using the
+<A HREF="#RepositoryPublisher">RepositoryPublisher</A>, which
+means that DataHolders returned from makeDataHolder() can be given
+to objects in other vats and immediately work.
+
+<A name="PublishRepositoryMaker"></A>
+<H4>PublishRepositoryMaker (Class)</H4>
+
+The PublishRepositoryMaker is a MagicPowerMaker for creating
+<A HREF="#PublishRepository">PublishRepositories</A>.
+
+<A name="RepositoryPublisher"></A>
+<H4>RepositoryPublisher (Class)</H4>
+
+The RepositoryPublisher is an object used by other
+processes/machines to access the
+<A HREF="#PublishRepository">PublishRepository</A> in this
+process/machine. We publish a SturdyRef to ourselves and place that
+SturdyRef in the hints vector of all objecst we publish, which
+allows users of these objects to request the actual data from us
+and then cache the data locally in their own machines.
+
+<P>Once you have a RepositoryPublisher capability it's good
+forever. It is self-healing after quakes.
+
+<P>Noone in a vat should normally need this capability for anything.
+We place it in the vat just to make it persistent since entities in
+other vats will have a sturdyref to it.
+
+
+<A name="RepositoryPublisherMaker"></A>
+<H4>RepositoryPublisherMaker (Class)</H4>
+
+The RepositoryPublisherMaker is a MagicPowerMaker for creating
+<A HREF="#RepositoryPublisher">RepositoryPublishers</A>.
+
+<A name="ERepositoryPublisher"></A>
+<H4>ERepositoryPublisher (Eclass)</H4>
+
+A companion class to <A HREF="#RepositoryPublisher">RepositoryPublisher</A>.
+This E object receives the getBytes() E messages and asks the
+<A HREF="#RepositoryPublisher">RepositoryPublisher</A> for the
+data and then returns data or exception to the requestor using the
+channel that accompanies the request.
+
+The ERepositoryPublisher (there is only one in each vat) is a GUEST
+and stays around forever. The <A HREF="#RepositoryPublisher">RepositoryPublisher</A>
+that services <I><B>our</B></I> repository requests is self-healing after a
+quake so we don't have to worry about it.
+
+<A name="SuperRepository"></A>
+<H4>SuperRepository (Class)</H4>
+
+Implements <A HREF="#SimpleRepository">SimpleRepository</A>.
+
+<P>The SuperRepository is a kind of umbrella Repository that
+aggregates several other Repositories with different
+characterisitics and uses and Implements a SuperRepository policy,
+to be used globally as a fundamental service to anyone in or out of
+vat.
+
+<P>We keep one extras Repository, one release/distribution Repository,
+one Publish repository, one Cache repository, and one CDROM
+repository and search these in some order (see below for
+details). A separate Repository named Cert manages certificates and
+is accessed through a separate API. The policy dictates default
+names for most of these (ECHome/Extras, ECHome/Dist,
+ECHome/Publish, ECHome/Cache and ECHome/Cert) but you can override
+these names by using environment variables named Extras, Dist,
+Publish, and Cache. The CDROM repository does not have a default
+directory - there can only be one Repository file there (in fact,
+the CDROM symbol has a value that is a file, not a directory), it
+is read-only, and it is assumed to be slower than the other
+Repositories. It is consulted last, i.e. symbols in it will be
+overridden by symbols anywhere else. <p>
+
+<P>Note that you <I><B>must</B></I> define ECHome (preferred value: "ECHome") to
+get a SuperRepository at all. This is to allow test programs to
+start without complaints if they don't need a Repository. <p>
+
+<P>The Cert repository contains Certificates only and has its own
+API. It is not included in the regular search mechanism.  The Cert
+Repository uses ECHome/Cert directory and can be redirected using
+the Cert environment variable. <p>
+
+<P>The SuperRepository constructor gets called every time the system
+is started, like at system startup time or when reviving from a
+checkpoint. The SuperRepository is made globally available to CREW
+classes through the class CrewRepository and its get() method.<p>
+
+<P>The SuperRepository (in CREW) can be accessed from the Vat using
+several different classes that provide different access
+capabilities:
+
+<ul>
+<li><A HREF="#StandardRepository">StandardRepository</A> provides read-only access and no
+parimeterization.
+<li><A HREF="#ParimeterizedRepository">ParimeterizedRepository</A> provides read-only access with
+parimeterization. ParimeterRepository is normally hidden from vat
+denizens by being encapsulated in Fulfillers which are accessed
+only in controlled ways from DataHolders. Therefore the
+parimeterization functionality is not given out freely to vat
+denizens.
+<li><A HREF="#PublishRepository">PublishRepository</A> allows the capability holder to
+publish any object to anywone who needs it.
+<li><A HREF="#CacheRepository">CacheRepository</A> is the capability to add an object to
+the local Cache. This is not currently given out to vat denizens -
+it is just held by the network downloading code to store downloaded
+results in the local cache.
+</ul>
+
+<P>Anything that gets published or stored in the cache will
+immediatley become part of the regular Repository key lookup so
+anything that is added to one of these can immediately be retrieved
+using the various SuperRepository get() methods.
+
+<P>If you need a Repository to contain capability-giving objects or if
+you want a Repository you can write to at runtime (besides the
+<A HREF="#PublishRepository">PublishRepository</A>), then you should open a
+regular but distinct
+Repository for your own purposes - Do not attempt to use the
+SuperRepository. To open a Repository you need write access to a
+file or directory to put the Repository in, but that's all you need.
+
+<P>The search order for the SuperRepository is not cast in concrete
+but the following seems to work as well as anything else:
+<UL>
+<LI>First we search Extras so patches (if we ever provide any) and
+speedups (if user has downloaded any) always get used. These are
+all under user control.
+<LI>Next we search the distribution disk. This
+means that everything that's normally in the distribution cannot be
+overridden by anything except Extras.
+<LI>Then we search Publish
+because this is still under user control and should yield the same
+result on two machines in a publish-import relationship.
+<LI>Then we
+search CDROM, since it's the slowest if we actually have to get the data, 
+and finally we search the Cache.
+</UL>
+
+<P>The philosophy is that nothing that is provided as part of the
+system in Dist can be overridden, and that the same objects should
+be found by a publishing and an importing party. Also, the Cache
+has to be searched last so that entries in the Cache that duplicate
+entries elsewhere (i.e. on the CD-ROM) won't get stuck in the
+Cache.
+
+<A name="RepositoryHandle"></A>
+<H4>RepositoryHandle (Class)</H4>
+
+RepositoryHandle instances are used in repository key
+SimTables. They contain the  <A HREF="#RepositoryFile">RepositoryFile</A>
+object associated with the file that contains the data, and the file
+position in that file.
+
+<A name="RepositoryHandleRecipe"></A>
+<H4>RepositoryHandleRecipe (Class)</H4>
+
+Extends Recipe.
+
+A RepositoryHandleRecipe is used for making Recipes for
+<A HREF="#RepositoryHandle">RepositoryHandles</A>.
+
+<A name="ParimeterizedRepository"></A>
+<H4>ParimeterizedRepository (Class)</H4>
+
+Extends <A HREF="#StandardRepository">StandardRepository</A>.
+
+<P>The ParimeterizedRepository is a variation of the
+<A HREF="#StandardRepository">StandardRepository</A> that implements
+additional methods to decode
+objects using parimeters (perimeter object parameter tables).
+In contrast to SuperRepository,
+
+<ul>
+<li>ParimeterizedRepository is self-repairing after a quake.
+<li>ParimeterizedRepository is Read-Only.
+<li>ParimeterizedRepository supports access to the
+<A HREF="#CertificateRepository">CertificateRepository</A>.
+<li>ParimeterizedRepository supports downloading of data over the network.
+</ul>
+
+<P>ParimeterizedRepository is intended to be used mostly inside of
+Fulfillers to allow DataHolders to contain parimeterized data
+without leaking the parameter objects to the rest of the vat.
+
+<P>Once you have a ParimeterizedRepository capability it's good
+forever. It will work just as fine after a quake, since it's
+self-repairing.
+
+<A name="CertificateRepository"></A>
+<H4>CertificateRepository</H4>
+
+This is (<I>I believe--Karl</I>) just a Repository in which you store
+Certificates rather than bytes of data.
+
+<A name="ParimeterizedRepositoryMaker"></A>
+<H4>ParimeterizedRepositoryMaker (Class)</H4>
+
+The ParimeterizedRepositoryMaker is a MagicPowerMaker for creating
+<A HREF="#ParimeterizedRepository">ParimeterizedRepositories</A>.
+
+<A name="RuntimeExtensibleRepository"></A>
+<H4>RuntimeExtensibleRepository (Class)</H4>
+
+Extends <A HREF="#Repository">Repository</A>.
+
+<P>This is an intermediate class that contains functionality used
+by both <A HREF="#PublishRepository">PublishRepository</A> and
+<A HREF="#CacheRepository">CacheRepository</A>.
+
+<A name="CacheRepository"></A>
+<H4>CacheRepository (Class)</H4>
+
+<P>A variation using a <A HREF="#RuntimeExtensibleRepository">RuntimeExtensibleRepository</A> to implement a
+network cache, storing downloaded objects in case they are
+needed again. These caches are pruned on an Least-Recently-Used
+basis by discarding old <A HREF="#RepositoryFile">RepositoryFiles</A>, after
+all recently referenced objects have been copied to later-generation
+<A HREF="#RepositoryFile">RepositoryFiles</A>.
+
+<A name="RtEncodingParameters"></A>
+<H4>RtEncodingParameters (Class)</H4>
+
+An RtEncodingParameters object is a collection of Objects (as keys) and
+token objects (typically Strings) as values. Encode() and
+repository.put() accept these as an extra argument and when they encode
+objects, any object that can be found in the parameters collection gets
+replaced by its corresponding token, effectively pruning the object
+graph at that point.
+
+</BODY>
+</HTML>

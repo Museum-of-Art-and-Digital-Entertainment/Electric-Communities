@@ -1,0 +1,4 @@
+#!/bin/sh
+
+ecomp -d . helloe.e
+java ec.tests.helloe.Main

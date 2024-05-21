@@ -1,0 +1,55 @@
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
+<META NAME="Generator" CONTENT="Microsoft Word 97">
+<TITLE>Methods prohibit order dependencies</TITLE>
+<META NAME="Template" CONTENT="C:\Program Files\Microsoft Office\Templates\Web Pages\Web Page Wizard.wiz">
+</HEAD>
+<BODY TEXT="#000000" LINK="#0000ff" VLINK="#800080" BACKGROUND="Image1.gif">
+<DIR>
+
+<FONT FACE="Garamond"><P>This code is incorrect:</P><DIR>
+
+</FONT><PRE>eclass Container
+{
+  emethod add(EObject obj) {
+    // add the object to internal storage.
+  }
+
+  emethod remove(EObject obj) {
+    if (object is present in the storage)
+      remove it
+    else
+      signal the error
+    }
+}</PRE></DIR>
+
+<FONT FACE="Garamond"><P>It is incorrect because this code might break:</P><DIR>
+
+</FONT><PRE>container &lt;- add(obj);
+...
+container &lt;- remove(obj);</PRE></DIR>
+
+<FONT FACE="Garamond"><P>Nothing prevents the remove message from arriving before the add message.  The code can be fixed by having the add method explicitly enable removal by forwarding a distributor.  Here's the code:</P><DIR>
+
+</FONT><PRE>emethod add(EObject obj, EDistributor removeEnabled){
+  // code to add
+  removeEnabled &lt;- forward(this);
+}
+
+emethod remove(EObject obj){
+  // code to remove
+}</PRE></DIR>
+
+<FONT FACE="Garamond"><P>The code can be invoked like this:</P><DIR>
+
+</FONT><PRE>Container remover;
+container &lt;- add(obj, &amp;remover);
+remover &lt;- remove(obj); 
+</PRE></DIR>
+
+<FONT FACE="Garamond"><P>Note that </FONT><CODE>remover</CODE><FONT FACE="Garamond"> is just an alias for </FONT><CODE>container</CODE><FONT FACE="Garamond">.  Nothing actually prevents you from ignoring </FONT><CODE>remover</CODE><FONT FACE="Garamond"> and invoking </FONT><CODE>remove</CODE><FONT FACE="Garamond"> on the original container.  But it's much harder to make that mistake if you're forced to explicitly name a remover.</P>
+<P>A difficulty:  </P>
+<P>The problem of message order dependencies is serious only when the messages come from different methods.  (E.g, </FONT><CODE>foo</CODE><FONT FACE="Garamond"> sends </FONT><CODE>bar</CODE><FONT FACE="Garamond"> sends </FONT><CODE>baz</CODE><FONT FACE="Garamond"> sends </FONT><CODE>add</CODE><FONT FACE="Garamond">, then </FONT><CODE>foo</CODE><FONT FACE="Garamond"> sends </FONT><CODE>quux</CODE><FONT FACE="Garamond"> sends </FONT><CODE>remove</CODE><FONT FACE="Garamond">.) If they're both sent from the same method, checklist-based code reads ought to catch the problem with reasonable reliability. Will preventing the problem in this case require blizzards of little variables representing state dependencies getting passed all over the place?</P></DIR>
+</FONT></BODY>
+</HTML>

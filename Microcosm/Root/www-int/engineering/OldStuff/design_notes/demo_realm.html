@@ -1,0 +1,195 @@
+<HTML>
+<HEAD>
+    <TITLE>The Demo Realm Ingredients</TITLE>
+</HEAD>
+<BODY>
+<H1>The Demo Realm Ingredients</H1>
+
+<h1>Introduction</h1>
+
+This design note explains the demo realm ingredients hacked into Microcosm
+to make the PCForum demo work. These ingredients should be removed as soon
+as possible, but they need to be replaced by something that provides their
+functionality (and more!) in a more sanitary manner.
+
+<h1>Overview</h1>
+
+There are two sets of ingredients that implement the demo realm handling.
+The first, the DemoRealmDirectory ingredients, implement a directory which
+keeps track of all avatars, teleport pads and regions in a realm. These
+ingredients (client and server) are used to implement a DemoRealmDirectory
+unum. For PCForum a DemoRealmDirectory did represent a realm, so this
+document uses "realm" and "DemoRealmDirectory" interchangeably.
+
+<p>
+
+The second set are the DemoRealmTracker ingredients. Again, these are
+client/server ingredients. They are incorporated into an avatar unum.
+
+<p>
+
+Whenever an avatar enters a new region via an entry pad, the entry pad
+lets the avatar know which realm it is entering. If the avatar was
+previously in a different realm it lets the old realm (i.e.
+DemoRealmDirectory unum) know it is leaving, then informs the new
+realm it has arrived. The old realm lets all avatars still in the old
+realm know that the avatar has left. The new realm lets all avatars in
+the new realm know that the avatar has arrived. The newly arrived
+avatar also asks the realm for the names of all avatars in the realm,
+and for the names and references to all the teleport pads in the
+realm.
+
+<h1>The DemoRealmDirectory Ingredients And Unum</h1>
+
+The DemoRealmDirectory ingredients are simple client server ingredients.
+The clients are dumb - they forward all requests to the server. These
+ingredients are the only ones used when building a DemoRealmDirectory
+unum, which was the placeholder realm for PCForum. 
+
+<p>
+
+The server DemoRealmDirectory ingredient maintains the following tables:
+
+<ul>
+<li>A table of avatar names and avatar references
+<li>A table of teleport pad names and teleport pad references
+<li>A table of region names and region references
+</ul>
+
+The avatar table has <code>PersonName</code> objects as keys and avatar
+references as values. A <code>PersonName</code> contains a short, user
+visible, name (e.g. Dax) and a long, globally unique name - the EARL
+of the avatar's telepathy manager. The table contains <code>PersonName</code>
+objects for every avatar that has ever been in the realm. If the avatar
+is currently in the realm, the corresponding value in the table is a
+reference to the avatar unum. If the avatar isn't in the realm the
+corresponding value is null.
+
+<p>
+
+The avatar table is used in two ways. Firstly it is used to notify
+avatars in the realm when someone enters or leaves. Because it has
+references to all avatars currently in the realm it can iterate
+through them and call a method on them (actually on their
+DemoRealmTracker ingredient) letting them know someone has arrived or
+left. Secondly the keys in the table are used by avatars to update
+their <code>PersonName</code> tables. The avatars need some way to map
+short names to global names so they can do telepathy. So whenever an
+avatar enters a realm it asks the realm for all the
+<code>PersonName</code> objects it knows about. The avatar then adds
+these to its own table, so it expands its knowledge about which short
+name maps to which global name.
+
+<p>
+
+The teleport pad table is a convenience for avatars who enter the
+realm. When the realm is constructed all teleport pads are registered
+with the realm (this is easy to do because I make the assumption that
+there is one and only one realm per agency; this is a bogus assumption
+but it was true for PCForum). When an avatar enters the realm it asks
+the realm for all its teleport pads. The avatar then adds these pads
+to its own teleport list.
+
+<p>
+
+The region table is used to support our current client connection
+protocol. Again, this approach relies on some bogus assumptions
+that were good enough for PCForum. As every region is created it
+registers itself with the realm. The realm is then registered with
+the name service under a predictable name. When a client connects
+it specifies a realm name and a region name. It gets a reference to
+the realm by looking it up in the name service. The client then
+asks the realm for the region, by name. The realm looks the name
+up in its region table, and returns it.
+
+<p>
+
+One final hack. The realm is stored in a global variable. Because
+of the assumption of one realm per agency, the server presences of
+all una created in a realm can get to their realm via this
+global. This is how an entry pad knows its realm. When an avatar
+uses an entry pad, the entry pad sends a message to its server
+presence, with the avatar as the argument. The server presence
+then calls:
+
+<p><code>
+  avatar <- (kind ukDemoRealmTracker).uCheckRealm(Global.theRealm);
+</code><p>
+
+This allows the avatar to tell if it has changed realms; if so it
+can notify its old and new realms, update its tables and teleport
+pad list from the new realm, etc.
+
+
+<h1>The DemoRealmTracker Ingredients</h1>
+
+The DemoRealmTracker ingredients are added to the avatar, and are used
+to communicate with the DemoRealmDirectory whenever there is a realm
+change. The ingredients are simple client/server - dumb clients that
+forward everything to the server.
+
+<p>
+
+The server ingredient has the following state:
+<ul>
+<li>The current realm for this avatar
+<li>The <code>PersonName</code> of this avatar
+<li>The session directory for this avatar (maps short names to global names)
+</ul>
+
+The ingredient provides the following operations:
+
+<p><code>
+  uCheckRealm(kind ukDemoRealmDirectory realm);<br>
+  uAvatarEnteredRealm(PersonName name);<br>
+  uAvatarExitedRealm(PersonName name);<br>
+</code><p>
+
+The first method, <code>uCheckRealm</code>, is called by entry pads whenever
+an avatar enters a new region. It checks if the given realm is the same as
+the avatar's current realm. If so it does nothing. If not it:
+<ul>
+<li>Lets the old realm know the avatar is leaving
+<li>Lets the new realm know the avatar is arriving
+<li>Adds all the <code>PersonName</code> objects known by the new realm to
+this avatar's session directory
+<li>Adds all the teleport pads known by the new realm to this avatar's
+teleport list
+</ul>
+
+Note that the session directory is a java object, which is shared with
+the TelepathyManager (they both get references to it when the unum is
+initialized). The teleport list is a neighbor ingredient.
+
+<p>
+
+<code>uAvatarEnteredRealm</code> is called by the realm when a new
+avatar enters the realm. As we've seen the realm keeps a table of all
+avatars it currently contains. When a new avatar enters it notifies
+the realm, as we just saw in <code>uCheckRealm</code>. The realm then
+notifies all the other avatars via the
+<code>uAvatarEnteredRealm</code> method.
+
+<p>
+
+A similar process happens when an avatar leaves a realm, via the
+<code>uAvatarExitedRealm</code> method. Note that this notification
+should probably be done per world, not per realm.
+
+<h1>Problems</h1>
+
+Well there's really not much right with these ingredients right now.
+They make the bogus 1 realm per agency assumption, they don't consider
+security at all and they mix up realm and world functionality. They
+got us through PCForum, and they give some hints about what the real
+Realm and World una will have to do. But I doubt if they provide any
+basis for future implementation work.
+
+<p>
+
+<A href="index.html">Back to design notes index</a>
+<br>
+<a href="../index.html">Back to Microcosm engineering main page</a>
+
+</BODY>
+</HTML>

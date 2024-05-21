@@ -1,0 +1,115 @@
+<HTML>
+<HEAD>
+   <TITLE>Repository Production Design</TITLE>
+</HEAD>
+<BODY>
+
+<H1>Repository Production Design</H1>
+
+<P><B>Last updated:</B><I> [98/07/02 <A HREF="mailto:karl@communities.com">Karl</A>]</I><BR>
+</P>
+
+<H2>Introduction</H2>
+
+[<I>98/07/02 <A HREF="mailto:karl@communities.com">Karl</A></I>]
+A RepositoryProducer is to be used for building repositories offline,
+and will deal in String names for the data and correlate said names to
+CryptoHashes internally so that the user never has to know about such things.
+This is the tool of choice for a production group dealing with
+putting together a Repository for a new catalog of art and animation--Basically
+a tool for build Repositories from scratch offline rather than tweaking a
+Repository while running an application such as HabiSplat.
+<H4>Related Documents</H4>
+
+The <A HREF="index.html">general</A> Repository design document</A>.
+<BR>The <A HREF="Repository.html">Repository</A> design document</A>.
+<BR>The <A HREF="RepositoryFile.html">Repository File</A> design document</A>.
+<BR>The <A HREF="RepositoryManagement.html">Repository Management</A> design document</A>.
+
+<a name="Requirements">
+<H2>Requirements</H2>
+
+[<I>98/07/02 <A HREF="mailto:karl@communities.com">Karl</A></I>] Notes from a
+talk with Tony:
+<ul>
+<li>Sits on top of a <A HREF="RepositoryManagement.html">RepositoryManager</A>.
+<li>Sets protocol "Look file names up from disk" OR "Look file names
+up in current Repository".
+<li>Keeps Vector of referenced CryptoHashes in "extra info" field for re-cooking
+when a filename->CryptoHash partnership changes.
+<li>Needs Hashtable of old CryptoHash->filename relationships for replacing
+CryptoHashes when the underlying file changes (i.e. changing "foo.bmp" from
+showing a red square to showing a green square would change the CryptoHash,
+so Appearance2Ds which used to refer to the red CryptoHash now need to be
+rewritten to refer to the green CryptoHash).
+<li>Currently contains Appearance2Ds, Appearance3Ds, bitmaps, VRML, sound(?).
+<li>Should expand to contain code/classes, realm/catalog texts...
+</ul>
+
+
+<H2>Architecture</H2>
+
+<H4><a name="PAO">Proposed Architecture Overview</A></H4>
+[<I>98/07/02 <A HREF="mailto:karl@communities.com">Karl</A></I>]
+
+This architecture fulfills the <A HREF="#Requirements">requirements</A>
+listed above.
+
+<a name="FileFormat">
+<P><A HREF="#REQ1">Requirement 1</A>: I think the RepositoryProducer should
+extend RepositoryManager.
+
+<ul>
+<a name="RepositoryProduction"></a>
+<li>interface <b>RepositoryProduction</b> (read "put" as "replace")
+	<ul>
+	<li>getting and puting and deleting data (bits) by name
+	<li>reading and writing data streams by name
+	<li>getting and puting and deleting hints by name
+	<li>getting and puting and deleting certificates by name
+	<li>getting and puting text files (which are then "compiled" into data) by name?
+	<li>writing out a <A HREF="RepositoryFile.html#RepositoryFile">RepositoryFile</A>
+	<li>compacting a <A HREF="RepositoryFile.html#RepositoryFile">RepositoryFile</A>
+	</ul>
+<a name="RepositoryProducer"></a>
+<li>class <b>RepositoryProducer</b>
+	<ul>
+	<li>implements <A HREF="#RepositoryProduction ">RepositoryProduction </A>
+	<li>implements <A HREF="RepositoryManagement.html#RepositoryManagement ">RepositoryManagement </A>
+	<li>contains a RandomAccessFile of data
+	<li>contains old and new Hashtables for data, hints and certificates
+	<li>correlates names to CryptoHashes internally
+	<li>updates (writes out only the new tables) a <b>RepositoryFile</b> faster than
+	writing a whole new one
+	</ul>
+</ul>
+
+</P>
+
+<H4>Off the shelf alternatives</H4>
+
+[<I>98/07/02 <A HREF="mailto:karl@communities.com">Karl</A></I>]
+None I can think of at the moment.
+
+<H2>Design Issues</H2>
+
+<H4>Resolved Issues</H4>
+
+<I>History of issues raised and resolved during initial design, or during
+design inspections. Can also include alternative designs, with the reasons
+why they were rejected</I>
+
+<H4>Open Issues</H4>
+
+<UL>
+<LI>[<I>98/07/02 <A HREF="mailto:karl@communities.com">Karl</A></I>]
+	<OL>
+	<LI>Flesh out and clean up this whole document
+</UL>
+<BR>
+To main <A HREF="index.html">Repository</A> page<BR>
+To <A HREF="../CosmSurvey.html">Cosm Survey</A> page<BR>
+<BR>
+<BR>
+</BODY>
+</HTML>

@@ -1,0 +1,415 @@
+Title
+=====
+
+Trading Machine freeze notes
+
+Introduction
+============
+
+The TradingMachine unum development was frozen on 7/23/97, when it
+was decided to omit ownership related una from the first release.
+Herein are some notes on the status of the TradingMachine, which
+may be helpful when TradingMachine development picks up in the
+future. It's not at all certain to what extent the UI spec of
+the trading machine or the current unum design and implementation
+will change.
+
+Reference
+=========
+
+The two principal references are:
+
+        1) Microcosm User Interface Spec, the subsection Trading under
+           Object Transactions
+
+        HTML version: http://www-int.communities.com, select "Design"
+        then "Specifications" then "Ellen's UI Spec". I used the
+        version available on 7/24/97. 
+
+        2) Source Files
+
+        The key files (with paths and highest revision number that I tested             with at the time of the freeze, although some of John Sullivan's
+        GUI files had later revisions) are:
+
+        // for the tradingMachine unum itself
+
+        cosm1/objects/una/tradingMachine
+                tradingMachine_kind.plu 1.2
+                tradingMachine_struct.plu 1.1
+                tradingMachine_unum.plu 1.3
+        cosm1/objects/una/GNUmakefile 1.24
+
+        // for the trading ingredient used by the tradingMachine unum
+        cosm1/objects/ingredients/trading
+                trading_kind.plu 1.5
+                trading_state.plu 1.6
+                trading_ingr.plu 1.21
+        
+        // interface of tradingMachine unum to an avatar in a trade
+        cosm1/objects/ingredients/avatar
+                avatarTrade_kind.plu 1.8
+                avatarTrade_state.plu 1.1
+                avatarTrade_ingr.plu 1.15
+
+        // makefile for both the trading and avatarTrade ingredients
+        cosm1/objects/ingredients/GNUmakefile 1.55
+
+        // classes (shared with the TradingMachine UI) describing
+        // common state and messages
+        cosm1/ui/presenter/steward
+                TradingMachine.java 1.13 
+                GNUmakefile 1.4
+
+        // "Trade with" pie menu entry 
+        cosm1/startup/Menus.txt 1.6
+
+        There are a separate set of files used for the TradingMachine UI,
+        developed by John Sullivan and which I usually don't touch.  These are 
+        located in the directories:
+
+              1)  /cosm1/ui/gui/uipresenter
+
+                      // principal file on the GUI side
+                      GUITradePresenter.java  1.24
+ 
+                     GNUmakefile 1.15
+
+
+             2)   /cosm1/ui/presenter/steward
+        
+                Several files in this directory contain classes uses to 
+                interface the TradePresenter to una:
+
+                        PresenterFactoryIntf.java 1.9
+                        PresenterFactoryStewards.java 1.9
+                        UIPresenterIntf.java 1.15
+                        UIPresenterStewards.java 1.14
+
+Differences in implementation from UI Spec (Trading Section)
+=============================================================
+
+I'm excluding differences due to spec requirements beyond what the 
+spec currently refers to as "1.0". 
+
+The principal kinds of reasons for a difference (and the differences of that
+kind)  are:
+        
+        1) spec requires titled ownership, tokens, locally hosted
+        turfs or address books, none of which are
+        available to the TradingMachine implementation, 
+        which substitutes possession (containership) for ownership
+        and exchanges simply token amounts.
+
+                *) [page 62]  "Objects put into the trading machine
+                must be owned by either one of the trade participants.
+                If either selects a borrowed object, they cannot add
+                it to the machine..."
+
+                *) [page 63] "If both avatars are holding objects owned
+                by one of them, the trading machine appears with both those
+                objets on that avatar's side..."
+
+                *) [page 66] "Or if the other avatar (say Ravella) is
+                already holding something she owns and Wascally Wabbit
+                picks up something Ravella owns, Wabbit's object does
+                not appear in the pending add area..."
+        
+                *) [page 66] "If a user types in more tokens than
+                that person owns..."
+
+                *) [page 66] "If an avatar wants to trade something
+                they lent to someone else..."
+                
+                *) [page 67] "Once both sides agree upon a trade,
+                 the objects involve change ... ownership".
+
+                *) [page 67] "If a user goes to a locally hosted turf..."
+                expected to be given a notification if this will
+                disconnect trade.
+
+                *) [page 67] "However, as soon as an avatar commits to
+                one trade, they cannot commit to any other trade
+                involving any of these objects..."
+
+                Requires titled ownership.
+
+                *) [page 67] "Users can block avatars from initiating
+                trades with their avatar..." [via address book "Can
+                trade with me" item].
+
+ 
+        2) implementation didn't get to the spec'd behavior.
+
+                *) [page 67] "There is one race condition that is exposed
+                to the user." 
+
+                Need to review the race conditions [when "propose" (e.g.
+                change in terms arrived at UI just before press "propose"), 
+                when thought one was "accept" (e.g. change in terms                             arrived at UI just before what one was thought was
+                "accept" but instead it leads to a "propose" based
+                on other's new terms, when "accept" (e.g. one thought
+                one was pressing "propose" but change in terms
+                and other's "propose" arrives at UI just before]
+                and adopt a consistent policy). 
+
+                *) [page 68] "if either avatar involved in a trade
+                disconnects..." [ deliver a system balloon to other
+                and take down their trading window].
+                
+                Was working on this at the time of the freeze.
+
+
+        3) implementation differs from the spec behavior (in some cases
+        due to clear implementation error, in other cases due to
+        disagreement with the spec or inconsistency within the spec.
+        [these need to be addressed with Ellen]).   
+        
+                *) [page 62] Implementation uses "Trade with" but spec says 
+                "Trade with...".
+
+                *) [page 66] "As soon as the first avatar commits to
+                or retracts a trade, the other avatar's machine changes
+                to show the next state". 
+                
+                For an "accept", the implementation waits all processing
+                (containership transferring) is complete [perhaps
+                we want an "accept received" message as distinguished
+                from an "accept completed".
+        
+                *) [page 67] "Once both sides agree upon a trade,
+                the objects involved change possession..."
+
+                Only one item per avatar could be traded without
+                causing a failure. The trading machine only gets
+                one item (expected to be in the possessing avatar's
+                hand), but tries to put all items in the trade list
+                (unmindful even for one if the target avatar hand is
+                empty). The pocket is not used (including if
+                the object can't go in the hand due to TOS violation.
+
+                * [page 67] "and reappear on the other side, preferrably
+                in sync with this activity in the world"
+
+                No syncing of transfer from one side of GUI to other
+                and the transfer in the world has been attempted.
+
+                * [page 67] "Shortly after the swap has occurred in the
+                trading window, the window closes."
+
+                John leaves the window for user to close. I think
+                this is a change he and Ellen decided on, but it's
+                not reflected in the spec.
+
+                * [page 68] "although avatars do not walk over and
+                exchange items" [when in different regions].
+
+                But the "walking over" requirement no longer appears
+                anywhere else. It's not clear is the requirement
+                still exists.
+
+Design [Rough notes]
+=========================
+
+The key sets of files are those for:
+
+        1) the Trading Machine unum (basically
+a tos container plus root compositor [ using iiECPocketRootComposositor,
+which is really more general than for Pocket] plus a trading ingredient.
+
+        2) the trading ingredient
+
+        3) the avatarTrade ingredient (a facet herein provides interface
+        to a tradiingMachine)
+
+        4) TradingMachine.java, which among other things defines
+        a TradeItem, TradeMessage and CommonTradeState [common to
+        trading ingredient and to Trade Window].
+
+The key design decisions were:
+
+        1) use of a single TradeMessage type for inputs to TradingMachine
+        (Trade Window inputs and in-world events). Randy had suggested
+        this to John and it made sense.
+
+        2) blocking/unblocking in order to serialize input and
+        insure processing only one input at at time in the input processing
+        state machine. 
+
+                a) order is preserved for all inputs from one Trade 
+                Window as well as inputs from an avatar to a trading machine    
+                of in-world pending events. 
+
+                b) inputs from the 2 TradeWindows and the pending events
+                from in-world are serialized. 
+
+                There is no notion of priority. Pending events could
+                get queued behind TradeWindow inputs. Assumed that
+                was okay (it was convenient for preview) , but didn't 
+                think much about it. So review it. Also never considered
+                what the real critical regions were inside the state machine
+                and whether for at least some kinds of input some parallelism
+                was possible without running into consistency problems. For
+                example, each side adding to separate sides. 
+
+                Didn't really bang on the Trade Windows enough to see
+                if the current serialization is problematic in any
+                reasonable usage (by the 2 traders acting with minimal
+                regard for the other).   
+
+                c) until the client GUI is ready, the state machine
+                will not accept an initial input.
+
+                But what if the client were ready before the host?
+                Or, once there are 2 inputting clients? Need both
+                ready. Need to add support for that. 
+
+        3) use of a fully centralized server, the 2 general drawbacks
+        of which are:
+
+                a) that the server might become a processing bottleneck 
+                [but here there are only 2 inputters (whose state
+                need to be kept consistent, i.e. not expecting rapid
+                fire inputs that could be handled in a completely isolated,
+                and it's unlikely that might grow much].
+
+                b) that the server might crash (without alternative ), 
+                alleviated by our persistence/recovery plan. 
+
+There's also an isolation of routing decisions/logic for output messages.
+
+For the Preview version of the Trading Machine (containership/possession
+in leiu of titled ownership, for any trade the trading machine
+unum instance is hosted by one of the agencies that hosts one of the two
+avatars in the trade. Once we have titled ownership, a title company
+(or some trusted agency) should be contacted by the avatars in the trade
+so that their trading machine can be hosted on a [mutually] trusted site.
+At that time, some changes will be necessary in the trading ingredient
+and the avatarTrade ingredient.
+
+Problems (things which are wrong as it is now as opposed to things that
+need to be added. some of these are deliberate omissions to get
+something Previewable)
+========
+
+1. Lack of exception handling and proper recovery, e.g. if any of
+the transfers during an ACCEPT fail.
+
+2. Assumption that avatar will have item in hand if it was in trade
+list.
+
+3. Transfers to trading machine upon an accept assume only one
+trade item.
+
+4. Note there are a bunch of commented out blocks of code
+that were used to do containership transfers prior to ACCEPT time. It
+should be possible to remove these if work re-commences under basically
+the same assumptions/design. 
+
+5. The nested levels within ACCEPT processing of etry/try/ewhen's. Look
+at ways to simplify all that logic (better factoring... in ACCEPT and
+elsewhere. The trading_ingr.plu code, especially in the state machine
+iRealTradeInput, could use cleanup).
+
+6. Notice that little validation and no consistency checking has
+been done. Review notes on consistency checking and clairy/document
+policies decided.
+
+7. I did iTransferToAvatar one item at a time, subsequent ones
+block on the one before. Could these be parallelized (probably
+needs help from avatar side).
+
+8."readyForNextInput" is currently ignorant about the in-world
+(baloon events), it doesn't pay attention where a pending
+event came from. It works but it is forwarding directly
+from this host presence instead of letting the proper presence
+(in the future one of the 2 client presences) forward,
+so all subsequent inputs will come in direct for that event
+inputter rather than go thru the unum interface. That may
+be okay, but may be an issue (losing control by which presence
+gets input of source of input, for example).
+
+9. The startup sequence that I did and which has been modified/enhanced
+by Trev has never really reviewed carefully from a security
+perspective. It will change anyway once the trading machine
+instantiation is done by a trusted agency, but needs more
+attention. [ One obvious need is for the use of
+filler facets so that the trading machine can mark which
+avatar(Trade) it is dealing with]
+
+10. Need to have individual errno's for response to GUI, so
+it can take suitable action (e.g. approprate text to user).
+
+11. For the cancel and accept system balloons, the trading
+machine sends text to the avatarTrade ingredient, not
+to its own appropriate presence, to output the baloon.
+This may be okay (it tells the avatar rather than just
+put out the baloo) but in that case the avatar may
+want information unformatted rather than an already formatted string.
+One reason I put it here is because the trading machine
+presence organization is going to change (once trading machine
+is hosted by a trusted agency) and this would have added another
+thing to adjust. 
+
+12. Note that the avatarTrade ingredient has been tested with
+2 trading machines at once between the same 2 avatars, should
+be able to handle getting ordered pending events to all interested
+trading machines. 
+
+
+
+Task List
+=========
+
+Assuming the current UI spec, unum design and implementation, here's
+what's left (excepting for any problems cited above in the section
+"Problems" that may not have been included yet in this task list):
+
+* disconnect handling
+
+* unregister from avatars (and when avatar has no more trading machines,
+        it unregisters for inhandchange interest)
+
+* validation of input msg from a GUI
+
+* consistency checking of input msg from a GUI (against server's trade state).
+
+* transfer to avatar (pocket, first in hand if empty)
+
+* transfer from avatar (of more than one)
+
+* filler facet interface to avatars
+
+* correct errors for UI (use a lot of GENERIC_ERROR), proper handling. 
+
+* exception handling
+
+* ? Transition to Pluribus Lite
+
+* token handling
+
+* ownership
+
+* security
+
+        tm created by title agency, implications for startup
+        client-client-host reorganization 
+
+* multiple tm
+
+* notification if transition would lead to disconnect [ if there are
+     locally hosted turfs in "1.0"] 
+
+* performance (e.g slow startup til trade GUIs are up)
+
+* into vat
+
+* quake/recovery (should be able to simply init with current trade state)
+
+* garbage collection (probably not an issue)
+
+* javadoc, comment
+
+* cleanup, factoring
+
+* stability/testing/inspection
+

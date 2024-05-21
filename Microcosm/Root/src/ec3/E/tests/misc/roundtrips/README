@@ -1,0 +1,15 @@
+Compile with: ecomp *.e
+
+Run like so:
+1) go EServer
+2) Wait 'til it says 'server running' - this means it has exported its
+   SturdyRef as EServer.ref
+3) go EClient
+
+EClient will connect and start sending randomly sized messages to the
+EServer, which will simply bounce them back. Tweak Message.e as you see
+fit.
+
+ -walendo
+
+

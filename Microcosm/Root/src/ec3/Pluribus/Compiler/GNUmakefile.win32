@@ -1,0 +1,25 @@
+LINK = link
+YACCHELPER_DIR = ../../Tools/yacchelper 
+CLFLAGS +=  -MDd -LDd -I. -I$(YACCHELPER_DIR)  
+FILES.o   = $(FILES.c:%.c=$(BUILD)/objs/$(MODNAME)/%.obj)
+PLFILES.o = $(PLFILES.c:%.c=$(BUILD)/objs/$(MODNAME)/%.obj)
+YHFILES.o = $(YHFILES.c:%.c=$(BUILD)/objs/$(MODNAME)/%.obj)
+
+$(APP_PATH): setup $(OBJDIRS) $(FILES.o)
+	$(LINK) -debug -map -out:$(BUILD_DRIVE)$@.exe $(addprefix $(BUILD_DRIVE),$(FILES.o))
+	$(RM) -f $(BUILD)/objs/$(MODNAME)/plversion.o
+	$(RM) -f $(BUILD)/objs/$(MODNAME)/plmain.o
+
+setup: $(INSTALL_DIR)
+	cp platform.h.win32 platform.h
+	cp win32/values.h values.h
+	chmod +w values.h
+	cp win32/plprep $(BUILD)/bin/
+
+all: standalone
+
+y.tab.h plparse.c: pluribus.y
+	@echo "If the build fails, try doing a make clean"
+	cp win32/plparse.c plparse.c
+	cp win32/y.tab.h y.tab.h
+	chmod +w plparse.c y.tab.h

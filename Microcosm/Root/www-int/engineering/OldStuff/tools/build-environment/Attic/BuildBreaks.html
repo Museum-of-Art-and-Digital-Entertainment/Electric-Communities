@@ -1,0 +1,84 @@
+<HTML>
+<HEAD>
+    <TITLE>The Build Break Page</TITLE>
+</HEAD>
+<BODY>
+
+<H1>The Build Break Page</H1>
+
+<h2>Current And Very Recent Build Breaks</h2>
+
+<ul>
+
+<li>12/17/97 Latest build often fails when trying to connect to PLS
+or another HabiFoo. It's probably a problem with regular expressions
+(they changed last night, and they are used to parse EARLs, which
+are used when you try to connect to another HabiFoo).
+
+<li>12/16/97 Release r115 tends to deadlock at startup; developers may
+see this too, especially if using AccountManager (try run.bat if you
+do hit this problem). Paul is patching Gordie's deadlock workaround
+into the release to see if it helps.
+
+<li>12/16/97 New spam at startup; lots of error messages about
+widgets being unable to find images.
+
+</ul>
+
+<h2>Recent Build Breaks (All Fixed)</h2>
+
+<ul>
+
+<li>12/16/97 (Fixed by Mike, 12/16) Todays repository doesn't seem to
+have certificates so TOS will be broken. Attempting to build your own
+repository doesn't help, seems like the repository build process is
+not reaching the certification server. Mike is working to fix this.
+
+<li>12/10/97 The following was fixed by Eric, who got the full-release
+target working again (making some of the description below irrelevant)
+When building a full release (as described in <A
+href="BuildRelease.html">Building a release</a>) two of the later
+targets don't work properly. hub-release fails trying to copy First
+Part (FP) DLLs into the release area. Felix is looking at this. And
+build-zipfiles appears to succeed but produces zipfiles containing the
+wrong pathnames. Mike and Felix are looking at this.
+
+<li>12/15/97 Bill found that ".\regupdate -dev -debug" in
+"\Build\Release\bin" didn't work properly, after starting up a 4dos
+(Build) shell and doing "make nobuild release getrep". Fix was to use
+Felix's new "-savepaths" argument e.g. ".\regupdate -debug
+-savepaths". "-dev" doesn't seem to work properly (and should be
+removed?).
+
+<li>12/15/97 Bill got a weird repository error when he did a "make
+nobuild release getrep" in \src. Since then no-one has been able to
+reproduce it.
+
+<li>12/15/97 run.bat has preloading turned on by default, resulting in
+a class not found error at run time. As of around 11:00am, 12/15, Mike
+has checked in a fix, and as of 12:30 Felix checked his fix into \EC.
+Check out in \EC to get the fixed run.bat.
+
+<li>12/15/97 When building in \media you may get an error of the form:
+"/ec/gnu/bin/find: lib: No such file or directory". You can workaround
+it by creating the \media\lib directory manually. As of 12:30pm on
+12/15 Felix has checked in a fix, which you can get by doing "cvs
+update create.bom" in \media.
+
+<li>12/12/97 A new E runtime fix was checked in with a file missing
+(EChannel.java) causing the build to break. The file was checked in on
+12/13, fixing the problem.
+
+<li>12/12/97 RtCodeableThrowable was moved to a different package, but
+the src\cosm1 tree wasn't updated. Fixed later on 12/12.
+
+<li>12/10/97 All the makefile targets changed, and the docs didn't
+until later in the day. Latest docs now have the new targets.
+
+</ul>
+
+<p>
+<A href="index.html">Back to the index</a>
+</BODY>
+</HTML>
+

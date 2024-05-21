@@ -1,0 +1,965 @@
+// File     Expressions\Operators.ez
+// Summary  Testing EZ operators
+// 
+//  000  Title    addition (arithmetic): 1 + 10 + 100
+//       Result   Pass
+//       Test     
+                  println (1 + 10 + 100)
+//
+//       Expect   value: 111
+//       Actual   value: 111
+// 
+//  000  Title    addition (arithmetic) and assignment: x += 1 + 10 + 100
+//       Result   Fail
+//                println(( x += 1 )) works, but
+//                println(  x += 1  ) doesn't work
+//       Test     
+                  define x := 100
+                  println (x += 1 + 10 + 100)
+//
+//       Expect   211
+//       Actual   No output
+// 
+//  000  Title    addition (arithmetic) and assignment: x += 1 + 10 + 100
+//       Result   Pass
+//       Test     
+                  define x := 100
+                  println ((x += 1 + 10 + 100))
+//
+//       Expect   211
+//       Actual   No output
+// 
+//  000  Title    approx divide (arithmetic) no remainder: 8/2 
+//       Result   Pass
+//       Test     
+                  println (8/2) 
+//
+//       Expect   value: 4.0
+//       Actual   value: 4.0
+// 
+//  000  Title    approx divide (arithmetic) with remainder: 10/3 
+//       Result   Pass (?)
+//       Test     
+                  println (10/3) 
+//
+//       Expect   value: 3.3333333333333335
+//       Actual   value: 3.3333333333333333
+// 
+//  000  Title    approx divide (arithmetic) with remainder: 10/7 
+//       Result   Pass
+//       Test     
+                  println (10/7) 
+//
+//       Expect   value: 1.4285714285714286
+//       Actual   value: 1.4285714285714286
+// 
+//  000  Title    approx divide (arithmetic) divide by zero: 2/0
+//       Result   Pass
+//       Test     
+                  println (2/0) 
+//
+//       Expect   value: Infinity
+//       Actual   value: Infinity
+// 
+//  000  Title    approx divide (arithmetic) divide into zero: 0/7
+//       Result   Pass
+//       Test     
+                  println (0/7) 
+//
+//       Expect   value: 0.0
+//       Actual   value: 0.0
+// 
+//  000  Title    approx divide (arithmetic) divide zero by zero: 0/0
+//       Result   Pass
+//       Test     
+                  println (0/0) 
+//
+//       Expect   value: NaN
+//       Actual   value: NaN
+// 
+//  000  Title    approx divide (arithmetic) negative case: /321
+//       Result   Fail
+//       Test     
+                  println (/321) 
+//
+//       Expect   more specific error message
+//       Actual   No output
+//
+//  000  Title    approx divide (arithmetic) negative case: 321/
+//       Result   Fail
+//       Test     
+                  println (321/) 
+//
+//       Expect   more specific error message
+//       Actual   No output
+// 
+//  000  Title    approx divide (arithmetic) negative case incorrect symbol: 100\20
+//       Result   Pass (?)
+//       Test     
+                  println (100\20) 
+//
+//       Expect   unrecognized character
+//       Actual   unrecognized character
+//                ec.ez.syntax.SyntaxException: unrecognized character
+//                (100\20) 
+//                ^
+//
+//  000  Title    approx divide (arithmetic) and assignment: x /= 11
+//       Result   Pass (?)
+//       Test     
+                  define x := 100
+                  println ((x /= 11))
+//
+//       Expect   9.090909090909
+//       Actual   9.090909090909092
+//
+//  000  Title    assignment (any) integral: h := 2
+//       Result   Pass
+//       Test     
+                  define h:=2
+                  println (h) 
+//
+//       Expect   2
+//       Actual   2
+//
+//  000  Title    bitwise AND (integral): 1 & 1
+//       Result   Pass
+//       Test     
+                  println (1 & 1) 
+//
+//       Expect   1
+//       Actual   1
+// 
+//  000  Title    bitwise AND (integral): 0 & 0
+//       Result   Pass
+//       Test     
+                  println (0 & 0) 
+//
+//       Expect   value: 0
+//       Actual   value: 0
+// 
+//  000  Title    bitwise AND (integral): 1 & 0
+//       Result   Pass
+//       Test     
+                  println (1 & 0) 
+//
+//       Expect   0
+//       Actual   0
+// 
+//  000  Title    bitwise AND (integral): 0 & 1
+//       Result   Pass
+//       Test     
+                  println (0 & 1) 
+//
+//       Expect   0
+//       Actual   0
+//
+//  000  Title    bitwise AND (integral) and assignment: x &= 1
+//       Result   Pass
+//       Test     
+                  define x := 0
+                  println ((x &= 1))
+//
+//       Expect   0
+//       Actual   No output
+//
+//  000  Title    bitwise complement unary (integral): ~(-1)
+//       Result   Pass
+//       Test     
+                  println (~(-1)) 
+//
+//       Expect   value: 0
+//       Actual   value: 0
+//
+//  000  Title    bitwise complement unary (integral): ~0
+//       Result   Pass
+//       Test     
+                  println (~0) 
+//
+//       Expect   value: -1
+//       Actual   value: -1
+//
+//  000  Title    bitwise complement unary (integral): ~1
+//       Result   Pass
+//       Test     
+                  println (~1) 
+//
+//       Expect   value: -2
+//       Actual   value: -2
+// 
+//  000  Title    bitwise OR (integral): 1|1
+//       Result   Pass
+//       Test     
+                  println (1 | 1) 
+//
+//       Expect   1
+//       Actual   1
+
+//  000  Title    bitwise OR (integral): 0|0
+//       Result   Pass
+//       Test     
+                  println (0 | 0) 
+//
+//       Expect   0
+//       Actual   0
+// 
+//  000  Title    bitwise OR (integral): 1|0
+//       Result   Pass
+//       Test     
+                  println (1 | 0)
+
+//       Expect   1
+//       Actual   1
+// 
+//  000  Title    bitwise OR (integral): 0|1
+//       Result   Pass
+//       Test     
+                  println (0 | 1) 
+//
+//       Expect   1
+//       Actual   1
+// 
+//  000  Title    bitwise OR  (integral) and assignment: x |= 1
+//       Result   Pass
+//       Test     
+                  define x := 0
+                  println ((x |= 1))
+//
+//       Expect   1
+//       Actual   1
+// 
+//  000  Title    bitwise XOR (integral): 1^1
+//       Result   Pass
+//       Test     
+                  println (1 ^ 1) 
+//
+//       Expect   0
+//       Actual   0
+
+//  000  Title    bitwise XOR (integral): 0^0
+//       Result   Pass
+//       Test     
+                  println (0 ^ 0) 
+//
+//       Expect   0
+//       Actual   0
+// 
+//  000  Title    bitwise XOR (integral): 1^0
+//       Result   Pass
+//       Test     
+                  println (1 ^ 0) 
+
+//       Expect   1
+//       Actual   1
+// 
+//  000  Title    bitwise XOR (integral): 0^1
+//       Result   Pass
+//       Test     
+                  println (0 ^ 1) 
+//
+//       Expect   1
+//       Actual   1
+// 
+//  000  Title    bitwise XOR (integral) and assignment: x ^= 1
+//       Result   Pass
+//       Test     
+                  define x := 0
+                  println ((x ^= 1))
+//
+//       Expect   1
+//       Actual   1
+//
+//  000  Title    boolean AND (boolean): true&true
+//       Result   Pass
+//       Test     
+                  println (true & true) 
+//
+//       Expect   true
+//       Actual   true
+// 
+//  000  Title    boolean AND (boolean): false&false
+//       Result   Pass
+//       Test     
+                  println (false & false) 
+//
+//       Expect   false
+//       Actual   false
+// 
+//  000  Title    boolean AND (boolean): true&false
+//       Result   Pass
+//       Test     
+                  println (true & false) 
+//
+//       Expect   false
+//       Actual   false
+// 
+//  000  Title    boolean AND (boolean): false&true
+//       Result   Pass
+//       Test     
+                  println (false & true) 
+//
+//       Expect   false
+//       Actual   false
+//
+//  000  Title    boolean AND (boolean) and assignment: x &= true
+//       Result   Pass
+//       Test     
+                  define c :=  false
+                  println ((c &= true) )
+//
+//       Expect   false
+//       Actual   false
+
+//
+//  000  Title    boolean OR (boolean): true|true
+//       Result   Pass
+//       Test     
+                  println (true | true) 
+//
+//       Expect   true
+//       Actual   true
+// 
+//  000  Title    boolean OR (boolean): false|false
+//       Result   Pass
+//       Test     
+                  println (false | false) 
+//
+//       Expect   false
+//       Actual   false
+// 
+//  000  Title    boolean OR (boolean): true|false
+//       Result   Pass
+//       Test     
+                  println (true | false) 
+//
+//       Expect   true
+//       Actual   true
+// 
+//  000  Title    boolean OR (boolean): false|true
+//       Result   Pass
+//       Test     
+                  println (false | true) 
+//
+//       Expect   true
+//       Actual   true
+//
+//  000  Title    boolean OR (boolean) and assignment: x |= true
+//       Result   Pass
+//       Test     
+                  define x := false
+                  println ((x |= true))
+//
+//       Expect   true
+//       Actual   true
+//
+//  000  Title    boolean XOR (boolean): true^true
+//       Result   Pass
+//       Test     
+                  println (true ^ true) 
+//
+//       Expect   false
+//       Actual   false
+// 
+//  000  Title    boolean XOR (boolean): false^false
+//       Result   Pass
+//       Test     
+                  println (false ^ false) 
+//
+//       Expect   false
+//       Actual   false
+// 
+//  000  Title    boolean XOR (boolean): true^false
+//       Result   Pass
+//       Test     
+                  println (true ^ false) 
+//
+//       Expect   true
+//       Actual   true
+// 
+//  000  Title    boolean XOR (boolean): false^true
+//       Result   Pass
+//       Test     
+                  println (false ^ true) 
+//
+//       Expect   true
+//       Actual   true
+//
+//  000  Title    boolean XOR (boolean) and assignment: x ^= true
+//       Result   Pass
+//       Test     
+                  define S := false
+                  println ((S ^= true)) 
+//
+//       Expect   true
+//       Actual   true
+//
+//  000  Title    conditional AND (boolean): true && true
+//       Result   Pass
+//       Test     
+                  println (true && true) 
+//
+//       Expect   true
+//       Actual   true 
+// 
+//  000  Title    conditional AND (boolean): false && false
+//       Result   Pass
+//       Test     
+                  println (false && false) 
+//
+//       Expect   false
+//       Actual   false
+// 
+//  000  Title    conditional AND (boolean): true && false
+//       Result   Pass
+//       Test     
+                  println (true && false) 
+
+//       Expect   false
+//       Actual   false
+// 
+//  000  Title    conditional AND (boolean): false && true
+//       Result   Pass
+//       Test     
+                  println (false && true) 
+//
+//       Expect   false
+//       Actual   false
+//
+//  000  Title    conditional AND (boolean) negative case: 1 && 1
+//       Result   Fail
+//       Test     
+                  println (1 && 1) 
+//
+//       Expect   more meaningful error message
+//       Actual   pick/2
+//                ec.ez.collect.NotFoundException: pick/2
+//                null
+//                ^
+//
+//  000  Title    conditional OR (boolean): true || true
+//       Result   Pass
+//       Test     
+                  println (true || true) 
+//
+//       Expect   true
+//       Actual   true 
+// 
+//  000  Title    conditional OR (boolean): false || false
+//       Result   Pass
+//       Test     
+                  println (false || false) 
+//
+//       Expect   false
+//       Actual   false
+// 
+//  000  Title    conditional OR (boolean): true || false
+//       Result   Pass
+//       Test     
+                  println (true || false) 
+//
+//       Expect   true
+//       Actual   true
+// 
+//  000  Title    conditional OR (boolean): false || true
+//       Result   Pass
+//       Test     
+                  println (false || true) 
+//
+//       Expect   true
+//       Actual   true
+//
+//  000  Title    conditional OR (boolean) negative case: 1 || 1
+//       Result   Fail
+//       Test     
+                  println (1 || 1) 
+//
+//       Expect   more meaningful error message
+//       Actual   pick/2
+//                ec.ez.collect.NotFoundException: pick/2
+//                null
+
+//
+//  000  Title    equal (object): 
+//
+
+//
+//  000  Title    equal (primitive) when less than: 2==1025
+//       Result   Pass
+//       Test     
+                  println (2==1024) 
+//
+//       Expect   false
+//       Actual   false
+//
+//  000  Title    equal (primitive) when equal: 256==256
+//       Result   Pass
+//       Test     
+                  println (256==256) 
+//
+//       Expect   true
+//       Actual   true
+// 
+//  000  Title    equal (primitive) when greater than: 512==256
+//       Result   Pass
+//       Test     
+                  println (512==256) 
+//
+//       Expect   value: false
+//       Actual   value: false
+// 
+//  000  Title    equal (primitive) negative case: 1=1
+//       Result   Pass (?)
+//       Test     
+                  println (1=1) 
+//
+//       Expect   use ':=' for assignment, or '==' for equality
+//       Actual   use ':=' for assignment, or '==' for equality
+//                ec.ez.syntax.SyntaxException: use ':=' for assignment, or '==' for equality
+//                (1=1) 
+//                ^
+//
+//  000  Title    equal (primitive) negative case: 1:=1
+//       Result   Pass (?)
+//       Test     
+                  println ((256:=256))
+//
+//       Expect   Assignment can only be done to nouns, collection elements, and tuples of same
+//       Actual   Assignment can only be done to nouns, collection elements, and tuples of same
+//                ec.ez.syntax.SyntaxException: Assignment can only be done to nouns, collection 
+//                elements, and tuples of same
+//                println ((256:=256))
+//                ^
+//
+//  000  Title    floor divide (arithmetic) no remainder: 8_/2
+//       Result   Pass
+//       Test     
+                  println (8_/2) 
+//
+//       Expect   value: 4.0
+//       Actual   value: 4.0
+// 
+//  000  Title    floor divide (arithmetic) with remainder: 10_/3
+//       Result   Pass
+//       Test     
+                  println (10_/3) 
+//
+//       Expect   value: 3
+//       Actual   value: 3
+// 
+//  000  Title    floor divide (arithmetic) with remainder: 10_/7
+//       Result   Pass
+//       Test     
+                  println (10_/7) 
+//
+//       Expect   value: 1
+//       Actual   value: 1
+// 
+//  000  Title    floor divide (arithmetic) divide by zero: 2/0
+//       Result   Pass (?)
+//       Test     
+                  println (2_/0) 
+//
+//       Expect   BigInteger divide by zero
+//       Actual   BigInteger divide by zero
+//                java.lang.ArithmeticException: BigInteger divide by zero
+//                null
+//                ^
+// 
+//  000  Title    floor divide (arithmetic) divide into zero: 0_/7
+//       Result   Pass
+//       Test     
+                  println (0_/7) 
+//
+//       Expect   value: 0.0
+//       Actual   value: 0.0
+// 
+//  000  Title    floor divide (arithmetic) divide zero by zero: 0_/0
+//       Result   Pass
+//       Test     
+                  println (0_/0) 
+//
+//       Expect   BigInteger divide by zero
+//       Actual   BigInteger divide by zero
+//                java.lang.ArithmeticException: BigInteger divide by zero
+//                null
+//                ^
+// 
+//  000  Title    floor divide (arithmetic) negative case: _/321
+//       Result   Fail
+//       Test     
+                  println (_/321) 
+//
+//       Expect   more meaningful error message
+//       Actual   No output
+//
+//  000  Title    floor divide (arithmetic) negative case: 321_/
+//       Result   Fail
+//       Test     
+                  println (321_/)
+//
+//       Expect   more meaningful error message
+//       Actual   No output
+// 
+//  000  Title    floor divide (arithmetic) negative case incorrect symbol: 100_\20
+//       Result   Pass (?)
+//       Test     
+                  println (100_\20) 
+//
+//       Expect   unrecognized character
+//       Actual   unrecognized character
+//                ec.ez.syntax.SyntaxException: unrecognized character
+//                (100_\20) 
+//                ^
+//
+//  000  Title    floor divide (arithmetic) and assignment: x _/= 5
+//       Result   Pass
+//       Test     
+                  define x := 100
+                  println ((x /= 5))
+//
+//       Expect   20
+//       Actual   20
+//
+
+//
+//  000  Title    greater than (arithmetic): 
+//  000  Title    greater than or equal (arithmetic): 
+//
+
+//  000  Title    left shift (integral): 1<<2
+//       Result   Pass
+//       Test     
+                  println (1<<2)
+//
+//       Expect   4
+//       Actual   4
+//
+//  000  Title    left shift (integral) and assignment: 
+//  000  Title    less than (arithmetic): 
+//
+//  000  Title    less than or equal (arithmetic) when less than: 1 <= 2
+//       Result   Pass
+//       Test     
+                  println (1 <= 2) 
+//
+//       Expect   value: true
+//       Actual   value: true
+// 
+//  000  Title    less than or equal (arithmetic) when equal: 144 <= 144
+//       Result   Pass
+//       Test     
+                  println (144 <= 144) 
+//
+//       Expect   value: true
+//       Actual   value: true
+// 
+//  000  Title    less than or equal (arithmetic) when greater than: 2000 < = 1000
+//       Result   Pass
+//       Test     
+                  println (2000 <= 1000) 
+//
+//       Expect   value: false
+//       Actual   value: false
+
+
+//  000  Title    logical complement unary (boolean): 
+
+//  000  Title    logical complement unary (boolean) negative case: !1
+//       Result   Pass (?)
+//       Test     
+                  println (!1) 
+//
+//       Expect   invalid operation for EZInteger
+//       Actual   invalid operation for EZInteger
+//                java.lang.RuntimeException: invalid operation for EZInteger
+//                null
+//                ^
+//
+//  000  Title    modulo (arithmetic): 40 %% 8
+//       Result   Pass
+//       Test     
+                  println (40 %% 8) 
+//
+//       Expect   value: 0
+//       Actual   value: 0
+// 
+//  000  Title    modulo (arithmetic): -40 %% 8
+//       Result   Pass
+//       Test     
+                  println (-40 %% 8) 
+//
+//       Expect   value: 0
+//       Actual   value: 0
+// 
+//  000  Title    modulo (arithmetic): 66 %% 7
+//       Result   Pass
+//       Test     
+                  println (66 %% 7) 
+//
+//       Expect   value: 3
+//       Actual   value: 3
+// 
+//  000  Title    modulo (arithmetic): -66 %% 7
+//       Result   Pass
+//       Test     
+                  println (-66 %% 7) 
+//
+//       Expect   value: 4
+//       Actual   value: 4
+//
+//  000  Title    modulo (arithmetic) and assignment: R %%= 7
+//       Result   Pass
+//       Test     
+                  define R := -66
+                  println ((R %%= 7))
+//
+//       Expect   4
+//       Actual   4
+//
+//  000  Title    multiplication (arithmetic): 10 * 3
+//       Result   Pass
+//       Test     
+                  println (10 * 3) 
+//
+//       Expect   value: 30
+//       Actual   value: 30
+// 
+//  000  Title    multiplication (arithmetic) negative case: *11
+//       Result   Fail
+//       Test     
+                  println (*11) 
+//
+//       Expect   more meaningful error message
+//       Actual   No output
+// 
+//  000  Title    multiplication (arithmetic) negative case: **77
+//       Result   Fail
+//       Test     
+                  println (**77) 
+//
+//       Expect   a more meaningful error message
+//       Actual   No output
+// 
+//  000  Title    multiplication (arithmetic) negative case: 6*
+//       Result   Fail
+//       Test     
+                  println (6*)
+//
+//       Expect   more meaningful error message
+//       Actual   No output
+// 
+//  000  Title    multiplication (arithmetic) negative case: 88**
+//       Result   Fail
+//       Test     
+                  println (88**) 
+//
+//       Expect   more meaningful error mesage
+//       Actual   No output
+//
+//  000  Title    multiplication (arithmetic) and assignment: x *= 4
+//       Result   Pass
+//       Test     
+                  define A := 4
+                  println ((A *= 4))
+//
+//       Expect   16
+//       Actual   16
+// 
+
+//
+//  000  Title    not equal (object): 
+//
+
+//  000  Title    not equal (primitive) when equal: 256!=256
+//       Result   Pass
+//       Test     
+                  println (256 != 256) 
+//
+//       Expect   false
+//       Actual   false
+// 
+//  000  Title    not equal (primitive) when greater than: 1025!=257
+//       Result   Pass
+//       Test     
+                  println (1025 != 257) 
+//
+//       Expect   value: true
+//       Actual   value: true
+// 
+//  000  Title    not equal (primitive) negative case: 1!==1
+//       Result   Pass (?)
+//       Test     
+                  println (1!==1) 
+//
+//       Expect   use ':=' for assignment, or '==' for equality
+//       Actual   use ':=' for assignment, or '==' for equality
+//                ec.ez.syntax.SyntaxException: use ':=' for assignment, or '==' for equality
+//                (1!==1) println
+//                 ^
+//
+//  000  Title    not equal (primitive) negative case: 256!:256
+//       Result   Fail
+//                Error message could be more specific
+//       Test     
+                  println (256!:=256) 
+//
+//       Expect   more meaningful error message
+//       Actual   No output
+//
+//  000  Title    post-decrement unary (arithmetic) negative case: (100-)
+//       Result   Fail
+//       Test     
+                  println (100-) 
+//
+//       Expect   more meaningful error message
+//       Actual   No output
+//
+//  000  Title    post-decrement unary (arithmetic) negative case: (100--)
+//       Result   Fail
+//       Test     
+                  println (100--) 
+//
+//       Expect   more meaningful error message
+//       Actual   No output
+//
+//  000  Title    post-increment unary (arithmetic) negative case: 1+
+//       Result   Fail
+//       Test     
+                  println (1+) 
+//
+//       Expect   more meaningful error
+//       Actual   No output
+//
+//  000  Title    post-increment unary (arithmetic) negative case: 1++
+//       Result   Fail
+//       Test     
+                  println (1++) 
+//
+//       Expect   more meaningful error message
+//       Actual   No output
+//
+//  000  Title    pow (arithmetic): 10**2
+//       Result   Pass
+//       Test     
+                  println (10**2) 
+//
+//       Expect   value: 100
+//       Actual   value: 100
+//
+//  000  Title    pow (arithmetic) and assignment: w **= 2
+//       Result   Pass
+//       Test     
+                  define w := 10
+                  println ((w **= 2))
+//
+//       Expect   100
+//       Actual   100
+//
+//  000  Title    pre-decrement unary (arithmetic) negative case: --100
+//       Result   Fail
+//       Test     
+                  println (--100) 
+//
+//       Expect   more meaningful error message
+//       Actual   No output
+//
+//  000  Title    pre-increment unary (arithmetic) negative case: +1
+//       Result   Fail
+//       Test     
+                  println (+1) 
+//
+//       Expect   more meaningful error message
+//       Actual   No output
+// 
+//  000  Title    pre-increment unary (arithmetic) negative case: ++1
+//       Result   Fail
+//       Test     
+                  println (++1) 
+//
+//       Expect   error message without stack trace
+//       Actual   No output
+//
+//  000  Title    remainder (arithmetic): 1000 % 100
+//       Result   Pass
+//       Test     
+                  println (1000 % 100) 
+//
+//       Expect   value: 0
+//       Actual   value: 0
+//
+//  000  Title    remainder (arithmetic): 2000 % 101
+//       Result   Pass
+//       Test     
+                  println (2000 % 101) 
+//
+//       Expect   value: 81
+//       Actual   value: 81
+// 
+//  000  Title    remainder (arithmetic) and assignment: d %= 101
+//       Result   Pass
+//       Test     
+                  define d := 2000
+                  println ((d %= 101))
+//
+//       Expect   81
+//       Actual   81
+// 
+//  000  Title    right shift (integral): 1 >> 2 
+//       Result   Pass
+//       Test     
+                  println (1>>2) 
+//
+//       Expect   value: 0
+//       Actual   value: 0
+//
+//  000  Title    right shift (integral) negative case: 1 >>> 2
+//       Result   Fail
+//       Test     
+                  println (1>>>2) 
+//
+//       Expect   more meaningful error message
+//       Actual   No output
+//
+
+//
+//  000  Title    right shift (integral) and assignment: 
+//  000  Title    string concatenation (string): 
+//
+
+//  000  Title    subtraction (arithmetic): 765 - 600 - 60 - 5
+//       Result   Pass
+//       Test     
+                  println (765 - 600 - 60 - 5) 
+//
+//       Expect   value: 100
+//       Actual   value: 100
+//
+//  000  Title    subtraction (arithmetic) and assignment: x -= 200
+//       Result   Pass
+//       Test     
+                  define t := 300
+                  println ((t -= 200 + 10))
+//
+//       Expect   90
+//       Actual   90
+//
+//  000  Title    unary minus (arithmetic): -100
+//       Result   Pass
+//       Test     
+                  println (-100)
+//
+//       Expect   value: -100
+//       Actual   value: -100
+//
+//  000  Title    unary minus (arithmetic): -(-100)
+//       Result   Pass
+//       Test     
+                  println (-(-100)) 
+//
+//       Expect   value: 100
+//       Actual   value: 100
+// 
+
+
+//  000  Title    unary plus (arithmetic): 
+

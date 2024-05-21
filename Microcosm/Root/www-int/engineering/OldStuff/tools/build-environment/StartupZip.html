@@ -1,0 +1,95 @@
+<HTML>
+<HEAD>
+    <TITLE>Running with startup.zip</TITLE>
+</HEAD>
+<BODY>
+
+<center>
+<h1>Creating and Running with startup.zip and Background Class Loading</h1>
+</center>
+
+<i>This page is maintained by <A HREF="mailto:ellen@communities.com">Ellen</A>. It was created on 12/30/97.</i>
+<p>
+
+Thanks to Mike for making this available and writing it up.
+<p>
+
+Here are the steps to create and run with a "startup.zip" file and
+background class loading. This process is a little tedious - because
+Habi* must be run twice by hand to generate a list of startup classes
+- but manageable.
+<p>
+Note: One thing you will have to do for the next couple of days that
+is not in the steps below (because it will be done automatically) is
+copy \src\cosm1\start\bin\makeStartupList.sh to \ec\fp\cosm\win32\bin.
+<p>
+
+I expect that some part of this process will be done for everyone as part of the release process.  
+<p>
+
+<b>Step 1: Making a list of startup classes</b><p>
+
+Normal build steps:
+<ul>
+<li> open up build shell
+<li> cd /src
+<li> make everything
+<li> make release
+<li> put a repository in /build/release/echome/dist
+</ul>
+<p>
+	
+The tricky part:
+<ul>
+<li> cd /build/release
+<li> run rlm = what ever you want
+<li> quit w/ checkpoint (Don't ^C)
+<li> run verbose = true >&> classlist.tmp
+<li> ^C out after startup is done
+</ul>
+<p>
+Finally:
+<ul>
+<li>bash makeStartupList.sh classlist.tmp <listOfClassesToExcludeIfAny>
+</ul>
+<p>
+
+The above process will generate the files startupPreloadClasses.txt, which is put in /build/release and /src/cosm1/start, and startupZipClasses.txt, which is put into /src/cosm1/start. The intermediate file "classlist.tmp" is not deleted because it's a pain to recreate if something goes wrong.
+<p>
+
+<b>Step 2: Creating a startup.zip file</b><p>
+
+<ul>
+<li> cd /src/cosm1/start
+<li> make sure that the file startupZipClasses.txt is in the directory
+<li> make startupzip
+</ul>
+<p>
+The result of this will be the file "startup.zip" which is put into /Build/Release
+<p>
+<b> Step 3: Running</b><p>
+
+<ul>
+<li> cd /build/release
+<p>
+</ul>
+<ul>
+Normal Running
+<ul>
+<li> run 
+</ul>
+<p>
+Background thread class loading
+<ul>
+<li> run preload = background
+</ul>
+<p>
+To run with classes preloaded - a useful thing to do when one wishes to test startup performance changes sans classload.
+<ul>
+<li> run preload = preload
+</ul>
+</ul>
+
+<A href="index.html">Back to the index</a>
+</BODY>
+</HTML>

@@ -1,0 +1,189 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>Design Document Template</TITLE>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.01Gold (Win95; U) [Netscape]">
+</HEAD>
+<BODY>
+
+<H1><I>Encode/Decode</I></H1>
+
+<P>Last updated: [1998/05/13 Bill Frantz] </P>
+
+<P>Author(s): Bill Frantz. </P>
+
+<P>Subsystem originally written by Gordie Freedman. </P>
+
+<H2>Introduction</H2>
+
+<P>The Encode/Decode system transforms an object so it can be passed to
+another vat thru the <A HREF="CommSystemOverview.html">Comm System</A>.
+Since Encode/Decode only processes pass by copy objects, the Encode/Decode
+system must interface with the Comm System's export/import logic which
+implements pass by proxy. The Encode/Decode system can either use the standard
+encoding, or allow a class to specify its own encoding. </P>
+
+<H4>Related Documents</H4>
+
+<P>None that I know of (wsf) </P>
+
+<H2>Requirements</H2>
+
+<P>Requirements currently implemented: </P>
+
+<UL>
+<LI>Encode/Decode a graph of objects starting with a root object.</LI>
+
+<LI>Ensure that objects that encode themselves do not silently corrupt
+the encoding of other objects in the graph.</LI>
+
+<LI>Supports &quot;Uniquely encodable&quot; objects, whatever that means.</LI>
+</UL>
+
+<P>Requirements at best partially implemented: </P>
+
+<UL>
+<LI>Allow for version up/down grade of objects passed by copy. NOT TESTED!</LI>
+</UL>
+
+<P>Pure dumb things that need to be fixed: </P>
+
+<UL>
+<LI>Support for encode/decode to/from disk should be removed. It will make
+the code easier to read, smaller, and a bit faster.</LI>
+
+<LI>Methods which aren't being used should be eliminated or commented out
+to make the code easier to understand.</LI>
+
+<LI>The file names need to be made the same as the class names. The class
+RtStandardEncoder being found in ec/e/db/RtEncoder.java and the interface
+RtEncoder being found in ec/e/run/RtInterfaces.java just drive me up the
+wall (wsf).</LI>
+</UL>
+
+<H2>Architecture</H2>
+
+<P>TBD - wsf </P>
+
+<P><I>Diagrams are strongly encouraged; a few diagrams can do wonders for
+clairifying an architecture. If you don't know how to add diagrams consult
+Lani and Amy.</I> </P>
+
+<H4>Current Architecture Overview</H4>
+
+<P>An instance of RtStandardEncoder is associated with each instance of
+MsgSender. Likewise, an instance of RtStandardDecoder is associated with
+each instance of MsgReceiver. They cooperate to encode/decode objects for
+transmission thru the comm system. </P>
+
+<P>The MsgSender/MsgReceiver handles objects that are passed by proxy.
+RtStandardEncoder/RtStandardDecoder encodes/decodes objects that are passed
+by copy which don't encode themselves. </P>
+
+<P>StreamDB is used to interface with the opener system to read/set the
+contents of the objects being encoded/decoded. RtStandardEncoder/RtStandardDecoder
+passes itself to StreamDB as the RtEncoder/RtDecoder interface to provide
+the recursive invocation which encodes a whole graph of objects. </P>
+
+<H4>Proposed Architecture Overview</H4>
+
+<P><I>This section is not urgent for the first version of this document,
+you should capture what direction you feel this subsystem ought to take.
+As we start addressing specific systems this section will grow into the
+core of the design document.</I> </P>
+
+<H4>Off the shelf alternatives</H4>
+
+<P>Java serialization. </P>
+
+<H4>Other Design Objectives, Constraints and Assumptions</H4>
+
+<P><I>Lists any special objectives and assumptions of the code e.g. reusability,
+thread safety, security, performance, use of resources, compatibility with
+existing code etc. This section gives important context for reviewers</I>
+</P>
+
+<P><B><FONT SIZE=+2>Current implementation</FONT></B> </P>
+
+<P>See <A HREF="EncodeDecodeXref_r167.html">External Interface for ec.e.db
+in r167</A> for a list of external references into the ec.e.db package.
+</P>
+
+<P>RtEncoderDataOutputStream and RtDecoderDataInputStream handle the process
+of converting primitive Java types (int, float, String etc.) to bytes for
+transmission. They perform compression/expansion on the data as it is placed
+in the stream. </P>
+
+<P>MsgSender implements the interface RtEncodingManager and MsgReceiver
+implements RtDecodingManager. These interfaces define the interface between
+encode/decode and the msg system. </P>
+
+<P>All the new classes referenced in an envelope are sent as a separate
+E protocol message before the message which refers to them. This technique
+requires special methods in the Msg layer. </P>
+
+<H4>Which directories on our tree does this subsystem cover?</H4>
+
+<P>This subsystem has important defintions in the following directories.
+It should not be assumed that all the classes in these directories are
+part of this subsystem. </P>
+
+<UL>
+<LI>ec4/javasrc/ec/e/db</LI>
+
+<LI>ec4/javasrc/ec/e/run</LI>
+
+<LI>ec4/javasrc/ec/e/stream</LI>
+</UL>
+
+<H4>Is it JavaDoc'ed?</H4>
+
+<P>Some of the classes and methods have Javadoc comments. </P>
+
+<H4>Examples</H4>
+
+<P><I>Are there examples?</I> </P>
+
+<H4>Testing and Debugging</H4>
+
+<P><I>(Optional) Lists any tests and debugging utilities which are to be
+developed to help test the design (e.g. test classes, trace categories,
+etc)</I> </P>
+
+<H2>Design Issues</H2>
+
+<H4>Resolved Issues</H4>
+
+<P><I>History of issues raised and resolved during initial design, or during
+design inspections. Can also include alternative designs, with the reasons
+why they were rejected</I> </P>
+
+<H4>Open Issues</H4>
+
+<P>Class table changes can be included in the envelope encoding as a &quot;define
+new class&quot; entry. This change would eliminate a bunch of mechanism.
+</P>
+
+<P>We should look at integrating the encode/decode functions of the Comm
+system Msg layer with RtStandardEncoder/RtStandardDecoder. </P>
+
+<P>Every time we send a message to a remote object, we identify it by its
+full swiss number. If we maintain a table of these numbers, we can encode
+the swiss number as an index in the table, compressing the information
+from 8 bytes (or 16 if we change the swiss numbers) to one or two. </P>
+
+<P>Walendo says: Hey Bill, I was just thinking that the comm system diagnostics
+(which objects were being encoded, how many bytes are going over the wire,
+etc) were key in figuring out some of our transition problems. I just wanted
+to make the request that you allocate time to put these very useful features
+into the new comm system as well. </P>
+
+<P><I>This section of the document is used by the authors and moderator
+to store any incomplete information - issues identified during a design
+inspection but not yet resolved (the task list), notes that aren't ready
+to be put into the main text, etc.</I> <BR>
+&nbsp; </P>
+
+</BODY>
+</HTML>

@@ -1,0 +1,62 @@
+// File     Expressions\Tuple.ez
+// Summary  Testing tuple declarations
+//
+//  001  Title    tuple defined without specifying size
+//       Result   Fail
+//       Test     
+                  define lookup_table[] := {1, 2, 4, 8, 16, 32, 64, 128}
+                  define index := 0
+                  while (index <= 7) {
+                      print( "[" )
+                      print( index )
+                      print( "] := " )
+                      lookup_table[index] print
+                      print( "\n" )
+                      index := index + 1
+                  }
+//
+//       Expect   [0] := 1
+//                [1] := 2
+//                [2] := 4
+//                [3] := 8
+//                [4] := 16
+//                [5] := 32
+//                [6] := 64
+//                [7] := 128
+//                value: null
+//
+//       Actual   [0] := [0] := lookup_table
+//                ec.ez.collect.NotFoundException: lookup_table
+//                null
+//                ^
+// 
+//  002  Title    tuple defined by specifying size
+//       Result   Fail
+//       Test     
+                  define lookup_table[7] := { "SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"}
+                  define index := 0
+                  while (index < 8) {
+                      print( "[" )
+                      print( index )
+                      print( "] := " )
+                      print( lookup_table[index] )
+                      print( "\n" print )
+                      index := index + 1
+                  }
+//
+//       Expect   [0] := MON
+//                [1] := TUE
+//                [2] := WED
+//                [3] := THU
+//                [4] := WED
+//                [5] := THU
+//                [6] := FRI
+//                [7] := SAT
+//                value: null
+//
+//       Actual   [0] := [0] := lookup_table
+//                ec.ez.collect.NotFoundException: lookup_table
+//                null
+//                ^
+// 
+

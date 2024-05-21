@@ -1,0 +1,49 @@
+#!/bin/sh
+
+# braun: (a coffee maker)
+#  turns .e and .unit files into .java files in the right package heirarchy
+#
+# usage:
+#
+# braun -d targetdir files to process...
+#
+
+targetdir=.
+
+# argument processing
+while true; do
+	case x$1 in
+	x-d)
+		shift;
+		targetdir=$1;
+		shift;
+		;;
+	x*)
+		break;
+		;;
+	esac
+done
+
+for i in $*; do
+	# finds the first occurance of "package" at the beginning of a line
+	# then changes dots in what follows into slashes
+	package=`sed '
+/^package/!d
+s/package[ 	]*//
+s/;.*//
+s/\./\//g
+q' $i`
+	if [ -z "$package" ]; then
+		echo $i: no package declaration
+		continue;
+	fi
+	dir=$targetdir/$package
+	# removes everything up to and including the last slash from the filename
+	# then everything after and including the last dot
+	out=`echo $i | sed '
+s/^.*\///
+s/\.[^.]*//'`
+	mkdir -p $dir
+	echo processing $i into $dir/$out.java
+	java -ms4m ec.ecomp.Main -esystem -printtree -nooutput -nowarn -cafesucks $i > $dir/$out.java
+done

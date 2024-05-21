@@ -1,0 +1,6 @@
+PublishRootDir=.
+PublishDir=PublishedRefs
+RegisterWithURLs=ftp://www.communities.com/pub/pls-location/george.communities.com_1667;ftp://www.communities.com/pub/pls-location/gracie.communities.com_1667;ftp://www.communities.com/pub/pls-location/harpo.communities.com_1667
+SearchPath=george.communities.com:1667;gracie.communities.com:1667;harpo.communities.com:1667
+ECHome=ECHome
+

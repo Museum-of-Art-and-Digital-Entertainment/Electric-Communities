@@ -1,0 +1,119 @@
+<HTML>
+<HEAD>
+
+<TITLE>Notes on Appearance Editor and Its Cronies And Cafe Magik</TITLE>
+
+</HEAD>
+<BODY>
+<H2>Notes on Appearance Editor and Its Cronies And Cafe Magik</H2>
+
+<H3>Sample sc.ini File</H3>
+
+<p><b>Tony</b> <i>3/11/98</i><br>
+I'm Changing the format of this section to be a current working version of
+*someone's* sc.ini file, followed by our comments.
+<br>
+<br>--- [sc.ini] ---
+<br># Tony Grant, 3/11/98)
+<br>[Version]
+<br>version=1.00 Build 4
+<br>
+<br>[Environment]
+<br>PATH=%@P%\..\BIN;%@P%\..\Java\Bin;%PATH%
+<br>BIN=%@P%\..\Bin
+<br>INCLUDE=%@P%\..\INCLUDE
+<br>LIB=%@P%\..\Lib
+<br>HELP=%@P%\..\HELP
+<br>JAVAINC=%@P%\..\JAVA\SRC
+<br>JAVA_HOME=%@P%\..\JAVA
+<br>BUILDDIR=d:\Build
+<br>
+<br>SWING_HOME=d:\work\swing-1.0
+<br>
+<br>CLASSPATH=.;%@P%\..\JAVA\LIB\CLASSES.ZIP;%@P%\COMPONENTS\SYMBEANS.JAR;%@P%\..\JAVA\LIB;%@P%\..\JAVA\LIB\SYMCLASS.ZIP;%@P%\COMPONENTS\BEANGENERATOR.JAR
+<br>
+<br>CLASSPATH=%CLASSPATH%\%BUILDDIR%\classes;%BUILDDIR%\crew\classes;%BUILDDIR%\steward\classes;%BUILDDIR%\compute\classes;%BUILDDIR%\guest\classes;%CRYPTIXDIR%\classes.zip;%JCEDIR%\lib\jce.zip;%JAVADIR%\lib\classes.zip;%IFCDIR%\classes.zip
+<br>
+<br>SWING_PATH=%SWING_HOME%;%SWING_HOME%\swingall.jar
+<br>
+<br>CLASSPATH=%CLASSPATH%;%SWING_PATH%
+<br>
+<br># adding the entire build environment path because
+<br># Appearance3D uses native code and I want to pick up Appearance.DLL
+<br># I could just add *that* directory, but this might come up again... (tony)
+<br>
+<br>PATH=%PATH%;d:\EC\TP\java-1.1.3\bin;d:\Build\bin;d:\Build\lib;d:\EC\gnu\bin;
+<br>PATH=%PATH%;D:\WINNT\SYSTEM32;D:\WINNT;d:\EC\TP\AnyChannel;d:\EC\TP\Codebase;
+<br>PATH=%PATH%;D:\Program Files\DevStudio\VC\bin;D:\Program Files\DevStudio\SharedIDE\bin
+<br>PATH=%PATH%;d:\EC\FP\e\win32\bin;d:\EC\FP\e\win32\lib;D:\EC\FP\pluribus\win32\bin
+<br>PATH=%PATH%;d:\EC\FP\hub\win32\lib;d:\EC\FP\cosm\win32\bin;d:\EC\FP\cosm\win32\lib
+<br>--- [end] ---
+
+<H3>Notes</H3>
+
+<p><b>John</b> <i>2/24/98:</i><br>
+I added the following lines to my ECEnvironment.bat in order to allow running
+Appearance2DEditor.java from the command line:
+<br>
+<br>    set SWING_HOME=C:\mine\swing-1.0
+<br>    set CLASSPATH=%SWING_HOME%;%SWING_HOME%\swing.jar;%SWING_HOME%\windows.jar;%SWING_HOME%\motif.jar;%SWING_HOME%\jlf.jar;%SWING_HOME%\mac.jar;%SWING_HOME%\1.1_libs\swing.jar;%SWING_HOME%\1.1_libs\windows.jar;%SWING_HOME%\1.1_libs\motif.jar;%SWING_HOME%\1.1_libs\jlf.jar;%SWING_HOME%\1.1_libs\mac.jar;%CLASSPATH%
+
+<p>Since swing-1.0 isn't yet in the EC directory with our other third-party
+libraries,the SWING_HOME line specifies where I've put it on my local disk.
+Eventually we'll standardize this in EC/TP.</p>
+
+
+<p><b>John</b> <i>2/24/98:</i><br>
+I checked in a GNUmakefile but it doesn't work, because the classpath it
+uses doesn't include the swing stuff. The classpath environment
+variable, set from ECEnvironment.bat, does include the swing stuff (as
+described above). This is probably related to the funky way we assemble
+classpaths on the fly to handle crew/steward/guest distinctions. For the
+moment, you have to compile in Visual Cafe, but you can then run from
+the command line if you want.</p>
+
+
+<p><b>John</b> <i>2/24/98:</i><br>
+If I specify a package (ec.cosm.tools.appearance) at the top of
+Appearance2DEditor.java, it builds but then can't find the class file to
+run. I tried both "Appearance2DEditor" and
+"ec.cosm.tools.appearance.Appearance2DEditor" as the name of the class
+in the Options dialog in the Project window; both gave the same
+unhelpful error message. For now, all the class files just get dumped
+into the directory with the source code, which is obviously lame. It
+would be nice to get the class files into the same place they go when
+building with GNUmakefile (if that worked!), but I don't yet know how to
+do that.</p>
+
+<p><b>Followup from John</b> <i>2/27/98:</i><br>
+To make the classes go into our classfiles hierarchy, you've got to
+specify the output directory in Visual Cafe's Project/options dialog.
+Choose that menu item, then click the Directory tab, then select "Output
+files" from the combo box. Here enter the root for our classfiles
+hierarchy (e.g. "C:\Build\classes"). Now under the Project tab in this
+same window type in the fully-qualified class name as the Main Class
+(e.g., "ec.cosm.tools.appearance.Appearance2DEditor").</p>
+
+<p><b>John</b> <i>3/11/98</i><br>
+The Main Class has been changed to ec.cosm.tools.appearance.AppearanceTool.</p>
+
+<p><b>Tony</b> <i>3/11/98</i><br>
+sc.ini notes:</p>
+<OL>
+<LI>I've simplified the SWING_PATH considerably after reading *their*
+readme.txt.  The SWING_PATH now just points to swingall.jar</LI>
+<LI>I've enlarged the PATH considerably to include our entire build
+environment path. This is to ensure that we pick up any DLLs
+(appearance.dll, notably) I could pare this down some to just include the
+relevant lib directories, but this is a start.</LI>
+<LI>Started to put comments in the .ini file itself. Preceded with a pound (#)</LI>
+</OL>
+<B>
+<BR><A HREF="cafe.html">Back to Cafe main page</A>
+<BR><A HREF="../index.html">Back to Neocosm survey page</A>
+<BR><A HREF="../../index.html">Back to Microcosm engineering main page</A>
+</B>
+</BODY>
+
+</BODY>
+</HTML>

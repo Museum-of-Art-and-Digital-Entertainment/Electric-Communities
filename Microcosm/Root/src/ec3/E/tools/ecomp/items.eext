@@ -1,0 +1,580 @@
+# 1 "ec/ecomp/items.java" 
+/* ************************************************************************
+ * Espresso! Item Handling
+ * Copyright 1995 Martin Odersky. All rights reserved.
+ * 
+ * Author     : Martin Odersky
+ * Last change: 11-Nov-96
+ *************************************************************************/
+
+
+package ec.ecomp;
+# 13 "ec/ecomp/items.java" 
+
+
+/** An item is an addressable entity with a fixed method protocol.
+ */
+class Item implements /*imports*/ Constants {
+
+/** Items that exist only once:
+ */
+    static Item voidItem = new Item(VOIDmode);    // nothing
+    static Item stackItem = new Item(STACKmode);  // top of stack
+    static Item thisItem = new Item(THISmode);   // the current object
+    static Item superItem = new Item(SUPERmode); // the current object;
+                                                 // seen as its superclass
+    static Item indexedItem = new Item(INDEXEDmode); 
+    // two stack elements are an array & index pointing to object
+    
+    static Item nonvirtualItem = superItem;
+
+    int mode; 
+    // = VOIDmode, STACKmode, THISmode, SUPERmode, INDEXEDmode
+    // rest defined in subclasses
+
+    Item(int mode) {
+        this.mode = mode;
+    }
+
+/** generate code to load object onto stack. 
+ *  typ gives the object's type.
+ */
+    void load(Typ typ) {
+        switch (mode) {
+        case VOIDmode:
+        case STACKmode:
+            break;
+        case THISmode:
+        case SUPERmode:
+            Gen.emitop(aload_0);
+            break;
+        case INDEXEDmode:
+            Gen.emitop(iaload + Gen.longTypecode(typ));
+            break;
+        default:
+            throw new CompilerError("load " + mode);
+        }
+    }
+
+/** generate code to overwrite object with top of stack.
+ *  typ gives the object's type.
+ */
+    void store(Typ typ) {
+        switch (mode) {
+        case INDEXEDmode:
+            Gen.emitop(iastore + Gen.longTypecode(typ));
+            break;
+        default:
+            throw new CompilerError("store");
+        }
+        
+    }
+
+/** generate code to use object twice.
+ *  typ gives the object's type.
+ */
+    void duplicate(Typ typ) {
+        switch (mode) {
+        case STACKmode:
+            if (Switches.checks) Basic.assert(typ.tag != VOID);
+            Gen.emitop(Gen.width(typ) == 2 ? dup2 : dup);
+            break;
+        case INDEXEDmode:
+            Gen.emitop(dup2);
+            break;
+        default:
+            break;
+        }
+    }
+
+/** generate code to avoid having to use object.
+ *  typ gives the object's type.
+ */
+    void drop(Typ typ) {
+        switch (mode) {
+        case STACKmode:
+            if (Switches.checks) Basic.assert(typ.tag != VOID);
+            Gen.emitop(Gen.width(typ) == 2 ? pop2 : pop);
+            break;
+        case INDEXEDmode:
+            Gen.emitop(pop2);
+            break;
+        default:
+            break;
+        }
+    }
+
+/** generate code to stash a copy of top of stack - of width nwords -
+ *  under object.
+ */
+    void stash(Typ typ, int nwords) {
+        switch (mode) {
+        case STACKmode:
+            if (Switches.checks) Basic.assert(typ.tag != VOID);
+            Gen.emitop((Gen.width(typ) == 2 ? dup_x2 : dup_x1) 
+                     + 3 * (nwords - 1));
+            break;
+        case INDEXEDmode:
+            Gen.emitop(dup_x2 + 3 * (nwords - 1));
+            break;
+        default:
+            Gen.emitop(dup + 3 * (nwords - 1));
+            break;
+        }
+    }
+
+/** generate code to turn object into a testable condition.
+ */
+    CondItem mkCond() {
+        load(Typ.booleanTyp);
+        return new CondItem(ifne);
+    }
+
+/** generate code to coerce object of type t and typecode ltc 
+ *  to an object of type code rtc.
+ */
+    Item coerce(Typ t, int ltc, int rtc) {
+        if (ltc == rtc)
+            return this;
+        else {
+            load(t);
+            int ltc1 = Gen.truncateCode(ltc);
+            int rtc1 = Gen.truncateCode(rtc);
+            if (ltc1 != rtc1) {
+                int offset = rtc1 > ltc1 ? rtc1 - 1 : rtc1;
+                Gen.emitop(i2l + ltc1 * 3 + offset);
+            }
+            if (rtc != rtc1) {
+                Gen.emitop(int2byte + rtc - BYTEcode);
+            }
+            return stackItem;
+        }
+    }
+
+/** generate code to coerce object of type from
+ *  to an object of type to.
+ */
+    Item coerce(Typ from, Typ to) {
+        int fromtc = Gen.longTypecode(from);
+        int totc = Gen.longTypecode(to);
+        if (fromtc == OBJECTcode && totc == OBJECTcode)
+            if (from.subtype(to)) 
+                return this;
+            else {
+                load(from);
+                Gen.emitop2(checkcast, Gen.mkref(to));
+                return stackItem;
+            }
+        else {
+            if (Switches.checks) 
+                Basic.assert(fromtc != OBJECTcode && totc != OBJECTcode);
+            return this.coerce(from, fromtc, totc);
+        }
+    }
+}
+
+/** Items representing local variables.
+ */
+class LocalItem extends Item {
+    int pos;  // source code position
+    int disp; // variable address
+
+    LocalItem(int pos, int disp) {
+        super(LOCALmode);
+        this.pos = pos;
+        this.disp = disp;
+    }
+
+    void load(Typ typ) {
+        Gen.checkInit(pos, disp);
+        if (disp <= 3)
+            Gen.emitop(iload_0 + Gen.typecode(typ) * 4 + disp);
+        else 
+            Gen.emitop1w(iload + Gen.typecode(typ), disp);
+    }
+                    
+    void store(Typ typ) {
+        Gen.letInit(disp);
+        if (disp <= 3)
+            Gen.emitop(istore_0 + Gen.typecode(typ) * 4 + disp);
+        else
+            Gen.emitop1w(istore + Gen.typecode(typ), disp);
+    }
+
+    void incr(int x) {
+        Gen.checkInit(pos, disp);
+        Gen.emitop1w(iinc, disp);
+        if (disp > 0xFF) Gen.emit2(x);
+        else Gen.emit1(x & 0xFF);
+    }
+}
+
+/** Items representing global classes.
+ */
+class ClassItem extends Item {
+    ClassObj c;
+
+    ClassItem(ClassObj c) {
+        super(CLASSmode);
+        this.c = c;
+    }
+}
+
+/** Items representing methods and fields.
+ */
+class BasedItem extends Item {
+    int pos;   // source code position
+    Item base; // the class of object containing the method/field
+    Obj field; // field or method.
+
+    BasedItem (int pos, Item base, Obj field) {
+        super(field instanceof VarObj ? FIELDmode : METHmode);
+        this.pos = pos;
+        this.base = base;
+        this.field = field;
+        if ((field.modifiers & STATIC) == 0)
+            base.load(field.owner.typ);
+        else if (base != null)
+            base.drop(field.owner.typ);
+    }
+
+    void load(Typ typ) {
+        if (Switches.checks) Basic.assert(mode == FIELDmode);
+        if (field.owner == Gen.code.owner &&
+            ((field.modifiers & STATIC) != 0) == Gen.code.isStatic)
+            Gen.checkInit(pos, ((VarObj)field).adr);
+        if ((field.modifiers & STATIC) == 0)
+            Gen.emitop(getfield, Gen.width(typ) - 1);
+        else
+            Gen.emitop(getstatic, Gen.width(typ));
+        Gen.emit2(Gen.mkref(field));
+    }
+
+    void store(Typ typ) {
+        if (Switches.checks) Basic.assert(mode == FIELDmode);
+        if (field.owner == Gen.code.owner &&
+            ((field.modifiers & STATIC) != 0) == Gen.code.isStatic)
+            Gen.letInit(((VarObj)field).adr);
+        if ((field.modifiers & STATIC) == 0)
+            Gen.emitop(putfield, -Gen.width(typ) - 1);
+        else
+            Gen.emitop(putstatic, -Gen.width(typ));
+        Gen.emit2(Gen.mkref(field));
+    }
+
+    void duplicate(Typ typ) {
+        if ((field.modifiers & STATIC) == 0)
+            Gen.emitop(dup);
+    }
+
+    void drop(Typ typ) {
+        if ((field.modifiers & STATIC) == 0)
+            Gen.emitop(pop);
+    }
+
+    void stash(Typ typ, int nwords) {
+        if ((field.modifiers & STATIC) == 0)
+            stackItem.stash(Typ.intTyp, nwords);
+        else
+            super.stash(Typ.intTyp, nwords);
+    }
+
+/** invoke method:
+ */
+    void invoke() {
+        FunTyp ftyp = (FunTyp)field.typ;
+        int argsize = Gen.width(ftyp.argtyps);
+        int sdiff = Gen.width(ftyp.restyp) - argsize;
+        if ((field.modifiers & STATIC) != 0) {
+            Gen.emitop(invokestatic, sdiff);
+            Gen.emit2(Gen.mkref(field));
+        } else if ((field.owner.modifiers & INTERFACE) != 0) {
+            Gen.emitop(invokeinterface, sdiff - 1);
+            Gen.emit2(Gen.mkref(field));
+            Gen.emit1(argsize + 1);
+            Gen.emit1(0);
+        } else if (base.mode == SUPERmode || 
+                    (field.modifiers & (
+                        /* does not pass verifier yet: FINAL | */
+                      PRIVATE)) != 0 ||
+                   field.name.equals(Predef.initS)) {
+            Gen.emitop(invokenonvirtual, sdiff - 1);
+            Gen.emit2(Gen.mkref(field));
+        } else {
+            Gen.emitop(invokevirtual, sdiff - 1);
+            Gen.emit2(Gen.mkref(field));
+        }
+    }
+}
+
+/** Items representing constants:
+ */
+class ImmediateItem extends Item {
+    Object value;
+
+    ImmediateItem(Object value) {
+        super(IMMEDIATEmode);
+        this.value = value;
+    }
+
+    private void ldc(int idx) {
+        if (idx <= 255) Gen.emitop1(ldc1, idx);
+        else Gen.emitop2(ldc2, idx);
+    }
+
+    void load(Typ typ) {
+        switch (typ.tag) {
+//        case PBYTE:
+        case BYTE: 
+//      case PSHORT: 
+        case SHORT: 
+        case CHAR: 
+        case INT: 
+        case BOOLEAN: {
+            int ival = ((Number)value).intValue();
+            if (-1 <= ival && ival <= 5)
+                Gen.emitop(iconst_0 + ival);
+            else if (MIN_BYTE <= ival && ival <= MAX_BYTE) 
+                Gen.emitop1(bipush, ival & 0xFF);
+            else if (MIN_SHORT <= ival && ival <= MAX_SHORT)
+                Gen.emitop2(sipush, ival & 0xFFFF);
+            else
+                ldc(Gen.putConstant(value));
+            break;
+        }
+        case LONG: {
+            long lval = ((Number)value).longValue();
+            if (lval == 0 || lval == 1)
+                Gen.emitop(lconst_0 + (int)lval);
+            else
+                Gen.emitop2(ldc2w, Gen.putConstant(value));
+            break;
+        }
+        case FLOAT: {
+            float fval = ((Number)value).floatValue();
+            if (fval == 0.0 || fval == 1.0 || fval == 2.0)
+                Gen.emitop(fconst_0 + (int)fval);
+            else {
+                ldc(Gen.putConstant(value));
+            }
+            break;
+        }
+        case DOUBLE: {
+            double dval = ((Number)value).doubleValue();
+            if (dval == 0.0 || dval == 1.0)
+                Gen.emitop(dconst_0 + (int)dval);
+            else
+                Gen.emitop2(ldc2w, Gen.putConstant(value));
+            break;
+        }
+        case CLASS: case ARRAY: case NULLTYP: 
+            if (value == Basic.nullValue)
+                Gen.emitop(aconst_null);
+            else {
+                ldc(Gen.putConstant(Gen.stringName((Name)value)));
+            }
+            break;
+        default: throw new CompilerError("load");
+        }
+    }
+
+    CondItem mkCond() {
+        int ival = ((Integer)value).intValue();
+        return new CondItem(ival != 0 ? goto_ : Gen.dontgoto);
+    }
+
+    Item coerce(Typ t, int ltc, int rtc) {
+        if (ltc == rtc)
+            return this;
+        else {
+            Number n = (Number)value;
+            switch (rtc) {
+            case INTcode: 
+                n = new Integer(n.intValue()); break;
+            case LONGcode: 
+                n = new Long(n.longValue()); break;
+            case FLOATcode: 
+                n = new Float(n.floatValue()); break;
+            case DOUBLEcode: 
+                n = new Double(n.doubleValue()); break;
+            case OBJECTcode: 
+                throw new CompilerError("coerce");
+            case BYTEcode: 
+                n = new Integer((byte)n.intValue()); break;
+            case CHARcode: 
+                n = new Integer((char)n.intValue()); break;
+            case SHORTcode: 
+                n = new Integer((short)n.intValue()); break;
+            }
+            return new ImmediateItem(n);
+        }
+    }
+
+/** utility routine -- load an integer constant:
+ */
+    static void loadIntConst(int n) {        
+        (new ImmediateItem(new Integer(n))).load(Typ.intTyp);
+    }
+}
+
+/** Items representing arrays to be allocated:
+ */
+class NewArrayItem extends Item {
+    int dim;
+
+    NewArrayItem(int dim) {
+        super(NEWARRAYmode);
+        this.dim = dim;
+    }
+
+    private int tcode(int tag) {
+        switch (tag) {
+        case BYTE: return 8;
+        case BOOLEAN: return 4;
+        case SHORT: return 9;
+        case CHAR: return 5;
+        case INT: return 10;
+        case LONG: return 11;
+        case FLOAT: return 6;
+        case DOUBLE: return 7;
+        case CLASS: return 0;
+        case ARRAY: return 1;
+        default: throw new CompilerError("tcode");
+        }
+    }
+
+    void load(Typ typ) {
+        Typ elemtyp = ((ArrayTyp)typ).elemtyp;
+        int elemcode = tcode(elemtyp.tag);
+        if (elemcode == 0 || (elemcode == 1 && dim == 1))
+            Gen.emitop2(anewarray, Gen.mkref(elemtyp));
+        else if (elemcode == 1) {
+            Gen.emitop(multianewarray, 1 - dim);
+            Gen.emit2(Gen.mkref(typ));
+            Gen.emit1(dim);
+        } else 
+            Gen.emitop1(newarray, elemcode);
+    }
+
+    void duplicate(Typ typ) {
+        load(typ);
+        stackItem.duplicate(typ);
+    }
+
+    void drop(Typ typ) {
+        load(typ);
+        stackItem.drop(typ);
+    }
+
+    void stash(Typ typ, int nwords) {
+        throw new CompilerError("stash");
+    }
+}
+
+/** Items representing assignment expressions
+ */
+class AssignItem extends Item {
+    Item lhs;
+
+    AssignItem(Item lhs) {
+        super(ASSIGNmode);
+        this.lhs = lhs;
+    }
+    
+    void load(Typ typ) {
+        lhs.stash(typ, Gen.width(typ));
+        lhs.store(typ);
+    }
+
+    void duplicate(Typ typ) {
+        load(typ);
+        stackItem.duplicate(typ);
+    }
+
+    void drop(Typ typ) {
+        lhs.store(typ);
+    }
+
+    void stash(Typ typ, int nwords) {
+        throw new CompilerError("stash");
+    }
+}
+
+/** Items representing conditions:
+ */
+class CondItem extends Item {
+    Label trueJumps;
+    Label falseJumps;
+    int opcode;
+
+    CondItem(int opcode, Label truejumps, Label falsejumps) {
+        super(CONDmode);
+        this.opcode = opcode;
+        this.trueJumps = truejumps;
+        this.falseJumps = falsejumps;
+    }
+
+    CondItem(int opcode) {
+        this(opcode, null, null);
+    }
+
+    void load(Typ typ) {
+        Label trueExit = null;
+        Label falseLab = jumpFalse();
+        if (trueJumps != null || opcode != Gen.dontgoto) {
+            Gen.resolve(trueJumps);
+            Gen.emitop(iconst_1);
+            trueExit = Gen.branch(goto_);
+        }
+        if (falseLab != null) {
+            Gen.resolve(falseLab);
+            Gen.emitop(iconst_0);    
+        }
+        Gen.resolve(trueExit);
+    }
+
+    void duplicate(Typ typ) {
+        load(typ);
+        stackItem.duplicate(typ);
+    }
+
+    void drop(Typ typ) {
+        load(typ);
+        stackItem.drop(typ);
+    }
+
+    void stash(Typ typ, int nwords) {
+        throw new CompilerError("stash");
+    }
+
+    CondItem mkCond() {
+        return this;
+    }
+
+    Label jumpTrue() {
+        return Gen.mergeLabels(trueJumps, Gen.branch(opcode));
+    }
+
+    Label jumpFalse() {
+        return Gen.mergeLabels(falseJumps, Gen.branch(Gen.negate(opcode)));
+    }
+
+    CondItem negate() {
+        return new CondItem(Gen.negate(opcode), falseJumps, trueJumps);
+    }
+
+}
+        
+
+
+
+
+
+
+
+
+
+
+
+
+

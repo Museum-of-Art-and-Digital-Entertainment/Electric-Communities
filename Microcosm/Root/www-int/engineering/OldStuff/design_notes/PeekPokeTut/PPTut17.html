@@ -1,0 +1,108 @@
+<!--NewPage-->
+<!-- Created by Masa Maeda on 05.14.97  -->
+<!-- Copyright 1997 Electric Communitites. -->
+<!-- All rights reserved worldwide.  -->
+<!-- Proprietary and confidential. -->
+<HTML>
+<HEAD>
+<pre>
+<a href="PPTut16.html">Previous</a>  <a
+href="PPTut18.html">Next</a>  <a
+href="PPTutI.html">Index</a>  <a
+href="PPTut1.html">Home</a></pre>
+<TITLE>The PeekPoke Tutorial</TITLE>
+</HEAD>
+<BODY>
+<P><HR WIDTH="100%" SIZE=2></P>
+
+<B><P>Step 2. Modify <FONT FACE="Courier">Main()</P>
+</B></FONT>
+<P>In<FONT FACE="Courier"> Main()</FONT>, <FONT FACE="Courier">go()</FONT> changes
+considerably.  First of all it is necessary obtain some properties from the
+environment, via <FONT FACE="Courier">env.getProperty</FONT>, to specify the
+published ID, where the publisher is PeekerPoker, and a url to refer to a client.
+<FONT FACE="Courier">ERegistrar</FONT><FONT FACE="Courier" SIZE=1> </FONT>allows
+objects, in this case host and clients, to be registered by name in the local
+machine’s object directory. The code within the if structure defines how the host
+behaves (when url is null) and how clients behave (when url is not null). For the
+host</P>
+
+<P><HR WIDTH="80%" SIZE=2></P>
+<PRE>
+
+	export unit Main {
+	  package ec.Masa.Test;
+	  import ec.e.start.ELaunchable;
+	  import ec.e.cap.*;
+	  import ec.e.net.*;
+	  // import units
+	  unit PeekPokeKinds;
+	  unit PeekablePokeable;
+	  unit PeekerPoker;
+	  
+      public eclass PeekPokeShip implements Agent {
+        emethod go (EEnvironment env) {
+          System.out.println("In PeekPokeShip.go()");
+          String Pid = env.getProperty("PublisherId");
+          String url = env.getProperty("url");
+          ERegistrar reg = (ERegistrar)env.get("registrar.root");
+          if (url == null) {
+            System.out.println("URL is null: I am the Host!");
+            try { reg.startup(0); } catch (ERestrictedException e) {
+              System.out.println("reg.startup: " + e); 
+            }
+            kind ukPeekable unumPeekable = new unum uiPeekablePokeable();
+            kind ukPokeable unumPokeable = new unum uiPeekablePokeable();
+            ENetUtility.publishWithPropertyName(unumPeekable, "DoPeekPoke", 
+                                                env, null, "url=");
+          } else {
+            System.out.println("URL not null: I am just a client.");
+            kind uskPeekablePokeable unumPeekPokeAble;
+            kind ukPeeker unumPeeker = new unum uiPeekerPoker();
+            kind ukPoker unumPoker = new unum uiPeekerPoker();
+            etry {
+              try {
+                reg.lookupURL(url, &amp unumPeekPokeAble);
+              } catch (Exception e) {
+                System.out.println("lookupURL: " + url + " " + e);
+              }
+            } ecatch (RtDirectoryEException e) {
+              System.out.println("PeekPokeShip caught exception on remote 
+                                  Unum lookup for Peekable: " + e.getMessage());
+            }
+            unumPeeker &lt - uPeekUnum(unumPeekPokeAble, "The Peeker");
+            unumPoker &lt - uPokeUnum(unumPeekPokeAble, "The Poker");
+          }
+          System.out.println("End of PeekPokeShip.go()");
+        }
+      }
+    }
+</PRE>
+
+<P><HR WIDTH="100%" SIZE=2></P>
+<pre>
+<a href="PPTut16.html">Previous</a>  <a
+href="PPTut18.html">Next</a>  <a
+href="PPTutI.html">Index</a>  <a
+href="PPTut1.html">Home</a></pre>
+
+</HTML>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

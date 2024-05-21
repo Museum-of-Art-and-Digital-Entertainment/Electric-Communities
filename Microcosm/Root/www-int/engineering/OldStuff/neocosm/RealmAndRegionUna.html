@@ -1,0 +1,177 @@
+<HTML>
+<HEAD>
+   <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+   <META NAME="Generator" CONTENT="Microsoft Word 97">
+   <META NAME="Template" CONTENT="C:\PROGRAM FILES\MICROSOFT OFFICE\OFFICE\html.dot">
+   <META NAME="GENERATOR" CONTENT="Mozilla/4.01 [en] (Win95; I) [Netscape]">
+   <TITLE>RealmandRegionUna</TITLE>
+</HEAD>
+<BODY LINK="#0000FF" VLINK="#800080">
+
+<H1>
+<I>Basic Una Support -- Realm and Region</I></H1>
+<B>Last Updated</B>:&nbsp; 5/27/98
+
+<P><I>Author(s) </I><A HREF="mailto:slewis@communities.com">slewis@communities.com</A>
+<H2>
+Introduction</H2>
+The realm and region are two 'special' una. The realm is a host-only unum…i.e.
+it creates no client presences. It is also an unum that is purely abstract…i.e.
+it is not intended to have any visual or other in-world representation,
+but rather serves purely administrative and other 'meta' functions. It
+also meant to represent a grouping of regions that share common terms of
+service. It has only a few ingredients: an identity ingredient (it has
+an identity so it can be uniquely identified), a BasicContainer ingredient
+(used as a neighbor for the RegionContainer ingredient), a RegionContainer
+ingredient (meant to represent access to all the region una that the realm
+currently contains), and a RealmTOSPeer ingredient (the code for responding
+to region requests for realm tos entry approval).
+
+<P>The region unum is much more complicated. It has an identity ingredient,
+a BasicContainable ingredient (an ingredient correspondng to the BasicContainer
+ingredient within the realm), a RegionContainable ingredient (an ingredient
+to represent the fact that the region is a containable of the realm), and
+a TOSPeer ingredient (the code responsible for region-level tos checks,
+and for also making tos check requests of the region's container realm).
+It also has a great many other ingredients, the most important of which
+are the containership ingredients (see Rob's description of the containership
+structure), and the ingredients for representing the region's behavior
+(RegionBehavior, BehaviorManager, VerbManager, RootCompositor). These other
+ingredients are documented elsewhere. This document will focus on the region's
+relationship with the realm.
+<H4>
+Related Documents</H4>
+Documentation for the following ingredients: RegionBehavior, BehaviorManager,
+Containership, VerbManager, RootCompositor.
+<H2>
+Requirements</H2>
+For the realm/region una and their relationship, the requirements are as
+follows:
+<OL>
+<LI>
+Support for a host-only realm that is able to communicate at run time with
+all of its known regions.</LI>
+
+<LI>
+Support for a region that is able to communicate at run time with its known
+realm.</LI>
+
+<LI>
+Support for region and realm una hosts to be located on different processes
+(hosted in different vats).</LI>
+
+<LI>
+Support for regions to be added and removed from their containing realm
+at run time, while maintaining consistent information on both sides about
+the state of the region&lt;->realm relationship.</LI>
+
+<LI>
+Support for arbitrary TOS restrictions on entering avatars (identified
+by their unique identities) at both the region and realm level (i.e. regions
+can have restrictions on entry distinct from realm-level restrictions,
+and both are invoked at avatar entry time).</LI>
+
+<LI>
+Support for restrictions on the number of allowed avatars at both the region
+and realm level.</LI>
+
+<LI>
+Support for TOS locking and unlocking (allow/disallow entry) at both the
+region and realm level.</LI>
+
+<LI>
+Support for properties sheet access to the viewing and setting of region
+and realm parameters</LI>
+
+<LI>
+Support for the realm recording and providing definitive access to the
+teleport pads exposed by the regions it contains</LI>
+
+<LI>
+Support the avatar access to administrative capabilities (i.e. modifying
+the TOS policies of the realm at runtime, through the AvatarRealmAdmin
+ingredient in the avatar).</LI>
+</OL>
+
+<H2>
+Architecture</H2>
+<A HREF="realmregion.gif">&nbsp;</A><B>Current Architecture Overview</B>
+
+<P><A HREF="realmregion.gif">Here is a picture of the realm/region architecture</A>
+
+<P>The realm/region containment architecture is set up to be provide a
+generic containment relationship between the realm and 1 or more regions
+that are 'owned' by that realm. The two ingredients responsible for setting
+up and breaking down this relationship are the RegionContainer (a realm
+ingredient) and the RegionContainable (a region ingredient). These two
+ingredients exchange E messages to 'add' and 'remove' regions from the
+set of those currently contained by the realm. Note the protocol is such
+that it could support having realm and region hosts be located on different
+processes and still work properly, although we currently are not doing
+this. The RegionContainer depends upon code located in the BasicContainer
+ingredient, and the RegionContainable depends upon code in the BaseContainable.
+Both the realm and the region have a 'TOSPeer' ingredient, which invokes
+the respective entry policy checks for the region and the realm. Note that
+the region's TOSPeer ingredient communicates with the containership ingredient.
+It receives notifications of entry requests, does a local check, gets a
+facet to the RealmTOSPeer ingredient (via the RegionContainable ingredient),
+sends the request to the RealmTOSPeer ingredient, and passes the results
+back to the containership ingredient. This provides TOS checking prior
+to actual entry that is handled by the containership ingredient.
+<H4>
+Proposed Architecture Overview</H4>
+Same as above. This architecture is working OK now, and should provide
+the needed generality for future uses.
+<H4>
+Off the shelf alternatives</H4>
+None.
+<H4>
+Other Design Objectives, Constraints and Assumptions</H4>
+Some other design objectives: 1) Provide the means for a region to send
+arbitrary messages to its realm when needed. For example, when an avatar
+needs to get a hold of the realm 'map' URL (the URL identifying the web
+page for the realm map), it makes a request first of the region that contains
+it. The region then forwards this request onto its realm (via the RegionContainable/RegionContainer
+ingredients), and the realm provides the map URL back in response to this
+request. A similar messaging pathway is taken for requests to cache a list
+of teleport pads known to the realm (such caching is done by the AvatarRealmAdmin
+ingredient). This basic mechanism can be used for other and other desired/needed
+kinds of communication between the region and the realm without setting
+up other specific relationships.
+<H2>
+Current implementation</H2>
+<I>Yes.</I> <FONT FACE="Wingdings">J</FONT> I'm not sure whether it's necessary
+to go over the details of the current implementation in this document.
+If I get feedback that it is, I will gladly flesh this out. I'm not sure,
+however, that this architecture will receive sufficient scrutiny to justify
+a detailed explanation in this document.
+<H4>
+Which directories on our tree does this subsystem cover?</H4>
+The sources for the RegionContainer, BasicContainer, RegionContainable,
+BasicContainable ingredients are in cosm1/objects/ingredients/*.plu. Most
+of these sources are javadoced.
+
+<P>The sources for the TOS peer ingredients are in cosm1/objects/ingredients/tos/*.plu.
+Most of these sources are javadoced.
+
+<P>The sources for the containership ingredient is in cosm1/objects/ingredients/containership
+<H4>
+Examples</H4>
+An example usage of the region to realm link:
+
+<P>The region exposes an interface for avatars to get the realm 'map' URL
+(exposed by the RegionContainable ingredient). The AvatarInterface ingredient
+uses this interface exposed by the region to ask for and receive the realm's
+map url. As described above, the messaging path is actually: AvatarInterface->RegionContainable->RealmFacet->RegionContainer,
+which then forwards the result to the provided distributor.
+<H4>
+Testing and Debugging</H4>
+It might be useful to have some testing of the Realm/Region add/remove
+protocols, and the way they handle different failure conditions, but only
+if we move to having realms and regions hosted on different processes.
+
+<P><A HREF="index.html">Back to Neocosm survey page</A>
+
+<P><A HREF="../index.html">Back to Microcosm engineering main page</A>
+</BODY>
+</HTML>

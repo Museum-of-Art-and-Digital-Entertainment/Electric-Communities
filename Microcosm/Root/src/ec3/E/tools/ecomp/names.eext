@@ -1,0 +1,450 @@
+# 1 "ec/ecomp/names.java" 
+/* ************************************************************************
+ * Espresso! Name manager
+ * Copyright 1995, 1996 Martin Odersky. All rights reserved.
+ * 
+ * Author     : Martin Odersky, Michael Philippsen
+ * Last change: 29-October-97
+ *************************************************************************/
+
+
+package ec.ecomp;
+
+
+
+
+/** Conversion routines:
+ */
+class Convert {
+
+    public static int digit2int(byte ch, int base) {
+        if ((byte)'0' <= ch && ch <= (byte)'9' && ch < (byte)'0' + base)
+            return ch - (byte)'0';
+        else if ((byte)'A' <= ch && ch < (byte)'A' + base - 10)
+            return ch - (byte)'A' + 10;
+        else if ((byte)'a' <= ch && ch < (byte)'a' + base - 10)
+            return ch - (byte)'a' + 10;
+        else
+            return -1;
+    }
+
+    public static byte int2digit(int x) {
+        if (x <= 9) return (byte)(x + (byte)'0');
+        else return (byte)(x - 10 + (byte)'A');
+    }
+
+/* the next 4 functions convert between three fundamental name 
+ *representations:
+ *  - string   each character 16 bit,
+ *  - source   characters outside 0..127 are represented by 
+ *             unicode escapes, \ u X X X X
+ *  - ascii    characters outside 0..127 are represented by two or three
+ *             byte sequences with high bit set (as in class file format).
+ */
+
+/** convert source bytes in source[offset..offset+len-1] to ascii.  
+ */
+    public static int source2ascii(byte source[], int offset, int len, 
+                            byte ascii[]) {
+        int j = 0;
+        int i = 0;
+        while (i < len) {
+            if (source[offset + i] == (byte)'\\' && i + 1 < len) {
+                i++;
+                switch (source[offset + i]) {
+                case (byte)'n': 
+                    ascii[j++] = (byte)'\n'; i++; continue;
+                case (byte)'t':
+                    ascii[j++] = (byte)'\t'; i++; continue;
+                case (byte)'b':
+                    ascii[j++] = (byte)'\b'; i++; continue;
+                case (byte)'r':
+                    ascii[j++] = (byte)'\r'; i++; continue;
+                case (byte)'f':
+                    ascii[j++] = (byte)'\f'; i++; continue;
+                case (byte)'u':
+                    if (i + 4 < len) {
+                        int code = 0;
+                        int k = 1;
+                        int d = 0;
+                        while (k <= 4 && d >= 0) {
+                            d = digit2int(source[offset + i + k], 16);
+                            code = code * 16 + d;
+                            k++;
+                        }
+                        if (d >= 0) {
+                            if (code <= 0x7F) {
+                                ascii[j++] = (byte)code;
+                            } else if (code <= 0x3FF) {
+                                ascii[j++] = (byte)(0xC0 | (code >> 6));
+                                ascii[j++] = (byte)(0x80 | (code & 0x3F));
+                            } else {
+                                ascii[j++] = (byte)(0xE0 | (code >> 12));
+                                ascii[j++] = (byte)(0x80 | 
+                                                    ((code >> 6) & 0x3F));
+                                ascii[j++] = (byte)(0x80 | (code & 0x3F));
+                            }
+                            i = i + 5;
+                            continue;
+                        }
+                    }
+                default:
+                }
+            }
+            byte b = (byte)(source[offset + i++] & 0xff);
+            if (b >= 0)
+                ascii[j++] = b;
+            else {
+                ascii[j++] = (byte)(0xC0 | ((b >> 6) & 0x3));
+                ascii[j++] = (byte)(0x80 | (b & 0x3F));
+            }
+        }
+        return j;
+    }
+
+/** convert ascii bytes in ascii[offset..offset+len-1] to a string.  
+ */
+    public static String ascii2string(byte ascii[], int offset, int len) {
+        char cs[] = new char[len];
+        int i = 0;
+        int j = 0;
+        while (i < len) {
+            int b = ascii[offset + i++] & 0xff;
+            if (b >= 0xE0) {
+                b = (b & 0x0F) << 12;
+                b = b | (ascii[offset + i++] & 0x3F) << 6;
+                b = b | (ascii[offset + i++] & 0x3F);
+            } else if (b >= 0xC0) {
+                b = (b & 0x1F) << 6;
+                b = b | (ascii[offset + i++] & 0x3F);
+            }
+            cs[j++] = (char)b;
+        }
+        return new String(cs, 0, j);
+    }
+
+/** convert string to array of source bytes.
+ */
+    public static byte[] string2source(String s) {
+        byte[] source = new byte[s.length() * 6];
+        int j = 0;
+        for (int i = 0; i < s.length(); i++) {
+            char ch = s.charAt(i);
+            switch (ch) {
+            case (byte)'\n': 
+                source[j++] = (byte)'\\';
+                source[j++] = (byte)'n'; 
+                break;
+            case (byte)'\t':
+                source[j++] = (byte)'\\';
+                source[j++] = (byte)'t'; 
+                break;
+            case (byte)'\b':
+                source[j++] = (byte)'\\';
+                source[j++] = (byte)'b'; 
+                break;
+            case (byte)'\r':
+                source[j++] = (byte)'\\';
+                source[j++] = (byte)'r'; 
+                break;
+            case (byte)'\f':
+                source[j++] = (byte)'\\';
+                source[j++] = (byte)'f'; 
+                break;
+            case (byte)'\"': 
+                source[j++] = (byte)'\\';
+                source[j++] = (byte)'\"';
+                break;
+            case (byte)'\'':
+                source[j++] = (byte)'\\';
+                source[j++] = (byte)'\'';
+                break;
+            case (byte)'\\':
+                source[j++] = (byte)'\\';
+                source[j++] = (byte)'\\';
+                break;
+            default:
+                if ((byte)' ' <= ch && ch <= 127)
+                    source[j++] = (byte)ch;
+                else {
+                    source[j++] = (byte)'\\';
+                    source[j++] = (byte)'u';
+                    source[j++] = int2digit((ch >> 12) & 0xF);
+                    source[j++] = int2digit((ch >> 8) & 0xF);
+                    source[j++] = int2digit((ch >> 4) & 0xF);
+                    source[j++] = int2digit(ch & 0xF);
+                }
+            }
+        }
+        byte[] res = new byte[j];
+        System.arraycopy(source, 0, res, 0, j);
+        return res;
+    }
+
+/** convert string to array of ascii bytes.
+ */
+    public static byte[] string2ascii(String s) {
+        byte[] source = string2source(s);
+        byte[] ascii = new byte[source.length * 2];
+        int alen = source2ascii(source, 0, source.length, ascii);
+        byte[] res = new byte[alen];
+        System.arraycopy(ascii, 0, res, 0, alen);
+        return res;
+    }
+
+/** escape all characters outside 32..127 in string s.
+ */
+    public static String escape(String s) {
+
+        return new String(string2source(s), 0);
+
+
+
+    }
+
+/** escape character c, if outside 32..127.
+ */
+    public static String escape(char c) {
+        char[] s = {c};
+        return escape(new String(s));
+    }
+}
+
+/** Names represent unique hashable strings. Two names are equal 
+ *  iff their indices are equal. Ascii representation is used
+ *  for storing names internally.
+ */
+class Name {
+    int index;
+    int len;
+    Name next;
+
+    private final static int HASH_SIZE = 0x8000;
+    private final static int HASH_MASK = 0x7FFF;
+    private final static int NAME_SIZE = 0x20000;
+
+    private static Name[] hashtable = new Name[HASH_SIZE];
+    private static byte[] names = new byte[NAME_SIZE];
+    private static int nc = 0;
+
+/** the hashcode of a name.
+ */
+    private static int hashValue(byte cs[], int offset, int len) {
+        if (len > 0)
+            return 
+                len * (41 * 41 * 41) + 
+                cs[offset] * (41 * 41) +
+                cs[offset + len - 1] * 41 + 
+                cs[offset + (len >> 1)];
+        else
+            return 0;
+    }
+
+/** is (the ascii representation of) name equal to 
+ *  cs[offset..offset+len-1]?
+ */
+    private static boolean equals(int index, 
+                                  byte cs[], int offset, int len) {
+        int i = 0;
+        while (i < len && names[index + i] == cs[offset + i]) i++;
+        return i == len;
+    }
+
+/** create a name from the bytes in cs[offset..offset+len-1].
+ *  assume that bytes are in ascii format.
+ */
+    public static Name fromAscii(byte cs[], int offset, int len) {
+        int h = hashValue(cs, offset, len) & HASH_MASK;
+        Name n = hashtable[h];
+        while (n != null && 
+               (n.len != len || !equals(n.index, cs, offset, len)))
+            n = n.next;
+        if (n == null) {
+            n = new Name();
+            n.index = nc;
+            n.len = len;
+            n.next = hashtable[h];
+            hashtable[h] = n;
+            for (int i = 0; i < len; i++) {
+                if (nc == names.length) {
+                    byte[] newnames = new byte[names.length * 2];
+                    System.arraycopy(names, 0, newnames, 0, names.length);
+                    names = newnames;
+                }
+                names[nc++] = cs[offset + i];
+            }
+            if (len == 0) nc++;
+        }
+        return n;
+    }
+
+/** create a name from the bytes in cs[offset..offset+len-1].
+ *  assume that characters are in source format.
+ */
+    public static Name fromSource(byte cs[], int offset, int len) {
+        byte[] ascii = new byte[len * 2];
+        int alen = Convert.source2ascii(cs, offset, len, ascii);
+        return fromAscii(ascii, 0, alen);
+    }
+ 
+/** create a name from the characters in string s.
+ */
+    public static Name fromString(String s) {
+        byte[] source = Convert.string2source(s);
+        return fromSource(source, 0, source.length);
+    }
+
+/** copy bytes of this name to buffer cs, starting at offset.
+ */
+    public void copyAscii(byte cs[], int offset) {
+        System.arraycopy(names, index, cs, offset, len);
+    }
+
+/** return the ascii representation of this name.
+ */
+    public byte[] toAscii() {
+        byte[] ascii = new byte[len];
+        System.arraycopy(names, index, ascii, 0, len);
+        return ascii;
+    }
+
+/** return the source representation of this name.
+ */
+    public byte[] toSource() {
+        return Convert.string2source(toString());
+    }
+
+/** return the string representation of this name.
+ */
+    public String toString() {
+        return Convert.ascii2string(names, index, len);
+    }
+
+/** return the string hash value of this name; overrides Object.
+ */
+    public int hashCode() {
+        return index;
+    }
+
+/** is this name equal to other? overrides Object.
+ */
+    public boolean equals(Object other) {
+        if (other instanceof Name)
+            return index == ((Name)other).index;
+        else
+            return false;
+    }
+
+/** return i'th byte of this name.
+ */
+    public byte sub(int i) {
+        return names[index + i];
+    }
+
+/** return first occurrence of byte b in this name, len if not found.
+ */
+    public int pos(byte b) {
+        int i = 0;
+        while (i < len && names[index + i] != b) i++;
+        return i;
+    }
+
+/** return last occurrence of byte b in this name, -1 if not found.
+ */
+    public int lastPos(byte b) {
+        int i = len - 1;
+        while (i >= 0 && names[index + i] != b) i--;
+        return i;
+    }
+
+/** does this name start with prefix?
+ */
+    public boolean startsWith(Name prefix) {
+        int i = 0;
+        while (i < prefix.len &&
+               i < len &&
+               names[index + i] == names[prefix.index + i]) i++;
+        return i == prefix.len;
+    }
+
+
+/** does this name end with postfix?
+ */
+    public boolean endsWith(Name postfix) {
+      if (len < postfix.len)
+        return false;
+      else {
+        int offset = len - postfix.len;
+        int i = 0;
+        while (i < postfix.len &&
+               names[index + offset + i] == names[postfix.index + i]) i++;
+        return i == postfix.len;
+      }
+    }
+
+  /** returns an IdRef repesentation of the name (Select+Ident)
+   */
+
+  static public IdRef toIdRef(int pos, Name name) {
+    Name pckPart = ClassFile.packagePart(name);
+    if (pckPart == null)
+      return new Ident(pos, name);
+    else
+      return new Select(pos, toIdRef(pos, pckPart), ClassFile.shortName(name));
+  }
+   
+
+
+/** return the subName staring at position start, excluding position end.
+ */
+    public Name subName(int start, int end) {
+        byte[] ascii = new byte[end - start];
+        System.arraycopy(names, index + start, ascii, 0, end - start);
+        return fromAscii(ascii, 0, ascii.length);
+    }
+
+/** return the concatenation of this name and n.
+ */
+    public Name append(Name n) {
+        byte[] ascii = new byte[len + n.len];
+        copyAscii(ascii, 0);
+        n.copyAscii(ascii, len);
+        return fromAscii(ascii, 0, ascii.length);
+    }
+
+/** return the concatenation of all names in ns.
+ */
+    public static Name concat(Name ns[]) {
+        int len = 0;
+        for (int i = 0; i < ns.length; i++) 
+            len = len + ns[i].len;
+        byte[] ascii = new byte[len];
+        len = 0;
+        for (int i = 0; i < ns.length; i++) {
+            ns[i].copyAscii(ascii, len);
+            len = len + ns[i].len;
+        }
+        return fromAscii(ascii, 0, len);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
