@@ -6,23 +6,25 @@ To bootstrap this process, we've recovered the e (and other) classfiles from the
 
 Here's an excerpt of my (Randy's) .bash_aliases related to making sure all the environment is set up to get the historical make system functional:
 
-`export   TOP="/home/randy/Electric-Communities/Microcosm/Root/src/ec3"`
-`export BUILD="/home/randy/Electric-Communities/Microcosm/Root/Build"`
-`export  EDIR="$TOP/E"`
-`export PLATFORM_OS="solaris"`
-`export PATH=.:$BUILD/bin:$PATH`
-`export CLASSPATH=.:/home/randy/Electric-Communities/Microcosm/Root/src/ec3/E/classes`
+```export   TOP="/home/randy/Electric-Communities/Microcosm/Root/src/ec3"
+export BUILD="/home/randy/Electric-Communities/Microcosm/Root/Build"
+export  EDIR="$TOP/E"
+export PLATFORM_OS="solaris"
+export PATH=.:$BUILD/bin:$PATH
+export CLASSPATH=.:/home/randy/Electric-Communities/Microcosm/Root/src/ec3/E/classes
+alias   top='cd $TOP'
+alias build='cd $BUILD'
+alias     E='cd $EDIR'
+```
 
-`alias   top='cd $TOP'`
-`alias build='cd $BUILD'`
-`alias     E='cd $EDIR'`
+
 
 ## TODO:
 Prune E/classes and E/solaris to just be E? Replace with the "correct" E for this archive (ec3?)
 
 It is not clear that ec3 is the right archive, should we roll back to ec2 or ec2-giblets? Here's something that might be a clue from the currently failing e runtime compile failure:
 
-ecomp [...]
+```ecomp [...]
 ../../util/EMainThread.java:14: cannot access class ClassCache; class file has wrong version 55.0, should be 45.3
         Class mainClass = ClassCache.forName(mainClassName);
                           ^
@@ -34,4 +36,7 @@ RtSealer.java:103: cannot access class ClassCache; class file has wrong version 
                              ^
 RtSealer.java:320: cannot access class ClassCache; class file has wrong version 55.0, should be 45.3
             theClass = ClassCache.forName(className + "_$_Sealer");
+```
+
+
 
