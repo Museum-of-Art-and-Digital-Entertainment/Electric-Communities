@@ -1,0 +1,2 @@
+#!/bin/csh -f
+java -ms8m -mx64m ec.ecomp.Main $*
