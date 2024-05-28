@@ -26,15 +26,7 @@ static struct {
     char *filename;
 } OutputStack[MAX_OUTPUT_DEPTH];
 static int OutputDepth = -1;
-#ifndef WIN32
-static FILE *CurrentOutput = stdout;
-#else
-/* Windows stdout doesn't behave like normal stdout because it's in a DLL
-   and is not a constant.  In the DLL version of the C runtime, stdout
-   actually resolves to a function call (so that it's thread-safe) so
-   you can't use it in a constant assignment. */
 static FILE *CurrentOutput = NULL;
-#endif
 static char *CurrentOutputFilename = "<stdout>";
 static char *OutputBaseDirname = ".";
 static char *RootDirname = ".";
