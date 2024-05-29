@@ -6,12 +6,16 @@ To bootstrap this process, we've recovered the e (and other) classfiles from the
 
 Here's an excerpt of my (Randy's) .bash_aliases related to making sure all the environment is set up to get the historical make system functional:
 
-```export   TOP="/home/randy/Electric-Communities/Microcosm/Root/src/ec3"
+```
+
+export TOP="/home/randy/Electric-Communities/Microcosm/Root/src/ec3"
 export BUILD="/home/randy/Electric-Communities/Microcosm/Root/Build"
-export  EDIR="$TOP/E"
+export EDIR="$TOP/E"
+export ALT_JAVAHOME=$TOP
 export PLATFORM_OS="solaris"
 export PATH=.:$BUILD/bin:$PATH
 export CLASSPATH=.:/home/randy/Electric-Communities/Microcosm/Root/src/ec3/E/classes
+
 alias   top='cd $TOP'
 alias build='cd $BUILD'
 alias     E='cd $EDIR'
