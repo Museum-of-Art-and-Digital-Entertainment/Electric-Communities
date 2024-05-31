@@ -44,3 +44,10 @@ RtSealer.java:320: cannot access class ClassCache; class file has wrong version 
 
 
 
+
+
+--- Randy's notes about getting an old java to compile this old code
+
+sudo apt install openjdk-8-jdk
+update-java-alternatives --list
+sudo update-java-alternatives --set /usr/lib/jvm/java-1.11.0-openjdk-amd64
