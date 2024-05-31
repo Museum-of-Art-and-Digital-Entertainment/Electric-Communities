@@ -21,8 +21,6 @@ alias build='cd $BUILD'
 alias     E='cd $EDIR'
 ```
 
-
-
 ## TODO:
 Prune E/classes and E/solaris to just be E? Replace with the "correct" E for this archive (ec3?)
 
@@ -42,19 +40,33 @@ RtSealer.java:320: cannot access class ClassCache; class file has wrong version 
             theClass = ClassCache.forName(className + "_$_Sealer");
 ```
 
-
-
-
-
 --- Randy's notes about getting an old java to compile this old code
 
+```
+#Switch to Java 8 which supports a 1.1 target...
+
 sudo apt install openjdk-8-jdk
-update-java-alternatives --list
 sudo update-java-alternatives --set /usr/lib/jvm/java-1.8.0-openjdk-amd64
 export JAVACFLAGS="-source 1.2 -target 1.1"
 
-The above gets ecomp to compile cleanly via 'make unchecked-from-scratch'
-NOTE: I had to bootstrap by partial compile,copy to /classes in the path and recompile and copy to /classes again to use. This is obviously wrong. I'm not yet understanding where the ec classes that are 'published' go...
+# Compile ecomp and publish to $TOP/E/classes
 
+E;cd tools/ecomp;make clean unchecked-from-scratch;cp -r $BUILD/classes/ec $TOP/E/classes
+E;make
 
+# The e runtime doesn't compile becuase e's class file reader chokes on an unexpected token type
 
+-----
+
+#If you want to return to java 1.11
+
+sudo update-java-alternatives --set /usr/lib/jvm/java-1.11.0-openjdk-amd64
+export JAVACFLAGS=""
+
+#same as above to compile and distribute ecomp
+
+E;cd tools/ecomp;make clean unchecked-from-scratch;cp -r $BUILD/classes/ec $TOP/E/classes
+E;make
+
+# Again the runtime build dies because now class reader expects 1.1.3 (45.3) formatted class files (see above error dump).
+```
