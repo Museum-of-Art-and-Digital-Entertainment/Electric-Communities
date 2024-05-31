@@ -92,7 +92,7 @@ class Gen implements /*imports*/ Constants {
 /** emit a byte of code:
  */
     static void emit1(int od) {
-        if (Switches.checks) Basic.assert(0 <= od && od <= 255);
+        if (Switches.checks) Basic.assertion(0 <= od && od <= 255);
         if (alive) 
             if (code.cp == code.code.length)
                 code.addCode((byte)od);
@@ -132,13 +132,13 @@ class Gen implements /*imports*/ Constants {
             emit1(op);
             if (sdiff <= -1000) {
                 if (Switches.checks) 
-                    Basic.assert(stacksize + 1000 + sdiff == 0);
+                    Basic.assertion(stacksize + 1000 + sdiff == 0);
                 alive = false;
                 code.uninits.clear();
             } else {
                 stacksize = stacksize + sdiff;
                 if (stacksize > code.max_stack) code.max_stack = stacksize;
-                if (Switches.checks) Basic.assert(stacksize >= 0);
+                if (Switches.checks) Basic.assertion(stacksize >= 0);
             }
         }
     }
@@ -233,7 +233,7 @@ class Gen implements /*imports*/ Constants {
  */
     static void entryPoint(int stksize) {
         if (Switches.checks) 
-            Basic.assert(!alive || stacksize == stksize);
+            Basic.assertion(!alive || stacksize == stksize);
         stacksize = stksize;
         alive = true;
         if (stacksize > code.max_stack) code.max_stack = stacksize;
@@ -301,7 +301,7 @@ class Gen implements /*imports*/ Constants {
     static void statBegin(int pos) {
         if (alive) {
             statPos = pos;
-            if (Switches.checks) Basic.assert(stacksize == 0);
+            if (Switches.checks) Basic.assertion(stacksize == 0);
             code.addLineNumber(code.cp, pos >>> LINESHIFT);
         } else 
             Report.warning(pos, "statement is unreachable");
@@ -500,7 +500,7 @@ class Gen implements /*imports*/ Constants {
         if (tc == INTcode) 
             emitop(iconst_m1);
         else {
-            if (Switches.checks) Basic.assert(tc == LONGcode);
+            if (Switches.checks) Basic.assertion(tc == LONGcode);
             emitop(lconst_0);
             emitop(lconst_1);
             emitop(lsub);
@@ -562,7 +562,7 @@ class Gen implements /*imports*/ Constants {
     static void resolve(Label l, int target) {
         if (l != null) {
             if (Switches.checks) 
-                Basic.assert(target > l.pc || stacksize == 0);
+                Basic.assertion(target > l.pc || stacksize == 0);
             if (target > code.cp) target = code.cp;
             if (get1(l.pc) == goto_ && 
                 l.pc + 3 == target && target == code.cp && !fixedPc) {
@@ -577,7 +577,7 @@ class Gen implements /*imports*/ Constants {
                 else
                     put2(l.pc + 1, target - l.pc);
                 if (Switches.checks) 
-                    Basic.assert(!alive || l.stacksize == stacksize);
+                    Basic.assertion(!alive || l.stacksize == stacksize);
             }
             fixedPc = true;
             resolve(l.next, target);
@@ -604,7 +604,7 @@ class Gen implements /*imports*/ Constants {
             return l2;
         else {
             if (Switches.checks) 
-                Basic.assert(l1.stacksize == l2.stacksize);
+                Basic.assertion(l1.stacksize == l2.stacksize);
             return new Label(l2.pc, 
                              mergeLabels(l1, l2.next), 
                              l2.stacksize,

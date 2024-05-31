@@ -88,7 +88,7 @@ class Basic {
 
 /** assertions for internal error checking:
  */
-    static void assert(boolean c) {
+    static void assertion(boolean c) {
         if (!c)
             throw new CompilerError("assertion failed");
     }

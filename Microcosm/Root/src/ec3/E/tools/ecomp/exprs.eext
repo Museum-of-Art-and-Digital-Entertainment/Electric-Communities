@@ -971,7 +971,7 @@ class Select extends IdRef {
 
     Item gen() {
         if (obj instanceof ClassObj) {
-            if (Switches.checks) Basic.assert(obj.typ.tag != PACKAGETYP);
+            if (Switches.checks) Basic.assertion(obj.typ.tag != PACKAGETYP);
             return new ClassItem((ClassObj)obj);
         } else if (obj.isConstant()) {
             return new ImmediateItem(((VarObj)obj).constValue());
@@ -1113,7 +1113,7 @@ class Subscript extends AST {
                 Report.error(pos, "null cannot be dereferenced");
                 typ = Typ.errTyp;
             } else {
-                if (Switches.checks) Basic.assert(atyp.tag == ERRTYP);
+                if (Switches.checks) Basic.assertion(atyp.tag == ERRTYP);
                 typ = Typ.errTyp;
             }
         } else

@@ -263,9 +263,9 @@ class Simplify implements /*imports*/ Constants {
 /** swap typ and alttyp fields of all fields & methods in loaded classes
  */
     static void swapTypes() {
-        for (Enumeration enum = ClassFile.loaded.elements(); 
-             enum.hasMoreElements();) {
-            Object o = enum.nextElement();
+        for (Enumeration enumeration = ClassFile.loaded.elements(); 
+             enumeration.hasMoreElements();) {
+            Object o = enumeration.nextElement();
             if (o instanceof ClassObj) {
                 ClassObj c = (ClassObj)o;
                 if (c.scope != null) {

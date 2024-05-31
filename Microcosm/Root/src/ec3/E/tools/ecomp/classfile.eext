@@ -173,8 +173,8 @@ class ClassFile implements Constants {
  ***********************************************************************/
 
     private static final int JAVA_MAGIC = 0xCAFEBABE;
-    private static final int JAVA_MAJOR_VERSION = 45;
-    private static final int JAVA_MINOR_VERSION = 3;
+    private static final int JAVA_MAJOR_VERSION = 55;
+    private static final int JAVA_MINOR_VERSION = 0;
 
     private static Name ConstantValueS = Name.fromString("ConstantValue");
     private static Name LineNumberTableS = Name.fromString("LineNumberTable");
@@ -1302,7 +1302,7 @@ class ClassFile implements Constants {
         int i = 1;
         while (i < pool.pp) {
             Object value = pool.pool[i];
-            if (Switches.checks) Basic.assert(value != null);
+            if (Switches.checks) Basic.assertion(value != null);
             if (value instanceof Name) {
                 writeByte(CONSTANT_Utf8);
                 byte[] ascii = ((Name)value).toAscii();

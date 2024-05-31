@@ -623,7 +623,7 @@ class FunDef extends Def {
 /** enter a catch clause
  */
     void enterCatch(FunObj f) {
-        if (Switches.checks) Basic.assert(params.length == 1);
+        if (Switches.checks) Basic.assertion(params.length == 1);
         params[0].attr(localEnv, VAL, Predef.throwableTyp);
         Typ[] argtyps = { params[0].obj.typ };
         f.typ = new FunTyp(argtyps, Typ.anyTyp, null);
@@ -975,7 +975,7 @@ class Import extends AST {
  */
     void enterFields(Env env) {
         if (Switches.checks) 
-            Basic.assert(pid.tag == IDENT || pid.tag == SELECT);
+            Basic.assertion(pid.tag == IDENT || pid.tag == SELECT);
         if (pid.tag == SELECT) {
             Typ ptyp = ((Select)pid).struc.attr(env, PCK, Typ.anyTyp);
             if (ptyp.tag == PACKAGETYP) {

@@ -76,7 +76,7 @@ class Item implements /*imports*/ Constants {
     void duplicate(Typ typ) {
         switch (mode) {
         case STACKmode:
-            if (Switches.checks) Basic.assert(typ.tag != VOID);
+            if (Switches.checks) Basic.assertion(typ.tag != VOID);
             Gen.emitop(Gen.width(typ) == 2 ? dup2 : dup);
             break;
         case INDEXEDmode:
@@ -93,7 +93,7 @@ class Item implements /*imports*/ Constants {
     void drop(Typ typ) {
         switch (mode) {
         case STACKmode:
-            if (Switches.checks) Basic.assert(typ.tag != VOID);
+            if (Switches.checks) Basic.assertion(typ.tag != VOID);
             Gen.emitop(Gen.width(typ) == 2 ? pop2 : pop);
             break;
         case INDEXEDmode:
@@ -110,7 +110,7 @@ class Item implements /*imports*/ Constants {
     void stash(Typ typ, int nwords) {
         switch (mode) {
         case STACKmode:
-            if (Switches.checks) Basic.assert(typ.tag != VOID);
+            if (Switches.checks) Basic.assertion(typ.tag != VOID);
             Gen.emitop((Gen.width(typ) == 2 ? dup_x2 : dup_x1) 
                      + 3 * (nwords - 1));
             break;
@@ -167,7 +167,7 @@ class Item implements /*imports*/ Constants {
             }
         else {
             if (Switches.checks) 
-                Basic.assert(fromtc != OBJECTcode && totc != OBJECTcode);
+                Basic.assertion(fromtc != OBJECTcode && totc != OBJECTcode);
             return this.coerce(from, fromtc, totc);
         }
     }
@@ -239,7 +239,7 @@ class BasedItem extends Item {
     }
 
     void load(Typ typ) {
-        if (Switches.checks) Basic.assert(mode == FIELDmode);
+        if (Switches.checks) Basic.assertion(mode == FIELDmode);
         if (field.owner == Gen.code.owner &&
             ((field.modifiers & STATIC) != 0) == Gen.code.isStatic)
             Gen.checkInit(pos, ((VarObj)field).adr);
@@ -251,7 +251,7 @@ class BasedItem extends Item {
     }
 
     void store(Typ typ) {
-        if (Switches.checks) Basic.assert(mode == FIELDmode);
+        if (Switches.checks) Basic.assertion(mode == FIELDmode);
         if (field.owner == Gen.code.owner &&
             ((field.modifiers & STATIC) != 0) == Gen.code.isStatic)
             Gen.letInit(((VarObj)field).adr);

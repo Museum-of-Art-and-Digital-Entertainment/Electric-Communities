@@ -881,7 +881,7 @@ class Scope implements /*imports*/ Constants {
  */
     void include(Scope s) {
         if (Switches.checks)
-            Basic.assert((s.owner.modifiers & INTERFACE) != 0);
+            Basic.assertion((s.owner.modifiers & INTERFACE) != 0);
         if (s != null) {
                 if (s.next != null && s.next.owner == s.owner)
                     include(s.next);
