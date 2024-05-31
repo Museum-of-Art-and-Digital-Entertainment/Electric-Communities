@@ -173,8 +173,8 @@ class ClassFile implements Constants {
  ***********************************************************************/
 
     private static final int JAVA_MAGIC = 0xCAFEBABE;
-    private static final int JAVA_MAJOR_VERSION = 55;
-    private static final int JAVA_MINOR_VERSION = 0;
+    private static final int JAVA_MAJOR_VERSION = 45;
+    private static final int JAVA_MINOR_VERSION = 3;
 
     private static Name ConstantValueS = Name.fromString("ConstantValue");
     private static Name LineNumberTableS = Name.fromString("LineNumberTable");

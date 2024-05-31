@@ -50,4 +50,11 @@ RtSealer.java:320: cannot access class ClassCache; class file has wrong version 
 
 sudo apt install openjdk-8-jdk
 update-java-alternatives --list
-sudo update-java-alternatives --set /usr/lib/jvm/java-1.11.0-openjdk-amd64
+sudo update-java-alternatives --set /usr/lib/jvm/java-1.8.0-openjdk-amd64
+export JAVACFLAGS="-source 1.2 -target 1.1"
+
+The above gets ecomp to compile cleanly via 'make unchecked-from-scratch'
+NOTE: I had to bootstrap by partial compile,copy to /classes in the path and recompile and copy to /classes again to use. This is obviously wrong. I'm not yet understanding where the ec classes that are 'published' go...
+
+
+
