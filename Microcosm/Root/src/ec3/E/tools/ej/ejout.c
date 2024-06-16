@@ -166,7 +166,7 @@ boxType(YT(primType) *prim)
     for (i=0; BoxTable[i].type > 0; ++i)
         if (BoxTable[i].type == prim->type)
             return(BoxTable[i].typeName);
-    return("<???>");
+    return("<??\?>");
 }
 
 /**
@@ -304,7 +304,7 @@ etoken(int token)
     for (i=0; TokenTable[i].string; ++i)
         if (TokenTable[i].token == token)
             return(TokenTable[i].string);
-    return("<<???>>");
+    return("<<??\?>>");
 }
 
 /**
@@ -416,7 +416,7 @@ unboxFunc(YT(primType) *prim)
     for (i=0; BoxTable[i].type > 0; ++i)
         if (BoxTable[i].type == prim->type)
             return(BoxTable[i].unboxFuncName);
-    return("<???>");
+    return("<??\?>");
 }
 
 /**

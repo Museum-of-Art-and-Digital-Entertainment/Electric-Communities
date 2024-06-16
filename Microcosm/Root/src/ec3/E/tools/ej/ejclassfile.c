@@ -95,7 +95,7 @@ getMethodDescriptor(YT(classFile) *cf, int index)
         strncpy(result, utf->bytes, utf->length);
         result[utf->length] = '\0';
     } else {
-        strcpy(result, "<????>");
+        strcpy(result, "<???\?>");
     }
     return(result);
 }
@@ -112,7 +112,7 @@ getMethodName(YT(classFile) *cf, int index)
         strncpy(result, utf->bytes, utf->length);
         result[utf->length] = '\0';
     } else {
-        strcpy(result, "<????>");
+        strcpy(result, "<???\?>");
     }
     return(result);
 }

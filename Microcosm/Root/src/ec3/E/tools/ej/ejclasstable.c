@@ -14,6 +14,8 @@
 #include "yh_build.h"
 #include "ej.h"
 
+#include <string.h>
+
 YT(string) *DEFINED_HERE = "<internal>";
 
 static YT(classTable) *GlobalClasses = NULL;
