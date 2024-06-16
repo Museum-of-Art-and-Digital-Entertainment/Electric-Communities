@@ -115,6 +115,7 @@ char *getMethodDescriptor(YT(classFile) *cf, int index);
 char *getMethodName(YT(classFile) *cf, int index);
 YT(classFile) *readClassFile(FILE *fyle);
 void dumpClassFile(YT(classFile) *cf);
+void freeClassFile(YT(classFile) *cf);
 
 /* ejclasstable.c */
 void attachDeclaration(YT(class) *theClass, YT(typeDeclaration) *declaration);
@@ -147,6 +148,7 @@ bool popOutput(void);
 bool prepareOutputDirectory(YT(packageDeclaration) *package, char *rootDirname,
     bool outputHere);
 bool prepareClassOutputFile(char *className);
+bool pushClassOutputFile(char *targetName);
 
 /* ejimport.c */
 void performImportClass(YT(name) *className, YT(unitInfo) *unitInfo);
