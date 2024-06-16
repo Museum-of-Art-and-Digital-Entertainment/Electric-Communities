@@ -14,6 +14,8 @@
 #include "yh_build.h"
 #include "ej.h"
 
+#include <string.h>
+
 #define CONSTANT_Class                   7
 #define CONSTANT_Double                  6
 #define CONSTANT_Fieldref                9
