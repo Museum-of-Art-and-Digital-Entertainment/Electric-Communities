@@ -16,6 +16,7 @@
 #include "yh_build.h"
 #include "ej.h"
 
+int yylex(void);
 void yyerror(char *s);
 
 YT(unitInfo) *CurrentUnitInfo = NULL;
@@ -76,7 +77,7 @@ optPackageDeclaration:
  |
 {
     CurrentUnitInfo = newUnitInfo(NULL);
-    $$ = NULL;
+    $$ = 0;
 }
  ;
 
@@ -87,7 +88,7 @@ optImportDeclarations:
 }
  |
 {
-    $$ = NULL;
+    $$ = 0;
 }
  ;
 
@@ -124,7 +125,7 @@ optTypeDeclarations:
 }
  |
 {
-    $$ = NULL;
+    $$ = 0;
 }
  ;
 
@@ -198,7 +199,7 @@ optModifiers:
 }
  |
 {
-    $$ = NULL;
+    $$ = 0;
 }
  ;
 
@@ -267,7 +268,7 @@ optSuper:
 }
  |
 {
-    $$ = NULL;
+    $$ = 0;
 }
  ;
 
@@ -278,7 +279,7 @@ optInterfaces:
 }
  |
 {
-    $$ = NULL;
+    $$ = 0;
 }
  ;
 
@@ -335,7 +336,7 @@ optExtendsInterfaces:
 }
  |
 {
-    $$ = NULL;
+    $$ = 0;
 }
  ;
 
@@ -626,7 +627,7 @@ optThrows:
 }
  |
 {
-    $$ = NULL;
+    $$ = 0;
 }
  ;
 
@@ -851,7 +852,7 @@ optForInit:
 }
  |
 {
-    $$ = NULL;
+    $$ = 0;
 }
  ;
 
@@ -862,7 +863,7 @@ optExpression:
 }
  |
 {
-    $$ = NULL;
+    $$ = 0;
 }
  ;
 
@@ -873,7 +874,7 @@ optForUpdate:
 }
  |
 {
-    $$ = NULL;
+    $$ = 0;
 }
  ;
 
@@ -1783,7 +1784,7 @@ optArrayInitializer:
 }
  |
 {
-    $$ = NULL;
+    $$ = 0;
 }
  ;
 
@@ -1819,7 +1820,7 @@ optEclassBody:
 }
  |
 {
-    $$ = NULL;
+    $$ = 0;
 }
  ;
 
@@ -1884,7 +1885,7 @@ optArgumentList:
 }
  |
 {
-    $$ = NULL;
+    $$ = 0;
 }
  ;
 
@@ -1907,7 +1908,7 @@ optBracketsList:
 }
  |
 {
-    $$ = NULL;
+    $$ = 0;
 }
  ;
 
@@ -1917,15 +1918,9 @@ optBracketsList:
   yyerror -- needed so YACC's generated parser will link.
 */
 
-/* Solaris stdlib.h defines NULL incorrectly!!! */
-#ifdef NULL
-#undef NULL
-#endif
-#define NULL 0
-
   void
 yyerror(char *s)
 {
     yh_error("%s", s);
-    YRESULT(NULL);
+    YRESULT(0);
 }
