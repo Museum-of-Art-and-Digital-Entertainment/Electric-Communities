@@ -71,7 +71,7 @@ importPackageDirectory(YT(name) *packageName, char *dirname,
 
     packageDyr = opendir(dirname);
     if (packageDyr) {
-        while (entry = readdir(packageDyr)) {
+        while ((entry = readdir(packageDyr)) != 0) {
             if (strTailMatch(entry->d_name, ".class"))
                 fileImports =
                     notePossibleClassImport(fileImports, entry->d_name);
@@ -198,7 +198,6 @@ performImportPackage(YT(name) *packageName, YT(classTable) *table)
 {
     char packageDirPath[BUFLEN];
     YT(stringList) *pathChaser = ClassPath;
-    bool found = FALSE;
 
     if (packageName) {
         convertNameToPath(packageName, packageDirPath);
@@ -208,8 +207,8 @@ performImportPackage(YT(name) *packageName, YT(classTable) *table)
             if (!strTailMatch(pathChaser->string, ".zip")) {
                 /* Eventually we need to parse .zip and .jar files */
                 snprintf(dirname, BUFLEN, "%s/%s", pathChaser->string, packageDirPath);
-                if (importPackageDirectory(packageName, dirname, table))
-                    found = TRUE;
+		/* NB: This function returns success/failure but we don't do anything with that */
+                importPackageDirectory(packageName, dirname, table);
             }
             pathChaser = pathChaser->next;
         }

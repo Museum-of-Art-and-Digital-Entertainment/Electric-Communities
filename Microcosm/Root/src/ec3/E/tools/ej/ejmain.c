@@ -36,12 +36,10 @@ YT(stringList) *ClassPath = NULL;
 
 static void addToClassPath(char *classPathString);
 static void badUsage(void);
-static void generateOutputs(void);
 static void initializeEverything(int argc, char *argv[]);
 static void parseCommandLineArgs(int argc, char *argv[]);
 static void printHelp(void);
 static void printUsage(void);
-static void processEverything(void);
 
 /**
  * addToClassPath -- Add directories to the class path.

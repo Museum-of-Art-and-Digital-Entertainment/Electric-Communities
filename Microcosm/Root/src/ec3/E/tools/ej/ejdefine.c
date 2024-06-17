@@ -315,7 +315,7 @@ internalizeClassName(YT(classFile) *classFile, int refnum)
             YT(constant_utf8_info) *utf8 = YC(constant_utf8_info,cpInfo);
             char nameBuf[BUFLEN];
             char *nameBufPtr = nameBuf;
-            strncpy(nameBuf, utf8->bytes, utf8->length);
+            strncpy(nameBuf, (const char *)utf8->bytes, utf8->length);
             nameBuf[utf8->length] = '\0';
             if (strTailMatch(nameBuf, "_$_Intf"))
                 return(NULL);

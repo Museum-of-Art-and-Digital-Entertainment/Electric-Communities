@@ -93,7 +93,7 @@ getMethodDescriptor(YT(classFile) *cf, int index)
         cf->constant_pool[methodInfo->descriptor_index];
     if (YTAG_TEST(descriptorInfo, constant_utf8_info)) {
         YT(constant_utf8_info) *utf = YC(constant_utf8_info, descriptorInfo);
-        strncpy(result, utf->bytes, utf->length);
+        strncpy(result, (const char *)utf->bytes, utf->length);
         result[utf->length] = '\0';
     } else {
         strcpy(result, "<???\?>");
@@ -110,7 +110,7 @@ getMethodName(YT(classFile) *cf, int index)
     YT(cp_info) *nameInfo = cf->constant_pool[methodInfo->name_index];
     if (YTAG_TEST(nameInfo, constant_utf8_info)) {
         YT(constant_utf8_info) *utf = YC(constant_utf8_info, nameInfo);
-        strncpy(result, utf->bytes, utf->length);
+        strncpy(result, (const char *)utf->bytes, utf->length);
         result[utf->length] = '\0';
     } else {
         strcpy(result, "<???\?>");
