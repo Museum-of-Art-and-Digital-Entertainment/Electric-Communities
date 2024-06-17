@@ -167,14 +167,14 @@ performImportClass(YT(name) *className, YT(unitInfo) *unitInfo)
 
         if (!strTailMatch(pathChaser->string, ".zip")) {
             /* Eventually we need to parse .zip and .jar files */
-            sprintf(filename, "%s/%s_$_Intf.class", pathChaser->string,
+            snprintf(filename, BUFLEN, "%s/%s_$_Intf.class", pathChaser->string,
                     classFilePath);
             if (fileExists(filename)) {
                 handleClassImport(unitInfo->importedClasses, className, TRUE,
                                   pathChaser->string);
                 stillSearching = FALSE;
             } else {
-                sprintf(filename, "%s/%s.class", pathChaser->string,
+                snprintf(filename, BUFLEN, "%s/%s.class", pathChaser->string,
                         classFilePath);
                 if (fileExists(filename)) {
                     handleClassImport(unitInfo->importedClasses, className,
@@ -207,7 +207,7 @@ performImportPackage(YT(name) *packageName, YT(classTable) *table)
             char dirname[BUFLEN];
             if (!strTailMatch(pathChaser->string, ".zip")) {
                 /* Eventually we need to parse .zip and .jar files */
-                sprintf(dirname, "%s/%s", pathChaser->string, packageDirPath);
+                snprintf(dirname, BUFLEN, "%s/%s", pathChaser->string, packageDirPath);
                 if (importPackageDirectory(packageName, dirname, table))
                     found = TRUE;
             }

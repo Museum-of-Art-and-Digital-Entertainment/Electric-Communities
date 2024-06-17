@@ -583,7 +583,7 @@ internalizeClass(YT(unitInfo) *unitInfo, YT(class) *theClass)
             FILE *fyle;
             
             convertNameToPath(theClass->className, classSubpath);
-            sprintf(filename, "%s/%s.class", theClass->location, classSubpath);
+            snprintf(filename, BUFLEN, "%s/%s.class", theClass->location, classSubpath);
             fyle = fopen(filename, "r");
             if (fyle) {
                 YT(classFile) *classFile = readClassFile(fyle);

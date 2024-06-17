@@ -604,7 +604,7 @@
 #define YH_FLD_PRIM(name,type)      yh_tab(tabLevel);                         \
                                     printf(#name ": %ld\n", (long)arg->name);
 #define YH_FLD_PRIMA(name,type)     yh_tab(tabLevel);                         \
-                                    printf(#name ": " #type "[] <%08x>\n",    \
+                                    printf(#name ": " #type "[] <%p>\n",      \
                                            arg->name);
 #define YH_FLDI_PRIM(name,type)     yh_tab(tabLevel);                         \
                                     printf(#name ": %ld\n", (long)arg->name);
