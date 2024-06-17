@@ -46,6 +46,7 @@ bool popOutput(void);
 bool prepareOutputDirectory(YT(packageDeclaration) *package, char *rootDirname,
     bool outputHere);
 bool prepareClassOutputFile(char *className);
+bool pushClassOutputFile(char *targetName);
 
 /* jfelex.c */
 char *flushWhitespace(void);

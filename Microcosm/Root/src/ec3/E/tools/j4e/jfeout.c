@@ -17,6 +17,8 @@
 #include "y.tab.h"
 #include "jfe.h"
 
+#include <string.h>
+
 static int GenSymCounter = 0;   /* For uniqifying symbols */
 
 /* This is the big hairy environment struct which is carried around as we
@@ -113,41 +115,6 @@ YA_FUNC_DEF(eWalker);
     env->var3 = saveEnv.var3;           \
 }
 
-/* Table mapping between Java primitive types and corresponding box classes */
-static struct {
-    int type;                /* Our lexer token for the primitive type      */
-    char *typeName;          /* Name of box class                           */
-    char *unboxFuncName;     /* Name of method on box object to unbox value */
-} BoxTable[] = {
-    BOOLEAN,        "Boolean",      "booleanValue",
-    BYTE,           "Integer",      "intValue",
-    CHAR,           "Character",    "charValue",
-    DOUBLE,         "Double",       "doubleValue",
-    FLOAT,          "Float",        "floatValue",
-    INT,            "Integer",      "intValue",
-    LONG,           "Long",         "longValue",
-    SHORT,          "Integer",      "intValue",
-    -1,             NULL,           NULL
-};
-
-/**
- * boxType -- Given a primitive type, return the name of the corresponding box
- *      class.
- *
- * @param prim  A Java primitive type, described by a primType struct
- * @returns  Box class name, as a string
- */
-  static char *
-boxType(YT(primType) *prim)
-{
-    int i;
-
-    for (i=0; BoxTable[i].type > 0; ++i)
-        if (BoxTable[i].type == prim->type)
-            return(BoxTable[i].typeName);
-    return("<???>");
-}
-
 /**
  * emitWhitespace -- Output whitespace. If whitespace suppression is currently
  *      on, just output a single space character so as to provide token
@@ -183,81 +150,81 @@ etoken(int token)
         int token;
         char *string;
     } TokenTable[] = {
-        '!',            "!",
-        '%',            "%",
-        '&',            "&",
-        '*',            "*",
-        '+',            "+",
-        ',',            ",",
-        '-',            "-",
-        '.',            ".",
-        '/',            "/",
-        '<',            "<",
-        '=',            "=",
-        '>',            ">",
-        '^',            "^",
-        '|',            "|",
-        '~',            "~",
-        AssAdd,         "+=",
-        AssAnd,         "&=",
-        AssAsr,         ">>>=",
-        AssDiv,         "/=",
-        AssLsl,         "<<=",
-        AssLsr,         ">>=",
-        AssMod,         "%=",
-        AssMul,         "*=",
-        AssOr,          "|=",
-        AssSub,         "-=",
-        AssXor,         "^=",
-        OpAsr,          ">>>",
-        OpDec,          "--",
-        OpEq,           "==",
-        OpGeq,          ">=",
-        OpInc,          "++",
-        OpLAnd,         "&&",
-        OpLOr,          "||",
-        OpLeq,          "<=",
-        OpLsl,          "<<",
-        OpLsr,          ">>",
-        OpNeq,          "!=",
-        Send,           "<-",
-        ABSTRACT,       "abstract",
-        BOOLEAN,        "boolean",
-        BYTE,           "byte",
-        CHAR,           "char",
-        DOUBLE,         "double",
-        EFALSE,         "efalse",
-        ENULL,          "enull",
-        ETRUE,          "etrue",
-        FINAL,          "final",
-        FLOAT,          "float",
-        INSTANCEOF,     "instanceof",
-        INT,            "int",
-        EMETHOD,        "emethod",
-        JFALSE,         "false",
-        JNULL,          "null",
-        JTRUE,          "true",
-        LOCAL,          "public",
-        LONG,           "long",
-        NATIVE,         "native",
-        PRIVATE,        "private",
-        PROTECTED,      "protected",
-        PUBLIC,         "public",
-        SHORT,          "short",
-        STATIC,         "static",
-        SUPER,          "super",
-        SYNCHRONIZED,   "synchronized",
-        THIS,           "this",
-        TRANSIENT,      "transient",
-        VOID,           "void",
-        -1,             NULL
+        { '!',            "!" },
+        { '%',            "%" },
+        { '&',            "&" },
+        { '*',            "*" },
+        { '+',            "+" },
+        { ',',            "," },
+        { '-',            "-" },
+        { '.',            "." },
+        { '/',            "/" },
+        { '<',            "<" },
+        { '=',            "=" },
+        { '>',            ">" },
+        { '^',            "^" },
+        { '|',            "|" },
+        { '~',            "~" },
+        { AssAdd,         "+=" },
+        { AssAnd,         "&=" },
+        { AssAsr,         ">>>=" },
+        { AssDiv,         "/=" },
+        { AssLsl,         "<<=" },
+        { AssLsr,         ">>=" },
+        { AssMod,         "%=" },
+        { AssMul,         "*=" },
+        { AssOr,          "|=" },
+        { AssSub,         "-=" },
+        { AssXor,         "^=" },
+        { OpAsr,          ">>>" },
+        { OpDec,          "--" },
+        { OpEq,           "==" },
+        { OpGeq,          ">=" },
+        { OpInc,          "++" },
+        { OpLAnd,         "&&" },
+        { OpLOr,          "||" },
+        { OpLeq,          "<=" },
+        { OpLsl,          "<<" },
+        { OpLsr,          ">>" },
+        { OpNeq,          "!=" },
+        { Send,           "<-" },
+        { ABSTRACT,       "abstract" },
+        { BOOLEAN,        "boolean" },
+        { BYTE,           "byte" },
+        { CHAR,           "char" },
+        { DOUBLE,         "double" },
+        { EFALSE,         "efalse" },
+        { ENULL,          "enull" },
+        { ETRUE,          "etrue" },
+        { FINAL,          "final" },
+        { FLOAT,          "float" },
+        { INSTANCEOF,     "instanceof" },
+        { INT,            "int" },
+        { EMETHOD,        "emethod" },
+        { JFALSE,         "false" },
+        { JNULL,          "null" },
+        { JTRUE,          "true" },
+        { LOCAL,          "public" },
+        { LONG,           "long" },
+        { NATIVE,         "native" },
+        { PRIVATE,        "private" },
+        { PROTECTED,      "protected" },
+        { PUBLIC,         "public" },
+        { SHORT,          "short" },
+        { STATIC,         "static" },
+        { SUPER,          "super" },
+        { SYNCHRONIZED,   "synchronized" },
+        { THIS,           "this" },
+        { TRANSIENT,      "transient" },
+        { VOID,           "void" },
+        { -1,             NULL }
     };
     int i;
 
     for (i=0; TokenTable[i].string; ++i)
         if (TokenTable[i].token == token)
             return(TokenTable[i].string);
-    return("<<???>>");
+    return("<<??\?>>");
 }
 
   static YT(expression) *
@@ -368,24 +335,6 @@ pTag(int num)
 pushString(t_e_env *env, char *string)
 {
     env->preTokenStrings = YBUILD(stringStack)(env->preTokenStrings, string);
-}
-
-/**
- * unboxFunc -- Given a primitive type, return the name of the corresponding
- *      unboxing method on its box class.
- *
- * @param prim  A Java primitive type, described by a primType struct
- * @returns  Unboxing function name, as a string
- */
-  static char *
-unboxFunc(YT(primType) *prim)
-{
-    int i;
-
-    for (i=0; BoxTable[i].type > 0; ++i)
-        if (BoxTable[i].type == prim->type)
-            return(BoxTable[i].unboxFuncName);
-    return("<???>");
 }
 
 /**
@@ -791,7 +740,7 @@ YA_FUNC_START(eWalker, t_e_env)
             }
             EWALK(declarator);
             ES(" throws Throwable");
-            /* EWALK(throws); /* what about the whitespace? */
+            // EWALK(throws); /* what about the whitespace? */
         } else {
             EWALKL(modifiers);
             EW(emethodWS);

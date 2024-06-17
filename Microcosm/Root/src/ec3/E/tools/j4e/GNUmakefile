@@ -48,7 +48,7 @@ YHFILES.o = $(YHFILES.c:%.c=$(BUILD)/objs/$(MODNAME)/%.o)
 
 INCLDIRS = -I$(YACCHELPER_DIR)
 
-CFLAGS += -Wreturn-type -I. $(INCLDIRS)
+CFLAGS += -Wall -Wreturn-type -I. $(INCLDIRS)
 
 vpath %.c .
 vpath %.c $(YACCHELPER_DIR)
