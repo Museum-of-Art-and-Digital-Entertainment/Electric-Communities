@@ -12,6 +12,7 @@
 #include "generic.h"
 #include "yh.h"
 #include "yh_build.h"
+#include "yh_free.h"
 #include "ej.h"
 
 #include <string.h>
@@ -359,37 +360,37 @@ freeConstantPoolInfo(YT(cp_info) *cp)
         return;
     switch (YTAG_OF(cp)) {
         case YTAG(constant_class_info):
-            YH_FREE(constant_class_info,cp);
+            YH_FREE(constant_class_info,(YT(constant_class_info) *)cp);
             break;
         case YTAG(constant_fieldref_info):
-            YH_FREE(constant_fieldref_info,cp);
+            YH_FREE(constant_fieldref_info,(YT(constant_fieldref_info) *)cp);
             break;
         case YTAG(constant_methodref_info):
-            YH_FREE(constant_methodref_info,cp);
+            YH_FREE(constant_methodref_info,(YT(constant_methodref_info) *)cp);
             break;
         case YTAG(constant_interfaceMethodref_info):
-            YH_FREE(constant_interfaceMethodref_info,cp);
+            YH_FREE(constant_interfaceMethodref_info,(YT(constant_interfaceMethodref_info) *)cp);
             break;
         case YTAG(constant_string):
-            YH_FREE(constant_string,cp);
+            YH_FREE(constant_string,(YT(constant_string) *)cp);
             break;
         case YTAG(constant_integer):
-            YH_FREE(constant_integer,cp);
+            YH_FREE(constant_integer,(YT(constant_integer) *)cp);
             break;
         case YTAG(constant_float):
-            YH_FREE(constant_float,cp);
+            YH_FREE(constant_float,(YT(constant_float) *)cp);
             break;
         case YTAG(constant_long):
-            YH_FREE(constant_long,cp);
+            YH_FREE(constant_long,(YT(constant_long) *)cp);
             break;
         case YTAG(constant_double):
-            YH_FREE(constant_double,cp);
+            YH_FREE(constant_double,(YT(constant_double) *)cp);
             break;
         case YTAG(constant_nameAndType_info):
-            YH_FREE(constant_nameAndType_info,cp);
+            YH_FREE(constant_nameAndType_info,(YT(constant_nameAndType_info) *)cp);
             break;
         case YTAG(constant_utf8_info):
-            YH_FREE(constant_utf8_info,cp);
+            YH_FREE(constant_utf8_info,(YT(constant_utf8_info) *)cp);
             break;
         default:
             yh_error("invalid constant pool tag %d", YTAG_OF(cp));
