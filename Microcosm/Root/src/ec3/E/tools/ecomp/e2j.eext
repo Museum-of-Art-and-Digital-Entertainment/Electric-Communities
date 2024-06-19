@@ -400,7 +400,7 @@ class E2j implements /*imports*/ Constants {
         eFunDef efd = (eFunDef)stmts[i];
         if (((efd.mods & EMETHOD) != 0) && (efd.sealer.owner == tobj)) {
           ASTS params = new ASTS();
-          params.append(new Literal(pos, INTLIT, new Integer(sno)));
+          params.append(new Literal(pos, INTLIT, Integer.valueOf(sno)));
           FunObj efdfo = (FunObj)(efd.obj);
           params.append(new Literal(pos, STRINGLIT,
                                     Name.fromString(efdfo.toSignature())));
@@ -530,7 +530,7 @@ class E2j implements /*imports*/ Constants {
               AST eobj = new Subscript(pos,
                                        new Ident(pos, argsS),
                                        new Literal(pos, INTLIT,
-                                                   new Integer(j)));
+                                                   Integer.valueOf(j)));
               if (   (dcltyp.typ != null)
                   && (   (dcltyp.typ.subtype(ePredef.EobjectTyp))
                       || (dcltyp.typ.subtype(ePredef.E$interfaceTyp)))) {
@@ -573,7 +573,7 @@ class E2j implements /*imports*/ Constants {
             casebody.append(new Block(pos, caseblock));
             casebody.append(new Break(pos, null));
             cases.append(new Case(pos, new Literal(pos, INTLIT,
-                                                   new Integer(sno)),
+                                                   Integer.valueOf(sno)),
                                   casebody));
             sno++; 
           }
@@ -1217,7 +1217,7 @@ class E2j implements /*imports*/ Constants {
         new New(w.pos, 
                 new Apply(w.pos, new Ident(w.pos, BitVecS),
                           new ASTS(new Literal(w.pos, INTLIT,
-                                               new Integer(w.withobj.length)))));
+                                               Integer.valueOf(w.withobj.length)))));
       VarDef bv = new VarDef(w.pos, bitsname, 0, bitsTyp, setthem);
       // bv.print();
       newstmts.append(bv);
@@ -1326,7 +1326,7 @@ class E2j implements /*imports*/ Constants {
                                                           bitsname), 
                                                clrBitS),
                                    new ASTS(new Literal(w.pos, INTLIT,
-                                                         new Integer(i)))));
+                                                         Integer.valueOf(i)))));
             newelsepart.append(bitexcl);
 
             // if bitvector.is_empty()
