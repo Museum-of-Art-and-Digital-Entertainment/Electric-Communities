@@ -475,16 +475,16 @@ class ClassFile implements Constants {
                                     readExternal(getChar(index + 3)));
                 break;
             case CONSTANT_Integer:
-                poolObj[i] = Integer.valueOf(getInt(index + 1));
+                poolObj[i] = new Integer(getInt(index + 1));
                 break;
             case CONSTANT_Float:
-                poolObj[i] = Float.valueOf(getFloat(index + 1));
+                poolObj[i] = new Float(getFloat(index + 1));
                 break;
             case CONSTANT_Long:
-                poolObj[i] = Long.valueOf(getLong(index + 1));
+                poolObj[i] = new Long(getLong(index + 1));
                 break;
             case CONSTANT_Double:
-                poolObj[i] = Double.valueOf(getDouble(index + 1));
+                poolObj[i] = new Double(getDouble(index + 1));
                 break;
             default:
                 throw new CompilerError("bad constant pool tag: " + tag);

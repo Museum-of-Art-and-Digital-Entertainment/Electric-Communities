@@ -390,21 +390,21 @@ class ImmediateItem extends Item {
             Number n = (Number)value;
             switch (rtc) {
             case INTcode: 
-                n = Integer.valueOf(n.intValue()); break;
+                n = new Integer(n.intValue()); break;
             case LONGcode: 
-                n = Long.valueOf(n.longValue()); break;
+                n = new Long(n.longValue()); break;
             case FLOATcode: 
-                n = Float.valueOf(n.floatValue()); break;
+                n = new Float(n.floatValue()); break;
             case DOUBLEcode: 
-                n = Double.valueOf(n.doubleValue()); break;
+                n = new Double(n.doubleValue()); break;
             case OBJECTcode: 
                 throw new CompilerError("coerce");
             case BYTEcode: 
-                n = Integer.valueOf((byte)n.intValue()); break;
+                n = new Integer((byte)n.intValue()); break;
             case CHARcode: 
-                n = Integer.valueOf((char)n.intValue()); break;
+                n = new Integer((char)n.intValue()); break;
             case SHORTcode: 
-                n = Integer.valueOf((short)n.intValue()); break;
+                n = new Integer((short)n.intValue()); break;
             }
             return new ImmediateItem(n);
         }
@@ -413,7 +413,7 @@ class ImmediateItem extends Item {
 /** utility routine -- load an integer constant:
  */
     static void loadIntConst(int n) {        
-        (new ImmediateItem(Integer.valueOf(n))).load(Typ.intTyp);
+        (new ImmediateItem(new Integer(n))).load(Typ.intTyp);
     }
 }
 

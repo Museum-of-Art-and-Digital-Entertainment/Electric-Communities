@@ -424,27 +424,27 @@ class Parser implements /* imports */ Constants {
                 break;
             case CharLit: 
                 t = new Literal(S.pos, CHARLIT,        
-                                Integer.valueOf((int)S.intVal));
+                                new Integer((int)S.intVal));
                 S.nextsym(); 
                 break;
             case IntLit:
                 if (Integer.MIN_VALUE <= S.intVal && 
                     S.intVal <= Integer.MAX_VALUE)
-                    t = new Literal(S.pos, INTLIT, Integer.valueOf((int)S.intVal));
+                    t = new Literal(S.pos, INTLIT, new Integer((int)S.intVal));
                 else
-                    t = new Literal(S.pos, LONGLIT, Long.valueOf(S.intVal));
+                    t = new Literal(S.pos, LONGLIT, new Long(S.intVal));
                 S.nextsym(); 
                 break;
             case LongLit:
-                t = new Literal(S.pos, LONGLIT,        Long.valueOf(S.intVal));
+                t = new Literal(S.pos, LONGLIT,        new Long(S.intVal));
                 S.nextsym(); 
                 break;
             case FloatLit: 
-                t = new Literal(S.pos, FLOATLIT, Float .valueOf((float)S.floatVal));
+                t = new Literal(S.pos, FLOATLIT, new Float((float)S.floatVal));
                 S.nextsym(); 
                 break;
             case DoubleLit:
-                t = new Literal(S.pos, DOUBLELIT, Double.valueOf(S.floatVal));
+                t = new Literal(S.pos, DOUBLELIT, new Double(S.floatVal));
                 S.nextsym(); 
                 break;
             case NullSy:
@@ -1796,19 +1796,19 @@ class Parser implements /* imports */ Constants {
             switch (od.tag) {
             case INTLIT:
                 ((Literal)od).val = 
-                    Integer.valueOf(-((Integer)((Literal)od).val).intValue());
+                    new Integer(-((Integer)((Literal)od).val).intValue());
                 return od;
             case LONGLIT:
                 ((Literal)od).val = 
-                    Long.valueOf(-((Long)((Literal)od).val).longValue());
+                    new Long(-((Long)((Literal)od).val).longValue());
                 return od;
             case FLOATLIT:
                 ((Literal)od).val = 
-                    Float .valueOf(-((Float)((Literal)od).val).floatValue());
+                    new Float(-((Float)((Literal)od).val).floatValue());
                 return od;
             case DOUBLELIT:
                 ((Literal)od).val = 
-                    Double.valueOf(-((Double)((Literal)od).val).doubleValue());
+                    new Double(-((Double)((Literal)od).val).doubleValue());
                 return od;
             default:
                 op = NEG;

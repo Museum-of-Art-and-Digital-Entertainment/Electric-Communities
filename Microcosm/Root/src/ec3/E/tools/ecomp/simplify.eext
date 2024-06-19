@@ -313,7 +313,7 @@ class Simplify implements /*imports*/ Constants {
                     new Subscript(
                         pos,
                         new Ident(pos, allargsS),
-                        new Literal(pos, INTLIT, Integer.valueOf(j))),
+                        new Literal(pos, INTLIT, new Integer(j))),
                     vtyp));
         }
 
@@ -341,7 +341,7 @@ class Simplify implements /*imports*/ Constants {
         return
             new Case(
                 pos,
-                new Literal(pos, INTLIT, Integer.valueOf(tag)),
+                new Literal(pos, INTLIT, new Integer(tag)),
                 casestats);
     }
 
@@ -425,7 +425,7 @@ class Simplify implements /*imports*/ Constants {
                                 new Subscript(pos, 
                                               new Ident(pos, labelsS),
                                               new Literal(pos, INTLIT,
-                                                          Integer.valueOf(i))),
+                                                          new Integer(i))),
                                 new Literal(pos, STRINGLIT, sig)));
         stats.append(asgn);
       }
@@ -524,7 +524,7 @@ class Simplify implements /*imports*/ Constants {
                 new New(pos, 
                         new Subscript(pos, toAST(pos, Predef.stringTyp), 
                                       new Literal(pos, INTLIT,
-                                          Integer.valueOf(cd.closures.length))))),
+                                          new Integer(cd.closures.length))))),
             makeClosureLabels(cd),
             new VarDef(
                 pos, labelS, PRIVATE,
@@ -625,7 +625,7 @@ class Simplify implements /*imports*/ Constants {
                     new ASTS(
                         new Aggregate(pos, newargs),
                         receiver,
-                        new Literal(pos, INTLIT, Integer.valueOf(closnum)))));
+                        new Literal(pos, INTLIT, new Integer(closnum)))));
     }
 
 
@@ -681,7 +681,7 @@ class Simplify implements /*imports*/ Constants {
             return 
                 new Subscript(
                     t.pos, t, 
-                    new Literal(t.pos, INTLIT, Integer.valueOf(0)));
+                    new Literal(t.pos, INTLIT, new Integer(0)));
         else
             return t;
     }
@@ -915,7 +915,7 @@ class Simplify implements /*imports*/ Constants {
                             t.dcltyp,
                             new Literal(
                                 pos, INTLIT, 
-                                Integer.valueOf(1))));
+                                new Integer(1))));
             t.dcltyp = annot(
                 new Subscript(t.dcltyp.pos, strip(t.dcltyp), null), 
                 new ArrayTyp(t.obj.typ));
