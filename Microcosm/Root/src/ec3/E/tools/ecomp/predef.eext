@@ -161,8 +161,8 @@ class Predef implements /*imports*/ Constants {
         arrayClass.scope.enter(lengthVar);
 
         enterConstant("null", Basic.nullValue, Typ.nullTyp);
-        enterConstant("true", new Integer(1), Typ.booleanTyp);
-        enterConstant("false", new Integer(0), Typ.booleanTyp);
+        enterConstant("true", Integer.valueOf(1), Typ.booleanTyp);
+        enterConstant("false", Integer.valueOf(0), Typ.booleanTyp);
         
         enterUnop("+", Typ.intTyp, Typ.intTyp, nop);
         enterUnop("+", Typ.longTyp, Typ.longTyp, nop);
