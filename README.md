@@ -7,7 +7,7 @@
 * Meetup Event: https://www.meetup.com/themade/events/298500842/
 * Live Stream: #hack-day on https://discord.gg/eTN9kHBYsZ
 * Live Stream: https://www.twitch.tv/themadeoakland/
-* Ongoing Community: #ec-habitats on https://neohabitat.slack.com
+* Ongoing Community: #ec-habitats on https://discord.com/invite/eTN9kHBYsZ
 * Hack Day Coordinator: Randy Farmer randy@spritely.institute
 * Repository: https://github.com/Museum-of-Art-and-Digital-Entertainment/Electric-Communities
   * Web readable [doc root here](https://htmlpreview.github.io/?https://github.com/Museum-of-Art-and-Digital-Entertainment/Electric-Communities/blob/main/Microcosm/Source/www-old/engineering/OldStuff/index.html)
